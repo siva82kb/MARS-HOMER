@@ -110,9 +110,9 @@ public static class JediComm
         if (serPort.ReadByte() == 0xFF && serPort.ReadByte() == 0xFF)
         {
             checksum += 0xFF + 0xFF;
-
             // Read payload size
             payloadSize = serPort.ReadByte();
+            Debug.Log(payloadSize);
             checksum += payloadSize;
             payLoadBytes = new byte[payloadSize - 1];
             for (int i = 0; i < payLoadBytes.Length; i++)
@@ -151,7 +151,7 @@ public static class JediComm
         try
         {
             serPort.Write(outPayload.ToArray(), 0, outPayload.Count);
-            Debug.Log("Message sent to device.");
+            //Debug.Log("Message sent to device.");
         }
         catch (Exception ex)
         {

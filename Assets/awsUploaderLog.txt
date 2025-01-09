@@ -1,0 +1,2154 @@
+2024-11-27 09:42:02 - INFO - Script started
+2024-11-27 09:42:02 - INFO - Upload required. Starting upload process...
+2024-11-27 09:42:04 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\configdata.csv to 2024-11-27_09-42-02/configdata.csv
+2024-11-27 09:42:07 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-25-11-2024-14-28-41.log to 2024-11-27_09-42-02/applog\log-25-11-2024-14-28-41.log
+2024-11-27 09:42:09 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-25-11-2024-14-40-46.log to 2024-11-27_09-42-02/applog\log-25-11-2024-14-40-46.log
+2024-11-27 09:42:11 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-25-11-2024-14-48-05.log to 2024-11-27_09-42-02/applog\log-25-11-2024-14-48-05.log
+2024-11-27 09:42:13 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-25-11-2024-14-53-07.log to 2024-11-27_09-42-02/applog\log-25-11-2024-14-53-07.log
+2024-11-27 09:42:15 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-25-11-2024-14-54-30.log to 2024-11-27_09-42-02/applog\log-25-11-2024-14-54-30.log
+2024-11-27 09:42:18 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-25-11-2024-15-01-50.log to 2024-11-27_09-42-02/applog\log-25-11-2024-15-01-50.log
+2024-11-27 09:42:21 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-25-11-2024-15-04-35.log to 2024-11-27_09-42-02/applog\log-25-11-2024-15-04-35.log
+2024-11-27 09:42:23 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-25-11-2024-15-09-21.log to 2024-11-27_09-42-02/applog\log-25-11-2024-15-09-21.log
+2024-11-27 09:42:25 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-25-11-2024-15-15-32.log to 2024-11-27_09-42-02/applog\log-25-11-2024-15-15-32.log
+2024-11-27 09:42:27 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-25-11-2024-15-19-12.log to 2024-11-27_09-42-02/applog\log-25-11-2024-15-19-12.log
+2024-11-27 09:42:29 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-26-11-2024-10-07-25.log to 2024-11-27_09-42-02/applog\log-26-11-2024-10-07-25.log
+2024-11-27 09:42:32 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-26-11-2024-10-09-34.log to 2024-11-27_09-42-02/applog\log-26-11-2024-10-09-34.log
+2024-11-27 09:42:34 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-26-11-2024-10-27-57.log to 2024-11-27_09-42-02/applog\log-26-11-2024-10-27-57.log
+2024-11-27 09:42:36 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-26-11-2024-10-30-18.log to 2024-11-27_09-42-02/applog\log-26-11-2024-10-30-18.log
+2024-11-27 09:42:38 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-26-11-2024-13-44-16.log to 2024-11-27_09-42-02/applog\log-26-11-2024-13-44-16.log
+2024-11-27 09:42:40 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-26-11-2024-13-47-11.log to 2024-11-27_09-42-02/applog\log-26-11-2024-13-47-11.log
+2024-11-27 09:42:43 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-26-11-2024-13-50-01.log to 2024-11-27_09-42-02/applog\log-26-11-2024-13-50-01.log
+2024-11-27 09:42:45 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-26-11-2024-13-51-50.log to 2024-11-27_09-42-02/applog\log-26-11-2024-13-51-50.log
+2024-11-27 09:42:47 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-26-11-2024-13-54-07.log to 2024-11-27_09-42-02/applog\log-26-11-2024-13-54-07.log
+2024-11-27 09:42:49 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-26-11-2024-13-57-04.log to 2024-11-27_09-42-02/applog\log-26-11-2024-13-57-04.log
+2024-11-27 09:42:51 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-26-11-2024-13-58-35.log to 2024-11-27_09-42-02/applog\log-26-11-2024-13-58-35.log
+2024-11-27 09:42:54 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-26-11-2024-14-01-27.log to 2024-11-27_09-42-02/applog\log-26-11-2024-14-01-27.log
+2024-11-27 09:42:56 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-26-11-2024-14-09-15.log to 2024-11-27_09-42-02/applog\log-26-11-2024-14-09-15.log
+2024-11-27 09:42:58 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-26-11-2024-14-11-08.log to 2024-11-27_09-42-02/applog\log-26-11-2024-14-11-08.log
+2024-11-27 09:43:01 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-26-11-2024-14-14-38.log to 2024-11-27_09-42-02/applog\log-26-11-2024-14-14-38.log
+2024-11-27 09:43:04 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-26-11-2024-14-16-33.log to 2024-11-27_09-42-02/applog\log-26-11-2024-14-16-33.log
+2024-11-27 09:43:08 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-26-11-2024-14-30-46.log to 2024-11-27_09-42-02/applog\log-26-11-2024-14-30-46.log
+2024-11-27 09:43:10 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-26-11-2024-14-42-42.log to 2024-11-27_09-42-02/applog\log-26-11-2024-14-42-42.log
+2024-11-27 09:43:12 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\sessions\sessions.csv to 2024-11-27_09-42-02/sessions\sessions.csv
+2024-11-27 09:43:12 - INFO - Upload process completed and status updated.
+2024-11-27 09:45:51 - INFO - Script started
+2024-11-27 09:45:51 - INFO - Upload required. Starting upload process...
+2024-11-27 09:45:53 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\configdata.csv to MarsData/2024-11-27_09-45-51/configdata.csv
+2024-11-27 09:45:55 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-25-11-2024-14-28-41.log to MarsData/2024-11-27_09-45-51/applog\log-25-11-2024-14-28-41.log
+2024-11-27 09:45:57 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-25-11-2024-14-40-46.log to MarsData/2024-11-27_09-45-51/applog\log-25-11-2024-14-40-46.log
+2024-11-27 09:45:59 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-25-11-2024-14-48-05.log to MarsData/2024-11-27_09-45-51/applog\log-25-11-2024-14-48-05.log
+2024-11-27 09:46:00 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-25-11-2024-14-53-07.log to MarsData/2024-11-27_09-45-51/applog\log-25-11-2024-14-53-07.log
+2024-11-27 09:46:03 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-25-11-2024-14-54-30.log to MarsData/2024-11-27_09-45-51/applog\log-25-11-2024-14-54-30.log
+2024-11-27 09:46:05 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-25-11-2024-15-01-50.log to MarsData/2024-11-27_09-45-51/applog\log-25-11-2024-15-01-50.log
+2024-11-27 09:46:07 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-25-11-2024-15-04-35.log to MarsData/2024-11-27_09-45-51/applog\log-25-11-2024-15-04-35.log
+2024-11-27 09:46:10 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-25-11-2024-15-09-21.log to MarsData/2024-11-27_09-45-51/applog\log-25-11-2024-15-09-21.log
+2024-11-27 09:46:12 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-25-11-2024-15-15-32.log to MarsData/2024-11-27_09-45-51/applog\log-25-11-2024-15-15-32.log
+2024-11-27 09:46:14 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-25-11-2024-15-19-12.log to MarsData/2024-11-27_09-45-51/applog\log-25-11-2024-15-19-12.log
+2024-11-27 09:46:16 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-26-11-2024-10-07-25.log to MarsData/2024-11-27_09-45-51/applog\log-26-11-2024-10-07-25.log
+2024-11-27 09:46:18 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-26-11-2024-10-09-34.log to MarsData/2024-11-27_09-45-51/applog\log-26-11-2024-10-09-34.log
+2024-11-27 09:46:21 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-26-11-2024-10-27-57.log to MarsData/2024-11-27_09-45-51/applog\log-26-11-2024-10-27-57.log
+2024-11-27 09:46:24 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-26-11-2024-10-30-18.log to MarsData/2024-11-27_09-45-51/applog\log-26-11-2024-10-30-18.log
+2024-11-27 09:46:27 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-26-11-2024-13-44-16.log to MarsData/2024-11-27_09-45-51/applog\log-26-11-2024-13-44-16.log
+2024-11-27 09:46:30 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-26-11-2024-13-47-11.log to MarsData/2024-11-27_09-45-51/applog\log-26-11-2024-13-47-11.log
+2024-11-27 09:46:32 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-26-11-2024-13-50-01.log to MarsData/2024-11-27_09-45-51/applog\log-26-11-2024-13-50-01.log
+2024-11-27 09:46:35 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-26-11-2024-13-51-50.log to MarsData/2024-11-27_09-45-51/applog\log-26-11-2024-13-51-50.log
+2024-11-27 09:46:38 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-26-11-2024-13-54-07.log to MarsData/2024-11-27_09-45-51/applog\log-26-11-2024-13-54-07.log
+2024-11-27 09:46:41 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-26-11-2024-13-57-04.log to MarsData/2024-11-27_09-45-51/applog\log-26-11-2024-13-57-04.log
+2024-11-27 09:46:43 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-26-11-2024-13-58-35.log to MarsData/2024-11-27_09-45-51/applog\log-26-11-2024-13-58-35.log
+2024-11-27 09:46:49 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-26-11-2024-14-01-27.log to MarsData/2024-11-27_09-45-51/applog\log-26-11-2024-14-01-27.log
+2024-11-27 09:46:51 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-26-11-2024-14-09-15.log to MarsData/2024-11-27_09-45-51/applog\log-26-11-2024-14-09-15.log
+2024-11-27 09:46:53 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-26-11-2024-14-11-08.log to MarsData/2024-11-27_09-45-51/applog\log-26-11-2024-14-11-08.log
+2024-11-27 09:46:56 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-26-11-2024-14-14-38.log to MarsData/2024-11-27_09-45-51/applog\log-26-11-2024-14-14-38.log
+2024-11-27 09:46:58 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-26-11-2024-14-16-33.log to MarsData/2024-11-27_09-45-51/applog\log-26-11-2024-14-16-33.log
+2024-11-27 09:47:01 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-26-11-2024-14-30-46.log to MarsData/2024-11-27_09-45-51/applog\log-26-11-2024-14-30-46.log
+2024-11-27 09:47:03 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\applog\log-26-11-2024-14-42-42.log to MarsData/2024-11-27_09-45-51/applog\log-26-11-2024-14-42-42.log
+2024-11-27 09:47:06 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\sessions\sessions.csv to MarsData/2024-11-27_09-45-51/sessions\sessions.csv
+2024-11-27 09:47:06 - INFO - Upload process completed and status updated.
+2024-11-27 09:50:53 - INFO - Script started
+2024-11-27 09:50:53 - INFO - Upload required. Starting upload process...
+2024-11-27 09:50:55 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\configdata.csv to MarsData/2024-11-27_09-50-53/configdata.csv
+2024-11-27 09:50:58 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\sessions\sessions.csv to MarsData/2024-11-27_09-50-53/sessions\sessions.csv
+2024-11-27 09:50:58 - INFO - Upload process completed and status updated.
+2024-11-27 10:12:02 - INFO - Script started
+2024-11-27 10:12:02 - INFO - Upload required. Starting upload process...
+2024-11-27 10:12:26 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\configdata.csv to MarsData/2024-11-27_10-12-02/configdata.csv
+2024-11-27 10:15:02 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\sessions\sessions.csv to MarsData/2024-11-27_10-12-02/sessions\sessions.csv
+2024-11-27 10:15:02 - INFO - Upload process completed and status updated.
+2024-11-27 10:42:02 - INFO - Script started
+2024-11-27 10:42:02 - INFO - No upload needed. Exiting script.
+2024-11-27 11:42:01 - INFO - Script started
+2024-11-27 11:42:01 - INFO - No upload needed. Exiting script.
+2024-11-27 12:23:56 - INFO - Script started
+2024-11-27 12:23:56 - INFO - No upload needed. Exiting script.
+2024-11-27 12:42:01 - INFO - Script started
+2024-11-27 12:42:01 - INFO - No upload needed. Exiting script.
+2024-11-27 14:12:01 - INFO - Script started
+2024-11-27 14:12:01 - INFO - No upload needed. Exiting script.
+2024-11-27 14:42:01 - INFO - Script started
+2024-11-27 14:42:01 - INFO - No upload needed. Exiting script.
+2024-11-27 15:12:01 - INFO - Script started
+2024-11-27 15:12:01 - INFO - No upload needed. Exiting script.
+2024-11-28 09:12:01 - INFO - Script started
+2024-11-28 09:12:01 - INFO - No upload needed. Exiting script.
+2024-11-28 09:42:01 - INFO - Script started
+2024-11-28 09:42:01 - INFO - No upload needed. Exiting script.
+2024-11-28 10:12:01 - INFO - Script started
+2024-11-28 10:12:01 - INFO - No upload needed. Exiting script.
+2024-11-28 10:12:23 - INFO - Script started
+2024-11-28 10:12:23 - INFO - No upload needed. Exiting script.
+2024-11-28 10:13:41 - INFO - Script started
+2024-11-28 10:13:41 - INFO - No upload needed. Exiting script.
+2024-11-28 10:14:20 - INFO - Script started
+2024-11-28 10:14:20 - INFO - Upload required. Starting upload process...
+2024-11-28 10:14:23 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\configdata.csv to MarsData/Gokul/2024-11-28_10-14-20/configdata.csv
+2024-11-28 10:14:24 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\sessions\sessions.csv to MarsData/Gokul/2024-11-28_10-14-20/sessions\sessions.csv
+2024-11-28 10:14:24 - INFO - Upload process completed and status updated.
+2024-11-28 10:15:32 - INFO - Script started
+2024-11-28 10:15:32 - INFO - Upload required. Starting upload process...
+2024-11-28 10:15:32 - ERROR - An error occurred
+2024-11-28 10:17:31 - INFO - Script started
+2024-11-28 10:17:31 - INFO - Upload required. Starting upload process...
+2024-11-28 10:17:31 - ERROR - An error occurred
+2024-11-28 10:18:32 - INFO - Script started
+2024-11-28 10:18:32 - INFO - Upload required. Starting upload process...
+2024-11-28 10:18:34 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\configdata.csv to MarsData/Gokul/2024-11-28_10-18-32/configdata.csv
+2024-11-28 10:18:36 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\sessions\sessions.csv to MarsData/Gokul/2024-11-28_10-18-32/sessions\sessions.csv
+2024-11-28 10:18:36 - INFO - Upload process completed and status updated.
+2024-11-28 10:21:23 - INFO - Script started
+2024-11-28 10:21:23 - INFO - Upload required. Starting upload process...
+2024-11-28 10:21:29 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\configdata.csv to MarsData/Gokul/configdata.csv
+2024-11-28 10:21:31 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\sessions\sessions.csv to MarsData/Gokul/2024-11-28_10-21-23/sessions\sessions.csv
+2024-11-28 10:21:31 - INFO - Upload process completed and status updated.
+2024-11-28 10:42:02 - INFO - Script started
+2024-11-28 10:42:02 - INFO - No upload needed. Exiting script.
+2024-11-28 10:43:44 - INFO - Script started
+2024-11-28 10:43:46 - INFO - No upload needed. Exiting script.
+2024-11-28 10:45:34 - INFO - Script started
+2024-11-28 10:45:36 - INFO - No upload needed. Exiting script.
+2024-11-28 10:48:11 - INFO - Script started
+2024-11-28 10:48:13 - INFO - No upload needed. Exiting script.
+2024-11-28 10:49:29 - INFO - Script started
+2024-11-28 10:49:32 - INFO - No upload needed. Exiting script.
+2024-11-28 10:50:42 - INFO - Script started
+2024-11-28 10:50:44 - INFO - No upload needed. Exiting script.
+2024-11-28 11:03:23 - INFO - Script started
+2024-11-28 11:03:36 - INFO - No upload needed. Exiting script.
+2024-11-28 11:07:29 - INFO - Script started
+2024-11-28 11:07:31 - INFO - No upload needed. Exiting script.
+2024-11-28 11:11:53 - INFO - Script started
+2024-11-28 11:12:01 - INFO - Script started
+2024-11-28 11:12:04 - INFO - No upload needed. Exiting script.
+2024-11-28 11:12:12 - INFO - No upload needed. Exiting script.
+2024-11-28 11:13:07 - INFO - Script started
+2024-11-28 11:14:23 - INFO - Script started
+2024-11-28 11:14:25 - INFO - No upload needed. Exiting script.
+2024-11-28 11:15:52 - INFO - Script started
+2024-11-28 11:15:54 - INFO - No upload needed. Exiting script.
+2024-11-28 11:16:23 - INFO - Script started
+2024-11-28 11:16:24 - INFO - No upload needed. Exiting script.
+2024-11-28 12:03:04 - INFO - Script started
+2024-11-28 12:03:07 - INFO - No upload needed. Exiting script.
+2024-11-28 12:05:49 - INFO - Script started
+2024-11-28 12:05:53 - INFO - No upload needed. Exiting script.
+2024-11-28 12:06:17 - INFO - Script started
+2024-11-28 12:06:20 - INFO - No upload needed. Exiting script.
+2024-11-28 12:12:01 - INFO - Script started
+2024-11-28 12:12:01 - INFO - downloading configFile form aws s3
+2024-11-28 12:12:04 - ERROR - An error occurred: [Errno 13] Permission denied: 'temp_downloaded_file.csv.7bbEB171'
+2024-11-28 12:12:04 - INFO - No upload needed. Exiting script.
+2024-11-28 12:13:52 - INFO - Script started
+2024-11-28 12:13:53 - INFO - downloading configFile form aws s3
+2024-11-28 12:13:55 - INFO - ConfigFile updated succesfully
+2024-11-28 12:13:55 - INFO - No upload needed. Exiting script.
+2024-11-28 12:16:26 - INFO - Script started
+2024-11-28 12:16:26 - INFO - downloading configFile form aws s3
+2024-11-28 12:16:29 - INFO - ConfigFile updated succesfully
+2024-11-28 12:16:29 - INFO - No upload needed. Exiting script.
+2024-11-28 12:21:51 - INFO - Script started
+2024-11-28 12:21:51 - INFO - downloading configFile form aws s3
+2024-11-28 12:21:53 - INFO - ConfigFile updated succesfully
+2024-11-28 12:21:53 - INFO - No upload needed. Exiting script.
+2024-11-28 12:42:02 - INFO - Script started
+2024-11-28 12:42:02 - INFO - downloading configFile form aws s3
+2024-11-28 12:42:09 - INFO - ConfigFile updated succesfully
+2024-11-28 12:42:09 - INFO - No upload needed. Exiting script.
+2024-11-28 12:55:13 - INFO - Script started
+2024-11-28 12:55:14 - INFO - downloading configFile form aws s3
+2024-11-28 12:55:16 - INFO - ConfigFile updated succesfully
+2024-11-28 12:55:16 - INFO - No upload needed. Exiting script.
+2024-11-28 14:42:02 - INFO - Script started
+2024-11-28 14:42:02 - INFO - downloading configFile form aws s3
+2024-11-28 14:43:21 - ERROR - An error occurred: SSL validation failed for https://homer-data.s3.amazonaws.com/MarsData/Gokul/configdata.csv [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1020)
+2024-11-28 14:43:21 - INFO - No upload needed. Exiting script.
+2024-11-28 15:12:02 - INFO - Script started
+2024-11-28 15:12:02 - INFO - downloading configFile form aws s3
+2024-11-28 15:12:05 - INFO - ConfigFile updated succesfully
+2024-11-28 15:12:05 - INFO - No upload needed. Exiting script.
+2024-11-28 15:42:02 - INFO - Script started
+2024-11-28 15:42:02 - INFO - downloading configFile form aws s3
+2024-11-28 15:42:12 - ERROR - An error occurred: Could not connect to the endpoint URL: "https://homer-data.s3.amazonaws.com/MarsData/Gokul/configdata.csv"
+2024-11-28 15:42:12 - INFO - No upload needed. Exiting script.
+2024-11-28 16:12:02 - INFO - Script started
+2024-11-28 16:12:02 - INFO - downloading configFile form aws s3
+2024-11-28 16:12:10 - ERROR - An error occurred: Could not connect to the endpoint URL: "https://homer-data.s3.amazonaws.com/MarsData/Gokul/configdata.csv"
+2024-11-28 16:12:10 - INFO - No upload needed. Exiting script.
+2024-11-28 16:42:02 - INFO - Script started
+2024-11-28 16:42:02 - INFO - downloading configFile form aws s3
+2024-11-28 16:42:12 - ERROR - An error occurred: Could not connect to the endpoint URL: "https://homer-data.s3.amazonaws.com/MarsData/Gokul/configdata.csv"
+2024-11-28 16:42:12 - INFO - No upload needed. Exiting script.
+2024-11-29 09:42:02 - INFO - Script started
+2024-11-29 09:42:02 - INFO - downloading configFile form aws s3
+2024-11-29 09:42:04 - INFO - ConfigFile updated succesfully
+2024-11-29 09:42:04 - INFO - No upload needed. Exiting script.
+2024-11-29 10:12:01 - INFO - Script started
+2024-11-29 10:12:02 - INFO - downloading configFile form aws s3
+2024-11-29 10:12:04 - INFO - ConfigFile updated succesfully
+2024-11-29 10:12:04 - INFO - No upload needed. Exiting script.
+2024-11-29 11:42:01 - INFO - Script started
+2024-11-29 11:42:02 - INFO - downloading configFile form aws s3
+2024-11-29 11:42:03 - INFO - ConfigFile updated succesfully
+2024-11-29 11:42:04 - INFO - No upload needed. Exiting script.
+2024-11-29 12:06:10 - INFO - Script started
+2024-11-29 12:06:10 - INFO - downloading configFile form aws s3
+2024-11-29 12:06:12 - INFO - ConfigFile updated succesfully
+2024-11-29 12:06:13 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\configdata.csv to MarsData/Gokul/configdata.csv
+2024-11-29 12:06:15 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\configdata.csv to MarsData/Gokul/2024-11-29_12-06-12/configdata.csv
+2024-11-29 12:06:16 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\sessions\sessions.csv to MarsData/Gokul/2024-11-29_12-06-12/sessions\sessions.csv
+2024-11-29 12:06:16 - INFO - Upload required. Starting upload process...
+2024-11-29 12:06:57 - INFO - Script started
+2024-11-29 12:06:57 - INFO - downloading configFile form aws s3
+2024-11-29 12:06:58 - INFO - ConfigFile updated succesfully
+2024-11-29 12:07:00 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\configdata.csv to MarsData/Gokul/configdata.csv
+2024-11-29 12:07:02 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\configdata.csv to MarsData/Gokul/2024-11-29_12-06-58/configdata.csv
+2024-11-29 12:07:03 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\sessions\sessions.csv to MarsData/Gokul/2024-11-29_12-06-58/sessions\sessions.csv
+2024-11-29 12:07:03 - INFO - Upload required. Starting upload process...
+2024-11-29 12:07:03 - ERROR - An error occurred
+2024-11-29 12:12:01 - INFO - Script started
+2024-11-29 12:12:02 - INFO - downloading configFile form aws s3
+2024-11-29 12:12:03 - INFO - ConfigFile updated succesfully
+2024-11-29 12:12:04 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\configdata.csv to MarsData/Gokul/configdata.csv
+2024-11-29 12:12:06 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\configdata.csv to MarsData/Gokul/2024-11-29_12-12-03/configdata.csv
+2024-11-29 12:12:08 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\sessions\sessions.csv to MarsData/Gokul/2024-11-29_12-12-03/sessions\sessions.csv
+2024-11-29 12:12:08 - INFO - Upload required. Starting upload process...
+2024-11-29 12:12:08 - ERROR - An error occurred
+2024-11-29 12:13:25 - INFO - Script started
+2024-11-29 12:13:25 - INFO - downloading configFile form aws s3
+2024-11-29 12:13:26 - INFO - ConfigFile updated succesfully
+2024-11-29 12:13:27 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\configdata.csv to MarsData/Gokul/configdata.csv
+2024-11-29 12:13:28 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\configdata.csv to MarsData/Gokul/2024-11-29_12-13-26/configdata.csv
+2024-11-29 12:13:30 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\sessions\sessions.csv to MarsData/Gokul/2024-11-29_12-13-26/sessions\sessions.csv
+2024-11-29 12:13:30 - INFO - Upload required. Starting upload process...
+2024-11-29 12:13:30 - ERROR - An error occurred
+2024-11-29 12:18:22 - INFO - Script started
+2024-11-29 12:18:22 - INFO - downloading configFile form aws s3
+2024-11-29 12:18:24 - INFO - ConfigFile updated succesfully
+2024-11-29 12:18:24 - INFO - Upload required. Starting upload process...
+2024-11-29 12:18:25 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\configdata.csv to MarsData/Gokul/configdata.csv
+2024-11-29 12:18:26 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\configdata.csv to MarsData/Gokul/2024-11-29_12-18-24/configdata.csv
+2024-11-29 12:18:27 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\sessions\sessions.csv to MarsData/Gokul/2024-11-29_12-18-24/sessions\sessions.csv
+2024-11-29 12:18:29 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\configdata.csv to MarsData/Gokul/configdata.csv
+2024-11-29 12:18:30 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\sessions\sessions.csv to MarsData/Gokul/2024-11-29_12-18-27/sessions\sessions.csv
+2024-11-29 12:18:30 - INFO - Upload process completed and status updated.
+2024-11-29 12:21:46 - INFO - Script started
+2024-11-29 12:21:46 - INFO - downloading configFile form aws s3
+2024-11-29 12:21:48 - INFO - ConfigFile updated succesfully
+2024-11-29 12:21:48 - INFO - Upload required. Starting upload process...
+2024-11-29 12:21:49 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\configdata.csv to MarsData/Gokul/configdata.csv
+2024-11-29 12:21:50 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\sessions\sessions.csv to MarsData/Gokul/2024-11-29_12-21-48/sessions\sessions.csv
+2024-11-29 12:21:51 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\configdata.csv to MarsData/Gokul/configdata.csv
+2024-11-29 12:21:53 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\sessions\sessions.csv to MarsData/Gokul/2024-11-29_12-21-50/sessions\sessions.csv
+2024-11-29 12:21:53 - INFO - Upload process completed and status updated.
+2024-11-29 12:25:12 - INFO - Script started
+2024-11-29 12:25:12 - INFO - downloading configFile form aws s3
+2024-11-29 12:25:13 - INFO - ConfigFile updated succesfully
+2024-11-29 12:25:13 - INFO - Upload required. Starting upload process...
+2024-11-29 12:25:15 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\configdata.csv to MarsData/Gokul/configdata.csv
+2024-11-29 12:25:16 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\sessions\sessions.csv to MarsData/Gokul/2024-11-29_12-25-13/sessions\sessions.csv
+2024-11-29 12:25:16 - INFO - Upload process completed and status updated.
+2024-11-29 12:42:01 - INFO - Script started
+2024-11-29 12:42:01 - INFO - downloading configFile form aws s3
+2024-11-29 12:42:03 - INFO - ConfigFile updated succesfully
+2024-11-29 12:42:03 - INFO - Upload required. Starting upload process...
+2024-11-29 12:42:04 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\configdata.csv to MarsData/Gokul/configdata.csv
+2024-11-29 12:42:06 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\sessions\sessions.csv to MarsData/Gokul/2024-11-29_12-42-03/sessions\sessions.csv
+2024-11-29 12:42:06 - INFO - Upload process completed and status updated.
+2024-11-29 12:50:15 - INFO - Script started
+2024-11-29 12:50:16 - INFO - downloading configFile form aws s3
+2024-11-29 12:50:17 - INFO - ConfigFile updated succesfully
+2024-11-29 12:50:17 - INFO - Upload required. Starting upload process...
+2024-11-29 12:50:18 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\configdata.csv to MarsData/Gokul/configdata.csv
+2024-11-29 12:50:20 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\sessions\sessions.csv to MarsData/Gokul/2024-11-29_12-50-17/sessions\sessions.csv
+2024-11-29 12:50:20 - INFO - Upload process completed and status updated.
+2024-11-29 13:12:01 - INFO - Script started
+2024-11-29 13:12:01 - INFO - downloading configFile form aws s3
+2024-11-29 13:12:03 - INFO - ConfigFile updated succesfully
+2024-11-29 13:12:03 - INFO - Upload required. Starting upload process...
+2024-11-29 13:12:05 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\configdata.csv to MarsData/Gokul/configdata.csv
+2024-11-29 13:12:07 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\sessions\sessions.csv to MarsData/Gokul/2024-11-29_13-12-03/sessions\sessions.csv
+2024-11-29 13:12:07 - INFO - Upload process completed and status updated.
+2024-11-29 14:42:01 - INFO - Script started
+2024-11-29 14:42:01 - INFO - downloading configFile form aws s3
+2024-11-29 14:42:04 - INFO - ConfigFile updated succesfully
+2024-11-29 14:42:04 - INFO - Upload required. Starting upload process...
+2024-11-29 14:42:06 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\configdata.csv to MarsData/Gokul/configdata.csv
+2024-11-29 14:42:10 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\sessions\sessions.csv to MarsData/Gokul/2024-11-29_14-42-04/sessions\sessions.csv
+2024-11-29 14:42:10 - INFO - Upload process completed and status updated.
+2024-11-29 15:12:01 - INFO - Script started
+2024-11-29 15:12:01 - INFO - downloading configFile form aws s3
+2024-11-29 15:12:03 - INFO - ConfigFile updated succesfully
+2024-11-29 15:12:03 - INFO - Upload required. Starting upload process...
+2024-11-29 15:12:04 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\configdata.csv to MarsData/Gokul/configdata.csv
+2024-11-29 15:12:06 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\sessions\sessions.csv to MarsData/Gokul/2024-11-29_15-12-03/sessions\sessions.csv
+2024-11-29 15:12:06 - INFO - Upload process completed and status updated.
+2024-11-29 15:42:01 - INFO - Script started
+2024-11-29 15:42:02 - INFO - downloading configFile form aws s3
+2024-11-29 15:42:04 - INFO - ConfigFile updated succesfully
+2024-11-29 15:42:04 - INFO - Upload required. Starting upload process...
+2024-11-29 15:42:07 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\configdata.csv to MarsData/Gokul/configdata.csv
+2024-11-29 15:42:08 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\sessions\sessions.csv to MarsData/Gokul/2024-11-29_15-42-04/sessions\sessions.csv
+2024-11-29 15:42:08 - INFO - Upload process completed and status updated.
+2024-11-30 09:42:02 - INFO - Script started
+2024-11-30 09:42:02 - INFO - downloading configFile form aws s3
+2024-11-30 09:42:04 - INFO - ConfigFile updated succesfully
+2024-11-30 09:42:04 - INFO - Upload required. Starting upload process...
+2024-11-30 09:42:07 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\configdata.csv to MarsData/Gokul/configdata.csv
+2024-11-30 09:42:09 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\sessions\sessions.csv to MarsData/Gokul/2024-11-30_09-42-04/sessions\sessions.csv
+2024-11-30 09:42:09 - INFO - Upload process completed and status updated.
+2024-11-30 09:46:40 - INFO - Script started
+2024-11-30 09:46:40 - ERROR - Keys file not found
+2024-11-30 09:46:40 - ERROR - An error occurred
+2024-11-30 10:12:02 - INFO - Script started
+2024-11-30 10:12:02 - INFO - downloading configFile form aws s3
+2024-11-30 10:12:04 - INFO - ConfigFile updated succesfully
+2024-11-30 10:12:04 - INFO - Upload required. Starting upload process...
+2024-11-30 10:12:06 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\configdata.csv to MarsData/Gokul/configdata.csv
+2024-11-30 10:12:08 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\sessions\sessions.csv to MarsData/Gokul/2024-11-30_10-12-04/sessions\sessions.csv
+2024-11-30 10:12:08 - INFO - Upload process completed and status updated.
+2024-11-30 10:42:02 - INFO - Script started
+2024-11-30 10:42:02 - INFO - downloading configFile form aws s3
+2024-11-30 10:42:04 - INFO - ConfigFile updated succesfully
+2024-11-30 10:42:04 - INFO - Upload required. Starting upload process...
+2024-11-30 10:42:06 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\configdata.csv to MarsData/Gokul/configdata.csv
+2024-11-30 10:42:09 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\sessions\sessions.csv to MarsData/Gokul/2024-11-30_10-42-04/sessions\sessions.csv
+2024-11-30 10:42:09 - INFO - Upload process completed and status updated.
+2024-11-30 11:12:02 - INFO - Script started
+2024-11-30 11:12:02 - INFO - downloading configFile form aws s3
+2024-11-30 11:12:04 - INFO - ConfigFile updated succesfully
+2024-11-30 11:12:04 - INFO - Upload required. Starting upload process...
+2024-11-30 11:12:07 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\configdata.csv to MarsData/Gokul/configdata.csv
+2024-11-30 11:12:09 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\sessions\sessions.csv to MarsData/Gokul/2024-11-30_11-12-04/sessions\sessions.csv
+2024-11-30 11:12:09 - INFO - Upload process completed and status updated.
+2024-11-30 11:42:02 - INFO - Script started
+2024-11-30 11:42:02 - INFO - downloading configFile form aws s3
+2024-11-30 11:42:05 - INFO - ConfigFile updated succesfully
+2024-11-30 11:42:05 - INFO - Upload required. Starting upload process...
+2024-11-30 11:42:07 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\configdata.csv to MarsData/Gokul/configdata.csv
+2024-11-30 11:42:09 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\sessions\sessions.csv to MarsData/Gokul/2024-11-30_11-42-05/sessions\sessions.csv
+2024-11-30 11:42:09 - INFO - Upload process completed and status updated.
+2024-12-02 09:42:01 - INFO - Script started
+2024-12-02 09:42:01 - INFO - downloading configFile form aws s3
+2024-12-02 09:42:06 - INFO - ConfigFile updated succesfully
+2024-12-02 09:42:06 - INFO - Upload required. Starting upload process...
+2024-12-02 09:42:09 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\configdata.csv to MarsData/Gokul/configdata.csv
+2024-12-02 09:43:24 - ERROR - Failed to upload
+2024-12-02 09:43:24 - INFO - Upload process completed and status updated.
+2024-12-02 10:12:01 - INFO - Script started
+2024-12-02 10:12:01 - INFO - downloading configFile form aws s3
+2024-12-02 10:12:03 - INFO - ConfigFile updated succesfully
+2024-12-02 10:12:03 - INFO - Upload required. Starting upload process...
+2024-12-02 10:12:05 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\configdata.csv to MarsData/Gokul/configdata.csv
+2024-12-02 10:12:07 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\sessions\sessions.csv to MarsData/Gokul/2024-12-02_10-12-03/sessions\sessions.csv
+2024-12-02 10:12:07 - INFO - Upload process completed and status updated.
+2024-12-02 10:42:01 - INFO - Script started
+2024-12-02 10:42:01 - INFO - downloading configFile form aws s3
+2024-12-02 10:42:03 - INFO - ConfigFile updated succesfully
+2024-12-02 10:42:03 - INFO - No upload needed. Exiting script.
+2024-12-02 11:12:01 - INFO - Script started
+2024-12-02 11:12:02 - INFO - downloading configFile form aws s3
+2024-12-02 11:12:03 - INFO - ConfigFile updated succesfully
+2024-12-02 11:12:03 - INFO - No upload needed. Exiting script.
+2024-12-02 11:42:01 - INFO - Script started
+2024-12-02 11:42:01 - INFO - downloading configFile form aws s3
+2024-12-02 11:42:04 - INFO - ConfigFile updated succesfully
+2024-12-02 11:42:04 - INFO - No upload needed. Exiting script.
+2024-12-02 12:12:01 - INFO - Script started
+2024-12-02 12:12:01 - INFO - downloading configFile form aws s3
+2024-12-02 12:12:05 - INFO - ConfigFile updated succesfully
+2024-12-02 12:12:05 - INFO - No upload needed. Exiting script.
+2024-12-02 12:42:01 - INFO - Script started
+2024-12-02 12:42:01 - INFO - downloading configFile form aws s3
+2024-12-02 12:44:30 - INFO - ConfigFile updated succesfully
+2024-12-02 12:44:30 - INFO - No upload needed. Exiting script.
+2024-12-02 13:12:01 - INFO - Script started
+2024-12-02 13:12:01 - INFO - downloading configFile form aws s3
+2024-12-02 13:12:08 - INFO - ConfigFile updated succesfully
+2024-12-02 13:12:08 - INFO - No upload needed. Exiting script.
+2024-12-02 13:44:55 - INFO - Script started
+2024-12-02 13:44:55 - INFO - downloading configFile form aws s3
+2024-12-02 13:44:59 - ERROR - An error occurred: Could not connect to the endpoint URL: "https://homer-data.s3.amazonaws.com/MarsData/Gokul/configdata.csv"
+2024-12-02 13:44:59 - INFO - No upload needed. Exiting script.
+2024-12-02 14:12:01 - INFO - Script started
+2024-12-02 14:12:02 - INFO - downloading configFile form aws s3
+2024-12-02 14:12:03 - INFO - ConfigFile updated succesfully
+2024-12-02 14:12:03 - INFO - No upload needed. Exiting script.
+2024-12-02 14:42:01 - INFO - Script started
+2024-12-02 14:42:02 - INFO - downloading configFile form aws s3
+2024-12-02 14:42:04 - INFO - ConfigFile updated succesfully
+2024-12-02 14:42:04 - INFO - No upload needed. Exiting script.
+2024-12-02 15:12:54 - INFO - Script started
+2024-12-02 15:12:54 - INFO - downloading configFile form aws s3
+2024-12-02 15:12:59 - ERROR - An error occurred: Could not connect to the endpoint URL: "https://homer-data.s3.amazonaws.com/MarsData/Gokul/configdata.csv"
+2024-12-02 15:12:59 - INFO - No upload needed. Exiting script.
+2024-12-02 15:42:01 - INFO - Script started
+2024-12-02 15:42:02 - INFO - downloading configFile form aws s3
+2024-12-02 15:42:12 - ERROR - An error occurred: Could not connect to the endpoint URL: "https://homer-data.s3.amazonaws.com/MarsData/Gokul/configdata.csv"
+2024-12-02 15:42:12 - INFO - No upload needed. Exiting script.
+2024-12-02 16:12:01 - INFO - Script started
+2024-12-02 16:12:02 - INFO - downloading configFile form aws s3
+2024-12-02 16:12:04 - INFO - ConfigFile updated succesfully
+2024-12-02 16:12:04 - INFO - No upload needed. Exiting script.
+2024-12-02 16:42:01 - INFO - Script started
+2024-12-02 16:42:02 - INFO - downloading configFile form aws s3
+2024-12-02 16:42:03 - INFO - ConfigFile updated succesfully
+2024-12-02 16:42:03 - INFO - No upload needed. Exiting script.
+2024-12-03 09:12:02 - INFO - Script started
+2024-12-03 09:12:02 - INFO - downloading configFile form aws s3
+2024-12-03 09:12:12 - INFO - ConfigFile updated succesfully
+2024-12-03 09:12:12 - INFO - No upload needed. Exiting script.
+2024-12-03 09:42:01 - INFO - Script started
+2024-12-03 09:42:02 - INFO - downloading configFile form aws s3
+2024-12-03 09:42:05 - INFO - ConfigFile updated succesfully
+2024-12-03 09:42:05 - INFO - No upload needed. Exiting script.
+2024-12-03 10:12:01 - INFO - Script started
+2024-12-03 10:12:02 - INFO - downloading configFile form aws s3
+2024-12-03 10:12:04 - INFO - ConfigFile updated succesfully
+2024-12-03 10:12:04 - INFO - No upload needed. Exiting script.
+2024-12-03 10:42:01 - INFO - Script started
+2024-12-03 10:42:02 - INFO - downloading configFile form aws s3
+2024-12-03 10:42:04 - INFO - ConfigFile updated succesfully
+2024-12-03 10:42:04 - INFO - No upload needed. Exiting script.
+2024-12-03 11:12:01 - INFO - Script started
+2024-12-03 11:12:02 - INFO - downloading configFile form aws s3
+2024-12-03 11:12:04 - INFO - ConfigFile updated succesfully
+2024-12-03 11:12:04 - INFO - No upload needed. Exiting script.
+2024-12-03 11:42:01 - INFO - Script started
+2024-12-03 11:42:02 - INFO - downloading configFile form aws s3
+2024-12-03 11:42:04 - INFO - ConfigFile updated succesfully
+2024-12-03 11:42:04 - INFO - No upload needed. Exiting script.
+2024-12-03 12:12:01 - INFO - Script started
+2024-12-03 12:12:02 - INFO - downloading configFile form aws s3
+2024-12-03 12:12:03 - INFO - ConfigFile updated succesfully
+2024-12-03 12:12:03 - INFO - No upload needed. Exiting script.
+2024-12-03 12:42:01 - INFO - Script started
+2024-12-03 12:42:02 - INFO - downloading configFile form aws s3
+2024-12-03 12:42:04 - INFO - ConfigFile updated succesfully
+2024-12-03 12:42:04 - INFO - No upload needed. Exiting script.
+2024-12-03 13:12:01 - INFO - Script started
+2024-12-03 13:12:02 - INFO - downloading configFile form aws s3
+2024-12-03 13:12:03 - INFO - ConfigFile updated succesfully
+2024-12-03 13:12:03 - INFO - No upload needed. Exiting script.
+2024-12-03 13:42:01 - INFO - Script started
+2024-12-03 13:42:02 - INFO - downloading configFile form aws s3
+2024-12-03 13:42:03 - INFO - ConfigFile updated succesfully
+2024-12-03 13:42:03 - INFO - No upload needed. Exiting script.
+2024-12-03 14:12:01 - INFO - Script started
+2024-12-03 14:12:02 - INFO - downloading configFile form aws s3
+2024-12-03 14:12:03 - INFO - ConfigFile updated succesfully
+2024-12-03 14:12:03 - INFO - No upload needed. Exiting script.
+2024-12-03 14:42:01 - INFO - Script started
+2024-12-03 14:42:01 - INFO - downloading configFile form aws s3
+2024-12-03 14:42:15 - INFO - ConfigFile updated succesfully
+2024-12-03 14:42:15 - INFO - No upload needed. Exiting script.
+2024-12-03 15:12:01 - INFO - Script started
+2024-12-03 15:12:01 - INFO - downloading configFile form aws s3
+2024-12-03 15:12:03 - INFO - ConfigFile updated succesfully
+2024-12-03 15:12:03 - INFO - No upload needed. Exiting script.
+2024-12-03 15:42:01 - INFO - Script started
+2024-12-03 15:42:01 - INFO - downloading configFile form aws s3
+2024-12-03 15:42:03 - INFO - ConfigFile updated succesfully
+2024-12-03 15:42:03 - INFO - No upload needed. Exiting script.
+2024-12-03 16:12:01 - INFO - Script started
+2024-12-03 16:12:01 - INFO - downloading configFile form aws s3
+2024-12-03 16:12:03 - INFO - ConfigFile updated succesfully
+2024-12-03 16:12:03 - INFO - No upload needed. Exiting script.
+2024-12-03 16:42:01 - INFO - Script started
+2024-12-03 16:42:02 - INFO - downloading configFile form aws s3
+2024-12-03 16:42:04 - INFO - ConfigFile updated succesfully
+2024-12-03 16:42:04 - INFO - No upload needed. Exiting script.
+2024-12-04 09:42:01 - INFO - Script started
+2024-12-04 09:42:02 - INFO - downloading configFile form aws s3
+2024-12-04 09:42:03 - INFO - ConfigFile updated succesfully
+2024-12-04 09:42:03 - INFO - No upload needed. Exiting script.
+2024-12-04 10:12:01 - INFO - Script started
+2024-12-04 10:12:02 - INFO - downloading configFile form aws s3
+2024-12-04 10:12:04 - INFO - ConfigFile updated succesfully
+2024-12-04 10:12:04 - INFO - No upload needed. Exiting script.
+2024-12-04 10:42:01 - INFO - Script started
+2024-12-04 10:42:02 - INFO - downloading configFile form aws s3
+2024-12-04 10:42:03 - INFO - ConfigFile updated succesfully
+2024-12-04 10:42:03 - INFO - No upload needed. Exiting script.
+2024-12-04 11:12:01 - INFO - Script started
+2024-12-04 11:12:02 - INFO - downloading configFile form aws s3
+2024-12-04 11:12:06 - INFO - ConfigFile updated succesfully
+2024-12-04 11:12:06 - INFO - No upload needed. Exiting script.
+2024-12-04 12:12:01 - INFO - Script started
+2024-12-04 12:12:02 - INFO - downloading configFile form aws s3
+2024-12-04 12:12:03 - INFO - ConfigFile updated succesfully
+2024-12-04 12:12:03 - INFO - No upload needed. Exiting script.
+2024-12-04 12:42:01 - INFO - Script started
+2024-12-04 12:42:02 - INFO - downloading configFile form aws s3
+2024-12-04 12:42:04 - INFO - ConfigFile updated succesfully
+2024-12-04 12:42:04 - INFO - No upload needed. Exiting script.
+2024-12-05 09:12:01 - INFO - Script started
+2024-12-05 09:12:02 - INFO - downloading configFile form aws s3
+2024-12-05 09:12:03 - INFO - ConfigFile updated succesfully
+2024-12-05 09:12:03 - INFO - No upload needed. Exiting script.
+2024-12-05 09:42:01 - INFO - Script started
+2024-12-05 09:42:02 - INFO - downloading configFile form aws s3
+2024-12-05 09:42:03 - INFO - ConfigFile updated succesfully
+2024-12-05 09:42:03 - INFO - No upload needed. Exiting script.
+2024-12-05 10:12:01 - INFO - Script started
+2024-12-05 10:12:02 - INFO - downloading configFile form aws s3
+2024-12-05 10:12:03 - INFO - ConfigFile updated succesfully
+2024-12-05 10:12:03 - INFO - No upload needed. Exiting script.
+2024-12-05 10:42:02 - INFO - Script started
+2024-12-05 10:42:02 - INFO - downloading configFile form aws s3
+2024-12-05 10:42:03 - INFO - ConfigFile updated succesfully
+2024-12-05 10:42:03 - INFO - No upload needed. Exiting script.
+2024-12-05 11:12:02 - INFO - Script started
+2024-12-05 11:12:02 - INFO - downloading configFile form aws s3
+2024-12-05 11:12:03 - INFO - ConfigFile updated succesfully
+2024-12-05 11:12:03 - INFO - No upload needed. Exiting script.
+2024-12-05 11:42:02 - INFO - Script started
+2024-12-05 11:42:02 - INFO - downloading configFile form aws s3
+2024-12-05 11:42:03 - INFO - ConfigFile updated succesfully
+2024-12-05 11:42:03 - INFO - No upload needed. Exiting script.
+2024-12-05 12:12:02 - INFO - Script started
+2024-12-05 12:12:02 - INFO - downloading configFile form aws s3
+2024-12-05 12:12:03 - INFO - ConfigFile updated succesfully
+2024-12-05 12:12:03 - INFO - No upload needed. Exiting script.
+2024-12-05 12:42:02 - INFO - Script started
+2024-12-05 12:42:02 - INFO - downloading configFile form aws s3
+2024-12-05 12:42:03 - INFO - ConfigFile updated succesfully
+2024-12-05 12:42:03 - INFO - No upload needed. Exiting script.
+2024-12-05 13:12:02 - INFO - Script started
+2024-12-05 13:12:02 - INFO - downloading configFile form aws s3
+2024-12-05 13:12:04 - INFO - ConfigFile updated succesfully
+2024-12-05 13:12:04 - INFO - No upload needed. Exiting script.
+2024-12-06 09:42:01 - INFO - Script started
+2024-12-06 09:42:02 - INFO - downloading configFile form aws s3
+2024-12-06 09:42:07 - INFO - ConfigFile updated succesfully
+2024-12-06 09:42:07 - INFO - No upload needed. Exiting script.
+2024-12-06 10:12:01 - INFO - Script started
+2024-12-06 10:12:02 - INFO - downloading configFile form aws s3
+2024-12-06 10:13:09 - INFO - ConfigFile updated succesfully
+2024-12-06 10:13:09 - INFO - No upload needed. Exiting script.
+2024-12-06 10:42:01 - INFO - Script started
+2024-12-06 10:42:02 - INFO - downloading configFile form aws s3
+2024-12-06 10:42:05 - INFO - ConfigFile updated succesfully
+2024-12-06 10:42:05 - INFO - No upload needed. Exiting script.
+2024-12-06 12:12:01 - INFO - Script started
+2024-12-06 12:12:02 - INFO - downloading configFile form aws s3
+2024-12-06 12:12:04 - INFO - ConfigFile updated succesfully
+2024-12-06 12:12:04 - INFO - No upload needed. Exiting script.
+2024-12-06 12:42:01 - INFO - Script started
+2024-12-06 12:42:02 - INFO - downloading configFile form aws s3
+2024-12-06 12:43:37 - INFO - ConfigFile updated succesfully
+2024-12-06 12:43:37 - INFO - No upload needed. Exiting script.
+2024-12-06 12:46:39 - INFO - Script started
+2024-12-06 12:46:39 - INFO - downloading configFile form aws s3
+2024-12-06 12:47:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-06 12:47:03 - INFO - No upload needed. Exiting script.
+2024-12-06 12:47:40 - INFO - Script started
+2024-12-06 12:47:40 - INFO - downloading configFile form aws s3
+2024-12-06 12:47:51 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-06 12:47:51 - INFO - Upload required. Starting upload process...
+2024-12-06 12:47:58 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\configdata.csv to 6753-Mars/MarsData/configdata.csv
+2024-12-06 12:48:01 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\sessions\sessions.csv to 6753-Mars/MarsData/2024-12-06_12-47-51/sessions\sessions.csv
+2024-12-06 12:48:01 - INFO - Upload process completed and status updated.
+2024-12-06 13:12:01 - INFO - Script started
+2024-12-06 13:12:01 - INFO - downloading configFile form aws s3
+2024-12-06 13:12:13 - ERROR - An error occurred: SSL validation failed for https://homer-data.s3.amazonaws.com/Gokul/MarsData/configdata.csv [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1020)
+2024-12-06 13:12:13 - INFO - Upload required. Starting upload process...
+2024-12-06 13:12:37 - ERROR - Failed to upload
+2024-12-06 13:12:51 - ERROR - Failed to upload
+2024-12-06 13:12:51 - INFO - Upload process completed and status updated.
+2024-12-06 13:42:01 - INFO - Script started
+2024-12-06 13:42:01 - INFO - downloading configFile form aws s3
+2024-12-06 13:42:14 - ERROR - An error occurred: SSL validation failed for https://homer-data.s3.amazonaws.com/Gokul/MarsData/configdata.csv [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1020)
+2024-12-06 13:42:14 - INFO - Upload required. Starting upload process...
+2024-12-06 13:42:37 - ERROR - Failed to upload
+2024-12-06 13:42:42 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\sessions\sessions.csv to 6753-Mars/MarsData/2024-12-06_13-42-14/sessions\sessions.csv
+2024-12-06 13:42:42 - INFO - Upload process completed and status updated.
+2024-12-06 14:12:01 - INFO - Script started
+2024-12-06 14:12:01 - INFO - downloading configFile form aws s3
+2024-12-06 14:12:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-06 14:12:03 - INFO - Upload required. Starting upload process...
+2024-12-06 14:12:04 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\configdata.csv to 6753-Mars/MarsData/configdata.csv
+2024-12-06 14:12:06 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\sessions\sessions.csv to 6753-Mars/MarsData/2024-12-06_14-12-03/sessions\sessions.csv
+2024-12-06 14:12:06 - INFO - Upload process completed and status updated.
+2024-12-06 14:40:28 - INFO - Script started
+2024-12-06 14:40:28 - INFO - downloading configFile form aws s3
+2024-12-06 14:40:51 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-06 14:40:51 - INFO - No upload needed. Exiting script.
+2024-12-06 14:41:08 - INFO - Script started
+2024-12-06 14:41:09 - INFO - downloading configFile form aws s3
+2024-12-06 14:42:01 - INFO - Script started
+2024-12-06 14:42:01 - INFO - downloading configFile form aws s3
+2024-12-06 14:42:25 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-06 14:42:25 - INFO - Upload required. Starting upload process...
+2024-12-06 14:42:36 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-06 14:42:36 - INFO - Upload required. Starting upload process...
+2024-12-06 14:42:39 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\configdata.csv to 6753/MarsData/configdata.csv
+2024-12-06 14:42:40 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\configdata.csv to 6753/MarsData/configdata.csv
+2024-12-06 14:42:42 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\sessions\sessions.csv to 6753/MarsData/2024-12-06_14-42-36/sessions\sessions.csv
+2024-12-06 14:42:42 - INFO - Upload process completed and status updated.
+2024-12-06 14:42:43 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\sessions\sessions.csv to 6753/MarsData/2024-12-06_14-42-25/sessions\sessions.csv
+2024-12-06 14:42:43 - INFO - Upload process completed and status updated.
+2024-12-06 14:43:54 - INFO - Script started
+2024-12-06 14:43:54 - INFO - downloading configFile form aws s3
+2024-12-06 14:44:43 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-06 14:44:43 - INFO - Upload required. Starting upload process...
+2024-12-06 14:44:45 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\configdata.csv to 6753/MarsData/configdata.csv
+2024-12-06 14:44:46 - INFO - Successfully uploaded: D:/MARS-HOMER/Assets/data\sessions\sessions.csv to 6753/MarsData/2024-12-06_14-44-43/sessions\sessions.csv
+2024-12-06 14:44:46 - INFO - Upload process completed and status updated.
+2024-12-06 15:12:01 - INFO - Script started
+2024-12-06 15:12:02 - INFO - downloading configFile form aws s3
+2024-12-06 15:12:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-06 15:12:03 - INFO - No upload needed. Exiting script.
+2024-12-06 15:42:01 - INFO - Script started
+2024-12-06 15:42:02 - INFO - downloading configFile form aws s3
+2024-12-06 15:42:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-06 15:42:03 - INFO - No upload needed. Exiting script.
+2024-12-06 16:12:01 - INFO - Script started
+2024-12-06 16:12:02 - INFO - downloading configFile form aws s3
+2024-12-06 16:12:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-06 16:12:03 - INFO - No upload needed. Exiting script.
+2024-12-09 09:12:02 - INFO - Script started
+2024-12-09 09:12:02 - INFO - downloading configFile form aws s3
+2024-12-09 09:12:30 - ERROR - An error occurred: Connection was closed before we received a valid response from endpoint URL: "https://homer-data.s3.amazonaws.com/Gokul/MarsData/configdata.csv".
+2024-12-09 09:12:30 - INFO - No upload needed. Exiting script.
+2024-12-09 09:42:01 - INFO - Script started
+2024-12-09 09:42:01 - INFO - downloading configFile form aws s3
+2024-12-09 09:42:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-09 09:42:03 - INFO - No upload needed. Exiting script.
+2024-12-09 10:12:01 - INFO - Script started
+2024-12-09 10:12:01 - INFO - downloading configFile form aws s3
+2024-12-09 10:12:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-09 10:12:03 - INFO - No upload needed. Exiting script.
+2024-12-09 10:42:01 - INFO - Script started
+2024-12-09 10:42:01 - INFO - downloading configFile form aws s3
+2024-12-09 10:42:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-09 10:42:03 - INFO - No upload needed. Exiting script.
+2024-12-09 11:12:01 - INFO - Script started
+2024-12-09 11:12:01 - INFO - downloading configFile form aws s3
+2024-12-09 11:12:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-09 11:12:03 - INFO - No upload needed. Exiting script.
+2024-12-09 11:44:13 - INFO - Script started
+2024-12-09 11:44:13 - INFO - downloading configFile form aws s3
+2024-12-09 11:44:15 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-09 11:44:15 - INFO - No upload needed. Exiting script.
+2024-12-09 12:12:02 - INFO - Script started
+2024-12-09 12:12:02 - INFO - downloading configFile form aws s3
+2024-12-09 12:12:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-09 12:12:04 - INFO - No upload needed. Exiting script.
+2024-12-09 12:42:02 - INFO - Script started
+2024-12-09 12:42:02 - INFO - downloading configFile form aws s3
+2024-12-09 12:42:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-09 12:42:04 - INFO - No upload needed. Exiting script.
+2024-12-09 13:12:01 - INFO - Script started
+2024-12-09 13:12:02 - INFO - downloading configFile form aws s3
+2024-12-09 13:12:28 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-09 13:12:28 - INFO - No upload needed. Exiting script.
+2024-12-09 13:44:37 - INFO - Script started
+2024-12-09 13:44:37 - INFO - downloading configFile form aws s3
+2024-12-09 13:44:42 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-09 13:44:42 - INFO - No upload needed. Exiting script.
+2024-12-09 14:12:01 - INFO - Script started
+2024-12-09 14:12:02 - INFO - downloading configFile form aws s3
+2024-12-09 14:12:18 - ERROR - An error occurred: SSL validation failed for https://homer-data.s3.amazonaws.com/Gokul/MarsData/configdata.csv [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1020)
+2024-12-09 14:12:18 - INFO - No upload needed. Exiting script.
+2024-12-09 14:42:01 - INFO - Script started
+2024-12-09 14:42:01 - INFO - downloading configFile form aws s3
+2024-12-09 14:42:02 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-09 14:42:02 - INFO - No upload needed. Exiting script.
+2024-12-09 15:12:01 - INFO - Script started
+2024-12-09 15:12:01 - INFO - downloading configFile form aws s3
+2024-12-09 15:12:09 - ERROR - An error occurred: Could not connect to the endpoint URL: "https://homer-data.s3.amazonaws.com/Gokul/MarsData/configdata.csv"
+2024-12-09 15:12:09 - INFO - No upload needed. Exiting script.
+2024-12-09 15:42:01 - INFO - Script started
+2024-12-09 15:42:01 - INFO - downloading configFile form aws s3
+2024-12-09 15:42:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-09 15:42:03 - INFO - No upload needed. Exiting script.
+2024-12-09 16:12:01 - INFO - Script started
+2024-12-09 16:12:01 - INFO - downloading configFile form aws s3
+2024-12-09 16:12:20 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-09 16:12:20 - INFO - No upload needed. Exiting script.
+2024-12-09 16:42:01 - INFO - Script started
+2024-12-09 16:42:02 - INFO - downloading configFile form aws s3
+2024-12-09 16:42:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-09 16:42:04 - INFO - No upload needed. Exiting script.
+2024-12-10 09:12:02 - INFO - Script started
+2024-12-10 09:12:02 - INFO - downloading configFile form aws s3
+2024-12-10 09:12:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-10 09:12:04 - INFO - No upload needed. Exiting script.
+2024-12-10 09:42:01 - INFO - Script started
+2024-12-10 09:42:02 - INFO - downloading configFile form aws s3
+2024-12-10 09:42:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-10 09:42:04 - INFO - No upload needed. Exiting script.
+2024-12-10 10:12:01 - INFO - Script started
+2024-12-10 10:12:02 - INFO - downloading configFile form aws s3
+2024-12-10 10:12:07 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-10 10:12:07 - INFO - No upload needed. Exiting script.
+2024-12-10 10:42:01 - INFO - Script started
+2024-12-10 10:42:02 - INFO - downloading configFile form aws s3
+2024-12-10 10:42:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-10 10:42:04 - INFO - No upload needed. Exiting script.
+2024-12-10 11:12:01 - INFO - Script started
+2024-12-10 11:12:02 - INFO - downloading configFile form aws s3
+2024-12-10 11:12:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-10 11:12:04 - INFO - No upload needed. Exiting script.
+2024-12-10 12:12:01 - INFO - Script started
+2024-12-10 12:12:02 - INFO - downloading configFile form aws s3
+2024-12-10 12:12:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-10 12:12:04 - INFO - No upload needed. Exiting script.
+2024-12-10 12:42:01 - INFO - Script started
+2024-12-10 12:42:02 - INFO - downloading configFile form aws s3
+2024-12-10 12:42:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-10 12:42:04 - INFO - No upload needed. Exiting script.
+2024-12-10 13:12:01 - INFO - Script started
+2024-12-10 13:12:01 - INFO - downloading configFile form aws s3
+2024-12-10 13:12:05 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-10 13:12:05 - INFO - No upload needed. Exiting script.
+2024-12-10 13:42:01 - INFO - Script started
+2024-12-10 13:42:02 - INFO - downloading configFile form aws s3
+2024-12-10 13:42:05 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-10 13:42:05 - INFO - No upload needed. Exiting script.
+2024-12-10 14:12:01 - INFO - Script started
+2024-12-10 14:12:01 - INFO - downloading configFile form aws s3
+2024-12-10 14:12:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-10 14:12:03 - INFO - No upload needed. Exiting script.
+2024-12-10 14:42:01 - INFO - Script started
+2024-12-10 14:42:01 - INFO - downloading configFile form aws s3
+2024-12-10 14:42:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-10 14:42:03 - INFO - No upload needed. Exiting script.
+2024-12-10 15:12:01 - INFO - Script started
+2024-12-10 15:12:02 - INFO - downloading configFile form aws s3
+2024-12-10 15:12:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-10 15:12:04 - INFO - No upload needed. Exiting script.
+2024-12-10 15:42:01 - INFO - Script started
+2024-12-10 15:42:02 - INFO - downloading configFile form aws s3
+2024-12-10 15:42:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-10 15:42:04 - INFO - No upload needed. Exiting script.
+2024-12-10 16:12:01 - INFO - Script started
+2024-12-10 16:12:01 - INFO - downloading configFile form aws s3
+2024-12-10 16:12:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-10 16:12:03 - INFO - No upload needed. Exiting script.
+2024-12-10 16:42:01 - INFO - Script started
+2024-12-10 16:42:02 - INFO - downloading configFile form aws s3
+2024-12-10 16:42:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-10 16:42:03 - INFO - No upload needed. Exiting script.
+2024-12-11 08:42:01 - INFO - Script started
+2024-12-11 08:42:02 - INFO - downloading configFile form aws s3
+2024-12-11 08:42:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-11 08:42:03 - INFO - No upload needed. Exiting script.
+2024-12-11 09:12:01 - INFO - Script started
+2024-12-11 09:12:02 - INFO - downloading configFile form aws s3
+2024-12-11 09:12:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-11 09:12:03 - INFO - No upload needed. Exiting script.
+2024-12-11 09:42:01 - INFO - Script started
+2024-12-11 09:42:01 - INFO - downloading configFile form aws s3
+2024-12-11 09:42:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-11 09:42:03 - INFO - No upload needed. Exiting script.
+2024-12-11 10:12:01 - INFO - Script started
+2024-12-11 10:12:02 - INFO - downloading configFile form aws s3
+2024-12-11 10:12:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-11 10:12:03 - INFO - No upload needed. Exiting script.
+2024-12-11 10:42:01 - INFO - Script started
+2024-12-11 10:42:02 - INFO - downloading configFile form aws s3
+2024-12-11 10:42:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-11 10:42:04 - INFO - No upload needed. Exiting script.
+2024-12-11 11:12:01 - INFO - Script started
+2024-12-11 11:12:01 - INFO - downloading configFile form aws s3
+2024-12-11 11:12:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-11 11:12:04 - INFO - No upload needed. Exiting script.
+2024-12-11 11:42:01 - INFO - Script started
+2024-12-11 11:42:02 - INFO - downloading configFile form aws s3
+2024-12-11 11:42:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-11 11:42:03 - INFO - No upload needed. Exiting script.
+2024-12-11 12:12:01 - INFO - Script started
+2024-12-11 12:12:01 - INFO - downloading configFile form aws s3
+2024-12-11 12:12:02 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-11 12:12:02 - INFO - No upload needed. Exiting script.
+2024-12-11 12:42:01 - INFO - Script started
+2024-12-11 12:42:01 - INFO - downloading configFile form aws s3
+2024-12-11 12:42:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-11 12:42:03 - INFO - No upload needed. Exiting script.
+2024-12-11 13:12:01 - INFO - Script started
+2024-12-11 13:12:02 - INFO - downloading configFile form aws s3
+2024-12-11 13:12:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-11 13:12:03 - INFO - No upload needed. Exiting script.
+2024-12-11 13:42:01 - INFO - Script started
+2024-12-11 13:42:02 - INFO - downloading configFile form aws s3
+2024-12-11 13:42:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-11 13:42:03 - INFO - No upload needed. Exiting script.
+2024-12-11 14:12:01 - INFO - Script started
+2024-12-11 14:12:02 - INFO - downloading configFile form aws s3
+2024-12-11 14:12:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-11 14:12:03 - INFO - No upload needed. Exiting script.
+2024-12-11 14:42:01 - INFO - Script started
+2024-12-11 14:42:02 - INFO - downloading configFile form aws s3
+2024-12-11 14:42:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-11 14:42:04 - INFO - No upload needed. Exiting script.
+2024-12-11 15:12:01 - INFO - Script started
+2024-12-11 15:12:02 - INFO - downloading configFile form aws s3
+2024-12-11 15:12:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-11 15:12:04 - INFO - No upload needed. Exiting script.
+2024-12-11 16:12:01 - INFO - Script started
+2024-12-11 16:12:02 - INFO - downloading configFile form aws s3
+2024-12-11 16:12:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-11 16:12:04 - INFO - No upload needed. Exiting script.
+2024-12-11 16:42:01 - INFO - Script started
+2024-12-11 16:42:02 - INFO - downloading configFile form aws s3
+2024-12-11 16:42:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-11 16:42:04 - INFO - No upload needed. Exiting script.
+2024-12-11 17:12:01 - INFO - Script started
+2024-12-11 17:12:01 - INFO - downloading configFile form aws s3
+2024-12-11 17:12:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-11 17:12:03 - INFO - No upload needed. Exiting script.
+2024-12-12 09:42:08 - INFO - Script started
+2024-12-12 09:42:09 - INFO - downloading configFile form aws s3
+2024-12-12 09:42:11 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-12 09:42:11 - INFO - No upload needed. Exiting script.
+2024-12-12 10:42:01 - INFO - Script started
+2024-12-12 10:42:02 - INFO - downloading configFile form aws s3
+2024-12-12 10:42:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-12 10:42:04 - INFO - No upload needed. Exiting script.
+2024-12-12 11:42:01 - INFO - Script started
+2024-12-12 11:42:02 - INFO - downloading configFile form aws s3
+2024-12-12 11:42:20 - ERROR - An error occurred: SSL validation failed for https://homer-data.s3.amazonaws.com/Gokul/MarsData/configdata.csv [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1020)
+2024-12-12 11:42:20 - INFO - No upload needed. Exiting script.
+2024-12-12 12:12:01 - INFO - Script started
+2024-12-12 12:12:01 - INFO - downloading configFile form aws s3
+2024-12-12 12:12:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-12 12:12:03 - INFO - No upload needed. Exiting script.
+2024-12-12 12:42:01 - INFO - Script started
+2024-12-12 12:42:02 - INFO - downloading configFile form aws s3
+2024-12-12 12:42:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-12 12:42:03 - INFO - No upload needed. Exiting script.
+2024-12-12 13:12:01 - INFO - Script started
+2024-12-12 13:12:02 - INFO - downloading configFile form aws s3
+2024-12-12 13:12:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-12 13:12:04 - INFO - No upload needed. Exiting script.
+2024-12-12 13:42:01 - INFO - Script started
+2024-12-12 13:42:02 - INFO - downloading configFile form aws s3
+2024-12-12 13:42:11 - ERROR - An error occurred: Could not connect to the endpoint URL: "https://homer-data.s3.amazonaws.com/Gokul/MarsData/configdata.csv"
+2024-12-12 13:42:11 - INFO - No upload needed. Exiting script.
+2024-12-12 14:12:01 - INFO - Script started
+2024-12-12 14:12:01 - INFO - downloading configFile form aws s3
+2024-12-12 14:12:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-12 14:12:03 - INFO - No upload needed. Exiting script.
+2024-12-12 14:42:01 - INFO - Script started
+2024-12-12 14:42:02 - INFO - downloading configFile form aws s3
+2024-12-12 14:42:12 - ERROR - An error occurred: Could not connect to the endpoint URL: "https://homer-data.s3.amazonaws.com/Gokul/MarsData/configdata.csv"
+2024-12-12 14:42:12 - INFO - No upload needed. Exiting script.
+2024-12-12 15:12:01 - INFO - Script started
+2024-12-12 15:12:01 - INFO - downloading configFile form aws s3
+2024-12-12 15:12:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-12 15:12:03 - INFO - No upload needed. Exiting script.
+2024-12-12 15:42:01 - INFO - Script started
+2024-12-12 15:42:02 - INFO - downloading configFile form aws s3
+2024-12-12 15:42:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-12 15:42:04 - INFO - No upload needed. Exiting script.
+2024-12-12 16:12:02 - INFO - Script started
+2024-12-12 16:12:02 - INFO - downloading configFile form aws s3
+2024-12-12 16:12:12 - ERROR - An error occurred: SSL validation failed for https://homer-data.s3.amazonaws.com/Gokul/MarsData/configdata.csv [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1020)
+2024-12-12 16:12:12 - INFO - No upload needed. Exiting script.
+2024-12-12 16:42:01 - INFO - Script started
+2024-12-12 16:42:02 - INFO - downloading configFile form aws s3
+2024-12-12 16:42:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-12 16:42:04 - INFO - No upload needed. Exiting script.
+2024-12-13 09:12:02 - INFO - Script started
+2024-12-13 09:12:02 - INFO - downloading configFile form aws s3
+2024-12-13 09:12:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-13 09:12:04 - INFO - No upload needed. Exiting script.
+2024-12-13 09:42:01 - INFO - Script started
+2024-12-13 09:42:02 - INFO - downloading configFile form aws s3
+2024-12-13 09:42:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-13 09:42:04 - INFO - No upload needed. Exiting script.
+2024-12-13 10:12:01 - INFO - Script started
+2024-12-13 10:12:02 - INFO - downloading configFile form aws s3
+2024-12-13 10:12:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-13 10:12:04 - INFO - No upload needed. Exiting script.
+2024-12-13 11:12:01 - INFO - Script started
+2024-12-13 11:12:02 - INFO - downloading configFile form aws s3
+2024-12-13 11:12:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-13 11:12:04 - INFO - No upload needed. Exiting script.
+2024-12-13 11:42:01 - INFO - Script started
+2024-12-13 11:42:01 - INFO - downloading configFile form aws s3
+2024-12-13 11:42:11 - ERROR - An error occurred: Could not connect to the endpoint URL: "https://homer-data.s3.amazonaws.com/Gokul/MarsData/configdata.csv"
+2024-12-13 11:42:11 - INFO - No upload needed. Exiting script.
+2024-12-13 12:12:01 - INFO - Script started
+2024-12-13 12:12:02 - INFO - downloading configFile form aws s3
+2024-12-13 12:12:06 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-13 12:12:06 - INFO - No upload needed. Exiting script.
+2024-12-13 12:42:02 - INFO - Script started
+2024-12-13 12:42:02 - INFO - downloading configFile form aws s3
+2024-12-13 12:42:06 - ERROR - An error occurred: Could not connect to the endpoint URL: "https://homer-data.s3.amazonaws.com/Gokul/MarsData/configdata.csv"
+2024-12-13 12:42:06 - INFO - No upload needed. Exiting script.
+2024-12-13 14:42:01 - INFO - Script started
+2024-12-13 14:42:02 - INFO - downloading configFile form aws s3
+2024-12-13 14:42:05 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-13 14:42:05 - INFO - No upload needed. Exiting script.
+2024-12-13 15:12:01 - INFO - Script started
+2024-12-13 15:12:02 - INFO - downloading configFile form aws s3
+2024-12-13 15:12:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-13 15:12:03 - INFO - No upload needed. Exiting script.
+2024-12-13 15:42:02 - INFO - Script started
+2024-12-13 15:42:02 - INFO - downloading configFile form aws s3
+2024-12-13 15:42:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-13 15:42:04 - INFO - No upload needed. Exiting script.
+2024-12-13 16:12:02 - INFO - Script started
+2024-12-13 16:12:02 - INFO - downloading configFile form aws s3
+2024-12-13 16:12:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-13 16:12:03 - INFO - No upload needed. Exiting script.
+2024-12-13 16:42:02 - INFO - Script started
+2024-12-13 16:42:02 - INFO - downloading configFile form aws s3
+2024-12-13 16:42:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-13 16:42:04 - INFO - No upload needed. Exiting script.
+2024-12-14 09:42:02 - INFO - Script started
+2024-12-14 09:42:02 - INFO - downloading configFile form aws s3
+2024-12-14 09:42:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-14 09:42:04 - INFO - No upload needed. Exiting script.
+2024-12-14 10:12:01 - INFO - Script started
+2024-12-14 10:12:02 - INFO - downloading configFile form aws s3
+2024-12-14 10:12:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-14 10:12:04 - INFO - No upload needed. Exiting script.
+2024-12-16 09:12:02 - INFO - Script started
+2024-12-16 09:12:02 - INFO - downloading configFile form aws s3
+2024-12-16 09:12:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-16 09:12:04 - INFO - No upload needed. Exiting script.
+2024-12-16 09:42:02 - INFO - Script started
+2024-12-16 09:42:03 - INFO - downloading configFile form aws s3
+2024-12-16 09:42:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-16 09:42:04 - INFO - No upload needed. Exiting script.
+2024-12-16 10:12:02 - INFO - Script started
+2024-12-16 10:12:02 - INFO - downloading configFile form aws s3
+2024-12-16 10:12:13 - ERROR - An error occurred: SSL validation failed for https://homer-data.s3.amazonaws.com/Gokul/MarsData/configdata.csv [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1020)
+2024-12-16 10:12:13 - INFO - No upload needed. Exiting script.
+2024-12-16 10:42:02 - INFO - Script started
+2024-12-16 10:42:03 - INFO - downloading configFile form aws s3
+2024-12-16 10:42:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-16 10:42:04 - INFO - No upload needed. Exiting script.
+2024-12-16 12:42:02 - INFO - Script started
+2024-12-16 12:42:02 - INFO - downloading configFile form aws s3
+2024-12-16 12:42:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-16 12:42:03 - INFO - No upload needed. Exiting script.
+2024-12-16 14:42:01 - INFO - Script started
+2024-12-16 14:42:02 - INFO - downloading configFile form aws s3
+2024-12-16 14:42:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-16 14:42:03 - INFO - No upload needed. Exiting script.
+2024-12-16 15:12:01 - INFO - Script started
+2024-12-16 15:12:02 - INFO - downloading configFile form aws s3
+2024-12-16 15:12:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-16 15:12:03 - INFO - No upload needed. Exiting script.
+2024-12-17 09:42:02 - INFO - Script started
+2024-12-17 09:42:02 - INFO - downloading configFile form aws s3
+2024-12-17 09:42:05 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-17 09:42:05 - INFO - No upload needed. Exiting script.
+2024-12-17 10:12:02 - INFO - Script started
+2024-12-17 10:12:02 - INFO - downloading configFile form aws s3
+2024-12-17 10:12:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-17 10:12:04 - INFO - No upload needed. Exiting script.
+2024-12-17 10:42:01 - INFO - Script started
+2024-12-17 10:42:02 - INFO - downloading configFile form aws s3
+2024-12-17 10:42:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-17 10:42:04 - INFO - No upload needed. Exiting script.
+2024-12-17 12:12:01 - INFO - Script started
+2024-12-17 12:12:02 - INFO - downloading configFile form aws s3
+2024-12-17 12:12:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-17 12:12:04 - INFO - No upload needed. Exiting script.
+2024-12-17 12:42:01 - INFO - Script started
+2024-12-17 12:42:02 - INFO - downloading configFile form aws s3
+2024-12-17 12:42:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-17 12:42:03 - INFO - No upload needed. Exiting script.
+2024-12-17 13:12:01 - INFO - Script started
+2024-12-17 13:12:02 - INFO - downloading configFile form aws s3
+2024-12-17 13:12:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-17 13:12:03 - INFO - No upload needed. Exiting script.
+2024-12-17 14:12:01 - INFO - Script started
+2024-12-17 14:12:01 - INFO - downloading configFile form aws s3
+2024-12-17 14:12:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-17 14:12:03 - INFO - No upload needed. Exiting script.
+2024-12-17 14:45:00 - INFO - Script started
+2024-12-17 14:45:00 - INFO - downloading configFile form aws s3
+2024-12-17 14:45:02 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-17 14:45:02 - INFO - No upload needed. Exiting script.
+2024-12-18 09:12:01 - INFO - Script started
+2024-12-18 09:12:02 - INFO - downloading configFile form aws s3
+2024-12-18 09:12:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-18 09:12:03 - INFO - No upload needed. Exiting script.
+2024-12-18 09:42:01 - INFO - Script started
+2024-12-18 09:42:01 - INFO - downloading configFile form aws s3
+2024-12-18 09:42:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-18 09:42:03 - INFO - No upload needed. Exiting script.
+2024-12-18 10:12:01 - INFO - Script started
+2024-12-18 10:12:01 - INFO - downloading configFile form aws s3
+2024-12-18 10:12:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-18 10:12:03 - INFO - No upload needed. Exiting script.
+2024-12-18 10:42:01 - INFO - Script started
+2024-12-18 10:42:02 - INFO - downloading configFile form aws s3
+2024-12-18 10:42:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-18 10:42:03 - INFO - No upload needed. Exiting script.
+2024-12-18 11:12:01 - INFO - Script started
+2024-12-18 11:12:01 - INFO - downloading configFile form aws s3
+2024-12-18 11:12:02 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-18 11:12:02 - INFO - No upload needed. Exiting script.
+2024-12-18 11:42:01 - INFO - Script started
+2024-12-18 11:42:01 - INFO - downloading configFile form aws s3
+2024-12-18 11:42:02 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-18 11:42:02 - INFO - No upload needed. Exiting script.
+2024-12-18 12:12:01 - INFO - Script started
+2024-12-18 12:12:01 - INFO - downloading configFile form aws s3
+2024-12-18 12:12:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-18 12:12:04 - INFO - No upload needed. Exiting script.
+2024-12-18 12:42:01 - INFO - Script started
+2024-12-18 12:42:02 - INFO - downloading configFile form aws s3
+2024-12-18 12:42:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-18 12:42:03 - INFO - No upload needed. Exiting script.
+2024-12-18 13:12:01 - INFO - Script started
+2024-12-18 13:12:02 - INFO - downloading configFile form aws s3
+2024-12-18 13:12:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-18 13:12:03 - INFO - No upload needed. Exiting script.
+2024-12-18 13:42:01 - INFO - Script started
+2024-12-18 13:42:02 - INFO - downloading configFile form aws s3
+2024-12-18 13:42:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-18 13:42:03 - INFO - No upload needed. Exiting script.
+2024-12-18 14:12:01 - INFO - Script started
+2024-12-18 14:12:02 - INFO - downloading configFile form aws s3
+2024-12-18 14:12:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-18 14:12:03 - INFO - No upload needed. Exiting script.
+2024-12-18 14:42:01 - INFO - Script started
+2024-12-18 14:42:02 - INFO - downloading configFile form aws s3
+2024-12-18 14:42:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-18 14:42:03 - INFO - No upload needed. Exiting script.
+2024-12-18 15:12:01 - INFO - Script started
+2024-12-18 15:12:02 - INFO - downloading configFile form aws s3
+2024-12-18 15:12:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-18 15:12:03 - INFO - No upload needed. Exiting script.
+2024-12-18 15:42:01 - INFO - Script started
+2024-12-18 15:42:02 - INFO - downloading configFile form aws s3
+2024-12-18 15:42:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-18 15:42:03 - INFO - No upload needed. Exiting script.
+2024-12-18 16:12:01 - INFO - Script started
+2024-12-18 16:12:01 - INFO - downloading configFile form aws s3
+2024-12-18 16:12:02 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-18 16:12:02 - INFO - No upload needed. Exiting script.
+2024-12-18 16:42:01 - INFO - Script started
+2024-12-18 16:42:01 - INFO - downloading configFile form aws s3
+2024-12-18 16:42:02 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-18 16:42:02 - INFO - No upload needed. Exiting script.
+2024-12-18 17:12:01 - INFO - Script started
+2024-12-18 17:12:01 - INFO - downloading configFile form aws s3
+2024-12-18 17:12:15 - ERROR - An error occurred: SSL validation failed for https://homer-data.s3.amazonaws.com/Gokul/MarsData/configdata.csv [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1020)
+2024-12-18 17:12:15 - INFO - No upload needed. Exiting script.
+2024-12-19 09:12:01 - INFO - Script started
+2024-12-19 09:12:02 - INFO - downloading configFile form aws s3
+2024-12-19 09:12:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-19 09:12:03 - INFO - No upload needed. Exiting script.
+2024-12-19 09:42:01 - INFO - Script started
+2024-12-19 09:42:02 - INFO - downloading configFile form aws s3
+2024-12-19 09:42:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-19 09:42:03 - INFO - No upload needed. Exiting script.
+2024-12-19 10:12:02 - INFO - Script started
+2024-12-19 10:12:02 - INFO - downloading configFile form aws s3
+2024-12-19 10:12:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-19 10:12:03 - INFO - No upload needed. Exiting script.
+2024-12-19 10:42:01 - INFO - Script started
+2024-12-19 10:42:02 - INFO - downloading configFile form aws s3
+2024-12-19 10:42:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-19 10:42:03 - INFO - No upload needed. Exiting script.
+2024-12-19 11:12:01 - INFO - Script started
+2024-12-19 11:12:02 - INFO - downloading configFile form aws s3
+2024-12-19 11:12:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-19 11:12:03 - INFO - No upload needed. Exiting script.
+2024-12-19 11:43:17 - INFO - Script started
+2024-12-19 11:43:17 - INFO - downloading configFile form aws s3
+2024-12-19 11:43:27 - ERROR - An error occurred: SSL validation failed for https://homer-data.s3.amazonaws.com/Gokul/MarsData/configdata.csv [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1020)
+2024-12-19 11:43:27 - INFO - No upload needed. Exiting script.
+2024-12-19 12:12:01 - INFO - Script started
+2024-12-19 12:12:02 - INFO - downloading configFile form aws s3
+2024-12-19 12:12:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-19 12:12:03 - INFO - No upload needed. Exiting script.
+2024-12-19 12:42:01 - INFO - Script started
+2024-12-19 12:42:02 - INFO - downloading configFile form aws s3
+2024-12-19 12:42:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-19 12:42:03 - INFO - No upload needed. Exiting script.
+2024-12-19 13:12:01 - INFO - Script started
+2024-12-19 13:12:02 - INFO - downloading configFile form aws s3
+2024-12-19 13:12:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-19 13:12:03 - INFO - No upload needed. Exiting script.
+2024-12-19 13:42:01 - INFO - Script started
+2024-12-19 13:42:02 - INFO - downloading configFile form aws s3
+2024-12-19 13:42:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-19 13:42:03 - INFO - No upload needed. Exiting script.
+2024-12-19 14:12:01 - INFO - Script started
+2024-12-19 14:12:02 - INFO - downloading configFile form aws s3
+2024-12-19 14:12:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-19 14:12:03 - INFO - No upload needed. Exiting script.
+2024-12-19 14:42:01 - INFO - Script started
+2024-12-19 14:42:02 - INFO - downloading configFile form aws s3
+2024-12-19 14:42:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-19 14:42:03 - INFO - No upload needed. Exiting script.
+2024-12-19 15:12:02 - INFO - Script started
+2024-12-19 15:12:02 - INFO - downloading configFile form aws s3
+2024-12-19 15:12:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-19 15:12:04 - INFO - No upload needed. Exiting script.
+2024-12-19 15:42:02 - INFO - Script started
+2024-12-19 15:42:03 - INFO - downloading configFile form aws s3
+2024-12-19 15:42:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-19 15:42:04 - INFO - No upload needed. Exiting script.
+2024-12-19 16:12:02 - INFO - Script started
+2024-12-19 16:12:02 - INFO - downloading configFile form aws s3
+2024-12-19 16:12:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-19 16:12:03 - INFO - No upload needed. Exiting script.
+2024-12-19 16:42:02 - INFO - Script started
+2024-12-19 16:42:02 - INFO - downloading configFile form aws s3
+2024-12-19 16:42:17 - ERROR - An error occurred: SSL validation failed for https://homer-data.s3.amazonaws.com/Gokul/MarsData/configdata.csv [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1020)
+2024-12-19 16:42:17 - INFO - No upload needed. Exiting script.
+2024-12-20 09:12:02 - INFO - Script started
+2024-12-20 09:12:02 - INFO - downloading configFile form aws s3
+2024-12-20 09:12:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-20 09:12:04 - INFO - No upload needed. Exiting script.
+2024-12-20 09:42:01 - INFO - Script started
+2024-12-20 09:42:02 - INFO - downloading configFile form aws s3
+2024-12-20 09:42:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-20 09:42:03 - INFO - No upload needed. Exiting script.
+2024-12-20 10:12:01 - INFO - Script started
+2024-12-20 10:12:01 - INFO - downloading configFile form aws s3
+2024-12-20 10:12:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-20 10:12:03 - INFO - No upload needed. Exiting script.
+2024-12-20 10:42:02 - INFO - Script started
+2024-12-20 10:42:03 - INFO - downloading configFile form aws s3
+2024-12-20 10:42:05 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-20 10:42:05 - INFO - No upload needed. Exiting script.
+2024-12-20 11:12:01 - INFO - Script started
+2024-12-20 11:12:01 - INFO - downloading configFile form aws s3
+2024-12-20 11:12:09 - ERROR - An error occurred: SSL validation failed for https://homer-data.s3.amazonaws.com/Gokul/MarsData/configdata.csv [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1020)
+2024-12-20 11:12:09 - INFO - No upload needed. Exiting script.
+2024-12-20 11:42:01 - INFO - Script started
+2024-12-20 11:42:01 - INFO - downloading configFile form aws s3
+2024-12-20 11:42:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-20 11:42:03 - INFO - No upload needed. Exiting script.
+2024-12-20 12:12:01 - INFO - Script started
+2024-12-20 12:12:01 - INFO - downloading configFile form aws s3
+2024-12-20 12:12:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-20 12:12:03 - INFO - No upload needed. Exiting script.
+2024-12-20 12:42:01 - INFO - Script started
+2024-12-20 12:42:02 - INFO - downloading configFile form aws s3
+2024-12-20 12:42:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-20 12:42:03 - INFO - No upload needed. Exiting script.
+2024-12-20 13:12:01 - INFO - Script started
+2024-12-20 13:12:01 - INFO - downloading configFile form aws s3
+2024-12-20 13:12:02 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-20 13:12:02 - INFO - No upload needed. Exiting script.
+2024-12-20 14:12:02 - INFO - Script started
+2024-12-20 14:12:02 - INFO - downloading configFile form aws s3
+2024-12-20 14:12:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-20 14:12:04 - INFO - No upload needed. Exiting script.
+2024-12-20 14:42:16 - INFO - Script started
+2024-12-20 14:42:18 - INFO - downloading configFile form aws s3
+2024-12-20 14:42:35 - ERROR - An error occurred: SSL validation failed for https://homer-data.s3.amazonaws.com/Gokul/MarsData/configdata.csv [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1020)
+2024-12-20 14:42:35 - INFO - No upload needed. Exiting script.
+2024-12-20 15:12:02 - INFO - Script started
+2024-12-20 15:12:02 - INFO - downloading configFile form aws s3
+2024-12-20 15:12:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-20 15:12:04 - INFO - No upload needed. Exiting script.
+2024-12-20 15:42:02 - INFO - Script started
+2024-12-20 15:42:02 - INFO - downloading configFile form aws s3
+2024-12-20 15:42:13 - ERROR - An error occurred: SSL validation failed for https://homer-data.s3.amazonaws.com/Gokul/MarsData/configdata.csv [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1020)
+2024-12-20 15:42:13 - INFO - No upload needed. Exiting script.
+2024-12-20 16:12:02 - INFO - Script started
+2024-12-20 16:12:02 - INFO - downloading configFile form aws s3
+2024-12-20 16:12:14 - ERROR - An error occurred: SSL validation failed for https://homer-data.s3.amazonaws.com/Gokul/MarsData/configdata.csv [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1020)
+2024-12-20 16:12:14 - INFO - No upload needed. Exiting script.
+2024-12-20 16:42:01 - INFO - Script started
+2024-12-20 16:42:02 - INFO - downloading configFile form aws s3
+2024-12-20 16:42:11 - ERROR - An error occurred: SSL validation failed for https://homer-data.s3.amazonaws.com/Gokul/MarsData/configdata.csv [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1020)
+2024-12-20 16:42:11 - INFO - No upload needed. Exiting script.
+2024-12-21 09:12:01 - INFO - Script started
+2024-12-21 09:12:02 - INFO - downloading configFile form aws s3
+2024-12-21 09:12:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-21 09:12:03 - INFO - No upload needed. Exiting script.
+2024-12-21 09:42:01 - INFO - Script started
+2024-12-21 09:42:01 - INFO - downloading configFile form aws s3
+2024-12-21 09:42:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-21 09:42:03 - INFO - No upload needed. Exiting script.
+2024-12-21 12:12:02 - INFO - Script started
+2024-12-21 12:12:02 - INFO - downloading configFile form aws s3
+2024-12-21 12:12:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-21 12:12:04 - INFO - No upload needed. Exiting script.
+2024-12-21 12:42:02 - INFO - Script started
+2024-12-21 12:42:02 - INFO - downloading configFile form aws s3
+2024-12-21 12:42:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-21 12:42:04 - INFO - No upload needed. Exiting script.
+2024-12-23 09:07:43 - INFO - Script started
+2024-12-23 09:07:44 - INFO - downloading configFile form aws s3
+2024-12-23 09:07:45 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-23 09:07:45 - INFO - No upload needed. Exiting script.
+2024-12-23 09:12:01 - INFO - Script started
+2024-12-23 09:12:02 - INFO - downloading configFile form aws s3
+2024-12-23 09:12:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-23 09:12:03 - INFO - No upload needed. Exiting script.
+2024-12-23 09:13:01 - INFO - Script started
+2024-12-23 09:13:02 - INFO - downloading configFile form aws s3
+2024-12-23 09:13:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-23 09:13:03 - INFO - No upload needed. Exiting script.
+2024-12-23 09:24:18 - INFO - Script started
+2024-12-23 09:24:18 - INFO - downloading configFile form aws s3
+2024-12-23 09:24:20 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-23 09:24:20 - INFO - No upload needed. Exiting script.
+2024-12-23 09:24:39 - INFO - Script started
+2024-12-23 09:24:40 - INFO - downloading configFile form aws s3
+2024-12-23 09:24:41 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-23 09:24:41 - INFO - No upload needed. Exiting script.
+2024-12-23 09:30:02 - INFO - Script started
+2024-12-23 09:30:03 - INFO - downloading configFile form aws s3
+2024-12-23 09:30:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-23 09:30:04 - INFO - No upload needed. Exiting script.
+2024-12-23 09:31:20 - INFO - Script started
+2024-12-23 09:31:20 - INFO - downloading configFile form aws s3
+2024-12-23 09:31:21 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-23 09:31:21 - INFO - No upload needed. Exiting script.
+2024-12-23 09:39:09 - INFO - Script started
+2024-12-23 09:39:09 - INFO - downloading configFile form aws s3
+2024-12-23 09:39:10 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-23 09:39:10 - INFO - No upload needed. Exiting script.
+2024-12-23 09:39:20 - INFO - Script started
+2024-12-23 09:39:20 - INFO - downloading configFile form aws s3
+2024-12-23 09:39:22 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-23 09:39:22 - INFO - No upload needed. Exiting script.
+2024-12-23 09:40:57 - INFO - Script started
+2024-12-23 09:40:57 - INFO - downloading configFile form aws s3
+2024-12-23 09:41:25 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-23 09:41:25 - INFO - No upload needed. Exiting script.
+2024-12-23 09:42:01 - INFO - Script started
+2024-12-23 09:42:02 - INFO - downloading configFile form aws s3
+2024-12-23 09:42:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-23 09:42:03 - INFO - No upload needed. Exiting script.
+2024-12-23 09:42:13 - INFO - Script started
+2024-12-23 09:42:13 - INFO - downloading configFile form aws s3
+2024-12-23 09:42:14 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-23 09:42:14 - INFO - No upload needed. Exiting script.
+2024-12-23 10:12:01 - INFO - Script started
+2024-12-23 10:12:02 - INFO - downloading configFile form aws s3
+2024-12-23 10:12:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-23 10:12:03 - INFO - No upload needed. Exiting script.
+2024-12-23 10:40:35 - INFO - Script started
+2024-12-23 10:40:35 - INFO - downloading configFile form aws s3
+2024-12-23 10:40:37 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-23 10:40:37 - INFO - No upload needed. Exiting script.
+2024-12-23 10:40:45 - INFO - Script started
+2024-12-23 10:40:45 - INFO - downloading configFile form aws s3
+2024-12-23 10:40:46 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-23 10:40:46 - INFO - No upload needed. Exiting script.
+2024-12-23 10:41:25 - INFO - Script started
+2024-12-23 10:41:25 - INFO - downloading configFile form aws s3
+2024-12-23 10:41:26 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-23 10:41:26 - INFO - No upload needed. Exiting script.
+2024-12-23 10:42:01 - INFO - Script started
+2024-12-23 10:42:02 - INFO - downloading configFile form aws s3
+2024-12-23 10:42:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-23 10:42:03 - INFO - No upload needed. Exiting script.
+2024-12-23 10:42:29 - INFO - Script started
+2024-12-23 10:42:29 - INFO - downloading configFile form aws s3
+2024-12-23 10:42:30 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-23 10:42:30 - INFO - No upload needed. Exiting script.
+2024-12-23 10:45:21 - INFO - Script started
+2024-12-23 10:45:21 - INFO - downloading configFile form aws s3
+2024-12-23 10:45:22 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-23 10:45:22 - INFO - No upload needed. Exiting script.
+2024-12-23 10:47:22 - INFO - Script started
+2024-12-23 10:47:22 - INFO - downloading configFile form aws s3
+2024-12-23 10:47:23 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-23 10:47:23 - INFO - No upload needed. Exiting script.
+2024-12-23 10:51:49 - INFO - Script started
+2024-12-23 10:51:50 - INFO - downloading configFile form aws s3
+2024-12-23 10:51:51 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-23 10:51:51 - INFO - No upload needed. Exiting script.
+2024-12-23 10:55:13 - INFO - Script started
+2024-12-23 10:55:13 - INFO - downloading configFile form aws s3
+2024-12-23 10:55:20 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-23 10:55:20 - INFO - No upload needed. Exiting script.
+2024-12-23 10:58:05 - INFO - Script started
+2024-12-23 10:58:05 - INFO - downloading configFile form aws s3
+2024-12-23 10:58:06 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-23 10:58:06 - INFO - No upload needed. Exiting script.
+2024-12-23 11:12:06 - INFO - Script started
+2024-12-23 11:12:08 - INFO - downloading configFile form aws s3
+2024-12-23 11:12:09 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-23 11:12:09 - INFO - No upload needed. Exiting script.
+2024-12-23 11:42:01 - INFO - Script started
+2024-12-23 11:42:02 - INFO - downloading configFile form aws s3
+2024-12-23 11:42:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-23 11:42:03 - INFO - No upload needed. Exiting script.
+2024-12-23 12:12:01 - INFO - Script started
+2024-12-23 12:12:02 - INFO - downloading configFile form aws s3
+2024-12-23 12:12:06 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-23 12:12:06 - INFO - No upload needed. Exiting script.
+2024-12-23 12:42:01 - INFO - Script started
+2024-12-23 12:42:02 - INFO - downloading configFile form aws s3
+2024-12-23 12:42:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-23 12:42:03 - INFO - No upload needed. Exiting script.
+2024-12-23 14:12:41 - INFO - Script started
+2024-12-23 14:12:41 - INFO - downloading configFile form aws s3
+2024-12-23 14:12:43 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-23 14:12:43 - INFO - No upload needed. Exiting script.
+2024-12-23 14:12:50 - INFO - Script started
+2024-12-23 14:12:50 - INFO - downloading configFile form aws s3
+2024-12-23 14:12:51 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-23 14:12:51 - INFO - No upload needed. Exiting script.
+2024-12-23 14:42:01 - INFO - Script started
+2024-12-23 14:42:02 - INFO - downloading configFile form aws s3
+2024-12-23 14:42:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-23 14:42:03 - INFO - No upload needed. Exiting script.
+2024-12-23 15:12:06 - INFO - Script started
+2024-12-23 15:12:08 - INFO - downloading configFile form aws s3
+2024-12-23 15:12:22 - ERROR - An error occurred: SSL validation failed for https://homer-data.s3.amazonaws.com/Gokul/MarsData/configdata.csv [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1020)
+2024-12-23 15:12:22 - INFO - No upload needed. Exiting script.
+2024-12-23 15:42:01 - INFO - Script started
+2024-12-23 15:42:02 - INFO - downloading configFile form aws s3
+2024-12-23 15:42:08 - ERROR - An error occurred: SSL validation failed for https://homer-data.s3.amazonaws.com/Gokul/MarsData/configdata.csv [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1020)
+2024-12-23 15:42:08 - INFO - No upload needed. Exiting script.
+2024-12-26 10:12:06 - INFO - Script started
+2024-12-26 10:12:07 - INFO - downloading configFile form aws s3
+2024-12-26 10:12:09 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-26 10:12:09 - INFO - No upload needed. Exiting script.
+2024-12-26 10:42:01 - INFO - Script started
+2024-12-26 10:42:02 - INFO - downloading configFile form aws s3
+2024-12-26 10:42:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-26 10:42:03 - INFO - No upload needed. Exiting script.
+2024-12-26 15:12:02 - INFO - Script started
+2024-12-26 15:12:03 - INFO - downloading configFile form aws s3
+2024-12-26 15:12:11 - ERROR - An error occurred: SSL validation failed for https://homer-data.s3.amazonaws.com/Gokul/MarsData/configdata.csv [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1020)
+2024-12-26 15:12:11 - INFO - No upload needed. Exiting script.
+2024-12-27 10:12:06 - INFO - Script started
+2024-12-27 10:12:07 - INFO - downloading configFile form aws s3
+2024-12-27 10:12:09 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-27 10:12:09 - INFO - No upload needed. Exiting script.
+2024-12-27 10:42:01 - INFO - Script started
+2024-12-27 10:42:02 - INFO - downloading configFile form aws s3
+2024-12-27 10:42:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-27 10:42:03 - INFO - No upload needed. Exiting script.
+2024-12-27 11:12:01 - INFO - Script started
+2024-12-27 11:12:02 - INFO - downloading configFile form aws s3
+2024-12-27 11:12:07 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-27 11:12:07 - INFO - No upload needed. Exiting script.
+2024-12-27 12:42:06 - INFO - Script started
+2024-12-27 12:42:07 - INFO - downloading configFile form aws s3
+2024-12-27 12:42:09 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-27 12:42:09 - INFO - No upload needed. Exiting script.
+2024-12-27 13:14:48 - INFO - Script started
+2024-12-27 13:14:49 - INFO - downloading configFile form aws s3
+2024-12-27 13:14:52 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-27 13:14:52 - INFO - No upload needed. Exiting script.
+2024-12-27 16:12:01 - INFO - Script started
+2024-12-27 16:12:02 - INFO - downloading configFile form aws s3
+2024-12-27 16:12:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-27 16:12:04 - INFO - No upload needed. Exiting script.
+2024-12-28 09:12:02 - INFO - Script started
+2024-12-28 09:12:02 - INFO - downloading configFile form aws s3
+2024-12-28 09:12:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-28 09:12:04 - INFO - No upload needed. Exiting script.
+2024-12-28 09:42:06 - INFO - Script started
+2024-12-28 09:42:07 - INFO - downloading configFile form aws s3
+2024-12-28 09:42:09 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-28 09:42:09 - INFO - No upload needed. Exiting script.
+2024-12-28 12:12:01 - INFO - Script started
+2024-12-28 12:12:02 - INFO - downloading configFile form aws s3
+2024-12-28 12:12:07 - ERROR - An error occurred: Could not connect to the endpoint URL: "https://homer-data.s3.amazonaws.com/Gokul/MarsData/configdata.csv"
+2024-12-28 12:12:07 - INFO - No upload needed. Exiting script.
+2024-12-30 09:12:02 - INFO - Script started
+2024-12-30 09:12:03 - INFO - downloading configFile form aws s3
+2024-12-30 09:12:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-30 09:12:04 - INFO - No upload needed. Exiting script.
+2024-12-30 09:42:06 - INFO - Script started
+2024-12-30 09:42:07 - INFO - downloading configFile form aws s3
+2024-12-30 09:42:09 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-30 09:42:09 - INFO - No upload needed. Exiting script.
+2024-12-30 10:12:01 - INFO - Script started
+2024-12-30 10:12:02 - INFO - downloading configFile form aws s3
+2024-12-30 10:12:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-30 10:12:03 - INFO - No upload needed. Exiting script.
+2024-12-30 10:42:06 - INFO - Script started
+2024-12-30 10:42:07 - INFO - downloading configFile form aws s3
+2024-12-30 10:42:09 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-30 10:42:09 - INFO - No upload needed. Exiting script.
+2024-12-30 12:42:01 - INFO - Script started
+2024-12-30 12:42:02 - INFO - downloading configFile form aws s3
+2024-12-30 12:42:09 - ERROR - An error occurred: SSL validation failed for https://homer-data.s3.amazonaws.com/Gokul/MarsData/configdata.csv [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1020)
+2024-12-30 12:42:09 - INFO - No upload needed. Exiting script.
+2024-12-30 13:12:02 - INFO - Script started
+2024-12-30 13:12:03 - INFO - downloading configFile form aws s3
+2024-12-30 13:12:05 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-30 13:12:05 - INFO - No upload needed. Exiting script.
+2024-12-31 08:42:02 - INFO - Script started
+2024-12-31 08:42:02 - INFO - downloading configFile form aws s3
+2024-12-31 08:42:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-31 08:42:04 - INFO - No upload needed. Exiting script.
+2024-12-31 08:42:37 - INFO - Script started
+2024-12-31 08:42:37 - INFO - downloading configFile form aws s3
+2024-12-31 08:42:38 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-31 08:42:38 - INFO - No upload needed. Exiting script.
+2024-12-31 08:44:11 - INFO - Script started
+2024-12-31 08:44:12 - INFO - downloading configFile form aws s3
+2024-12-31 08:44:13 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-31 08:44:13 - INFO - No upload needed. Exiting script.
+2024-12-31 08:47:20 - INFO - Script started
+2024-12-31 08:47:20 - INFO - downloading configFile form aws s3
+2024-12-31 08:47:25 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-31 08:47:25 - INFO - No upload needed. Exiting script.
+2024-12-31 08:50:26 - INFO - Script started
+2024-12-31 08:50:26 - INFO - downloading configFile form aws s3
+2024-12-31 08:50:27 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-31 08:50:27 - INFO - No upload needed. Exiting script.
+2024-12-31 08:51:25 - INFO - Script started
+2024-12-31 08:51:25 - INFO - downloading configFile form aws s3
+2024-12-31 08:51:27 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-31 08:51:27 - INFO - No upload needed. Exiting script.
+2024-12-31 09:02:36 - INFO - Script started
+2024-12-31 09:02:37 - INFO - downloading configFile form aws s3
+2024-12-31 09:02:40 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-31 09:02:40 - INFO - No upload needed. Exiting script.
+2024-12-31 09:05:05 - INFO - Script started
+2024-12-31 09:05:05 - INFO - downloading configFile form aws s3
+2024-12-31 09:05:06 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-31 09:05:06 - INFO - No upload needed. Exiting script.
+2024-12-31 09:07:15 - INFO - Script started
+2024-12-31 09:07:15 - INFO - downloading configFile form aws s3
+2024-12-31 09:07:18 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-31 09:07:18 - INFO - No upload needed. Exiting script.
+2024-12-31 09:10:49 - INFO - Script started
+2024-12-31 09:10:49 - INFO - downloading configFile form aws s3
+2024-12-31 09:10:51 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-31 09:10:51 - INFO - No upload needed. Exiting script.
+2024-12-31 09:11:37 - INFO - Script started
+2024-12-31 09:11:37 - INFO - downloading configFile form aws s3
+2024-12-31 09:11:39 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-31 09:11:39 - INFO - No upload needed. Exiting script.
+2024-12-31 09:12:01 - INFO - Script started
+2024-12-31 09:12:02 - INFO - downloading configFile form aws s3
+2024-12-31 09:12:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-31 09:12:03 - INFO - No upload needed. Exiting script.
+2024-12-31 09:16:05 - INFO - Script started
+2024-12-31 09:16:05 - INFO - downloading configFile form aws s3
+2024-12-31 09:16:06 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-31 09:16:06 - INFO - No upload needed. Exiting script.
+2024-12-31 09:21:20 - INFO - Script started
+2024-12-31 09:21:20 - INFO - downloading configFile form aws s3
+2024-12-31 09:21:21 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-31 09:21:21 - INFO - No upload needed. Exiting script.
+2024-12-31 09:28:25 - INFO - Script started
+2024-12-31 09:28:25 - INFO - downloading configFile form aws s3
+2024-12-31 09:28:27 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-31 09:28:27 - INFO - No upload needed. Exiting script.
+2024-12-31 09:42:01 - INFO - Script started
+2024-12-31 09:42:02 - INFO - downloading configFile form aws s3
+2024-12-31 09:42:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-31 09:42:04 - INFO - No upload needed. Exiting script.
+2024-12-31 09:45:25 - INFO - Script started
+2024-12-31 09:45:25 - INFO - downloading configFile form aws s3
+2024-12-31 09:45:26 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-31 09:45:26 - INFO - No upload needed. Exiting script.
+2024-12-31 09:47:41 - INFO - Script started
+2024-12-31 09:47:41 - INFO - downloading configFile form aws s3
+2024-12-31 09:47:42 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-31 09:47:42 - INFO - No upload needed. Exiting script.
+2024-12-31 09:50:19 - INFO - Script started
+2024-12-31 09:50:19 - INFO - downloading configFile form aws s3
+2024-12-31 09:50:21 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-31 09:50:21 - INFO - No upload needed. Exiting script.
+2024-12-31 09:54:06 - INFO - Script started
+2024-12-31 09:54:06 - INFO - downloading configFile form aws s3
+2024-12-31 09:54:08 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-31 09:54:08 - INFO - No upload needed. Exiting script.
+2024-12-31 10:04:05 - INFO - Script started
+2024-12-31 10:04:06 - INFO - downloading configFile form aws s3
+2024-12-31 10:04:07 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-31 10:04:07 - INFO - No upload needed. Exiting script.
+2024-12-31 10:04:50 - INFO - Script started
+2024-12-31 10:04:50 - INFO - downloading configFile form aws s3
+2024-12-31 10:04:52 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-31 10:04:52 - INFO - No upload needed. Exiting script.
+2024-12-31 10:06:47 - INFO - Script started
+2024-12-31 10:06:47 - INFO - downloading configFile form aws s3
+2024-12-31 10:06:49 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-31 10:06:49 - INFO - No upload needed. Exiting script.
+2024-12-31 10:12:01 - INFO - Script started
+2024-12-31 10:12:02 - INFO - downloading configFile form aws s3
+2024-12-31 10:12:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-31 10:12:03 - INFO - No upload needed. Exiting script.
+2024-12-31 10:38:13 - INFO - Script started
+2024-12-31 10:38:13 - INFO - downloading configFile form aws s3
+2024-12-31 10:38:18 - ERROR - An error occurred: SSL validation failed for https://homer-data.s3.amazonaws.com/Gokul/MarsData/configdata.csv [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1020)
+2024-12-31 10:38:18 - INFO - No upload needed. Exiting script.
+2024-12-31 10:42:02 - INFO - Script started
+2024-12-31 10:42:02 - INFO - downloading configFile form aws s3
+2024-12-31 10:42:17 - ERROR - An error occurred: SSL validation failed for https://homer-data.s3.amazonaws.com/Gokul/MarsData/configdata.csv [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1020)
+2024-12-31 10:42:17 - INFO - No upload needed. Exiting script.
+2024-12-31 11:12:07 - INFO - Script started
+2024-12-31 11:12:08 - INFO - downloading configFile form aws s3
+2024-12-31 11:12:10 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-31 11:12:10 - INFO - No upload needed. Exiting script.
+2024-12-31 11:42:02 - INFO - Script started
+2024-12-31 11:42:02 - INFO - downloading configFile form aws s3
+2024-12-31 11:42:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-31 11:42:03 - INFO - No upload needed. Exiting script.
+2024-12-31 12:12:02 - INFO - Script started
+2024-12-31 12:12:02 - INFO - downloading configFile form aws s3
+2024-12-31 12:12:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-31 12:12:04 - INFO - No upload needed. Exiting script.
+2024-12-31 12:42:02 - INFO - Script started
+2024-12-31 12:42:02 - INFO - downloading configFile form aws s3
+2024-12-31 12:42:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-31 12:42:04 - INFO - No upload needed. Exiting script.
+2024-12-31 13:12:02 - INFO - Script started
+2024-12-31 13:12:02 - INFO - downloading configFile form aws s3
+2024-12-31 13:12:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-31 13:12:03 - INFO - No upload needed. Exiting script.
+2024-12-31 13:42:02 - INFO - Script started
+2024-12-31 13:42:02 - INFO - downloading configFile form aws s3
+2024-12-31 13:42:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-31 13:42:04 - INFO - No upload needed. Exiting script.
+2024-12-31 14:12:02 - INFO - Script started
+2024-12-31 14:12:02 - INFO - downloading configFile form aws s3
+2024-12-31 14:12:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-31 14:12:04 - INFO - No upload needed. Exiting script.
+2024-12-31 14:42:02 - INFO - Script started
+2024-12-31 14:42:02 - INFO - downloading configFile form aws s3
+2024-12-31 14:42:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-31 14:42:04 - INFO - No upload needed. Exiting script.
+2024-12-31 15:12:02 - INFO - Script started
+2024-12-31 15:12:02 - INFO - downloading configFile form aws s3
+2024-12-31 15:12:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-31 15:12:03 - INFO - No upload needed. Exiting script.
+2024-12-31 15:42:02 - INFO - Script started
+2024-12-31 15:42:02 - INFO - downloading configFile form aws s3
+2024-12-31 15:42:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-31 15:42:03 - INFO - No upload needed. Exiting script.
+2024-12-31 16:12:02 - INFO - Script started
+2024-12-31 16:12:03 - INFO - downloading configFile form aws s3
+2024-12-31 16:12:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2024-12-31 16:12:04 - INFO - No upload needed. Exiting script.
+2025-01-02 09:12:06 - INFO - Script started
+2025-01-02 09:12:07 - INFO - downloading configFile form aws s3
+2025-01-02 09:12:09 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2025-01-02 09:12:09 - INFO - No upload needed. Exiting script.
+2025-01-02 09:42:02 - INFO - Script started
+2025-01-02 09:42:02 - INFO - downloading configFile form aws s3
+2025-01-02 09:42:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2025-01-02 09:42:04 - INFO - No upload needed. Exiting script.
+2025-01-02 10:12:02 - INFO - Script started
+2025-01-02 10:12:02 - INFO - downloading configFile form aws s3
+2025-01-02 10:12:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2025-01-02 10:12:04 - INFO - No upload needed. Exiting script.
+2025-01-02 12:42:06 - INFO - Script started
+2025-01-02 12:42:08 - INFO - downloading configFile form aws s3
+2025-01-02 12:42:10 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2025-01-02 12:42:10 - INFO - No upload needed. Exiting script.
+2025-01-02 13:12:02 - INFO - Script started
+2025-01-02 13:12:03 - INFO - downloading configFile form aws s3
+2025-01-02 13:12:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2025-01-02 13:12:04 - INFO - No upload needed. Exiting script.
+2025-01-03 08:42:02 - INFO - Script started
+2025-01-03 08:42:02 - INFO - downloading configFile form aws s3
+2025-01-03 08:42:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2025-01-03 08:42:04 - INFO - No upload needed. Exiting script.
+2025-01-03 10:42:05 - INFO - Script started
+2025-01-03 10:42:06 - INFO - downloading configFile form aws s3
+2025-01-03 10:42:09 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2025-01-03 10:42:09 - INFO - No upload needed. Exiting script.
+2025-01-03 11:12:01 - INFO - Script started
+2025-01-03 11:12:02 - INFO - downloading configFile form aws s3
+2025-01-03 11:12:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2025-01-03 11:12:03 - INFO - No upload needed. Exiting script.
+2025-01-03 12:12:01 - INFO - Script started
+2025-01-03 12:12:02 - INFO - downloading configFile form aws s3
+2025-01-03 12:12:07 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2025-01-03 12:12:07 - INFO - No upload needed. Exiting script.
+2025-01-03 12:42:01 - INFO - Script started
+2025-01-03 12:42:02 - INFO - downloading configFile form aws s3
+2025-01-03 12:42:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2025-01-03 12:42:03 - INFO - No upload needed. Exiting script.
+2025-01-03 13:12:07 - INFO - Script started
+2025-01-03 13:12:09 - INFO - downloading configFile form aws s3
+2025-01-03 13:12:11 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2025-01-03 13:12:11 - INFO - No upload needed. Exiting script.
+2025-01-03 14:12:06 - INFO - Script started
+2025-01-03 14:12:09 - INFO - downloading configFile form aws s3
+2025-01-03 14:12:11 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2025-01-03 14:12:11 - INFO - No upload needed. Exiting script.
+2025-01-03 14:42:01 - INFO - Script started
+2025-01-03 14:42:02 - INFO - downloading configFile form aws s3
+2025-01-03 14:42:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2025-01-03 14:42:03 - INFO - No upload needed. Exiting script.
+2025-01-03 15:12:02 - INFO - Script started
+2025-01-03 15:12:04 - INFO - downloading configFile form aws s3
+2025-01-03 15:12:06 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2025-01-03 15:12:06 - INFO - No upload needed. Exiting script.
+2025-01-03 16:42:02 - INFO - Script started
+2025-01-03 16:42:03 - INFO - downloading configFile form aws s3
+2025-01-03 16:42:12 - ERROR - An error occurred: Could not connect to the endpoint URL: "https://homer-data.s3.amazonaws.com/Gokul/MarsData/configdata.csv"
+2025-01-03 16:42:12 - INFO - No upload needed. Exiting script.
+2025-01-04 09:12:06 - INFO - Script started
+2025-01-04 09:12:07 - INFO - downloading configFile form aws s3
+2025-01-04 09:12:09 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2025-01-04 09:12:09 - INFO - No upload needed. Exiting script.
+2025-01-04 09:42:01 - INFO - Script started
+2025-01-04 09:42:02 - INFO - downloading configFile form aws s3
+2025-01-04 09:42:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2025-01-04 09:42:04 - INFO - No upload needed. Exiting script.
+2025-01-04 09:57:33 - INFO - Script started
+2025-01-04 09:57:33 - INFO - downloading configFile form aws s3
+2025-01-04 09:57:34 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2025-01-04 09:57:34 - INFO - No upload needed. Exiting script.
+2025-01-04 10:00:06 - INFO - Script started
+2025-01-04 10:00:06 - INFO - downloading configFile form aws s3
+2025-01-04 10:00:07 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2025-01-04 10:00:07 - INFO - No upload needed. Exiting script.
+2025-01-04 10:00:47 - INFO - Script started
+2025-01-04 10:00:47 - INFO - downloading configFile form aws s3
+2025-01-04 10:00:48 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2025-01-04 10:00:48 - INFO - No upload needed. Exiting script.
+2025-01-04 10:12:01 - INFO - Script started
+2025-01-04 10:12:01 - INFO - downloading configFile form aws s3
+2025-01-04 10:12:02 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2025-01-04 10:12:02 - INFO - No upload needed. Exiting script.
+2025-01-06 09:12:06 - INFO - Script started
+2025-01-06 09:12:07 - INFO - downloading configFile form aws s3
+2025-01-06 09:12:10 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2025-01-06 09:12:10 - INFO - No upload needed. Exiting script.
+2025-01-06 09:17:03 - INFO - Script started
+2025-01-06 09:17:03 - INFO - downloading configFile form aws s3
+2025-01-06 09:17:05 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2025-01-06 09:17:05 - INFO - No upload needed. Exiting script.
+2025-01-06 09:42:02 - INFO - Script started
+2025-01-06 09:42:02 - INFO - downloading configFile form aws s3
+2025-01-06 09:42:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2025-01-06 09:42:04 - INFO - No upload needed. Exiting script.
+2025-01-06 10:12:01 - INFO - Script started
+2025-01-06 10:12:02 - INFO - downloading configFile form aws s3
+2025-01-06 10:12:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2025-01-06 10:12:04 - INFO - No upload needed. Exiting script.
+2025-01-06 10:27:02 - INFO - Script started
+2025-01-06 10:27:02 - INFO - downloading configFile form aws s3
+2025-01-06 10:27:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2025-01-06 10:27:04 - INFO - No upload needed. Exiting script.
+2025-01-06 10:42:01 - INFO - Script started
+2025-01-06 10:42:02 - INFO - downloading configFile form aws s3
+2025-01-06 10:42:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2025-01-06 10:42:03 - INFO - No upload needed. Exiting script.
+2025-01-06 10:48:37 - INFO - Script started
+2025-01-06 10:48:37 - INFO - downloading configFile form aws s3
+2025-01-06 10:48:39 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2025-01-06 10:48:39 - INFO - No upload needed. Exiting script.
+2025-01-06 10:52:48 - INFO - Script started
+2025-01-06 10:52:48 - INFO - downloading configFile form aws s3
+2025-01-06 10:52:50 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2025-01-06 10:52:50 - INFO - No upload needed. Exiting script.
+2025-01-06 10:55:44 - INFO - Script started
+2025-01-06 10:55:44 - INFO - downloading configFile form aws s3
+2025-01-06 10:55:45 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2025-01-06 10:55:45 - INFO - No upload needed. Exiting script.
+2025-01-06 11:12:01 - INFO - Script started
+2025-01-06 11:12:02 - INFO - downloading configFile form aws s3
+2025-01-06 11:12:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2025-01-06 11:12:04 - INFO - No upload needed. Exiting script.
+2025-01-06 12:12:07 - INFO - Script started
+2025-01-06 12:12:09 - INFO - downloading configFile form aws s3
+2025-01-06 12:12:11 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2025-01-06 12:12:11 - INFO - No upload needed. Exiting script.
+2025-01-06 12:42:02 - INFO - Script started
+2025-01-06 12:42:02 - INFO - downloading configFile form aws s3
+2025-01-06 12:42:04 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2025-01-06 12:42:04 - INFO - No upload needed. Exiting script.
+2025-01-06 13:42:01 - INFO - Script started
+2025-01-06 13:42:02 - INFO - downloading configFile form aws s3
+2025-01-06 13:42:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2025-01-06 13:42:03 - INFO - No upload needed. Exiting script.
+2025-01-06 14:12:01 - INFO - Script started
+2025-01-06 14:12:01 - INFO - downloading configFile form aws s3
+2025-01-06 14:12:03 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2025-01-06 14:12:03 - INFO - No upload needed. Exiting script.
+2025-01-06 14:16:35 - INFO - Script started
+2025-01-06 14:16:35 - INFO - downloading configFile form aws s3
+2025-01-06 14:16:37 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2025-01-06 14:16:37 - INFO - No upload needed. Exiting script.
+2025-01-06 14:16:44 - INFO - Script started
+2025-01-06 14:16:44 - INFO - downloading configFile form aws s3
+2025-01-06 14:16:46 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2025-01-06 14:16:46 - INFO - No upload needed. Exiting script.
+2025-01-06 14:26:47 - INFO - Script started
+2025-01-06 14:26:48 - INFO - downloading configFile form aws s3
+2025-01-06 14:26:50 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2025-01-06 14:26:50 - INFO - No upload needed. Exiting script.
+2025-01-06 14:34:55 - INFO - Script started
+2025-01-06 14:34:55 - INFO - downloading configFile form aws s3
+2025-01-06 14:34:57 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2025-01-06 14:34:57 - INFO - No upload needed. Exiting script.
+2025-01-06 14:37:34 - INFO - Script started
+2025-01-06 14:37:34 - INFO - downloading configFile form aws s3
+2025-01-06 14:37:36 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2025-01-06 14:37:36 - INFO - No upload needed. Exiting script.
+2025-01-06 14:42:39 - INFO - Script started
+2025-01-06 14:42:39 - INFO - downloading configFile form aws s3
+2025-01-06 14:42:41 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2025-01-06 14:42:41 - INFO - No upload needed. Exiting script.
+2025-01-06 14:46:16 - INFO - Script started
+2025-01-06 14:46:16 - INFO - downloading configFile form aws s3
+2025-01-06 14:46:18 - INFO - ConfigFile updated succesfully
+2025-01-06 14:46:18 - INFO - No upload needed. Exiting script.
+2025-01-06 15:12:01 - INFO - Script started
+2025-01-06 15:12:02 - INFO - downloading configFile form aws s3
+2025-01-06 15:12:04 - INFO - ConfigFile updated succesfully
+2025-01-06 15:12:04 - INFO - No upload needed. Exiting script.
+2025-01-06 15:42:01 - INFO - Script started
+2025-01-06 15:42:02 - INFO - downloading configFile form aws s3
+2025-01-06 15:42:04 - INFO - ConfigFile updated succesfully
+2025-01-06 15:42:04 - INFO - No upload needed. Exiting script.
+2025-01-06 16:12:02 - INFO - Script started
+2025-01-06 16:12:02 - INFO - downloading configFile form aws s3
+2025-01-06 16:12:04 - INFO - ConfigFile updated succesfully
+2025-01-06 16:12:04 - INFO - No upload needed. Exiting script.
+2025-01-06 16:42:02 - INFO - Script started
+2025-01-06 16:42:02 - INFO - downloading configFile form aws s3
+2025-01-06 16:42:04 - INFO - ConfigFile updated succesfully
+2025-01-06 16:42:04 - INFO - No upload needed. Exiting script.
+2025-01-07 08:42:02 - INFO - Script started
+2025-01-07 08:42:02 - INFO - downloading configFile form aws s3
+2025-01-07 08:42:04 - INFO - ConfigFile updated succesfully
+2025-01-07 08:42:04 - INFO - No upload needed. Exiting script.
+2025-01-07 09:12:06 - INFO - Script started
+2025-01-07 09:12:07 - INFO - downloading configFile form aws s3
+2025-01-07 09:12:09 - INFO - ConfigFile updated succesfully
+2025-01-07 09:12:09 - INFO - No upload needed. Exiting script.
+2025-01-07 09:18:13 - INFO - Script started
+2025-01-07 09:18:13 - INFO - downloading configFile form aws s3
+2025-01-07 09:18:14 - INFO - ConfigFile updated succesfully
+2025-01-07 09:18:14 - INFO - No upload needed. Exiting script.
+2025-01-07 09:20:41 - INFO - Script started
+2025-01-07 09:20:41 - INFO - downloading configFile form aws s3
+2025-01-07 09:20:43 - INFO - ConfigFile updated succesfully
+2025-01-07 09:20:43 - INFO - No upload needed. Exiting script.
+2025-01-07 09:21:50 - INFO - Script started
+2025-01-07 09:21:51 - INFO - downloading configFile form aws s3
+2025-01-07 09:21:52 - INFO - ConfigFile updated succesfully
+2025-01-07 09:21:52 - INFO - No upload needed. Exiting script.
+2025-01-07 09:30:40 - INFO - Script started
+2025-01-07 09:30:40 - INFO - downloading configFile form aws s3
+2025-01-07 09:30:42 - INFO - ConfigFile updated succesfully
+2025-01-07 09:30:42 - INFO - No upload needed. Exiting script.
+2025-01-07 09:30:59 - INFO - Script started
+2025-01-07 09:30:59 - INFO - downloading configFile form aws s3
+2025-01-07 09:31:01 - INFO - ConfigFile updated succesfully
+2025-01-07 09:31:01 - INFO - No upload needed. Exiting script.
+2025-01-07 09:31:25 - INFO - Script started
+2025-01-07 09:31:25 - INFO - downloading configFile form aws s3
+2025-01-07 09:31:26 - INFO - ConfigFile updated succesfully
+2025-01-07 09:31:26 - INFO - No upload needed. Exiting script.
+2025-01-07 09:32:28 - INFO - Script started
+2025-01-07 09:32:28 - INFO - downloading configFile form aws s3
+2025-01-07 09:32:30 - INFO - ConfigFile updated succesfully
+2025-01-07 09:32:30 - INFO - No upload needed. Exiting script.
+2025-01-07 09:33:34 - INFO - Script started
+2025-01-07 09:33:34 - INFO - downloading configFile form aws s3
+2025-01-07 09:33:38 - INFO - ConfigFile updated succesfully
+2025-01-07 09:33:38 - INFO - No upload needed. Exiting script.
+2025-01-07 09:34:31 - INFO - Script started
+2025-01-07 09:34:31 - INFO - downloading configFile form aws s3
+2025-01-07 09:34:33 - INFO - ConfigFile updated succesfully
+2025-01-07 09:34:33 - INFO - No upload needed. Exiting script.
+2025-01-07 09:35:18 - INFO - Script started
+2025-01-07 09:35:18 - INFO - downloading configFile form aws s3
+2025-01-07 09:35:20 - INFO - ConfigFile updated succesfully
+2025-01-07 09:35:20 - INFO - No upload needed. Exiting script.
+2025-01-07 09:37:13 - INFO - Script started
+2025-01-07 09:37:13 - INFO - downloading configFile form aws s3
+2025-01-07 09:38:20 - INFO - ConfigFile updated succesfully
+2025-01-07 09:38:20 - INFO - No upload needed. Exiting script.
+2025-01-07 09:39:10 - INFO - Script started
+2025-01-07 09:39:11 - INFO - downloading configFile form aws s3
+2025-01-07 09:39:12 - INFO - ConfigFile updated succesfully
+2025-01-07 09:39:12 - INFO - No upload needed. Exiting script.
+2025-01-07 09:40:09 - INFO - Script started
+2025-01-07 09:40:09 - INFO - downloading configFile form aws s3
+2025-01-07 09:40:18 - INFO - ConfigFile updated succesfully
+2025-01-07 09:40:18 - INFO - No upload needed. Exiting script.
+2025-01-07 09:41:15 - INFO - Script started
+2025-01-07 09:41:15 - INFO - downloading configFile form aws s3
+2025-01-07 09:41:17 - INFO - ConfigFile updated succesfully
+2025-01-07 09:41:17 - INFO - No upload needed. Exiting script.
+2025-01-07 09:42:01 - INFO - Script started
+2025-01-07 09:42:02 - INFO - downloading configFile form aws s3
+2025-01-07 09:42:03 - INFO - ConfigFile updated succesfully
+2025-01-07 09:42:03 - INFO - No upload needed. Exiting script.
+2025-01-07 09:44:00 - INFO - Script started
+2025-01-07 09:44:00 - INFO - downloading configFile form aws s3
+2025-01-07 09:44:02 - INFO - ConfigFile updated succesfully
+2025-01-07 09:44:02 - INFO - No upload needed. Exiting script.
+2025-01-07 09:56:03 - INFO - Script started
+2025-01-07 09:56:03 - INFO - downloading configFile form aws s3
+2025-01-07 09:56:04 - INFO - ConfigFile updated succesfully
+2025-01-07 09:56:04 - INFO - No upload needed. Exiting script.
+2025-01-07 09:58:35 - INFO - Script started
+2025-01-07 09:58:35 - INFO - downloading configFile form aws s3
+2025-01-07 09:58:37 - INFO - ConfigFile updated succesfully
+2025-01-07 09:58:37 - INFO - No upload needed. Exiting script.
+2025-01-07 10:01:01 - INFO - Script started
+2025-01-07 10:01:01 - INFO - downloading configFile form aws s3
+2025-01-07 10:01:02 - INFO - ConfigFile updated succesfully
+2025-01-07 10:01:02 - INFO - No upload needed. Exiting script.
+2025-01-07 10:12:01 - INFO - Script started
+2025-01-07 10:12:01 - INFO - downloading configFile form aws s3
+2025-01-07 10:12:03 - INFO - ConfigFile updated succesfully
+2025-01-07 10:12:03 - INFO - No upload needed. Exiting script.
+2025-01-07 10:19:42 - INFO - Script started
+2025-01-07 10:19:43 - INFO - downloading configFile form aws s3
+2025-01-07 10:19:44 - INFO - ConfigFile updated succesfully
+2025-01-07 10:19:44 - INFO - No upload needed. Exiting script.
+2025-01-07 10:20:10 - INFO - Script started
+2025-01-07 10:20:10 - INFO - downloading configFile form aws s3
+2025-01-07 10:20:12 - INFO - ConfigFile updated succesfully
+2025-01-07 10:20:12 - INFO - No upload needed. Exiting script.
+2025-01-07 10:42:01 - INFO - Script started
+2025-01-07 10:42:01 - INFO - downloading configFile form aws s3
+2025-01-07 10:42:07 - ERROR - An error occurred: Could not connect to the endpoint URL: "https://homer-data.s3.amazonaws.com/6753/MarsData/configdata.csv"
+2025-01-07 10:42:07 - INFO - No upload needed. Exiting script.
+2025-01-07 11:42:05 - INFO - Script started
+2025-01-07 11:42:06 - INFO - downloading configFile form aws s3
+2025-01-07 11:42:12 - INFO - Script started
+2025-01-07 11:42:12 - INFO - downloading configFile form aws s3
+2025-01-07 11:42:18 - ERROR - An error occurred: SSL validation failed for https://homer-data.s3.amazonaws.com/6753/MarsData/configdata.csv [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1020)
+2025-01-07 11:42:18 - INFO - No upload needed. Exiting script.
+2025-01-07 11:42:19 - ERROR - An error occurred: SSL validation failed for https://homer-data.s3.amazonaws.com/6753/MarsData/configdata.csv [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1020)
+2025-01-07 11:42:19 - INFO - No upload needed. Exiting script.
+2025-01-07 11:56:37 - INFO - Script started
+2025-01-07 11:56:37 - INFO - downloading configFile form aws s3
+2025-01-07 11:56:44 - ERROR - An error occurred: SSL validation failed for https://homer-data.s3.amazonaws.com/6753/MarsData/configdata.csv [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1020)
+2025-01-07 11:56:44 - INFO - No upload needed. Exiting script.
+2025-01-07 11:59:51 - INFO - Script started
+2025-01-07 11:59:51 - INFO - downloading configFile form aws s3
+2025-01-07 11:59:59 - ERROR - An error occurred: SSL validation failed for https://homer-data.s3.amazonaws.com/6753/MarsData/configdata.csv [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1020)
+2025-01-07 11:59:59 - INFO - No upload needed. Exiting script.
+2025-01-07 12:12:01 - INFO - Script started
+2025-01-07 12:12:02 - INFO - downloading configFile form aws s3
+2025-01-07 12:12:09 - ERROR - An error occurred: SSL validation failed for https://homer-data.s3.amazonaws.com/6753/MarsData/configdata.csv [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1020)
+2025-01-07 12:12:09 - INFO - No upload needed. Exiting script.
+2025-01-07 12:42:01 - INFO - Script started
+2025-01-07 12:42:02 - INFO - downloading configFile form aws s3
+2025-01-07 12:42:08 - ERROR - An error occurred: SSL validation failed for https://homer-data.s3.amazonaws.com/6753/MarsData/configdata.csv [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1020)
+2025-01-07 12:42:08 - INFO - No upload needed. Exiting script.
+2025-01-07 13:42:02 - INFO - Script started
+2025-01-07 13:42:03 - INFO - downloading configFile form aws s3
+2025-01-07 13:42:05 - INFO - ConfigFile updated succesfully
+2025-01-07 13:42:05 - INFO - No upload needed. Exiting script.
+2025-01-07 14:42:01 - INFO - Script started
+2025-01-07 14:42:02 - INFO - downloading configFile form aws s3
+2025-01-07 14:42:15 - ERROR - An error occurred: SSL validation failed for https://homer-data.s3.amazonaws.com/6753/MarsData/configdata.csv [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1020)
+2025-01-07 14:42:15 - INFO - No upload needed. Exiting script.
+2025-01-07 15:12:01 - INFO - Script started
+2025-01-07 15:12:02 - INFO - downloading configFile form aws s3
+2025-01-07 15:12:13 - ERROR - An error occurred: SSL validation failed for https://homer-data.s3.amazonaws.com/6753/MarsData/configdata.csv [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1020)
+2025-01-07 15:12:13 - INFO - No upload needed. Exiting script.
+2025-01-07 15:42:02 - INFO - Script started
+2025-01-07 15:42:02 - INFO - downloading configFile form aws s3
+2025-01-07 15:42:03 - INFO - ConfigFile updated succesfully
+2025-01-07 15:42:03 - INFO - No upload needed. Exiting script.
+2025-01-07 16:12:01 - INFO - Script started
+2025-01-07 16:12:02 - INFO - downloading configFile form aws s3
+2025-01-07 16:12:13 - ERROR - An error occurred: SSL validation failed for https://homer-data.s3.amazonaws.com/6753/MarsData/configdata.csv [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1020)
+2025-01-07 16:12:13 - INFO - No upload needed. Exiting script.
+2025-01-07 16:13:11 - INFO - Script started
+2025-01-07 16:13:12 - INFO - downloading configFile form aws s3
+2025-01-07 16:13:22 - ERROR - An error occurred: SSL validation failed for https://homer-data.s3.amazonaws.com/6753/MarsData/configdata.csv [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1020)
+2025-01-07 16:13:22 - INFO - No upload needed. Exiting script.
+2025-01-07 16:14:40 - INFO - Script started
+2025-01-07 16:14:41 - INFO - downloading configFile form aws s3
+2025-01-07 16:14:50 - ERROR - An error occurred: SSL validation failed for https://homer-data.s3.amazonaws.com/6753/MarsData/configdata.csv [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1020)
+2025-01-07 16:14:50 - INFO - No upload needed. Exiting script.
+2025-01-07 16:16:19 - INFO - Script started
+2025-01-07 16:16:19 - INFO - downloading configFile form aws s3
+2025-01-07 16:16:34 - ERROR - An error occurred: SSL validation failed for https://homer-data.s3.amazonaws.com/6753/MarsData/configdata.csv [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1020)
+2025-01-07 16:16:34 - INFO - No upload needed. Exiting script.
+2025-01-07 16:39:10 - INFO - Script started
+2025-01-07 16:39:10 - INFO - downloading configFile form aws s3
+2025-01-07 16:39:17 - ERROR - An error occurred: SSL validation failed for https://homer-data.s3.amazonaws.com/6753/MarsData/configdata.csv [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1020)
+2025-01-07 16:39:17 - INFO - No upload needed. Exiting script.
+2025-01-07 16:39:37 - INFO - Script started
+2025-01-07 16:39:37 - INFO - downloading configFile form aws s3
+2025-01-07 16:39:46 - ERROR - An error occurred: SSL validation failed for https://homer-data.s3.amazonaws.com/6753/MarsData/configdata.csv [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1020)
+2025-01-07 16:39:46 - INFO - No upload needed. Exiting script.
+2025-01-07 16:40:10 - INFO - Script started
+2025-01-07 16:40:10 - INFO - downloading configFile form aws s3
+2025-01-07 16:40:21 - ERROR - An error occurred: SSL validation failed for https://homer-data.s3.amazonaws.com/6753/MarsData/configdata.csv [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1020)
+2025-01-07 16:40:21 - INFO - No upload needed. Exiting script.
+2025-01-07 16:42:01 - INFO - Script started
+2025-01-07 16:42:02 - INFO - downloading configFile form aws s3
+2025-01-07 16:42:11 - ERROR - An error occurred: SSL validation failed for https://homer-data.s3.amazonaws.com/6753/MarsData/configdata.csv [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1020)
+2025-01-07 16:42:11 - INFO - No upload needed. Exiting script.
+2025-01-08 08:42:02 - INFO - Script started
+2025-01-08 08:42:02 - INFO - downloading configFile form aws s3
+2025-01-08 08:42:05 - INFO - ConfigFile updated succesfully
+2025-01-08 08:42:05 - INFO - No upload needed. Exiting script.
+2025-01-08 09:12:06 - INFO - Script started
+2025-01-08 09:12:06 - INFO - downloading configFile form aws s3
+2025-01-08 09:12:08 - INFO - ConfigFile updated succesfully
+2025-01-08 09:12:08 - INFO - No upload needed. Exiting script.
+2025-01-08 09:42:01 - INFO - Script started
+2025-01-08 09:42:02 - INFO - downloading configFile form aws s3
+2025-01-08 09:42:09 - ERROR - An error occurred: Could not connect to the endpoint URL: "https://homer-data.s3.amazonaws.com/6753/MarsData/configdata.csv"
+2025-01-08 09:42:09 - INFO - No upload needed. Exiting script.
+2025-01-08 09:44:06 - INFO - Script started
+2025-01-08 09:44:07 - INFO - downloading configFile form aws s3
+2025-01-08 09:44:16 - ERROR - An error occurred: Could not connect to the endpoint URL: "https://homer-data.s3.amazonaws.com/6753/MarsData/configdata.csv"
+2025-01-08 09:44:16 - INFO - No upload needed. Exiting script.
+2025-01-08 09:44:30 - INFO - Script started
+2025-01-08 09:44:30 - INFO - downloading configFile form aws s3
+2025-01-08 09:44:33 - ERROR - An error occurred: Could not connect to the endpoint URL: "https://homer-data.s3.amazonaws.com/6753/MarsData/configdata.csv"
+2025-01-08 09:44:33 - INFO - No upload needed. Exiting script.
+2025-01-08 09:44:43 - INFO - Script started
+2025-01-08 09:44:44 - INFO - downloading configFile form aws s3
+2025-01-08 09:44:51 - ERROR - An error occurred: Could not connect to the endpoint URL: "https://homer-data.s3.amazonaws.com/6753/MarsData/configdata.csv"
+2025-01-08 09:44:51 - INFO - No upload needed. Exiting script.
+2025-01-08 10:05:27 - INFO - Script started
+2025-01-08 10:05:27 - INFO - downloading configFile form aws s3
+2025-01-08 10:05:29 - INFO - ConfigFile updated succesfully
+2025-01-08 10:05:29 - INFO - No upload needed. Exiting script.
+2025-01-08 10:12:02 - INFO - Script started
+2025-01-08 10:12:02 - INFO - downloading configFile form aws s3
+2025-01-08 10:12:04 - INFO - ConfigFile updated succesfully
+2025-01-08 10:12:04 - INFO - No upload needed. Exiting script.
+2025-01-08 10:42:02 - INFO - Script started
+2025-01-08 10:42:02 - INFO - downloading configFile form aws s3
+2025-01-08 10:42:04 - INFO - ConfigFile updated succesfully
+2025-01-08 10:42:04 - INFO - No upload needed. Exiting script.
+2025-01-08 12:19:16 - INFO - Script started
+2025-01-08 12:19:16 - INFO - downloading configFile form aws s3
+2025-01-08 12:19:18 - INFO - ConfigFile updated succesfully
+2025-01-08 12:19:18 - INFO - No upload needed. Exiting script.
+2025-01-08 12:20:02 - INFO - Script started
+2025-01-08 12:20:02 - INFO - downloading configFile form aws s3
+2025-01-08 12:20:04 - INFO - ConfigFile updated succesfully
+2025-01-08 12:20:04 - INFO - No upload needed. Exiting script.
+2025-01-08 12:42:01 - INFO - Script started
+2025-01-08 12:42:02 - INFO - downloading configFile form aws s3
+2025-01-08 12:42:04 - INFO - ConfigFile updated succesfully
+2025-01-08 12:42:04 - INFO - No upload needed. Exiting script.
+2025-01-08 12:55:21 - INFO - Script started
+2025-01-08 12:55:22 - INFO - downloading configFile form aws s3
+2025-01-08 12:55:23 - INFO - ConfigFile updated succesfully
+2025-01-08 12:55:23 - INFO - No upload needed. Exiting script.
+2025-01-08 13:00:46 - INFO - Script started
+2025-01-08 13:00:46 - INFO - downloading configFile form aws s3
+2025-01-08 13:00:47 - INFO - ConfigFile updated succesfully
+2025-01-08 13:00:47 - INFO - No upload needed. Exiting script.
+2025-01-08 13:01:32 - INFO - Script started
+2025-01-08 13:01:32 - INFO - downloading configFile form aws s3
+2025-01-08 13:01:33 - INFO - ConfigFile updated succesfully
+2025-01-08 13:01:33 - INFO - No upload needed. Exiting script.
+2025-01-08 13:03:15 - INFO - Script started
+2025-01-08 13:03:15 - INFO - downloading configFile form aws s3
+2025-01-08 13:03:16 - INFO - ConfigFile updated succesfully
+2025-01-08 13:03:16 - INFO - No upload needed. Exiting script.
+2025-01-08 13:04:38 - INFO - Script started
+2025-01-08 13:04:38 - INFO - downloading configFile form aws s3
+2025-01-08 13:04:39 - INFO - ConfigFile updated succesfully
+2025-01-08 13:04:39 - INFO - No upload needed. Exiting script.
+2025-01-08 13:07:04 - INFO - Script started
+2025-01-08 13:07:04 - INFO - downloading configFile form aws s3
+2025-01-08 13:07:05 - INFO - ConfigFile updated succesfully
+2025-01-08 13:07:05 - INFO - No upload needed. Exiting script.
+2025-01-08 13:12:01 - INFO - Script started
+2025-01-08 13:12:02 - INFO - downloading configFile form aws s3
+2025-01-08 13:12:03 - INFO - ConfigFile updated succesfully
+2025-01-08 13:12:03 - INFO - No upload needed. Exiting script.
+2025-01-08 13:13:45 - INFO - Script started
+2025-01-08 13:13:45 - INFO - downloading configFile form aws s3
+2025-01-08 13:13:47 - INFO - ConfigFile updated succesfully
+2025-01-08 13:13:47 - INFO - No upload needed. Exiting script.
+2025-01-08 13:16:52 - INFO - Script started
+2025-01-08 13:16:52 - INFO - downloading configFile form aws s3
+2025-01-08 13:16:54 - INFO - ConfigFile updated succesfully
+2025-01-08 13:16:54 - INFO - No upload needed. Exiting script.
+2025-01-08 13:18:20 - INFO - Script started
+2025-01-08 13:18:20 - INFO - downloading configFile form aws s3
+2025-01-08 13:18:22 - INFO - ConfigFile updated succesfully
+2025-01-08 13:18:22 - INFO - No upload needed. Exiting script.
+2025-01-08 13:19:00 - INFO - Script started
+2025-01-08 13:19:00 - INFO - downloading configFile form aws s3
+2025-01-08 13:19:01 - INFO - ConfigFile updated succesfully
+2025-01-08 13:19:01 - INFO - No upload needed. Exiting script.
+2025-01-08 13:19:51 - INFO - Script started
+2025-01-08 13:19:51 - INFO - downloading configFile form aws s3
+2025-01-08 13:19:52 - INFO - ConfigFile updated succesfully
+2025-01-08 13:19:52 - INFO - No upload needed. Exiting script.
+2025-01-08 13:22:01 - INFO - Script started
+2025-01-08 13:22:01 - INFO - downloading configFile form aws s3
+2025-01-08 13:22:02 - INFO - ConfigFile updated succesfully
+2025-01-08 13:22:02 - INFO - No upload needed. Exiting script.
+2025-01-08 13:24:48 - INFO - Script started
+2025-01-08 13:24:48 - INFO - downloading configFile form aws s3
+2025-01-08 13:24:49 - INFO - ConfigFile updated succesfully
+2025-01-08 13:24:49 - INFO - No upload needed. Exiting script.
+2025-01-08 13:28:42 - INFO - Script started
+2025-01-08 13:28:42 - INFO - downloading configFile form aws s3
+2025-01-08 13:28:44 - INFO - ConfigFile updated succesfully
+2025-01-08 13:28:44 - INFO - No upload needed. Exiting script.
+2025-01-08 13:30:55 - INFO - Script started
+2025-01-08 13:30:55 - INFO - downloading configFile form aws s3
+2025-01-08 13:30:57 - INFO - ConfigFile updated succesfully
+2025-01-08 13:30:57 - INFO - No upload needed. Exiting script.
+2025-01-08 13:32:39 - INFO - Script started
+2025-01-08 13:32:39 - INFO - downloading configFile form aws s3
+2025-01-08 13:32:41 - INFO - ConfigFile updated succesfully
+2025-01-08 13:32:41 - INFO - No upload needed. Exiting script.
+2025-01-08 13:42:01 - INFO - Script started
+2025-01-08 13:42:02 - INFO - downloading configFile form aws s3
+2025-01-08 13:42:03 - INFO - ConfigFile updated succesfully
+2025-01-08 13:42:03 - INFO - No upload needed. Exiting script.
+2025-01-08 13:53:13 - INFO - Script started
+2025-01-08 13:53:14 - INFO - downloading configFile form aws s3
+2025-01-08 13:53:15 - INFO - ConfigFile updated succesfully
+2025-01-08 13:53:15 - INFO - No upload needed. Exiting script.
+2025-01-08 13:54:56 - INFO - Script started
+2025-01-08 13:54:56 - INFO - downloading configFile form aws s3
+2025-01-08 13:54:57 - INFO - ConfigFile updated succesfully
+2025-01-08 13:54:57 - INFO - No upload needed. Exiting script.
+2025-01-08 13:55:50 - INFO - Script started
+2025-01-08 13:55:50 - INFO - downloading configFile form aws s3
+2025-01-08 13:55:51 - INFO - ConfigFile updated succesfully
+2025-01-08 13:55:51 - INFO - No upload needed. Exiting script.
+2025-01-08 13:56:44 - INFO - Script started
+2025-01-08 13:56:45 - INFO - downloading configFile form aws s3
+2025-01-08 13:56:46 - INFO - ConfigFile updated succesfully
+2025-01-08 13:56:46 - INFO - No upload needed. Exiting script.
+2025-01-08 13:57:43 - INFO - Script started
+2025-01-08 13:57:43 - INFO - downloading configFile form aws s3
+2025-01-08 13:57:44 - INFO - ConfigFile updated succesfully
+2025-01-08 13:57:44 - INFO - No upload needed. Exiting script.
+2025-01-08 13:58:57 - INFO - Script started
+2025-01-08 13:58:57 - INFO - downloading configFile form aws s3
+2025-01-08 13:58:58 - INFO - ConfigFile updated succesfully
+2025-01-08 13:58:58 - INFO - No upload needed. Exiting script.
+2025-01-08 14:04:10 - INFO - Script started
+2025-01-08 14:04:10 - INFO - downloading configFile form aws s3
+2025-01-08 14:04:11 - INFO - ConfigFile updated succesfully
+2025-01-08 14:04:11 - INFO - No upload needed. Exiting script.
+2025-01-08 14:07:02 - INFO - Script started
+2025-01-08 14:07:02 - INFO - downloading configFile form aws s3
+2025-01-08 14:07:03 - INFO - ConfigFile updated succesfully
+2025-01-08 14:07:03 - INFO - No upload needed. Exiting script.
+2025-01-08 14:07:40 - INFO - Script started
+2025-01-08 14:07:40 - INFO - downloading configFile form aws s3
+2025-01-08 14:07:42 - INFO - ConfigFile updated succesfully
+2025-01-08 14:07:42 - INFO - No upload needed. Exiting script.
+2025-01-08 14:08:39 - INFO - Script started
+2025-01-08 14:08:39 - INFO - downloading configFile form aws s3
+2025-01-08 14:08:40 - INFO - ConfigFile updated succesfully
+2025-01-08 14:08:40 - INFO - No upload needed. Exiting script.
+2025-01-08 14:09:48 - INFO - Script started
+2025-01-08 14:09:48 - INFO - downloading configFile form aws s3
+2025-01-08 14:09:49 - INFO - ConfigFile updated succesfully
+2025-01-08 14:09:49 - INFO - No upload needed. Exiting script.
+2025-01-08 14:12:01 - INFO - Script started
+2025-01-08 14:12:02 - INFO - downloading configFile form aws s3
+2025-01-08 14:12:03 - INFO - ConfigFile updated succesfully
+2025-01-08 14:12:03 - INFO - No upload needed. Exiting script.
+2025-01-08 14:15:16 - INFO - Script started
+2025-01-08 14:15:16 - INFO - downloading configFile form aws s3
+2025-01-08 14:15:18 - INFO - ConfigFile updated succesfully
+2025-01-08 14:15:18 - INFO - No upload needed. Exiting script.
+2025-01-08 14:23:53 - INFO - Script started
+2025-01-08 14:23:53 - INFO - downloading configFile form aws s3
+2025-01-08 14:23:55 - INFO - ConfigFile updated succesfully
+2025-01-08 14:23:55 - INFO - No upload needed. Exiting script.
+2025-01-08 14:27:26 - INFO - Script started
+2025-01-08 14:27:26 - INFO - downloading configFile form aws s3
+2025-01-08 14:27:27 - INFO - ConfigFile updated succesfully
+2025-01-08 14:27:27 - INFO - No upload needed. Exiting script.
+2025-01-08 14:29:45 - INFO - Script started
+2025-01-08 14:29:46 - INFO - downloading configFile form aws s3
+2025-01-08 14:29:47 - INFO - ConfigFile updated succesfully
+2025-01-08 14:29:47 - INFO - No upload needed. Exiting script.
+2025-01-08 14:38:27 - INFO - Script started
+2025-01-08 14:38:27 - INFO - downloading configFile form aws s3
+2025-01-08 14:38:29 - INFO - ConfigFile updated succesfully
+2025-01-08 14:38:29 - INFO - No upload needed. Exiting script.
+2025-01-08 14:42:01 - INFO - Script started
+2025-01-08 14:42:02 - INFO - downloading configFile form aws s3
+2025-01-08 14:42:03 - INFO - ConfigFile updated succesfully
+2025-01-08 14:42:03 - INFO - No upload needed. Exiting script.
+2025-01-08 14:43:20 - INFO - Script started
+2025-01-08 14:43:20 - INFO - downloading configFile form aws s3
+2025-01-08 14:43:21 - INFO - ConfigFile updated succesfully
+2025-01-08 14:43:21 - INFO - No upload needed. Exiting script.
+2025-01-08 15:12:01 - INFO - Script started
+2025-01-08 15:12:02 - INFO - downloading configFile form aws s3
+2025-01-08 15:12:03 - INFO - ConfigFile updated succesfully
+2025-01-08 15:12:03 - INFO - No upload needed. Exiting script.
+2025-01-08 15:41:01 - INFO - Script started
+2025-01-08 15:41:02 - INFO - downloading configFile form aws s3
+2025-01-08 15:41:03 - INFO - ConfigFile updated succesfully
+2025-01-08 15:41:03 - INFO - No upload needed. Exiting script.
+2025-01-08 15:41:59 - INFO - Script started
+2025-01-08 15:41:59 - INFO - downloading configFile form aws s3
+2025-01-08 15:42:01 - INFO - ConfigFile updated succesfully
+2025-01-08 15:42:01 - INFO - No upload needed. Exiting script.
+2025-01-08 15:42:01 - INFO - Script started
+2025-01-08 15:42:02 - INFO - downloading configFile form aws s3
+2025-01-08 15:42:03 - INFO - ConfigFile updated succesfully
+2025-01-08 15:42:03 - INFO - No upload needed. Exiting script.
+2025-01-08 15:48:15 - INFO - Script started
+2025-01-08 15:48:15 - INFO - downloading configFile form aws s3
+2025-01-08 15:48:17 - INFO - ConfigFile updated succesfully
+2025-01-08 15:48:17 - INFO - No upload needed. Exiting script.
+2025-01-08 15:48:31 - INFO - Script started
+2025-01-08 15:48:31 - INFO - downloading configFile form aws s3
+2025-01-08 15:48:33 - INFO - ConfigFile updated succesfully
+2025-01-08 15:48:33 - INFO - No upload needed. Exiting script.
+2025-01-09 09:12:06 - INFO - Script started
+2025-01-09 09:12:08 - INFO - downloading configFile form aws s3
+2025-01-09 09:12:10 - INFO - ConfigFile updated succesfully
+2025-01-09 09:12:10 - INFO - No upload needed. Exiting script.
+2025-01-09 09:42:02 - INFO - Script started
+2025-01-09 09:42:03 - INFO - downloading configFile form aws s3
+2025-01-09 09:42:04 - INFO - ConfigFile updated succesfully
+2025-01-09 09:42:04 - INFO - No upload needed. Exiting script.
+2025-01-09 10:12:01 - INFO - Script started
+2025-01-09 10:12:02 - INFO - downloading configFile form aws s3
+2025-01-09 10:12:03 - INFO - ConfigFile updated succesfully
+2025-01-09 10:12:04 - INFO - No upload needed. Exiting script.
+2025-01-09 10:42:02 - INFO - Script started
+2025-01-09 10:42:02 - INFO - downloading configFile form aws s3
+2025-01-09 10:42:04 - INFO - ConfigFile updated succesfully
+2025-01-09 10:42:04 - INFO - No upload needed. Exiting script.
+2025-01-09 11:12:07 - INFO - Script started
+2025-01-09 11:12:08 - INFO - downloading configFile form aws s3
+2025-01-09 11:12:11 - INFO - ConfigFile updated succesfully
+2025-01-09 11:12:11 - INFO - No upload needed. Exiting script.
+2025-01-09 11:42:02 - INFO - Script started
+2025-01-09 11:42:03 - INFO - downloading configFile form aws s3
+2025-01-09 11:42:09 - INFO - ConfigFile updated succesfully
+2025-01-09 11:42:09 - INFO - No upload needed. Exiting script.
+2025-01-09 12:12:02 - INFO - Script started
+2025-01-09 12:12:02 - INFO - downloading configFile form aws s3
+2025-01-09 12:12:04 - INFO - ConfigFile updated succesfully
+2025-01-09 12:12:04 - INFO - No upload needed. Exiting script.
+2025-01-09 12:42:02 - INFO - Script started
+2025-01-09 12:42:02 - INFO - downloading configFile form aws s3
+2025-01-09 12:42:04 - INFO - ConfigFile updated succesfully
+2025-01-09 12:42:04 - INFO - No upload needed. Exiting script.
+2025-01-09 13:12:06 - INFO - Script started
+2025-01-09 13:12:08 - INFO - downloading configFile form aws s3
+2025-01-09 13:12:18 - ERROR - An error occurred: SSL validation failed for https://homer-data.s3.amazonaws.com/6753/MarsData/configdata.csv [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1020)
+2025-01-09 13:12:18 - INFO - No upload needed. Exiting script.

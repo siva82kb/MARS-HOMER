@@ -12,19 +12,16 @@ public class summarySceneHandler : MonoBehaviour
 {
     public BarChart barchart;
     public string title;
-    // Existing variables...
     private ConcurrentQueue<System.Action> _actionQueue = new ConcurrentQueue<System.Action>();
 
     public void Start()
     {
-        AppData.InitializeRobot();
 
-        MarsComm.OnButtonReleased += onPlutoButtonReleased;
+        MarsComm.OnButtonReleased += onMarsButtonReleased;
         // Inialize the logger
         AppLogger.StartLogging(SceneManager.GetActiveScene().name);
         AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);
         AppLogger.LogInfo($"{SceneManager.GetActiveScene().name} scene started.");
-
         title = "summary";
         initializeChart();
     }
@@ -38,7 +35,7 @@ public class summarySceneHandler : MonoBehaviour
 
     }
 
-    // To load the data for a specific mechanism into the bar graph.
+    // To load the data for a specific movement into the bar graph.
     public void selectedMovements(Button button)
     {
         title = button.gameObject.name.ToUpper();
@@ -48,7 +45,7 @@ public class summarySceneHandler : MonoBehaviour
        
     }
     //To disconnect the Robot 
-    public void onPlutoButtonReleased()
+    public void onMarsButtonReleased()
     {
         AppLogger.LogInfo("Mars button released.");
         // Enqueue the disconnect and quit actions
@@ -135,5 +132,14 @@ public class summarySceneHandler : MonoBehaviour
         barchart.RefreshAllComponent();
         AppLogger.LogInfo("chart updated successfully");
     }
+    private void OnDestroy()
+    {
+        MarsComm.OnButtonReleased -= onMarsButtonReleased;
+    }
+    private void OnApplicationQuit()
+    {
 
+        Application.Quit();
+        JediComm.Disconnect();
+    }
 }

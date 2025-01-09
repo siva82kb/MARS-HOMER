@@ -11,29 +11,28 @@ public class DiagnosticSceneHandler : MonoBehaviour
    
     void Start()
     {
-        JediComm.ConnectToRobot("COM7");
+        
+        AppData.InitializeRobot();
     }
 
     private void Update()
     {
         updateTextBox();
-        byte[] _data = new byte[16];
-        Buffer.BlockCopy(AppData.PCParam, 0, _data, 0, _data.Length);
-        JediComm.SendMessage(_data);
+      
     }
     public void updateTextBox()
     {
         //Construct the display text while ensuring values are safely converted to string
-        string displayText = "Theta1: " + MarsComm.thetaOne.ToString() + "\n" +
-                             "Theta2: " + MarsComm.thetatwo.ToString() + "\n" +
-                             "Theta3: " + MarsComm.thetaThree.ToString() + "\n" +
-                             "Theta4: " + MarsComm.thetafour.ToString() + "\n" +
+        string displayText = "Theta1: " + MarsComm.angleOne.ToString() + "\n" +
+                             "Theta2: " + MarsComm.angleTwo.ToString() + "\n" +
+                             "Theta3: " + MarsComm.angleThree.ToString() + "\n" +
+                             "Theta4: " + MarsComm.angleFour.ToString() + "\n" +
                              "Force1: " + MarsComm.forceOne.ToString() + "\n" +
                              "Force2: " + MarsComm.forceTwo.ToString() + "\n" +
-                             "des1: " + MarsComm.descOne.ToString() + "\n" +
-                             "des2: " + MarsComm.descTwo.ToString() + "\n" +
-                             "des3: " + MarsComm.descThree.ToString() + "\n" +
-                             "PCParam: " + MarsComm.pcParameter.ToString() + "\n" +
+                             "des1: " + MarsComm.desOne.ToString() + "\n" +
+                             "des2: " + MarsComm.desTwo.ToString() + "\n" +
+                             "des3: " + MarsComm.desThree.ToString() + "\n" +
+                             "dataSendToRobot: " + MarsComm.pcParameter.ToString() + "\n" +
                              "Btn_st: " + MarsComm.buttonState.ToString();
         
         UpdateTextBox.text = displayText;

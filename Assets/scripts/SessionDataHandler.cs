@@ -18,7 +18,7 @@ public static class SessionDataHandler
     public static string MOVETIME = "moveTime";
     public static string STARTTIME = "StartTime";
     public static string STOPTIME = "StopTime";
-    public static string MOVEMENT = "movement";
+    public static string MOVEMENT = "Mechanism";
     public static Dictionary<string, float> movementMoveTimePrev { get; private set; } // Previous movement time 
   
     public static void parseMovementMoveTimePrev()
@@ -37,7 +37,6 @@ public static class SessionDataHandler
     //CALCULATE MOVETIME PER DAY FOR ALL MOVEMENTS
     public static  void MovTimePerDay()
     {
- 
         var movTimePerDay = UserData.dTableSession.AsEnumerable()
             .GroupBy(row => DateTime.ParseExact(row.Field<string>(DATETIME), DATEFORMAT_INFILE, CultureInfo.InvariantCulture).Date) // Group by date only
             .Select(group => new

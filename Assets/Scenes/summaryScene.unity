@@ -490,8 +490,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: -180}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 273, y: 3}
-  m_SizeDelta: {x: 43.2617, y: 54.6942}
+  m_AnchoredPosition: {x: 272, y: -3}
+  m_SizeDelta: {x: 34.4958, y: 28.3969}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &100446375
 MonoBehaviour:
@@ -2185,7 +2185,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.97735846, g: 0.79857254, b: 0.48499104, a: 0}
+  m_BackGroundColor: {r: 0.93962264, g: 0.93962264, b: 0.93962264, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -3507,8 +3507,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 120
-  m_fontSizeBase: 120
+  m_fontSize: 100
+  m_fontSizeBase: 100
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -4268,11 +4268,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6473857889621378673, guid: 3f5b5b39d3788944d96dbeb999d2d057, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 883
+      value: 877
       objectReference: {fileID: 0}
     - target: {fileID: 6473857889621378673, guid: 3f5b5b39d3788944d96dbeb999d2d057, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 43
+      value: 28
       objectReference: {fileID: 0}
     - target: {fileID: 6473857889621378673, guid: 3f5b5b39d3788944d96dbeb999d2d057, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -5250,8 +5250,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Press Mars Button To Exit
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 19fdcf8687240c84282a0307838c5f96, type: 2}
-  m_sharedMaterial: {fileID: 6678091363555379842, guid: 19fdcf8687240c84282a0307838c5f96, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 97a5865337810204fbf78c8bc9fb3012, type: 2}
+  m_sharedMaterial: {fileID: -1873271704752187399, guid: 97a5865337810204fbf78c8bc9fb3012, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

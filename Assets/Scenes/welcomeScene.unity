@@ -1701,8 +1701,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.000019073, y: -137}
-  m_SizeDelta: {x: 966.6331, y: 111.6565}
+  m_AnchoredPosition: {x: -12.632, y: -157.0552}
+  m_SizeDelta: {x: 1285.1, y: 151.767}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &694259685
 MonoBehaviour:
@@ -1751,8 +1751,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 40
-  m_fontSizeBase: 40
+  m_fontSize: 50
+  m_fontSizeBase: 50
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -3580,7 +3580,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6473857889621378673, guid: 3f5b5b39d3788944d96dbeb999d2d057, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 36
+      value: 28
       objectReference: {fileID: 0}
     - target: {fileID: 6473857889621378673, guid: 3f5b5b39d3788944d96dbeb999d2d057, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -4347,6 +4347,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1731361027}
   - component: {fileID: 1731361026}
+  - component: {fileID: 1731361028}
   m_Layer: 0
   m_Name: sceneHandler
   m_TagString: Untagged
@@ -4411,6 +4412,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1731361028
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1731361025}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5f890aaf6dc85641851bd29b9d5e596, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1862082739
 GameObject:
   m_ObjectHideFlags: 0

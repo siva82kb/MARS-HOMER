@@ -3,26 +3,35 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
 using System.Collections;
+using System.IO;
+using System;
 
-public class MechanismSceneHandler : MonoBehaviour
+public class MovementSceneHandler : MonoBehaviour
 {
-    public GameObject mehcanismSelectGroup;
+    //ui related variables
+    public GameObject movementSelectGroup;
     public Button nextButton;
     public Button exit;
+    public static float initialAngle;
+    private string nextScene = "calibratioScene";
+    private string exitScene = "SummaryScene";
+    private string assessmentScene = "weightCalibrationScene";
+    public static float shAng;
+    //flags
     private static bool changeScene = false;
-    
     private bool toggleSelected = false;  
-    private string nextScene = "calibration";
-    private string exitScene = "Summary";
+    
 
     void Start()
     {
+
         // Initialize if needed
         if (AppData.UserData.dTableConfig == null)
         {
             // Inialize the logger
             AppLogger.StartLogging(SceneManager.GetActiveScene().name);
             // Initialize.
+            Debug.Log("calling");
             AppData.InitializeRobot();
         }
         AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);
@@ -38,23 +47,45 @@ public class MechanismSceneHandler : MonoBehaviour
         }
         exit.onClick.AddListener(OnExitButtonClicked);
         nextButton.onClick.AddListener(OnNextButtonClicked);
-        UpdateMechanismToggleButtons();
+        UpdateMovementToggleButtons();
         StartCoroutine(DelayedAttachListeners());
     }
 
     void Update()
     {
+        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.A))
+        {
+            SceneManager.LoadScene(assessmentScene);
+
+            //if (!File.Exists(DataManager.filePathAssessmentData))
+            //{
+            //    AppLogger.LogInfo("Assessment Mode Activated");
+            //    SceneManager.LoadScene(assessmentScene);
+            //}
+            //else if (AppData.returnLastAssesment() > 7)
+            //{
+            //    AppLogger.LogInfo("Assessment Mode Activated");
+            //    SceneManager.LoadScene(assessmentScene);
+            //}
+            //else
+            //{
+            //    AppLogger.LogWarning("Assessment mode cannot be open often");
+            //}
+           
+            
+        }
         // Check if a scene change is needed.
         if (changeScene == true)
         {
+            shAng = MarsComm.angleOne;
             LoadNextScene();
             changeScene = false;
         }
     }
 
-    private void UpdateMechanismToggleButtons()
+    private void UpdateMovementToggleButtons()
     {
-        foreach (Transform child in mehcanismSelectGroup.transform)
+        foreach (Transform child in movementSelectGroup.transform)
         {
             Toggle toggleComponent = child.GetComponent<Toggle>();
             bool isPrescribed = AppData.UserData.movementMoveTimePrsc[toggleComponent.name] > 0;
@@ -93,7 +124,7 @@ public class MechanismSceneHandler : MonoBehaviour
 
     void AttachToggleListeners()
     {
-        foreach (Transform child in mehcanismSelectGroup.transform)
+        foreach (Transform child in movementSelectGroup.transform)
         {
             Toggle toggleComponent = child.GetComponent<Toggle>();
             if (toggleComponent != null)
@@ -105,13 +136,17 @@ public class MechanismSceneHandler : MonoBehaviour
 
     void CheckToggleStates()
     {
-        foreach (Transform child in mehcanismSelectGroup.transform)
+        foreach (Transform child in movementSelectGroup.transform)
         {
             Toggle toggleComponent = child.GetComponent<Toggle>();
             if (toggleComponent != null && toggleComponent.isOn)
             {
+                //for tuk-tuk only
+                initialAngle = MarsComm.angleOne;
                 toggleSelected = true;
                 AppData.selectedMovement = child.name;
+                nextScene = AppData.selectedGame[AppData.MarsDefs.getMovementIndex(AppData.selectedMovement)];
+                Debug.Log(nextScene);
                 AppLogger.LogInfo($"Selected '{AppData.selectedMovement}'.");
                 break;
             }
@@ -140,7 +175,7 @@ public class MechanismSceneHandler : MonoBehaviour
 
     IEnumerator LoadSummaryScene()
     {
-        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync("summaryScene");
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(exitScene);
 
         while (!asyncLoad.isDone)
         {
@@ -166,6 +201,10 @@ public class MechanismSceneHandler : MonoBehaviour
         {
             MarsComm.OnButtonReleased -= OnPlutoButtonReleased;
         }
+    }
+    private void OnApplicationQuit()
+    {
+        //MarsComm.OnButtonReleased -= onMarsButtonReleased;
     }
 }
 

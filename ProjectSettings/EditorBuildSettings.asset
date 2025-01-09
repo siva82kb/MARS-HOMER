@@ -16,6 +16,81 @@ EditorBuildSettings:
     guid: 02b1b3a8a6ce6294faf928e79d71b01d
   - enabled: 1
     path: Assets/Scenes/chooseMovementScene.unity
-    guid: ed55b46dfe20b66439bd776d306b37ec
+    guid: ba90e3adfd6d86942946bea3547bf51e
+  - enabled: 1
+    path: Assets/Scenes/summaryScene.unity
+    guid: 30a7fb6ffffe3a647af9025b934fe098
+  - enabled: 1
+    path: Assets/Scenes/weightcalibrationScene.unity
+    guid: d7780cab2ec8f474cb47263b3c82e608
+  - enabled: 1
+    path: Assets/Scenes/assessmentScene.unity
+    guid: 547b0a86ddce3864380b06820eb7b926
+  - enabled: 1
+    path: Assets/Scenes/fullWeightSupportScene.unity
+    guid: 4e925e4f4d1079d4db75d02dec1fdc6f
+  - enabled: 0
+    path: Assets/Scenes/No Weight Support.unity
+    guid: 8772882fc240e474cab04a6c7341badd
+  - enabled: 0
+    path: Assets/Scenes/Half Weight Support.unity
+    guid: ed200b805794f2348bc56fb443a3c143
+  - enabled: 1
+    path: Assets/Scenes/halfWeightSupportScene.unity
+    guid: ff6ca81e97b855243b7414991ec920c9
+  - enabled: 1
+    path: Assets/Scenes/noWeightSupportScene.unity
+    guid: bd78a6db371bf5f4dbd88cba4d428bb2
+  - enabled: 0
+    path: Assets/SS v2/SS v2.unity
+    guid: fc49b61c132e08248abcb76b5473578b
+  - enabled: 1
+    path: Assets/Scenes/SpaceShooter/SpaceShooter_Level1.unity
+    guid: a70930fea6d6a3545a90d56ef1b83657
+  - enabled: 1
+    path: Assets/Scenes/SpaceShooter/space_shooter_level.unity
+    guid: 073820709d85d6f45864cf169eb7e622
+  - enabled: 1
+    path: Assets/Scenes/SpaceShooter/space_shooter_home.unity
+    guid: 72173926127dcd74f9f6e72c45d376f2
+  - enabled: 1
+    path: Assets/Scenes/SpaceShooter/SpaceShooter_Level2.unity
+    guid: b114eaad053f0cd469be247b6dc09864
+  - enabled: 1
+    path: Assets/Scenes/SpaceShooter/SpaceShooter_Level3.unity
+    guid: 2b8c8bc19d313d349a99c54d628803f6
+  - enabled: 1
+    path: Assets/Scenes/SpaceShooter/SpaceShooter_Level4.unity
+    guid: 8d4e74d11eed952458e353af9a1519db
+  - enabled: 1
+    path: Assets/Scenes/SpaceShooter/SpaceShooter_Level5.unity
+    guid: 20e6fb7a7a356ca41850fd0423d9ba13
+  - enabled: 1
+    path: Assets/Scenes/SpaceShooter/SpaceShooter_Level6.unity
+    guid: 59102c65c7e840b4cab6af64ceac37b6
+  - enabled: 1
+    path: Assets/Scenes/SpaceShooter/SpaceShooter_Level7.unity
+    guid: eefd659d2afae854a8d24853a44faee9
+  - enabled: 1
+    path: Assets/Scenes/SpaceShooter/SpaceShooter_Level8.unity
+    guid: 9c44d561a140d0040a0a59728f45a1ae
+  - enabled: 1
+    path: Assets/Scenes/SpaceShooter/SpaceShooter_Level9.unity
+    guid: 338aab20868555c40b35e229e8b0346f
+  - enabled: 1
+    path: Assets/Scenes/SpaceShooter/SpaceShooter_Level10.unity
+    guid: 6b039c561ae238a4d83acb9da5b28c91
+  - enabled: 1
+    path: Assets/FlappyBirdStyleAssets/Scenes/FlappyGame.unity
+    guid: 071352bb11a2bdd49a617f0ddbee8565
+  - enabled: 1
+    path: Assets/Ping_Pong/pong_game.unity
+    guid: 3657ba6bdfe304124bbaab754398b089
+  - enabled: 1
+    path: Assets/Ping_Pong/pong_menu.unity
+    guid: 673a72c8cff63473b82274a891b8ff37
+  - enabled: 1
+    path: Assets/Ping_Pong/Draw_Pong.unity
+    guid: bd1eddc4b6a4a55489a3d947d41a6360
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0

@@ -17,29 +17,35 @@ public class DataManager : MonoBehaviour
 {
     public static readonly string directoryPath = Application.dataPath + "/data";
     static string directoryPathConfig;
-    static string directoryPathSession;
+   
     static string directoryPathRawData;
-    public static string directoryMechData;
+    public static string directoryAssessmentData;
+    public static string directoryPathSession { get; private set; }
     public static string filePathConfigData { get; private set; }
     public static string filePathSessionData { get; private set; }
-
+    public static string filePathAssessmentData { get; private set; }
+    public static string filePathUploadStatus = Application.dataPath + "/uploadStatus.txt";
     public static void createFileStructure()
     {
+        directoryAssessmentData = directoryPath + "/assessmentData";
         directoryPathConfig = directoryPath + "/configuration";
         directoryPathSession = directoryPath + "/sessions";
         directoryPathRawData = directoryPath + "/rawdata";
         filePathConfigData = directoryPath + "/configdata.csv";
         filePathSessionData = directoryPathSession + "/sessions.csv";
+        filePathAssessmentData = directoryAssessmentData + "/assessment.csv";
         // Check if the directory exists
         if (!Directory.Exists(directoryPath))
-        {
+        { 
             // If not, create the directory
             Directory.CreateDirectory(directoryPath);
             Directory.CreateDirectory(directoryPathConfig);
             Directory.CreateDirectory(directoryPathSession);
             Directory.CreateDirectory(directoryPathRawData);
+            Directory.CreateDirectory(directoryAssessmentData);
             File.Create(filePathConfigData).Dispose(); // Ensure the file handle is released
             File.Create(filePathSessionData).Dispose(); // Ensure the file handle is released
+            File.Create(filePathAssessmentData).Dispose(); // Ensure the file handle is released
             Debug.Log("Directory created at: " + directoryPath);
         }
         writeHeader(filePathSessionData);
@@ -53,7 +59,7 @@ public class DataManager : MonoBehaviour
             if (File.Exists(path) && File.ReadAllLines(path).Length == 0)
             {
                 // Define the CSV header string, separating each column with a comma
-                string headerData = "SessionNumber,DateTime,Assessment,StartTime,StopTime,GameName,TrialDataFileLocation,DeviceSetupFile,AssistMode,AssistModeParameter,Movement,MoveTime";
+                string headerData = "SessionNumber,DateTime,Assessment,StartTime,StopTime,GameName,TrialDataFileLocation,DeviceSetupFile,AssistMode,AssistModeParameter,Movement,MoveTime,useHand,upperarmLength,forearmLength";
 
                 // Write the header to the file
                 File.WriteAllText(path, headerData + "\n"); // Add a new line after the header
@@ -77,7 +83,10 @@ public class DataManager : MonoBehaviour
     public static DataTable loadCSV(string filePath)
     {
         DataTable dTable = new DataTable();
-
+        if (!File.Exists(filePath))
+        {
+            return dTable;
+        }
         // Read all lines from the CSV file
         var lines = File.ReadAllLines(filePath);
         if (lines.Length == 0) return null;
@@ -94,9 +103,12 @@ public class DataManager : MonoBehaviour
         {
             var row = dTable.NewRow();
             var fields = lines[i].Split(',');
+            Debug.Log(fields.Length);
+            Debug.Log(headers.Length);
             for (int j = 0; j < headers.Length; j++)
             {
                 row[j] = fields[j];
+                //Debug.Log(row[j]);
             }
             dTable.Rows.Add(row);
         }
@@ -121,7 +133,6 @@ public class DataManager : MonoBehaviour
         public static string currentScene { get; private set; } = "";
         public static string currentMechanism { get; private set; } = "";
         public static string currentGame { get; private set; } = "";
-
         public static bool isLogging
         {
             get
@@ -129,7 +140,6 @@ public class DataManager : MonoBehaviour
                 return logFilePath != null;
             }
         }
-
         public static void StartLogging(string scene)
         {
             // Start Log file only if we are not already logging.

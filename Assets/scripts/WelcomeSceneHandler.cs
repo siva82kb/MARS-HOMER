@@ -3,6 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using NeuroRehabLibrary;
 
 public class welcomSceneHandler : MonoBehaviour
 {
@@ -19,7 +20,7 @@ public class welcomSceneHandler : MonoBehaviour
     private DaySummary[] daySummaries;
     public static bool changeScene = false;
     public readonly string nextScene = "calibrationScene";
-
+    
     // Private variables
     private bool attachPlutoButtonEvent = false;
 
@@ -29,6 +30,8 @@ public class welcomSceneHandler : MonoBehaviour
         // Initialize.
         AppData.InitializeRobot();
         daySummaries = SessionDataHandler.CalculateMoveTimePerDay();
+        SessionManager.Initialize(DataManager.directoryPathSession);
+        SessionManager.Instance.Login();
 
         // Inialize the logger
         AppLogger.StartLogging(SceneManager.GetActiveScene().name);
@@ -65,7 +68,7 @@ public class welcomSceneHandler : MonoBehaviour
     {
         AppLogger.LogInfo("Mars button released.");
         changeScene = true;
-        Debug.Log("pressed");
+       
     }
 
     private void LoadTargetScene()
@@ -95,9 +98,13 @@ public class welcomSceneHandler : MonoBehaviour
         piChartUpdated = true;
     }
 
+    private void OnDestroy()
+    {
+        MarsComm.OnButtonReleased -= onMarsButtonReleased;
+    }
     private void OnApplicationQuit()
     {
+        Application.Quit();
         JediComm.Disconnect();
-        AppLogger.StopLogging();
     }
 }
