@@ -200,8 +200,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fallSpeed: 1.74
-  zigZagAmplitude: 10
-  zigZagFrequency: 1
+  zigZagDuration: 1
+  minX: -7.9
+  maxX: 7.9
 --- !u!114 &1417262573357256172
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -437,7 +438,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hitsRequired: 2
   ExplosionSound: {fileID: 8300000, guid: afe5d62b64c59d646ba3a14a89cf7bd0, type: 3}
-  Powerup_Shield: {fileID: 5832338850286556768, guid: e2216833767635d42a6d8df61351a420, type: 3}
 --- !u!1 &7289390822056869400
 GameObject:
   m_ObjectHideFlags: 0

@@ -22,6 +22,7 @@ public class FlappyGameControl : MonoBehaviour
     public GameObject GameOverText;
     public GameObject CongratulationsText;
     public bool gameOver = false;
+    public bool gamestarted = false;
     //public float scrollSpeed = -1.5f;
     public float scrollSpeed;
     private int score;
@@ -33,7 +34,7 @@ public class FlappyGameControl : MonoBehaviour
     public GameObject start;
     int win = 0;
     bool endValSet = false;
-   
+    int mt;
     public int startGameLevelSpeed=1;
     public int startGameLevelRom = 1;
     public float ypos;
@@ -88,9 +89,8 @@ public class FlappyGameControl : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        //AppData.InitializeRobot();
-        //MarsComm.OnButtonReleased += onMarsButtonReleased;
-       
+        playerMoveTime = 0;
+        MarsComm.OnButtonReleased += onMarsButtonReleased;
         path_to_data = Application.dataPath;
         flappyGameCount++;
         LevelText.enabled = false;
@@ -108,9 +108,7 @@ public class FlappyGameControl : MonoBehaviour
 
         LevelText.text = "Level: " + auto_speed*(-0.5);
 
-        UpdateGameDurationUI();
 
-        //recordData();
         gameTime += Time.deltaTime;
 
         column_position_flag_topass = column_position_flag;
@@ -137,7 +135,7 @@ public class FlappyGameControl : MonoBehaviour
 
                 hidePaused();
                 playAgain();
-                // h.Stop_data_log();
+                
             }
         }
         
@@ -145,8 +143,7 @@ public class FlappyGameControl : MonoBehaviour
         if (!gameOver && Time.timeScale == 1)
         {
             playerMoveTime += Time.deltaTime;
-            //AppData.sessionDuration += Time.deltaTime;
-            //AppData.timeOnTrail += Time.deltaTime;
+           
             gameduration -= Time.deltaTime;
         }
 
@@ -175,12 +172,35 @@ public class FlappyGameControl : MonoBehaviour
         //    supporti = Mathf.Round(weightEstimation.support * 100.0f);
         //    support.text = "Support: " + supporti.ToString() + " %";
         //}
-        if (changeScene && gameOver)
+        if (changeScene)
         {
             Debug.Log("button working");
             //reStartGame();
-            hidePaused();
-            playAgain();
+            if (!gameOver && gamestarted)
+            {
+                if (Time.timeScale == 1)
+                {
+                    Time.timeScale = 0;
+                    showPaused();
+                }
+                else if (Time.timeScale == 0)
+                {
+                    Time.timeScale = 1;
+                    hidePaused();
+                }
+            }
+            else if (gameOver && gamestarted)
+            {
+                Debug.Log("playagain");
+                hidePaused();
+                playAgain();
+
+            }
+            else if(!gamestarted)
+            {
+                StartGame();
+                gamestarted = true; 
+            }
             changeScene = false;
            
         }
@@ -214,12 +234,12 @@ public class FlappyGameControl : MonoBehaviour
         string device = "MARS"; // Set the device name
         string assistMode = "Null"; // Set the assist mode
         string assistModeParameters = "Null"; // Set the assist mode parameters
-        string deviceSetupLocation = DataManager.filePathConfigData;
+        string deviceSetupLocation = DataManager.filePathforConfig;
         SessionManager.Instance.SetDevice(device, currentGameSession);
         SessionManager.Instance.SetAssistMode(assistMode, assistModeParameters, currentGameSession);
         SessionManager.Instance.SetDeviceSetupLocation(deviceSetupLocation, currentGameSession);
         SessionManager.Instance.mechanism(AppData.MarsDefs.Movements[0], currentGameSession);
-        SessionManager.Instance.moveTime(playerMoveTime.ToString(), currentGameSession);
+       
        
     }
     void EndCurrentGameSession()
@@ -227,20 +247,17 @@ public class FlappyGameControl : MonoBehaviour
         Debug.Log(playerMoveTime + "movetime");
         if (currentGameSession != null)
         {
-            string trialDataFileLocation = "pass_trial_data_location";
+            string trialDataFileLocation = AppData.trialDataFileLocation;
             string gameParameter = "pass_game_parameter";
             SessionManager.Instance.SetGameParameter(gameParameter, currentGameSession);
             SessionManager.Instance.SetTrialDataFileLocation(trialDataFileLocation, currentGameSession);
+            mt = (int)playerMoveTime;
+            SessionManager.Instance.moveTime(mt.ToString(), currentGameSession);
             SessionManager.Instance.EndGameSession(currentGameSession);
         }
     }
 
-    void UpdateGameDurationUI()
-    {
-        //timerObject.specifiedValue = Mathf.Clamp(100 * (90 - gameduration) / 90f, 0, 100); ;
-
-    }
-
+   
     //shows objects with ShowOnPause tag
     public void showPaused()
     {
@@ -303,7 +320,8 @@ public class FlappyGameControl : MonoBehaviour
             score += 1;
             
         }
-          
+        gameData.events = 3;
+        gameData.playerScore = score;
         ScoreText.text = "Score: " + score.ToString();
         FlappyColumnPool.instance.spawnColumn();
 
@@ -382,35 +400,35 @@ public class FlappyGameControl : MonoBehaviour
         List<string> second_row = new List<string>();
         List<string> fifth_row = new List<string>();
         List<string> sixth_row = new List<string>();
-        if (count>1)
-        {
-            foreach (var item in lines)
-            {
-                var rowItems = item.Split(',');
-                second_row.Add(rowItems[2]);
-                fifth_row.Add(rowItems[5]);
-                sixth_row.Add(rowItems[6]);
-            }
+        //if (count>1)
+        //{
+        //    foreach (var item in lines)
+        //    {
+        //        var rowItems = item.Split(',');
+        //        second_row.Add(rowItems[2]);
+        //        fifth_row.Add(rowItems[5]);
+        //        sixth_row.Add(rowItems[6]);
+        //    }
             
-            auto_speed = float.Parse(second_row[count-1]);
-            if(auto_speed<0)
-            {
-                start_speed = auto_speed;
-            }
-            else
-            {
-                auto_speed = -2.0f;
-                start_speed = auto_speed;
-            }
+        //    auto_speed = float.Parse(second_row[count-1]);
+        //    if(auto_speed<0)
+        //    {
+        //        start_speed = auto_speed;
+        //    }
+        //    else
+        //    {
+        //        auto_speed = -2.0f;
+        //        start_speed = auto_speed;
+        //    }
 
             
             
-        }
-        else
-        {
-            auto_speed = -2.0f;
-            start_speed = auto_speed;
-        }
+        //}
+        //else
+        //{
+        //    auto_speed = -2.0f;
+        //    start_speed = auto_speed;
+        //}
 
         
     }
@@ -428,7 +446,7 @@ public class FlappyGameControl : MonoBehaviour
                 total_life = total_life-1;
                 if(total_life<0)
                 {
-                    auto_speed = auto_speed-2.0f;
+                    //auto_speed = auto_speed-2.0f;
                 } 
 			}
 
@@ -460,6 +478,10 @@ public class FlappyGameControl : MonoBehaviour
 
         SceneManager.LoadScene("chooseMovementScene");
     }
+    private void OnDestroy()
+    {
+        MarsComm.OnButtonReleased -= onMarsButtonReleased;
+    }
 
     public void OnApplicationQuit()
     {
@@ -469,44 +491,5 @@ public class FlappyGameControl : MonoBehaviour
       
     }
 
-    //public void recordData()
-    //{
-    //    string path_to_data = Welcome.Path_to_data + "/" + "GameData" + "/" + Welcome.currentDate + "/" + "Flappy Bird";
-
-    //    //Verify if folder exits
-    //    if (!Directory.Exists(path_to_data))
-    //    {
-    //        Directory.CreateDirectory(path_to_data);
-    //    }
-
-    //    string filePath = path_to_data + "/" + flappyGameCount.ToString() + "_Flappy.csv";
-    //    //Debug.Log("calibPath =   " + filePath_Shoulder);
-
-    //    //Create CSV file if it does not exist
-    //    if (!File.Exists(filePath))
-    //    {
-    //        //write basic infos
-    //        string basicInfoHeader = "Shoulder Pos_x, Shoulder Pos_y, Shoulder Pos_z, UpperArm Length, Forearm Length, b1, b2, Unity_y_min, Unity_y_man, MARS_ShF_min, MARS_ShF_max\n";
-    //        File.WriteAllText(filePath, basicInfoHeader);
-
-    //        string basicInfo = VRCalibScript.shPos[0].ToString() + "," + VRCalibScript.shPos[1].ToString() + "," + VRCalibScript.shPos[2].ToString() + "," +
-    //            VRCalibScript.lu.ToString() + "," + VRCalibScript.lf.ToString() + "," +
-    //            weightEstimation.sol[0].ToString() + "," + weightEstimation.sol[1].ToString() + "," +
-    //            BirdControl.min_y_Unity.ToString() + "," + BirdControl.max_y_Unity.ToString() + "," +
-    //            BirdControl.min_y.ToString() + "," + BirdControl.max_y.ToString() + '\n';
-    //        File.AppendAllText(filePath, basicInfo);
-    //        //write header
-    //        string header = "TIME, theta1, theta2, theta3, theta4, force1, force2, playerPos_y, targetPos_y, targetStatus, support, controlMode\n";
-    //        File.AppendAllText(filePath, header);
-    //    }
-
-    //    DateTime currentDateTime = DateTime.Now;
-    //    string position = gameTime + "," + enc_bluetooth.ang1.ToString() + "," + enc_bluetooth.ang2.ToString() + "," + enc_bluetooth.ang3.ToString() + "," +
-    //        enc_bluetooth.ang3.ToString() + "," + enc_bluetooth.force1.ToString() + "," + enc_bluetooth.force2.ToString() +"," + 
-    //        BirdControl.y_value.ToString() + "," + ypos.ToString() + "," +
-    //        BirdControl.collision_count.ToString() + "," + weightEstimation.support.ToString() + "," + enc_bluetooth.PCParam + '\n';
-    //    Debug.Log("Appending Text");
-    //    File.AppendAllText(filePath, position);
-    //}
-
+    
 }

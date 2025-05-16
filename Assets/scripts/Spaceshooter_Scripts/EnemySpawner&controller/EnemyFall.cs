@@ -4,67 +4,50 @@ using UnityEngine;
 
 public class EnemyFall : MonoBehaviour
 {
-    // Start is called before the first frame update
-    public float fallSpeed = 1.5f;  // Speed at which the asteroid falls
-    private GameManagerScript gameManager;
-    public float zigZagAmplitude = 10f;  // Amplitude of the zig-zag movement
-    public float zigZagFrequency = 10f;  // Frequency of the zig-zag movement
-    private float startTime;  // Tracks the starting time for sine wave calculation
-    
-  
-     void Start()
+    public float fallSpeed = 1.5f;  // Speed at which the enemy falls
+    public float zigZagDuration = 1f; // Time to complete one zigzag (left to right or vice versa)
+    public float minX = -7.5f; // Left boundary of the screen
+    public float maxX = 7f; // Right boundary of the screen
+
+    private float zigZagTimer; // Tracks time within a zigzag
+    private int direction = 1; // 1 for right, -1 for left
+
+    void Start()
     {
-        startTime = Time.time;
-        
+        zigZagTimer = 0f; // Initialize zigzag timer
     }
 
     void Update()
     {
-         MovePlayer();
-       
+        MoveEnemy();
     }
-void MovePlayer()
-{
-    // Move the asteroid downwards
-    transform.Translate(Vector3.down * fallSpeed * Time.deltaTime);
 
-    // Horizontal zig-zag movement using a sine wave
-    float zigZagOffset = Mathf.Sin((Time.time - startTime) * zigZagFrequency) * zigZagAmplitude;
+    void MoveEnemy()
+    {
+        // Move the enemy downward at a constant speed
+        transform.Translate(Vector3.down * fallSpeed * Time.deltaTime);
 
-    // Target horizontal position
-    float targetXPosition = Mathf.Clamp(zigZagOffset, -8f, 8f);
+        // Update zigzag timer
+        zigZagTimer += Time.deltaTime;
 
-    // Smoothly transition to the target position using Mathf.Lerp
-    float smoothXPosition = Mathf.Lerp(transform.position.x, targetXPosition, Time.deltaTime * 1f);
+        // Switch direction when zigzag duration is reached
+        if (zigZagTimer >= zigZagDuration)
+        {
+            zigZagTimer = 0f;
+            direction *= -1; // Toggle direction
+        }
 
-    // Apply the updated position
-    transform.position = new Vector3(smoothXPosition, transform.position.y, transform.position.z);
-}
+        // Calculate horizontal movement for zigzag
+        float xOffset = direction * ((maxX - minX) / zigZagDuration) * Time.deltaTime;
 
+        // Update position with zigzag and clamp to boundaries
+        float newXPosition = Mathf.Clamp(transform.position.x + xOffset, minX, maxX);
+        transform.position = new Vector3(newXPosition, transform.position.y, transform.position.z);
+    }
 
-
-    // void MovePlayer(){
-    //     //  if (gameManager != null && gameManager.isGameOver)
-    //     // {
-    //     //     return; // Stop spawning when the game is over
-
-    //     // }
-    //     // Move the asteroid downwards
-    //     transform.Translate(Vector3.down * fallSpeed * Time.deltaTime);
-    //      // Horizontal zig-zag movement using sine wave
-    //     float zigZagOffset = Mathf.Sin((Time.time - startTime) * zigZagFrequency) * zigZagAmplitude;
-
-    //     // Calculate the new horizontal position
-    //     float newXPosition = Mathf.Clamp(transform.position.x + zigZagOffset * Time.deltaTime, -8f, 8f);
-
-    //     // Apply the updated position
-    //     transform.position = new Vector3(newXPosition, transform.position.y, transform.position.z);
-    // }
-
-    //  method to change speed if needed while in game
+    // Method to dynamically change fall speed
     public void SetFallSpeed(float newSpeed)
     {
         fallSpeed = newSpeed;
     }
-    
 }

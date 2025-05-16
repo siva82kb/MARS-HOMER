@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using TMPro;
+using System;
 
 public class weightEstimation : MonoBehaviour
 {
@@ -19,12 +20,20 @@ public class weightEstimation : MonoBehaviour
    //flags
     public int recordClick = 0;
     public float weightCalibStatus;
-    
+
+    //FileHeader
+    string headerData = "Time,B1,B2";
+    //
+    string headerData1 = "Shf,sha,elf,tauf,endx,endy,force,angle1,angle2,angle3,angle4,shox,shoy,shoz";
+    string data;
+    bool HOLD = false;
+    bool RELEASE = false;
     void Start()
     {
         AppLogger.StartLogging(SceneManager.GetActiveScene().name);
         AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);
         AppLogger.LogInfo($"{SceneManager.GetActiveScene().name} scene started.");
+        weightCalibStatus = 0;
     }
     
     void Update()
@@ -32,45 +41,80 @@ public class weightEstimation : MonoBehaviour
       
         MarsComm.computeShouderPosition();
 
-        if (weightCalibStatus < 2005 && weightCalibStatus > 2003)
+        //if(MarsComm.desThree < 2005)
+        //  AppData.MakeRobotHoldTheArm.initiate
+        if (HOLD)
         {
-           
-            if (MarsComm.desThree < 2004)
+            MarsComm.onclickHold();
+            if(MarsComm.pcParameter == MarsComm.CONTROL_STATUS_CODE[0])
+                HOLD = false;
+        }
+
+        if (RELEASE)
+        {
+            MarsComm.onclickRealease();
+            if (MarsComm.desThree == 0)
+                RELEASE = false;
+        }
+
+        if (weightCalibStatus == 2004)
+        {
+
+            if (MarsComm.desThree < AppData.ArmSupportController.SEND_ARM_WEIGHT)
             {
-                AppData.dataSendToRobot = new float[] { sol[0], (float)MarsComm.thetades1, 2004, (float)MarsComm.controlStatus };
+                AppData.dataSendToRobot = new float[] { sol[0], (float)MarsComm.thetades1, AppData.ArmSupportController.SEND_ARM_WEIGHT, (float)MarsComm.controlStatus };
+                AppData.sendToRobot(AppData.dataSendToRobot);
             }
-            if (MarsComm.desThree > 2003 && MarsComm.desThree < 2005)
+            if (MarsComm.desThree == AppData.ArmSupportController.SEND_ARM_WEIGHT)
             {
-                AppData.dataSendToRobot = new float[] { sol[1], (float)MarsComm.thetades1, 2005, (float)MarsComm.controlStatus };
-             
+                AppData.dataSendToRobot = new float[] { sol[1], (float)MarsComm.thetades1, AppData.ArmSupportController.MARS_ACTIVATED, (float)MarsComm.controlStatus };
+                AppData.sendToRobot(AppData.dataSendToRobot);
+
             }
-            else if (MarsComm.desThree > 2004 && MarsComm.desThree < 2006)
-            { 
+            else if (MarsComm.desThree == AppData.ArmSupportController.MARS_ACTIVATED)
+            {
+
                 Debug.Log("Weight Calibration Complete");
+                AppLogger.LogInfo("weight calibration has been completed successfully " + "b1=" + sol[0] + "b2 = " + sol[1] + "sigmoid dz  = " + MarsComm.desOne + "sigmoid Flex = " + MarsComm.desTwo + "Flexion Torque  = " + MarsComm.desThree);
+
                 weightCalibStatus = 2006;
             }
-        }
+           
 
-        if (weightCalibStatus > 2005)
-        {
-            UpdateText.text = "b1=" + sol[0] +
-                "b2 = " + sol[1] + '\n' +
-                "Weight Estimation Complete" + '\n' +
-                "sigmoid dz  = " + MarsComm.desOne + 
-                "sigmoid Flex = " + MarsComm.desTwo + 
-                "Flexion Torque  = " + MarsComm.desThree;
-            AppLogger.LogInfo("weight calibration has been completed successfully "+"b1=" + sol[0] +"b2 = " + sol[1] +"sigmoid dz  = " + MarsComm.desOne + "sigmoid Flex = " + MarsComm.desTwo +"Flexion Torque  = " + MarsComm.desThree);
         }
+        updateGUI();
 
-       
+        //AppData.sendToRobot(AppData.dataSendToRobot);
     }
    
+    public void updateGUI()
+    {
+        if (weightCalibStatus <= AppData.ArmSupportController.SEND_ARM_WEIGHT)
+            return;
+        UpdateText.text = "b1=" + sol[0] +
+                      "b2 = " + sol[1] + '\n' +
+                      "Weight Estimation Complete" + '\n' +
+                      "sigmoid dz  = " + MarsComm.desOne + '\n' +
+                      "sigmoid Flex = " + MarsComm.desTwo + '\n' +
+                      "Flexion Torque  = " + MarsComm.desThree;
+       
+    }
     public void onClickRecord()
     {
+        
+        if (MarsComm.pcParameter != MarsComm.CONTROL_STATUS_CODE[0])
+        {
+            UpdateText.text = "please.. 'HOLD' MARS";
+            return;
+        }
+
+        if (MarsComm.elF == float.NaN)
+            return;
         recordClick++;
         AppLogger.LogInfo("recoding the data for weight calibration : count-" + recordClick++);
         if (recordClick == 1)
         {
+          
             phi1[0] = MarsComm.shF;
             phi2[0] = MarsComm.shA;
             phi3[0] = MarsComm.elF;
@@ -79,8 +123,9 @@ public class weightEstimation : MonoBehaviour
             tauf[0] = MarsComm.forceOne * momentArm[0] / 1000.0f;
             Debug.Log(phi1.Length);
             Debug.Log("shF  =   " + MarsComm.shF + ",   shA   =   " + MarsComm.shA + ",   elF   =   " + MarsComm.elF + ",   tauf   =   " + tauf[0] + ",   endx   =   " + MarsComm.endPt[0] + ",   endy   =   " + MarsComm.endPt[1]);
-            UpdateText.text = "shF  =   " + MarsComm.shF + ",   shA   =   " + MarsComm.shA + ",   elF   =   " + MarsComm.elF + ",   tauf   =   " + tauf[0] + ",   endx   =   " + MarsComm.endPt[0] + ",   endy   =   " + MarsComm.endPt[1];
-
+            UpdateText.text = "shF  =   " + MarsComm.shF + ",   shA   =   " + MarsComm.shA + ",   elF   =   " + MarsComm.elF + ",   tauf   =   " + tauf[0] + ",   endx   =   " + MarsComm.endPt[0] + ",   endy   =   " + MarsComm.endPt[1]+"force = "+MarsComm.forceOne;
+            data = $"{MarsComm.shF},{MarsComm.shA},{MarsComm.elF},{tauf[0]},{MarsComm.endPt[0]},{MarsComm.endPt[1]},{MarsComm.forceOne},{MarsComm.angleOne},{MarsComm.angleTwo},{MarsComm.angleThree},{MarsComm.angleFour},{MarsComm.shPos[0]},{MarsComm.shPos[1]},{MarsComm.shPos[2]}";
+           
         }
         else
         {
@@ -102,7 +147,11 @@ public class weightEstimation : MonoBehaviour
             UpdateText.text = "shF  =   " + MarsComm.shF + ",   shA :" + MarsComm.shA + ",elF :" + MarsComm.elF + ",tauf = " + tauf[tauf.Length - 1] + ",endx = " + MarsComm.endPt[0] + ",   endy   =   " + MarsComm.endPt[1];
 
             Debug.Log("shF  =   " + MarsComm.shF + ",   shA   =   " + MarsComm.shA + ",   elF   =   " + MarsComm.elF + ",   tauf   =   " + tauf[tauf.Length - 1] + ",   endx   =   " + MarsComm.endPt[0] + ",   endy   =   " + MarsComm.endPt[1]);
+            data = $"{MarsComm.shF},{MarsComm.shA},{MarsComm.elF},{tauf[tauf.Length - 1]},{MarsComm.endPt[0]},{MarsComm.endPt[1]},{MarsComm.forceOne},{MarsComm.angleOne},{MarsComm.angleTwo},{MarsComm.angleThree},{MarsComm.angleFour},{MarsComm.shPos[0]},{MarsComm.shPos[1]},{MarsComm.shPos[2]}";
         }
+        //test purpose
+        AppData.writeAssessmentData(headerData1, data, $"testData.csv", DataManager.directoryAssessmentData);
+
 
     }
 
@@ -115,7 +164,6 @@ public class weightEstimation : MonoBehaviour
         float[,] ATA = new float[2, 2];
         float[] ATf = new float[2];
         float[,] ATAinv = new float[2, 2];
-
 
         for (int i = 0; i < phi1.Length; i++)
         {
@@ -131,13 +179,20 @@ public class weightEstimation : MonoBehaviour
         ATf = matVecMul(AmatTrans, tauf);
         sol = matVecMul(ATAinv, ATf);
         weightCalibStatus = 2004;
+       
+        DateTime time = DateTime.Now;
+        string data = time.ToString() + "," + sol[0] + "," + sol[1] ;
+        string data1 = time.ToString() + "," + sol[0] + "," + sol[1]+"\\n////////\\n";
+        AppData.writeAssessmentData(headerData1, data1, $"testData.csv", DataManager.directoryAssessmentData);
+        AppData.writeAssessmentData(headerData, data, DataManager.SupportCalibrationFileName, DataManager.directoryAssessmentData);
+         phi1 = new float[] { 0 };
+         phi2 = new float[] { 0 };
+         phi3 = new float[] { 0 };
+         force = new float[] { 0 };
+         momentArm = new float[] { 0 };
+         tauf = new float[] { 0 };
+         recordClick = 0;
 
-        //recordData();
-
-        Debug.Log("b1 =  " + sol[0] + ",   b2 =   " + sol[1]);
-
-        AppData.dataSendToRobot = new float[] { sol[0], (float)MarsComm.thetades1, 2004, (float)MarsComm.controlStatus };
-        Debug.Log("W1 is sent");
     }
 
     public float[,] matmul(float[,] Ac, float[,] Bc)
@@ -177,7 +232,6 @@ public class weightEstimation : MonoBehaviour
         }
 
         return Cx;
-
     }
 
     public float[,] matInvTwoCrossTwo(float[,] Ac)
@@ -193,33 +247,37 @@ public class weightEstimation : MonoBehaviour
 
         return AcInv;
     }
-
+    public void onclickexit()
+    {
+        SceneManager.LoadScene("chooseMovementScene");
+    }
     public void onClickHold()
     {
-       MarsComm.onclickHold();
+        HOLD = true;
     }
 
     public void onClickRelease()
     {
-        MarsComm.onclickRealease(); 
+        RELEASE = true;
     }
-
-    public void onclickFullSupport()
+   
+    public void ActivateMars()
     {
-        MarsComm.controlStatus = MarsComm.CONTROL_STATUS_CODE[1];
-        MarsComm.SUPPORT = MarsComm.SUPPORT_CODE[1];
-        AppData.dataSendToRobot = new float[] { MarsComm.SUPPORT, 0.0f, 2006, MarsComm.controlStatus };
-        AppLogger.LogInfo("full weight suppport initiated");
-        SceneManager.LoadScene("fullWeightSupportScene");
-
-        //if (weightCalibStatus == 2006)
-        //{
-        //    MarsComm.controlStatus = MarsComm.CONTROL_STATUS_CODE[1];
-        //    MarsComm.SUPPORT = MarsComm.SUPPORT_CODE[1];    
-        //    AppData.dataSendToRobot = new float[] { MarsComm.SUPPORT, 0.0f, 2006, MarsComm.controlStatus };
-        //    AppLogger.LogInfo("full weight suppport initiated");
-        //    SceneManager.LoadScene("fullWeightSupportScene");
-        //}
+        if (MarsComm.desThree == AppData.ArmSupportController.MARS_ACTIVATED)
+        {
+            AppData.ArmSupportController.setSupport(MarsComm.SUPPORT_CODE[1]);
+        }
+   
+    }
+    public void ROMforFullsupport()
+    {
+        Debug.Log(MarsComm.desOne + "," + MarsComm.SUPPORT + "$fullweightsuppoer");
+        if (MarsComm.desOne == MarsComm.SUPPORT)
+        {
+            Debug.Log(MarsComm.desOne + "," + MarsComm.SUPPORT + "$fullweightsuppoerin");
+            AppLogger.LogInfo("full weight suppport initiated");
+            SceneManager.LoadScene("fullWeightSupportScene");
+        }
     }
     private void OnApplicationQuit()
     {

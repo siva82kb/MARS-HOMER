@@ -6,7 +6,7 @@ using System.IO.Ports;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using UnityEditor.Experimental.GraphView;
+//using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -21,15 +21,18 @@ public static class JediComm
     private static Thread reader;
 
     //payLoad related variables
-    static public byte[] payLoadBytes ;
-    public static byte HeaderOut = 0xFF;
+    static public byte[] payLoadBytes = new byte[256] ;
 
+    // Headers for Rx and Tx.
+    static public byte HeaderIn = 0xFF;
+    static public byte[] HeaderOut = new byte[] { 0xFF, 0xFE };
+
+    static private DateTime plTime;
     //flags
     private static bool stop = false;
     private static bool pause = false;
     public static volatile bool isMars = false;
- 
- 
+    public static int plcount;
 
     public static void ConnectToRobot(String port)
     {
@@ -43,7 +46,9 @@ public static class JediComm
             Handshake = Handshake.None,
             DtrEnable = true,
             ReadTimeout = 500,
-            WriteTimeout = 500
+            WriteTimeout = 500,
+        
+
         };
         if (serPort.IsOpen)
         {
@@ -86,11 +91,14 @@ public static class JediComm
 
             try
             {
+                //DebugReadBytes();
                 if (ReadFullSerialPacket())
                 {
+                    plTime = DateTime.Now;
                     isMars = true;  
-                    MarsComm.parseRawBytes(payLoadBytes, (uint)payLoadBytes.Length);
+                    MarsComm.parseRawBytes(payLoadBytes, (uint)plcount, plTime);
                 }
+                //AppData.sendToRobot();
             }
             catch (TimeoutException)
             {
@@ -100,41 +108,60 @@ public static class JediComm
         }
         serPort.Close();  
     }
+    private static void DebugReadBytes()
+    {
+        int availableBytes = serPort.BytesToRead;
+        if (availableBytes > 0)
+        {
+            byte[] buffer = new byte[availableBytes];
+            serPort.Read(buffer, 0, availableBytes);
 
+            Debug.Log("Raw Bytes: " + BitConverter.ToString(buffer));
+        }
+    }
+   
     private static bool ReadFullSerialPacket()
     {
         int checksum = 0;
         int receivedChecksum;
-        int payloadSize;
-
-        if (serPort.ReadByte() == 0xFF && serPort.ReadByte() == 0xFF)
+        plcount = 0;
+      
+        if (serPort.ReadByte() == HeaderIn && serPort.ReadByte() == HeaderIn)
         {
-            checksum += 0xFF + 0xFF;
+            checksum += HeaderIn + HeaderIn;
             // Read payload size
-            payloadSize = serPort.ReadByte();
-            Debug.Log(payloadSize);
-            checksum += payloadSize;
-            payLoadBytes = new byte[payloadSize - 1];
-            for (int i = 0; i < payLoadBytes.Length; i++)
-            {
-                payLoadBytes[i] = (byte)serPort.ReadByte();
-                checksum += payLoadBytes[i];
+            payLoadBytes[plcount++] = (byte)serPort.ReadByte();
+           
+            checksum += payLoadBytes[0];
+            if (payLoadBytes[0] != HeaderIn) 
+            { 
+                for (int i = 0; i < payLoadBytes[0]-1; i++)
+                {
+                    payLoadBytes[plcount++] = (byte)serPort.ReadByte();
+                    checksum += payLoadBytes[plcount-1];
+                }
+                // Read the transmitted checksum
+                receivedChecksum = serPort.ReadByte();
+               
+                return (receivedChecksum == (checksum & 0xFF));
             }
-
-            // Read the transmitted checksum
-            receivedChecksum = serPort.ReadByte();
-
-            return (receivedChecksum == (checksum & 0xFF));
+            else
+            {
+                return false;
+            }
         }
-        return false;
+        else{
+            return false;
+        }
+        
     }
 
     public static void SendMessage(byte[] outBytes)
     {
         List<byte> outPayload = new List<byte>
         {
-            0xFF, // Header byte 1
-            0xFE, // Header byte 2
+            HeaderOut[0], // Header byte 1
+            HeaderOut[1], // Header byte 2
             (byte)(outBytes.Length + 1) // Length of the message (+1 for checksum)
         };
 
@@ -151,7 +178,7 @@ public static class JediComm
         try
         {
             serPort.Write(outPayload.ToArray(), 0, outPayload.Count);
-            //Debug.Log("Message sent to device.");
+            Debug.Log("Message sent to device.");
         }
         catch (Exception ex)
         {

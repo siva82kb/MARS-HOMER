@@ -21,29 +21,37 @@ public class DataManager : MonoBehaviour
     static string directoryPathRawData;
     public static string directoryAssessmentData;
     public static string directoryPathSession { get; private set; }
-    public static string filePathConfigData { get; private set; }
+    public static string filePathforConfig = $"{Application.dataPath}/data/configdata.csv";
     public static string filePathSessionData { get; private set; }
     public static string filePathAssessmentData { get; private set; }
+   
     public static string filePathUploadStatus = Application.dataPath + "/uploadStatus.txt";
+    public static string SupportCalibrationFileName = "SupportCalibration.csv";
+    public static string[] ROMWithSupportFileNames = new string[]
+    {
+      "FullWeightSupport.csv",
+      "HalfWeightSupport.csv",
+      "NoWeightSupport.csv"
+    };
     public static void createFileStructure()
     {
         directoryAssessmentData = directoryPath + "/assessmentData";
-        directoryPathConfig = directoryPath + "/configuration";
         directoryPathSession = directoryPath + "/sessions";
         directoryPathRawData = directoryPath + "/rawdata";
-        filePathConfigData = directoryPath + "/configdata.csv";
+        
         filePathSessionData = directoryPathSession + "/sessions.csv";
         filePathAssessmentData = directoryAssessmentData + "/assessment.csv";
+
         // Check if the directory exists
         if (!Directory.Exists(directoryPath))
         { 
             // If not, create the directory
             Directory.CreateDirectory(directoryPath);
-            Directory.CreateDirectory(directoryPathConfig);
+            //Directory.CreateDirectory(directoryPathConfig);
             Directory.CreateDirectory(directoryPathSession);
             Directory.CreateDirectory(directoryPathRawData);
             Directory.CreateDirectory(directoryAssessmentData);
-            File.Create(filePathConfigData).Dispose(); // Ensure the file handle is released
+          
             File.Create(filePathSessionData).Dispose(); // Ensure the file handle is released
             File.Create(filePathAssessmentData).Dispose(); // Ensure the file handle is released
             Debug.Log("Directory created at: " + directoryPath);
@@ -103,8 +111,7 @@ public class DataManager : MonoBehaviour
         {
             var row = dTable.NewRow();
             var fields = lines[i].Split(',');
-            Debug.Log(fields.Length);
-            Debug.Log(headers.Length);
+            
             for (int j = 0; j < headers.Length; j++)
             {
                 row[j] = fields[j];

@@ -13,14 +13,18 @@ public class GameManagerScript : MonoBehaviour
 {
     private GameSession currentGameSession;
     public GameObject GameOverPanel;
+    public Image SupportSlider;
+    public TextMeshProUGUI support;
     public TextMeshProUGUI timerText;
+    public TextMeshProUGUI angeltext;
     public bool Levelunlocked = false;
     public bool isGameOver = false; // Tracks the game over state
-    public float gameDuration = 90f; // Game duration in seconds
+    public float gameDuration = 60f; // Game duration in seconds
     public GameObject newSpaceshipPanel;
     public static float playerMoveTime;
     private int finalScore;
     private int currentLevel;
+    int mt;
     private string path = Path.Combine(Application.dataPath, "Patient_Data", "ScoreManager.csv");
     private PlayerScore Playerscore;
     private float timer;
@@ -29,6 +33,7 @@ public class GameManagerScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        playerMoveTime = 0;
         MarsComm.OnButtonReleased += onMarsButtonReleased;
         Playerscore = FindObjectOfType<PlayerScore>();
         timer = gameDuration; // Initialize timer 
@@ -43,11 +48,16 @@ public class GameManagerScript : MonoBehaviour
                 int.TryParse(values[1], out currentLevel); // Parse the second value as currentLevel
             }
         }
+        StartNewGameSession();
+        support.text = $"Support : {AppData.ArmSupportController.getGain()}%";
+        SupportSlider.fillAmount = MarsComm.SUPPORT;
+       
     }
 
     // Update is called once per frame
     void Update()
     {
+        //angeltext.text = MarsComm.angleOne + "\\" + MarsComm.angleTwo + "\\" + MarsComm.angleThree + "\\" + MarsComm.angleFour;
         // Check if the Escape key is pressed
         if (Input.GetKeyDown(KeyCode.Escape) || isGameOver)
         {
@@ -58,6 +68,7 @@ public class GameManagerScript : MonoBehaviour
         { // Countdown the timer
             timer -= Time.deltaTime;
             playerMoveTime += Time.deltaTime;
+            gameData.playerScore = Playerscore.currentScore;
             // Update the timer display
             if (timerText != null)
             {
@@ -83,6 +94,12 @@ public class GameManagerScript : MonoBehaviour
         {
             changeScene = false;
         }
+        updateMarsSupportUI();
+    }
+    public void updateMarsSupportUI()
+    {
+        support.text = $"Support : {AppData.ArmSupportController.getGain()}%";
+        SupportSlider.fillAmount = MarsComm.SUPPORT;
     }
     void StartNewGameSession()
     {
@@ -101,30 +118,32 @@ public class GameManagerScript : MonoBehaviour
         string device = "MARS"; // Set the device name
         string assistMode = "Null"; // Set the assist mode
         string assistModeParameters = "Null"; // Set the assist mode parameters
-        string deviceSetupLocation = DataManager.filePathConfigData;
+        string deviceSetupLocation = DataManager.filePathforConfig;
         SessionManager.Instance.SetDevice(device, currentGameSession);
         SessionManager.Instance.SetAssistMode(assistMode, assistModeParameters, currentGameSession);
         SessionManager.Instance.SetDeviceSetupLocation(deviceSetupLocation, currentGameSession);
         SessionManager.Instance.mechanism(AppData.MarsDefs.Movements[1], currentGameSession);
-        SessionManager.Instance.moveTime(playerMoveTime.ToString(), currentGameSession);
+
     }
     void EndCurrentGameSession()
     {
         if (currentGameSession != null)
         {
-            string trialDataFileLocation = "pass_trial_data_location";
+            string trialDataFileLocation = AppData.trialDataFileLocation;
             string gameParameter = "pass_game_parameter";
             SessionManager.Instance.SetGameParameter(gameParameter, currentGameSession);
             SessionManager.Instance.SetTrialDataFileLocation(trialDataFileLocation, currentGameSession);
+            mt = (int)playerMoveTime;
+            SessionManager.Instance.moveTime(mt.ToString(), currentGameSession);
             SessionManager.Instance.EndGameSession(currentGameSession);
         }
     }
     public void onMarsButtonReleased()
-   {
-      AppLogger.LogInfo("Mars button released.");
-      changeScene = true;
+    {
+        AppLogger.LogInfo("Mars button released.");
+        changeScene = true;
 
-   }
+    }
 
     private void savedata()
     {
@@ -137,12 +156,13 @@ public class GameManagerScript : MonoBehaviour
 
     public void GameOver()
     {
-       
+
         if (Levelunlocked == false)
         {
 
             GameOverPanel.SetActive(true);
             EndCurrentGameSession();
+            gameData.StopLogging();
             savedata();
         }
 
@@ -243,7 +263,7 @@ public class GameManagerScript : MonoBehaviour
         File.WriteAllText(path, data);
         SceneManager.LoadScene("SpaceShooter_Level7");
     }
-      public void eigthlevel()
+    public void eigthlevel()
     {
         finalScore = 0;
         if (currentLevel <= 8)
@@ -265,7 +285,8 @@ public class GameManagerScript : MonoBehaviour
         File.WriteAllText(path, data);
         SceneManager.LoadScene("SpaceShooter_Level9");
     }
-    public void tenthlevel() {
+    public void tenthlevel()
+    {
         finalScore = 0;
         if (currentLevel <= 10)
         {

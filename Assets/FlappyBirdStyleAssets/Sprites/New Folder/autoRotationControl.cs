@@ -24,9 +24,10 @@ public class autoRotationControl : MonoBehaviour
     void FixedUpdate()
     {
         float currentAng = this.transform.position.y;
+        Debug.Log(currentAng+"anglecurrent");
         //transform.eulerAngles = new Vector3(0, 0, -12);
         //rb.AddTorque(AppData.plutoData.angle*10.0f);
-
+        Debug.Log(currentAng+"angle");
         if (FGC.gameOver)
         {
             endTime  += Time.deltaTime;
@@ -42,7 +43,7 @@ public class autoRotationControl : MonoBehaviour
             if (Mathf.Abs(this.transform.position.y - prevAng) < 0.00011)
             {
                 
-                // Debug.Log(" smooth zero");
+                Debug.Log("smooth zero");
                 if (time == 0)
                 {
                     startAngle = transform.eulerAngles.z < 180 ? transform.eulerAngles.z : transform.eulerAngles.z - 360;
@@ -61,10 +62,11 @@ public class autoRotationControl : MonoBehaviour
 
                 // Debug.Log(" rotating");
                 time = 0;
-                transform.Rotate(new Vector3(0, 0, rotationAvg));
+                transform.Rotate(new Vector3(0, 0, rotation*6f));
 
             }
         }
+
 
     
         prevAng = currentAng;

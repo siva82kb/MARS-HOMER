@@ -4,14 +4,19 @@ using UnityEngine;
 using System;
 using UnityEngine.SceneManagement;
 using System.IO;
+using System.Linq;
+
+using TMPro;
+using UnityEngine.UI;
 
 public class HalfWeightSupportROM : MonoBehaviour
 {
 
     List<Vector3> paths;
     public GameObject messagePanel;
-    float time, startTime, decayTime = 5.0f, support, supporti, startSupport, startDecay = 0, endSupport;
-
+    public Image supportIndicator;
+    public TextMeshProUGUI support;
+    float max_x,max_y,min_x,min_y;
 
     void Awake()
     {
@@ -29,23 +34,13 @@ public class HalfWeightSupportROM : MonoBehaviour
 
     public void Update()
     {
-        time += Time.deltaTime;
-
-        if (startDecay == 1)
+      
+        if(MarsComm.SUPPORT == MarsComm.SUPPORT_CODE[0])
         {
-            if (time - startTime < decayTime)
-            {
-                supporti = startSupport + (time - startTime) / decayTime * (endSupport - startSupport);
-                MarsComm.SUPPORT = supporti;
-                AppData.dataSendToRobot = new float[] { MarsComm.SUPPORT, 0.0f, 2006, 0.0f };
-               
-            }
-            else
-            {
-                startDecay = 0;
-                NoWeightSupport();
-            }
+            AppLogger.LogInfo("half weight support initiated");
+            SceneManager.LoadScene("noWeightSupportScene");
         }
+       updateSupportGUI();
     }
    
     public void onclick_recalibrate()
@@ -56,19 +51,44 @@ public class HalfWeightSupportROM : MonoBehaviour
 
     public void onclickNoweightSupport()
     {
-        endSupport = 0.0f;
-        startTime = time;
-        startSupport = MarsComm.SUPPORT;
-        startDecay = 1;
+      
+       
         messagePanel.SetActive(true);
+        paths = Drawlines.paths_pass;
+        max_x = paths.Max(v => v.x);
+        min_x = paths.Min(v => v.x);
+        max_y = paths.Max(v => v.y);
+        min_y = paths.Min(v => v.y);
+      
+        if (Mathf.Abs(max_x - min_x) > 100 || Mathf.Abs(max_y - min_y) > 100)
+        {
+           
+            
+            messagePanel.SetActive(true);
+            string headerData = "startdate,Max_x,Min_x,Max_y,Min_y";
+            DateTime time = DateTime.Now;
+            string data = time.ToString() + "," + max_x + "," + min_x + "," + max_y + "," + min_y;
+
+            //To write assessment data
+         
+            AppData.writeAssessmentData(headerData, data, DataManager.ROMWithSupportFileNames[1], DataManager.directoryAssessmentData);
+        }
+        else
+        {
+          
+                messagePanel.SetActive(false);
+            
+        }
+
+        AppData.ArmSupportController.UseNoWeightSupport();
+     
+    }
+    public void updateSupportGUI()
+    {
+        supportIndicator.fillAmount = MarsComm.SUPPORT;
+        support.text = $"Support:{AppData.ArmSupportController.getGain()}%";
     }
 
-    public void NoWeightSupport()
-    {
-        MarsComm.SUPPORT = MarsComm.SUPPORT_CODE[0];
-        AppData.dataSendToRobot = new float[] {MarsComm.SUPPORT, 0.0f, 2006, 0.0f };
-        SceneManager.LoadScene("noWeightSupportScene");
-    }
 
     private void OnApplicationQuit()
     {

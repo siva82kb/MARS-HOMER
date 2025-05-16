@@ -19,9 +19,13 @@ public class AsteroidCollisionHandler : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
+        
+       
         // Check the other object is tagged as a laser
         if (other.CompareTag("Laser") && !isDestroyed)
         {
+            gameData.events = 3;
+            Debug.Log("player hit");
             isDestroyed = true; // Mark asteroid as destroyed
             animator.SetTrigger("TriggerDestroy"); // Play destruction animation
              if (audioSource != null && ExplosionSound != null)

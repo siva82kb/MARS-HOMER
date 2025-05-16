@@ -36,7 +36,7 @@ public class PongLevelManager : MonoBehaviour
         //ballSpeed = 2f + 0.3f *AppData.startGameLevelSpeed;
         //enemSpeed = 1.2f + 0.32f * AppData.startGameLevelSpeed;
         ballSpeed = 2f;
-        enemSpeed = 10f;
+        enemSpeed = 5f;//1.85f
         rgbd = GameObject.FindGameObjectWithTag("Player");
         rgbd.transform.localScale = new Vector3(0.2f, Mathf.Clamp(3f - 2 * 0.3f,.8f,3f), 1f);
 
@@ -74,36 +74,36 @@ public class PongLevelManager : MonoBehaviour
            
         }
 
-        //if (Input.GetKeyDown(KeyCode.A))
-        //{
-        //    Debug.Log("increase support");
-        //    weightEstimation.support += 0.05f;
-        //    if (weightEstimation.support > 1)
-        //    {
-        //        weightEstimation.support = 1.0f;
-        //    }
-        //    if (GameSceneScript.ctrlMode < 2)
-        //    {
-        //        AppData.PCParam = new float[] { weightEstimation.support, 0.0f, 2006, 0.0f };
-        //        supporti = Mathf.Round(weightEstimation.support * 100.0f);
-        //        support.text = "Support: " + supporti.ToString() + " %";
-        //    }
-        //}
-        //else if (Input.GetKeyDown(KeyCode.S))
-        //{
-        //    Debug.Log("Decrease support");
-        //    weightEstimation.support -= 0.05f;
-        //    if (weightEstimation.support < 0)
-        //    {
-        //        weightEstimation.support = 0.0f;
-        //    }
-        //    if (GameSceneScript.ctrlMode < 2)
-        //    {
-        //        AppData.PCParam = new float[] { weightEstimation.support, 0.0f, 2006, 0.0f };
-        //        supporti = Mathf.Round(weightEstimation.support * 100.0f);
-        //        support.text = "Support: " + supporti.ToString() + " %";
-        //    }
-        //}
+        if (Input.GetKeyDown(KeyCode.A))
+        {
+            Debug.Log("increase support");
+            //weightEstimation.support += 0.05f;
+            //if (weightEstimation.support > 1)
+            //{
+            //    weightEstimation.support = 1.0f;
+            //}
+            //if (GameSceneScript.ctrlMode < 2)
+            //{
+            //    AppData.PCParam = new float[] { weightEstimation.support, 0.0f, 2006, 0.0f };
+            //    supporti = Mathf.Round(weightEstimation.support * 100.0f);
+            //    support.text = "Support: " + supporti.ToString() + " %";
+            //}
+        }
+        else if (Input.GetKeyDown(KeyCode.S))
+        {
+            //Debug.Log("Decrease support");
+            //weightEstimation.support -= 0.05f;
+            //if (weightEstimation.support < 0)
+            //{
+            //    weightEstimation.support = 0.0f;
+            //}
+            //if (GameSceneScript.ctrlMode < 2)
+            //{
+            //    AppData.PCParam = new float[] { weightEstimation.support, 0.0f, 2006, 0.0f };
+            //    supporti = Mathf.Round(weightEstimation.support * 100.0f);
+            //    support.text = "Support: " + supporti.ToString() + " %";
+            //}
+        }
     }
 
     public void ShowLevelControl()

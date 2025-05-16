@@ -5,7 +5,8 @@ using NeuroRehabLibrary;
 
 public class UIManager1 : MonoBehaviour {
 
-	GameObject[] pauseObjects, finishObjects;
+    private GameSession currentGameSession;
+    GameObject[] pauseObjects, finishObjects;
 	public BoundController rightBound;
 	public BoundController leftBound;
 	public bool isFinished;
@@ -13,14 +14,17 @@ public class UIManager1 : MonoBehaviour {
     public AudioClip[] audioClips; // winlevel loose
     public int winScore = 7;
     public int win;
-    private GameSession currentGameSession;
+    public int mt;
+    public static float playerMoveTime;
+    public static bool changeScene = false;
+    public readonly string nextScene = "pong_game";
     // Use this for initialization
     void Start () {
-		//AppData.InitializeRobot();
-		//pauseObjects = GameObject.FindGameObjectsWithTag("ShowOnPause");
-		finishObjects = GameObject.FindGameObjectsWithTag("ShowOnFinish");
+        MarsComm.OnButtonReleased += onMarsButtonReleased;
+        //pauseObjects = GameObject.FindGameObjectsWithTag("ShowOnPause");
+        finishObjects = GameObject.FindGameObjectsWithTag("ShowOnFinish");
 		hideFinished();
-		StartNewGameSession();
+        
 	}
 	// Update is called once per frame
 	void Update () {
@@ -37,44 +41,29 @@ public class UIManager1 : MonoBehaviour {
             LoadLevel("pong_game");
         }
 
-
- 
-	}
-    
-    void StartNewGameSession()
-    {
-        currentGameSession = new GameSession
+        // Check if it time to switch to the next scene
+        if (changeScene == true)
         {
-            GameName = "PING-PONG",
-            Assessment = 0 // Example assessment value, 
-                           //If this script for calibration and assessment then Assessment=1. 
-        };
-        SessionManager.Instance.StartGameSession(currentGameSession);
-        SetSessionDetails();
-    }
-
-    public void SetSessionDetails()
-    {
-        string device = "MARS"; // Set the device name
-        string assistMode = "Null"; // Set the assist mode
-        string assistModeParameters = "Null"; // Set the assist mode parameters
-        string deviceSetupLocation = DataManager.filePathConfigData;
-        SessionManager.Instance.SetDevice(device, currentGameSession);
-        SessionManager.Instance.SetAssistMode(assistMode, assistModeParameters, currentGameSession);
-        SessionManager.Instance.SetDeviceSetupLocation(deviceSetupLocation, currentGameSession);
-    }
-    void EndCurrentGameSession()
-    {
-        if (currentGameSession != null)
-        {
-            string trialDataFileLocation = "pass_trial_data_location";
-            string gameParameter = "pass_game_parameter";
-            SessionManager.Instance.SetGameParameter(gameParameter, currentGameSession);
-            SessionManager.Instance.SetTrialDataFileLocation(trialDataFileLocation, currentGameSession);
-            SessionManager.Instance.EndGameSession(currentGameSession);
+            LoadTargetScene();
+            changeScene = false;
         }
     }
 
+    public void onMarsButtonReleased()
+    {
+        AppLogger.LogInfo("Mars button released.");
+        changeScene = true;
+
+    }
+
+    private void LoadTargetScene()
+    {
+        AppLogger.LogInfo($"Switching to the next scene '{nextScene}'.");
+        SceneManager.LoadScene(nextScene);
+    }
+
+
+   
 
     //Reloads the Level
     public void Reload(){
@@ -140,4 +129,8 @@ public class UIManager1 : MonoBehaviour {
     {
 		SceneManager.LoadScene("chooseMovementScene");
 	}
+    private void OnDestroy()
+    {
+        MarsComm.OnButtonReleased -= onMarsButtonReleased;
+    }
 }

@@ -7,7 +7,7 @@ using System.Linq;
 using System;
 using UnityEngine.UI;
 using UnityEditor;
-
+using TMPro;
 public class Drawpath : MonoBehaviour
 {
     public static Drawpath instance;
@@ -21,11 +21,12 @@ public class Drawpath : MonoBehaviour
     public static int inclusion;
     public static string currentDate;
     public Slider force;
+    public Image supportIndicator;
+    public TextMeshProUGUI support;
     public GameObject messagePanel;
     List<Vector3> paths;
 
-    float time, startTime, decayTime = 5.0f, support, supporti, startSupport, startDecay = 0, endSupport;
-    const int SUPPORT_MODE = 2006;
+  
     void Awake()
     {
         instance = this;
@@ -47,22 +48,17 @@ public class Drawpath : MonoBehaviour
 
     public void Update()
     {
-        time += Time.deltaTime;
-        updateforce();
-        if (startDecay == 1)
+       
+        updateSupportGUI();
+
+        if(MarsComm.SUPPORT <= MarsComm.SUPPORT_CODE[2] || MarsComm.SUPPORT<0.55f)
         {
-            if (time - startTime < decayTime)
-            {
-                supporti = startSupport + (time - startTime) / decayTime * (endSupport - startSupport);
-                MarsComm.SUPPORT = supporti;
-                AppData.dataSendToRobot = new float[] { MarsComm.SUPPORT, 0.0f, SUPPORT_MODE, 0.0f };
-            }
-            else
-            {
-                startDecay = 0;
-                halfWeightSupport();
-            }
+            Debug.Log("Half weight support initiated");
+            AppLogger.LogInfo("half weight support initiated");
+            SceneManager.LoadScene("halfWeightSupportScene");
         }
+      
+       
     }
 
     public void onclick_recalibrate()
@@ -72,11 +68,7 @@ public class Drawpath : MonoBehaviour
     }
     public void onclickHalfweightSupport()
     {
-
-        endSupport = 0.5f;
-        startTime = time;
-        startSupport = MarsComm.SUPPORT;
-        startDecay = 1;
+        AppData.ArmSupportController.UseHalfWeightSupport(1);
         paths = Drawlines.paths_pass;
         max_x = paths.Max(v => v.x);
         min_x = paths.Min(v => v.x);
@@ -88,66 +80,25 @@ public class Drawpath : MonoBehaviour
             inclusion = 1;
             message.SetActive(true);
             messagePanel.SetActive(true);
-            //To write assessment data
-            writeAssessmentData();
+            string headerData = "startdate,Max_x,Min_x,Max_y,Min_y";
+            DateTime time = DateTime.Now;
+            string data = time.ToString() + "," + max_x + "," + min_x + "," + max_y + "," + min_y;
+            AppData.writeAssessmentData(headerData, data, DataManager.ROMWithSupportFileNames[0],DataManager.directoryAssessmentData);
         }
         else
         {
             inclusion = 0;
             message.SetActive(false);
         }
+     
     }
-    public void writeAssessmentData()
-    {
-        if (!Directory.Exists(DataManager.directoryAssessmentData))
-        {
-            Directory.CreateDirectory(DataManager.directoryAssessmentData);
-        }
-        if (!File.Exists(DataManager.filePathAssessmentData))
-        {
-            File.Create(DataManager.filePathAssessmentData).Dispose();
-        }
-        try
-        {
    
-            if (File.Exists(DataManager.filePathAssessmentData) && File.ReadAllLines(DataManager.filePathAssessmentData).Length == 0)
-            {
-                string headerData = "startdate,Max_x,Min_x,Max_y,Min_y";
-                File.WriteAllText(DataManager.filePathAssessmentData, headerData + "\n"); // Add a new line after the header
-                Debug.Log("Header written successfully.");
-                DateTime time = DateTime.Now;
-                string data = time.ToString() + "," + max_x + "," + min_x + "," + max_y + "," + min_y;
-                File.AppendAllText(DataManager.filePathAssessmentData, data + "\n");
-                AppLogger.LogInfo("Assessment data writtern successfully");
-            }
-            else
-            {
-                DateTime time = DateTime.Now;
-                string data = time.ToString()+","+max_x+","+min_x+","+max_y+","+min_y;
-                File.AppendAllText(DataManager.filePathAssessmentData, data + "\n");
-                AppLogger.LogInfo("Assessment data writtern successfully");
-            }
-        }
-        catch (Exception ex)
-        {
-            // Catch any other generic exceptions
-            Debug.LogError("An error occurred while writing the data: " + ex.Message);
-            AppLogger.LogError("An error occurred while writing the data: " + ex.Message);
-        }
-    }
-    public void updateforce()
+    public void updateSupportGUI()
     {
-        force.value = 0.005f * MarsComm.forceTwo;
-        //Debug.Log(force.value);
+        supportIndicator.fillAmount = MarsComm.SUPPORT;
+        support.text = $"Support:{AppData.ArmSupportController.getGain()}%";
     }
-    public void halfWeightSupport()
-    {
-        MarsComm.SUPPORT = MarsComm.SUPPORT_CODE[2];
-        AppData.dataSendToRobot = new float[] { MarsComm.SUPPORT, 0.0f, SUPPORT_MODE, 0.0f };
-        Debug.Log("Half weight support initiated");
-        AppLogger.LogInfo("half weight support initiated");
-        SceneManager.LoadScene("halfWeightSupportScene");
-    }
+  
     private void OnApplicationQuit()
     {
         Application.Quit();

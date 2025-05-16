@@ -11,7 +11,8 @@ public class Level_Control_script : MonoBehaviour
     public Button[] levelButtons; // Array of level buttons
     private string file_path; 
     private int currentLevel = 1;
-   
+    public static bool changeScene = false;
+    public readonly string nextScene = "SpaceShooter_Level1";
     private int currentScore = 0;
     public TextMeshProUGUI currentScoreText; // Text for displaying current score
     public TextMeshProUGUI LevelsUnlockedText; // Text for displaying score needed for next level
@@ -21,14 +22,33 @@ public class Level_Control_script : MonoBehaviour
         InitializeLevelButtons();
         Checkscore();
         UpdateScoreDisplay();
+        MarsComm.OnButtonReleased += onMarsButtonReleased;
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+     // Check if it time to switch to the next scene
+            if (changeScene == true)
+            {
+                LoadTargetScene();
+                changeScene = false;
+            }
     }
-     private void InitializeLevelButtons()
+
+    public void onMarsButtonReleased()
+    {
+    AppLogger.LogInfo("Mars button released.");
+    changeScene = true;
+
+    }
+
+private void LoadTargetScene()
+{
+    AppLogger.LogInfo($"Switching to the next scene '{nextScene}'.");
+    SceneManager.LoadScene(nextScene);
+}
+private void InitializeLevelButtons()
     {
         // Set all level buttons to non-interactable initially
         foreach (Button button in levelButtons)
@@ -36,7 +56,7 @@ public class Level_Control_script : MonoBehaviour
             button.interactable = false;
         }
     }
-     private  void Checkscore(){
+    private void Checkscore(){
         string path=Path.Combine(Application.dataPath,"Patient_Data");
         if(!Directory.Exists(path)){
             Directory.CreateDirectory(path);
@@ -49,10 +69,7 @@ public class Level_Control_script : MonoBehaviour
         if (File.Exists(file_path))
         {
             string[] lines = File.ReadAllLines(file_path);
-            // if (lines.Length > 0)
-            // {
-            //     int.TryParse(lines[0], out currentScore,out currentlevel); // Parse score from the first line
-            // }
+           
         string[] values = lines[0].Split(','); // Split the line by commas
         if (values.Length >= 2)
         {
@@ -88,18 +105,6 @@ public class Level_Control_script : MonoBehaviour
         currentScoreText.text = $"Score: {currentScore}";
         LevelsUnlockedText.text=$"Levels Unlocked:{currentLevel}";
 
-        // // Calculate and display the score required to unlock the next level
-        // int nextLevelScore = ((currentScore / requiredScore) + 1) * requiredScore;
-        
-        // // If max level is reached, no further level to unlock
-        // if (nextLevelScore >= requiredScore * levelButtons.Length)
-        // {
-        //     nextLevelScoreText.text = "Max Level Reached";
-        // }
-        // else
-        // {
-        //     nextLevelScoreText.text = $"Next Level at: {nextLevelScore}";
-        // }
     }
    
     public void onclcik_back(){
@@ -135,5 +140,9 @@ public class Level_Control_script : MonoBehaviour
     public void onclick_Level10(){
         SceneManager.LoadScene("SpaceShooter_Level10");
     }
- }
+    private void OnDestroy()
+    {
+        MarsComm.OnButtonReleased -= onMarsButtonReleased;
+    }
+}
 

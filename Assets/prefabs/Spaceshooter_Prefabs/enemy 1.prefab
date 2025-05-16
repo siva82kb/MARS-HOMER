@@ -200,9 +200,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 981f8944b6bf20c438205c372a0d8762, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fallSpeed: 1.71
-  zigZagAmplitude: 10
-  zigZagFrequency: 1
+  fallSpeed: 1.5
+  zigZagDuration: 2
+  minX: -7.9
+  maxX: 7.9
 --- !u!114 &7486207493529457684
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -444,7 +445,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4304426466001397924}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e99c2879087cddd47bb66ebb1ea8b936, type: 3}
   m_Name: 

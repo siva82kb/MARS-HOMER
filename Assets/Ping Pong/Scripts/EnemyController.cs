@@ -4,10 +4,10 @@ using System.Collections;
 public class EnemyController : MonoBehaviour {
 
 	//Speed of the enemy
-	public static float speed = 1.75F;
-
-	//the ball
-	Transform ball;
+	public static float speed = 2.9f;
+ 
+    //the ball
+    Transform ball;
 
 	//the ball's rigidbody 2D
 	Rigidbody2D ballRig2D;
@@ -22,9 +22,14 @@ public class EnemyController : MonoBehaviour {
 		//Continously Invokes Move every x seconds (values may differ)
 		InvokeRepeating("Move", .02F, .02F);
 	}
-
-	// Movement for the paddle
-	void Move () {
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        gameData.events = 2;
+        Debug.Log("enemy hit");
+    }
+    
+    // Movement for the paddle
+    void Move () {
 
 		//finding the ball
 		if(ball == null){

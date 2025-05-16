@@ -196,9 +196,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 981f8944b6bf20c438205c372a0d8762, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fallSpeed: 1.65
-  zigZagAmplitude: 20
-  zigZagFrequency: 1
+  fallSpeed: 1.22
+  zigZagDuration: 1.94
+  minX: -7.9
+  maxX: 7.9
 --- !u!114 &2456080926774631416
 MonoBehaviour:
   m_ObjectHideFlags: 0

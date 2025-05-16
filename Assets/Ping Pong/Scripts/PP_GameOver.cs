@@ -4,7 +4,7 @@ using System.Collections;
 
 public class PP_GameOver : MonoBehaviour {
 
-	public UIManager1 uiManager;
+	public UIManager uiManager;
 	private Text text;
 	// Use this for initialization
 	void Start () {

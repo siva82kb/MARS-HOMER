@@ -8,27 +8,34 @@ public class awsUploader : MonoBehaviour
 {
     private string pythonScriptPath = @"C:/pythonscripts/uploadToAWS.pyw";
     private string pythonExecutionPath = @"C:/Users/CMC/AppData/Local/Programs/Python/Python313/pythonw.exe";
-    private static string filePathUploadStatus = DataManager.filePathUploadStatus;
+    private static string filePathUploadStatus = @"C:/DeviceSetup/Mars";
+    string[] status = new string[] {"upload_needed","no_upload"};
+    string taskName ="AWSUploaderMarsTask";
+    string DeviceName = "MarsData";
     void Start()
     {
-        
-        if (!IsTaskScheduled("AWSUploaderTask"))
+
+        if (!IsTaskScheduled(taskName))
         {
             ScheduleTask();
             createFile();
         }
-        downloadConfigFile();
+        else
+        {
+            //downloadConfigFile();
+        }
+
     }
 
     // Method to schedule the task using SCHTASKS
     void ScheduleTask()
     {
         
-        string taskName = "AWSUploaderTask";
+       
         string commandArguments = $"\"{pythonScriptPath}\"";
         string scheduleFrequency = "/SC MINUTE /MO 30";
         string command = $"schtasks /Create {scheduleFrequency} /TN \"{taskName}\" " +
-                         $"/TR \"{pythonExecutionPath} {commandArguments}\" /F /RL HIGHEST";
+                         $"/TR \"{pythonExecutionPath} {commandArguments}\" /F ";
         RunCommand(command);
         AppLogger.LogInfo("Task scheduled For AWSuploaderTask Successfully");
     }
@@ -36,6 +43,7 @@ public class awsUploader : MonoBehaviour
     public void downloadConfigFile()
     {
         AppLogger.LogInfo("Downloading config file");
+       
         try
         {
             Process process = new Process();
@@ -49,11 +57,14 @@ public class awsUploader : MonoBehaviour
             string output = process.StandardOutput.ReadToEnd();
             string error = process.StandardError.ReadToEnd();
             process.WaitForExit();
+            //Debug.Log(output);
+            //Debug.LogError(error);
             AppLogger.LogInfo(output);
             AppLogger.LogError(error);
         }
         catch (System.Exception ex)
         {
+            Debug.Log("An error occurred while running the Python script: " + ex.Message);
             AppLogger.LogError("An error occurred while running the Python script: " + ex.Message);
           
         }
@@ -62,8 +73,9 @@ public class awsUploader : MonoBehaviour
     //To create the uploadStatusFile
     void createFile()
     {
-        File.Create(filePathUploadStatus).Dispose();
-        File.WriteAllText(filePathUploadStatus, "no_upload");
+        Directory.CreateDirectory(filePathUploadStatus);  
+        File.Create(filePathUploadStatus + "/uploadStatus.txt").Dispose();//+"uploadStatus.txt"
+        File.WriteAllText(filePathUploadStatus,$"{Application.dataPath},{status[1]},{DeviceName}");
     }
     // Method to check if the task is already scheduled
     bool IsTaskScheduled(string taskName)

@@ -30,7 +30,7 @@ public class PlayerScore : MonoBehaviour
                 int.TryParse(values[1], out currentLevel);
             }
 
-            String scores = currentScore.ToString();
+            // String scores = currentScore.ToString();
             ScoreText.text = $"Score: {currentScore}";
         }
 
@@ -74,6 +74,21 @@ public class PlayerScore : MonoBehaviour
             File.WriteAllText(F_path, data);
         }
 
+    }
+    public void DeductScore(){
+         if (!File.Exists(F_path))
+        {
+            File.WriteAllText(F_path, "0,0");
+        }
+        if (File.Exists(F_path))
+        {
+            // string[] lines = File.ReadAllLines(F_path);
+
+            currentScore -= 5;
+            ScoreText.text = $"Score: {currentScore}";
+            string data = $"{currentScore},{currentLevel}";
+            File.WriteAllText(F_path, data);
+        }
     }
 
 

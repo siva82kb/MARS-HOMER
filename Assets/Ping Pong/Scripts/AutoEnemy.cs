@@ -4,7 +4,7 @@ using System.Collections;
 public class AutoEnemy : MonoBehaviour {
 
 	//Speed of the AI
-	public float speed = 2.75F;
+	public float speed = 2F;
 	
 	//the ball
 	Transform ball;

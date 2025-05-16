@@ -14,7 +14,7 @@ public class EnemyDualCollisionHandler : MonoBehaviour
     private bool isDestroyed = false; // Track if the Enemy is destroyed
     private Animator animator; // Reference to the Animator component
     private GameManagerScript gm;
-    public Transform Powerup_Shield;
+    // public Transform Powerup_Shield; field for powerup prefab shield
     
     private int randomfall;
     
@@ -54,12 +54,12 @@ public class EnemyDualCollisionHandler : MonoBehaviour
                 audioSource.PlayOneShot(ExplosionSound);
             }
             
-            
-            randomfall = Random.Range(1, 100);
-            if (randomfall < 40)
-            {
-                Instantiate(Powerup_Shield, other.transform.position, other.transform.rotation);
-            }
+            //randomly drop powerup shield prefab when hit by player laser
+            // randomfall = Random.Range(1, 100);
+            // if (randomfall < 40)
+            // {
+            //     Instantiate(Powerup_Shield, other.transform.position, other.transform.rotation);
+            // }
              // Delay the destruction to allow the animation to finish
                 StartCoroutine(waitforAnimation());
             }

@@ -29,10 +29,10 @@ public class BoundController : MonoBehaviour {
 			//Destroys other object
 			Destroy(other.gameObject);
 
-			//sets enemy's position back to original
-			enemy.position = new Vector3(-6,0,0);
-			//pauses game
-			Time.timeScale = 0;
+			////sets enemy's position back to original
+			//enemy.position = new Vector3(-6,0,0);
+			////pauses game
+			//Time.timeScale = 0;
 		}
 	}
     void playAudio(int clipNumber)

@@ -4,7 +4,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using NeuroRehabLibrary;
-
+using System.Data;
+using System.IO;
 public class welcomSceneHandler : MonoBehaviour
 {
     //public GameObject loading;
@@ -20,7 +21,9 @@ public class welcomSceneHandler : MonoBehaviour
     private DaySummary[] daySummaries;
     public static bool changeScene = false;
     public readonly string nextScene = "calibrationScene";
-    
+    public string filePath = $"{Application.dataPath}/data/configdata.csv"; 
+
+
     // Private variables
     private bool attachPlutoButtonEvent = false;
 
@@ -28,7 +31,15 @@ public class welcomSceneHandler : MonoBehaviour
     void Start()
     {
         // Initialize.
+      
+        if (!File.Exists(DataManager.filePathforConfig))
+        {
+            Debug.Log(filePath);
+            SceneManager.LoadScene("configuration");
+            return;
+        }
         AppData.InitializeRobot();
+
         daySummaries = SessionDataHandler.CalculateMoveTimePerDay();
         SessionManager.Initialize(DataManager.directoryPathSession);
         SessionManager.Instance.Login();
@@ -37,18 +48,21 @@ public class welcomSceneHandler : MonoBehaviour
         AppLogger.StartLogging(SceneManager.GetActiveScene().name);
         AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);
         AppLogger.LogInfo($"{SceneManager.GetActiveScene().name} scene started.");
+        UpdateUserData();
+        UpdatePieChart();
 
         // Update summary display
         if (!piChartUpdated)
         {
-            UpdateUserData();
-            UpdatePieChart();
+           
         }
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (MarsComm.desThree != 1998)
+            AppData.sendToRobot(AppData.dataSendToRobot);
         // Attach PlutoButton release event after 2 seconds if it is not attached already.
         if (!attachPlutoButtonEvent && Time.timeSinceLevelLoad > 2)
         {
@@ -79,8 +93,21 @@ public class welcomSceneHandler : MonoBehaviour
 
     private void UpdateUserData()
     {
+      
         userName.text = AppData.UserData.hospNumber;
-        timeRemainingToday.text = $"{AppData.UserData.totalMoveTimeRemaining} min";
+        int movetime = AppData.UserData.totalMoveTimeRemaining;
+        Debug.Log(AppData.UserData.isExceeded);
+        if (AppData.UserData.isExceeded)
+        {
+            timeRemainingToday.text = $"Done +{movetime}[min]";
+            timeRemainingToday.color = Color.green ;
+            Debug.Log("workinng");
+        }
+        else
+        {
+            timeRemainingToday.text = $"{movetime} min";
+        }
+       
         todaysDay.text = AppData.UserData.getCurrentDayOfTraining().ToString();
         todaysDate.text = DateTime.Now.ToString("ddd, dd-MM-yyyy");
     }

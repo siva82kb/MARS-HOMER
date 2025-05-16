@@ -10,6 +10,7 @@ using System;
 using System.Linq;
 using System.Text;
 using System.Data;
+using NeuroRehabLibrary;
 //using Newtonsoft.Json;
 
 // [System.Serializable]
@@ -70,7 +71,7 @@ public class BirdControl : MonoBehaviour
     //public static float playSize;
     public static float spawntime = 3f;
     private Vector2 direction;
-    public static float y_value;
+    public static float y_value,previousY;
 
     float startTime;
     float endTime;
@@ -113,7 +114,7 @@ public class BirdControl : MonoBehaviour
    
     void Start()
     {
-        
+       
         collision_count = 0;
         startTime = 0;
         endTime = 0;
@@ -186,15 +187,15 @@ public class BirdControl : MonoBehaviour
 
    
     void FixedUpdate ()
-	{		
+	{
         // float moveHorizontal = Input.GetAxis ("Horizontal");
-		float moveVertical = Input.GetAxis ("Vertical");
-        Vector3 movement = new Vector3 (0.0f, 0.0f, moveVertical);
-		GetComponent<Rigidbody2D>().velocity = movement * speed;
+        float moveVertical = Input.GetAxis("Vertical");
+        Vector3 movement = new Vector3(0.0f, 0.0f, moveVertical);
+        GetComponent<Rigidbody2D>().velocity = movement * speed;
 
         //move the game object based on MarsAngle
 
-        y_value = -Mathf.Clamp(Angle2ScreenZ(DEPENDENT[AppData.useHand]*MarsComm.angleOne), min_y_Unity, max_y_Unity);
+        y_value = -Mathf.Clamp(Angle2ScreenZ(DEPENDENT[AppData.useHand] * MarsComm.angleOne), min_y_Unity, max_y_Unity);
         //Debug.Log(y_value);
         GetComponent<Rigidbody2D>().position = new Vector3
         (
@@ -202,8 +203,16 @@ public class BirdControl : MonoBehaviour
             (float)y_value,
             0.0f
         );
-        GetComponent<Rigidbody2D>().transform.rotation = Quaternion.Euler (0.0f, 0.0f, GetComponent<Rigidbody2D>().velocity.x * -tilt);
-       
+
+        gameData.playerPos = GetComponent<Rigidbody2D>().position.y.ToString();
+        if(y_value!= previousY)
+        {
+            gameData.events = 1;
+            Debug.Log("playermoving");
+            previousY = y_value;
+        }
+        GetComponent<Rigidbody2D>().transform.rotation = Quaternion.Euler(0.0f, 0.0f, GetComponent<Rigidbody2D>().velocity.x * -tilt);
+        //KeyboardControl();
 
     }
     
@@ -244,6 +253,7 @@ public class BirdControl : MonoBehaviour
     
     private void OnCollisionEnter2D(Collision2D collision)
     {
+        gameData.events = 2;
         startBlinking = true;
         collision_count++;
         // Debug.Log(collision_count+" :collision");
@@ -332,11 +342,13 @@ public class BirdControl : MonoBehaviour
     {
         if (Input.GetKey(KeyCode.UpArrow))
         {
+            gameData.events = 1;
             direction = Vector2.up;
             this.transform.Translate(direction * speed * Time.deltaTime);
         }
         else if (Input.GetKey(KeyCode.DownArrow))
         {
+            gameData.events = 1;
             direction = Vector2.down;
             this.transform.Translate(direction * speed * Time.deltaTime);
         }
