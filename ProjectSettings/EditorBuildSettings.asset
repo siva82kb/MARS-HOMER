@@ -1,0 +1,141 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1045 &1
+EditorBuildSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/welcomeScene.unity
+    guid: c7ef89ba1b51639479466d34da35d7a4
+  - enabled: 1
+    path: Assets/Scenes/marsDiagnostics.unity
+    guid: 2cda990e2423bbf4892e6590ba056729
+  - enabled: 1
+    path: Assets/Scenes/calibrationScene.unity
+    guid: 02b1b3a8a6ce6294faf928e79d71b01d
+  - enabled: 1
+    path: Assets/Scenes/chooseMovementScene.unity
+    guid: ba90e3adfd6d86942946bea3547bf51e
+  - enabled: 1
+    path: Assets/Scenes/summaryScene.unity
+    guid: 30a7fb6ffffe3a647af9025b934fe098
+  - enabled: 1
+    path: Assets/Scenes/weightcalibrationScene.unity
+    guid: d7780cab2ec8f474cb47263b3c82e608
+  - enabled: 1
+    path: Assets/Scenes/assessmentScene.unity
+    guid: 547b0a86ddce3864380b06820eb7b926
+  - enabled: 1
+    path: Assets/Scenes/fullWeightSupportScene.unity
+    guid: 4e925e4f4d1079d4db75d02dec1fdc6f
+  - enabled: 0
+    path: Assets/Scenes/No Weight Support.unity
+    guid: 8772882fc240e474cab04a6c7341badd
+  - enabled: 0
+    path: Assets/Scenes/Half Weight Support.unity
+    guid: ed200b805794f2348bc56fb443a3c143
+  - enabled: 1
+    path: Assets/Scenes/halfWeightSupportScene.unity
+    guid: ff6ca81e97b855243b7414991ec920c9
+  - enabled: 1
+    path: Assets/Scenes/noWeightSupportScene.unity
+    guid: bd78a6db371bf5f4dbd88cba4d428bb2
+  - enabled: 0
+    path: Assets/SS v2/SS v2.unity
+    guid: fc49b61c132e08248abcb76b5473578b
+  - enabled: 1
+    path: Assets/Scenes/SpaceShooter/SpaceShooter_Level1.unity
+    guid: a70930fea6d6a3545a90d56ef1b83657
+  - enabled: 1
+    path: Assets/Scenes/SpaceShooter/space_shooter_level.unity
+    guid: 073820709d85d6f45864cf169eb7e622
+  - enabled: 1
+    path: Assets/Scenes/SpaceShooter/space_shooter_home.unity
+    guid: 72173926127dcd74f9f6e72c45d376f2
+  - enabled: 1
+    path: Assets/Scenes/SpaceShooter/SpaceShooter_Level2.unity
+    guid: b114eaad053f0cd469be247b6dc09864
+  - enabled: 1
+    path: Assets/Scenes/SpaceShooter/SpaceShooter_Level3.unity
+    guid: 2b8c8bc19d313d349a99c54d628803f6
+  - enabled: 1
+    path: Assets/Scenes/SpaceShooter/SpaceShooter_Level4.unity
+    guid: 8d4e74d11eed952458e353af9a1519db
+  - enabled: 1
+    path: Assets/Scenes/SpaceShooter/SpaceShooter_Level5.unity
+    guid: 20e6fb7a7a356ca41850fd0423d9ba13
+  - enabled: 1
+    path: Assets/Scenes/SpaceShooter/SpaceShooter_Level6.unity
+    guid: 59102c65c7e840b4cab6af64ceac37b6
+  - enabled: 1
+    path: Assets/Scenes/SpaceShooter/SpaceShooter_Level7.unity
+    guid: eefd659d2afae854a8d24853a44faee9
+  - enabled: 1
+    path: Assets/Scenes/SpaceShooter/SpaceShooter_Level8.unity
+    guid: 9c44d561a140d0040a0a59728f45a1ae
+  - enabled: 1
+    path: Assets/Scenes/SpaceShooter/SpaceShooter_Level9.unity
+    guid: 338aab20868555c40b35e229e8b0346f
+  - enabled: 1
+    path: Assets/Scenes/SpaceShooter/SpaceShooter_Level10.unity
+    guid: 6b039c561ae238a4d83acb9da5b28c91
+  - enabled: 1
+    path: Assets/FlappyBirdStyleAssets/Scenes/FlappyGame.unity
+    guid: 071352bb11a2bdd49a617f0ddbee8565
+  - enabled: 0
+    path: Assets/Ping_Pong/pong_game.unity
+    guid: 3657ba6bdfe304124bbaab754398b089
+  - enabled: 0
+    path: Assets/Ping_Pong/pong_menu.unity
+    guid: 673a72c8cff63473b82274a891b8ff37
+  - enabled: 0
+    path: Assets/Ping Pong/Draw_Pong.unity
+    guid: bd1eddc4b6a4a55489a3d947d41a6360
+  - enabled: 1
+    path: Assets/Scenes/ping_pong/pong_menu.unity
+    guid: 1bd52a7e0eece124dac8389cc0f1a7c7
+  - enabled: 1
+    path: Assets/Scenes/ping_pong/pong_game.unity
+    guid: 35f526e95398d814a9fd87da4b01a9e8
+  - enabled: 1
+    path: Assets/Scenes/Whack-a-mole/Whack_levels.unity
+    guid: 06cb92e26030be94a9abe1fd42fc28c3
+  - enabled: 1
+    path: Assets/Scenes/BrickBreaker/BB_Welcome.unity
+    guid: f603d78cb3c16404083ca56935176117
+  - enabled: 1
+    path: Assets/Scenes/BrickBreaker/Main_1.unity
+    guid: ea464295a76d33e4aa18bba5ce1b46ca
+  - enabled: 1
+    path: Assets/Scenes/BrickBreaker/Main_2.unity
+    guid: d1fd65ef6fb99be4cb657b2c7963ecad
+  - enabled: 1
+    path: Assets/Scenes/BrickBreaker/Main_3.unity
+    guid: 5d7162733c2be2646803e7905b7d0d53
+  - enabled: 1
+    path: Assets/Scenes/BrickBreaker/Main_4.unity
+    guid: 1b9311208ade3fe4e80c875b9d4b13c4
+  - enabled: 1
+    path: Assets/Scenes/BrickBreaker/Main_5.unity
+    guid: 14aa4694c2397964cbfbf2704b6a5ece
+  - enabled: 1
+    path: Assets/Scenes/Whack-a-mole/Whack_Lvl1.unity
+    guid: 71f42c18966fc5f4da0f3d090a8e7e85
+  - enabled: 1
+    path: Assets/Scenes/Whack-a-mole/Whack_Lvl2.unity
+    guid: 1e03f761c5eb5ff46a7073c4988251de
+  - enabled: 1
+    path: Assets/Scenes/Whack-a-mole/Whack_Lvl3.unity
+    guid: ee1c6db8f4398914b8f8261d8725e2f7
+  - enabled: 1
+    path: Assets/Scenes/Whack-a-mole/Whack_Lvl4.unity
+    guid: e03997b56ee923e4caf0efa96710758d
+  - enabled: 1
+    path: Assets/Scenes/Whack-a-mole/Whack_WelcomeScene.unity
+    guid: 0c87fe50da1c0d148a86dded2850f0e4
+  - enabled: 1
+    path: Assets/Scenes/configuration.unity
+    guid: a2ba4a851b035334aa6baf3d2f143627
+  m_configObjects: {}
+  m_UseUCBPForAssetBundles: 0
