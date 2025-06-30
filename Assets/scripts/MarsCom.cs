@@ -10,8 +10,8 @@ public static class MarsComm
  
     static public float[] currentSensorData;
     static public byte currentButtonState,previousButtonState;
-    static int sensorDataLength = 17;
-    public static int bytesFromRobot = 70;
+    static int sensorDataLength ; 
+   
     // Button released event.
     public delegate void MarsButtonReleasedEvent();
     public static event MarsButtonReleasedEvent OnButtonReleased;
@@ -164,6 +164,98 @@ public static class MarsComm
             return currentSensorData[16];
         }
     }
+    static public float imuAng1
+    {
+        get
+        {
+            return currentSensorData[17];
+        }
+    }
+    static public float imuAng2
+    {
+        get
+        {
+            return currentSensorData[18];
+        }
+    }
+    static public float imuAng3
+    {
+        get
+        {
+            return currentSensorData[19];
+        }
+    }
+    static public float imuAng4
+    {
+        get
+        {
+            return currentSensorData[20];
+        }
+    }
+    //if we need to get imuRaw values
+    //static public float imu1aX
+    //{
+    //    get
+    //    {
+    //        return currentSensorData[21];
+    //    }
+    //}
+    //static public float imu1aY
+    //{
+    //    get
+    //    {
+    //        return currentSensorData[22];
+    //    }
+    //}
+    //static public float imu1aZ
+    //{
+    //    get
+    //    {
+    //        return currentSensorData[23];
+    //    }
+    //}
+    //static public float imu2aX
+    //{
+    //    get
+    //    {
+    //        return currentSensorData[24];
+    //    }
+    //}
+    //static public float imu2aY
+    //{
+    //    get
+    //    {
+    //        return currentSensorData[25];
+    //    }
+    //}
+    //static public float imu2aZ
+    //{
+    //    get
+    //    {
+    //        return currentSensorData[26];
+    //    }
+    //}
+    //static public float imu3aX
+    //{
+    //    get
+    //    {
+    //        return currentSensorData[27];
+    //    }
+    //}
+    //static public float imu3aY
+    //{
+    //    get
+    //    {
+    //        return currentSensorData[28];
+    //    }
+    //}
+    //static public float imu3aZ
+    //{
+    //    get
+    //    {
+    //        return currentSensorData[29];
+    //    }
+    //}
     static public byte buttonState
     {
         get
@@ -171,15 +263,21 @@ public static class MarsComm
             return currentButtonState;
         }
     }
-    static MarsComm()
+   
+    static public void initalizeDataLength(int lenght)
     {
+        sensorDataLength = (int)(lenght - 2) / 4; //buttonState,checksum bytes
+        Debug.Log(sensorDataLength);
+
         currentSensorData = new float[sensorDataLength];
     }
     static public void parseRawBytes(byte[] rawBytes, uint payloadSize ,DateTime plTime)
     {
-        //Debug.Log(payloadSize);
+        Debug.Log(payloadSize);
         //Debug.Log(rawBytes.Length);
-        if (payloadSize != bytesFromRobot || rawBytes.Length < payloadSize)
+        sensorDataLength = (int)(payloadSize - 2) / 4; //buttonState,checksum bytes
+        Debug.Log(sensorDataLength);
+        if ( rawBytes.Length < payloadSize)
         {
             //Debug.Log("working");
             return;

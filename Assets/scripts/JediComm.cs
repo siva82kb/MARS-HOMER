@@ -96,6 +96,7 @@ public static class JediComm
                 {
                     plTime = DateTime.Now;
                     isMars = true;  
+                    MarsComm.initalizeDataLength((int) plcount);
                     MarsComm.parseRawBytes(payLoadBytes, (uint)plcount, plTime);
                 }
                 //AppData.sendToRobot();
