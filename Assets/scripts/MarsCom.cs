@@ -7,17 +7,77 @@ using System.ComponentModel;
 
 public static class MarsComm 
 {
- 
-    static public float[] currentSensorData;
-    static public byte currentButtonState,previousButtonState;
+    // For error logging
+    // Thread-safe version using lock
+    private static readonly System.Random _random = new System.Random();
+    private static readonly object _lock = new object();
+
+    private static int GetRandomNumber()
+    {
+        lock (_lock)
+        {
+            return _random.Next(1, 101);
+        }
+    }
+
+    // Device Level Constants
+    public static readonly string[] OUTDATATYPE = new string[] { "SENSORSTREAM", "CONTROLPARAM", "DIAGNOSTICS", "VERSION" };
+    public static readonly string[] LIMBTYPE = new string[] { "NONE", "RIGHT", "LEFT" };
+    public static readonly string[] LIMBTEXT = new string[] {
+        "None",
+        "Right",
+        "Left"
+    };
+    public static readonly string[] CALIBRATION = new string[] { "NOCALIB", "YESCALIB" };
+    public static readonly string[] CONTROLTYPE = new string[] { "NONE", "POSITION", "TORQUE", "ARM_WEIGHT_SUPPORT" };
+    public static readonly string[] CONTROLTYPETEXT = new string[] {
+        "None",
+        "Position",
+        "Torque",
+        "Arm Weight Support"
+    };
+    public static readonly int[] SENSORNUMBER = new int[] {
+        5,  // SENSORSTREAM 
+        0,  // CONTROLPARAM
+        5   // DIAGNOSTICS
+    };
+    public static readonly double MAXTORQUE = 1.0; // Nm
+    public static readonly int[] INDATATYPECODES = new int[] { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x80 };
+    public static readonly string[] INDATATYPE = new string[] {
+        "GET_VERSION",
+        "RESET_PACKETNO",
+        "SET_LIMB",
+        "CALIBRATE",
+        "START_STREAM",
+        "STOP_STREAM",
+        "SET_CONTROL_TYPE",
+        "SET_CONTROL_TARGET",
+        "SET_DIAGNOSTICS",
+        "HEARTBEAT",
+    };
+    public static readonly string[] ERRORTYPES = new string[] {
+        "ANGSENSERR",
+        "MCURRSENSERR",
+        "NOHEARTBEAT"
+    };
+    public static readonly int INVALID_TARGET = 999;
+    
+    static public byte currentButtonState, previousButtonState;
     static int sensorDataLength ; 
    
     // Button released event.
     public delegate void MarsButtonReleasedEvent();
-    public static event MarsButtonReleasedEvent OnButtonReleased;
+    public static event MarsButtonReleasedEvent OnMarsButtonReleased;
+    public delegate void CalibButtonReleasedEvent();
+    public static event CalibButtonReleasedEvent OnCalibButtonReleased;
+    // New data event.
+    public delegate void MarsNewDataEvent();
+    public static event MarsNewDataEvent OnNewMarsData;
 
-    //constant variables
-    private const float len1 = 475.0f, len2 = 291.0f;
+
+    // MARS Robot Parameters
+    private const float L1 = 475.0f;
+    private const float L2 = 291.0f;
     static public float shF, shA, elF;
 
     static public float theta1, theta2, theta3, theta4;
@@ -44,7 +104,90 @@ public static class MarsComm
     public static int controlStatus;
     public static float thetades1;
 
+
+    // Private variables
+    static private byte[] rawBytes = new byte[256];
+    // For the following arrays, the first element represents the number of elements in the array.
+    static private int[] previousStateData = new int[32];
+    static private int[] currentStateData = new int[32];
+    static private float[] currentSensorData = new float[10];
+
+    // Public variables
+    static public DateTime previousTime { get; private set; }
     static public DateTime currentTime { get; private set; }
+    static public double frameRate { get; private set; }
+    static public String deviceId { get; private set; }
+    static public String version { get; private set; }
+    static public String compileDate { get; private set; }
+    static public ushort packetNumber { get; private set; }
+    static public float runTime { get; private set; }
+    static public float prevRunTime { get; private set; }
+    public static int GetMarsCodeFromLabel(string[] array, string value)
+    {
+        return Array.IndexOf(array, value) - 1;
+    }
+    static public int status
+    {
+        get
+        {
+            return currentStateData[1];
+        }
+    }
+    static public int dataType
+    {
+        get
+        {
+            return (status >> 4);
+        }
+    }
+    static private int prevErrorStatus = 0;
+    static public int errorStatus
+    {
+        get
+        {
+            return currentStateData[2];
+        }
+    }
+    static public string errorString
+    {
+        get => getErrorString(errorStatus);
+    }
+    static public int controlType
+    {
+        get
+        {
+            return getControlType(status);
+        }
+    }
+    static public int calibration
+    {
+        get
+        {
+            return status & 0x01;
+        }
+    }
+    static public int mechanism
+    {
+        get
+        {
+            return currentStateData[3] >> 4;
+        }
+    }
+    static public int actuated
+    {
+        get
+        {
+            return currentStateData[3] & 0x01;
+        }
+    }
+    static public int button
+    {
+        get
+        {
+            return currentStateData[7];
+        }
+    }
+    
     static public float angleOne
     {
         get
@@ -262,6 +405,26 @@ public static class MarsComm
         {
             return currentButtonState;
         }
+    }
+    
+    private static int getControlType(int statusByte)
+    {
+        return (statusByte & 0x0E) >> 1;
+    }
+
+    private static string getErrorString(int err)
+    {
+        if (err == 0) return "NOERROR";
+        string _str = "";
+        for (int i = 0; i < 16; i++)
+        {
+            if ((errorStatus & (1 << i)) != 0)
+            {
+                _str += (_str != "") ? " | " : "";
+                _str += ERRORTYPES[i];
+            }
+        }
+        return _str;
     }
    
     static public void initalizeDataLength(int lenght)

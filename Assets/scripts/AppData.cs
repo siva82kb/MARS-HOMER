@@ -21,7 +21,7 @@ using Unity.VisualScripting;
 
 static class AppData
 {
-    static public readonly string comPort = "COM19";
+    static public readonly string comPort = "COM12";
     static public string selectedMovement;
     static public string selectedGame;
     public static int useHand;
