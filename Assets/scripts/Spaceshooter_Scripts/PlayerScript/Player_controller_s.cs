@@ -65,9 +65,9 @@ public class Player_controller_s : MonoBehaviour
     public void FixedUpdate()
     {
         
-        th1 = MarsComm.OFFSET[AppData.useHand] * MarsComm.angleOne;
-        th2 = MarsComm.OFFSET[AppData.useHand] * MarsComm.angleTwo;
-        th3 = MarsComm.OFFSET[AppData.useHand] * MarsComm.angleThree;
+        th1 = MarsComm.OFFSET[AppData.useHand] * MarsComm.angle1;
+        th2 = MarsComm.OFFSET[AppData.useHand] * MarsComm.angle2;
+        th3 = MarsComm.OFFSET[AppData.useHand] * MarsComm.angle3;
         yMARS = Mathf.Sin(th1) * (475.0f * Mathf.Cos(th2) + 291.0f * Mathf.Cos(th2 + th3));
         zMARS = (-475.0f * Mathf.Sin(th2) - 291.0f * Mathf.Sin(th2 + th3));
         xSS = DEPENDENT[AppData.useHand] * -((xMin + xMax) / 2.0f + (xMax - xMin) / (zMaxMars - zMinMars) * (zMARS - ((zMinMars + zMaxMars) / 2.0f)));

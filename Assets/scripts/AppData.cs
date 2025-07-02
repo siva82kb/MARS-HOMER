@@ -19,9 +19,20 @@ using UnityEngine.SceneManagement;
 using System.Collections;
 using Unity.VisualScripting;
 
-static class AppData
+
+public partial class AppData
 {
-    static public readonly string comPort = "COM12";
+    // Singleton
+    private static readonly Lazy<AppData> _instance = new Lazy<AppData>(() => new AppData());
+    public static AppData Instance => _instance.Value;
+
+    /*
+     * CONSTANT FIXED VARIABLES.
+     */
+    // COM Port for the device
+    public const string COMPort = "COM12";
+
+    // static public readonly string comPort = "COM12";
     static public string selectedMovement;
     static public string selectedGame;
     public static int useHand;
@@ -54,21 +65,21 @@ static class AppData
     static public string forearmLength = "forearmLength";
     static public string upperarmLength = "upperarmLength";
     static public string maxx="Max_x", minx="Min_x", maxy="Max_y",miny="Min_y";
-    public  static void InitializeRobot()
-    {
-        DataManager.createFileStructure();
-        JediComm.ConnectToRobot(comPort);
-        UserData.readAllUserData();
-        dataSendToRobot = new float[] { (float)useHand, 0.0f, 1998.0f, 0.0f };
-        sendToRobot(dataSendToRobot);
-    }
-    public static void sendToRobot(float[] data)
-    {
-        byte[] _data = new byte[16];
-        Buffer.BlockCopy(data, 0, _data, 0, _data.Length);
-        Debug.Log(_data.Length+"length");
-        JediComm.SendMessage(_data);
-    }
+    // public  static void InitializeRobot()
+    // {
+    //     DataManager.createFileStructure();
+    //     ConnectToRobot(comPort);
+    //     UserData.readAllUserData();
+    //     dataSendToRobot = new float[] { (float)useHand, 0.0f, 1998.0f, 0.0f };
+    //     sendToRobot(dataSendToRobot);
+    // }
+    // public static void sendToRobot(float[] data)
+    // {
+    //     byte[] _data = new byte[16];
+    //     Buffer.BlockCopy(data, 0, _data, 0, _data.Length);
+    //     Debug.Log(_data.Length+"length");
+    //     JediComm.SendMessage(_data);
+    // }
 
     public static void writeAssessmentData(String Header, String Data,String FileName,String DirPath)
     {
@@ -154,9 +165,9 @@ static class AppData
         public static float  decayTime = 5.0f, supporti, startSupport, startDecay = 0, endSupport;
         public static void  initiate()
         {
-           
-            if (MarsComm.desThree >= MARS_ACTIVATED)
-                return;
+            // NEEDS CHANGE
+            // if (MarsComm.desThree >= MARS_ACTIVATED)
+            //     return;
             getSupportCalibrationData();
 
 
@@ -166,24 +177,24 @@ static class AppData
                 return;
             }
                 
-           
-            if (MarsComm.desThree <= calibrationSceneHandler.SENT_SUCCESSFULLY)
-            {
-                AppData.dataSendToRobot = new float[] { b1, (float)MarsComm.thetades1, SEND_ARM_WEIGHT, (float)MarsComm.controlStatus };
-                AppData.sendToRobot(AppData.dataSendToRobot);
-            }
-            if (MarsComm.desThree == SEND_ARM_WEIGHT)
-            {
-                AppData.dataSendToRobot = new float[] { b2, (float)MarsComm.thetades1, MARS_ACTIVATED, (float)MarsComm.controlStatus };
-                AppData.sendToRobot(AppData.dataSendToRobot);
+            // NEEDS CHANGE
+            // if (MarsComm.desThree <= calibrationSceneHandler.SENT_SUCCESSFULLY)
+            // {
+            //     AppData.dataSendToRobot = new float[] { b1, (float)MarsComm.thetades1, SEND_ARM_WEIGHT, (float)MarsComm.controlStatus };
+            //     // AppData.sendToRobot(AppData.dataSendToRobot);
+            // }
+            // if (MarsComm.desThree == SEND_ARM_WEIGHT)
+            // {
+            //     AppData.dataSendToRobot = new float[] { b2, (float)MarsComm.thetades1, MARS_ACTIVATED, (float)MarsComm.controlStatus };
+            //     // AppData.sendToRobot(AppData.dataSendToRobot);
 
-            }
+            // }
          
         }
         public static string getGain()
         {
-         
-            value = (MarsComm.desOne * 100).ToString("F0");
+            // NEEDS CHANGE
+            // value = (MarsComm.desOne * 100).ToString("F0");
         
             return value;
         }
@@ -198,13 +209,14 @@ static class AppData
         }
         public static void setSupport(float supportCode)
         {
-            if (MarsComm.desThree < MARS_ACTIVATED)
-                return;
+            // NEEDS CHANGE
+            // if (MarsComm.desThree < MARS_ACTIVATED)
+            //     return;
 
             MarsComm.controlStatus = MarsComm.CONTROL_STATUS_CODE[1];
             MarsComm.SUPPORT = supportCode;
             AppData.dataSendToRobot = new float[] { supportCode, 0.0f, ROBOT_ACTIVE_WITH_MARS, MarsComm.controlStatus };
-            AppData.sendToRobot(AppData.dataSendToRobot);
+            // AppData.sendToRobot(AppData.dataSendToRobot);
 
         }
         public static void UseFullWeightSupport(int ReadyToChangeSupport = 1)
@@ -239,8 +251,9 @@ static class AppData
 
         private static IEnumerator GradualSupportCoroutine(int initiate, float targetSupport)
         {
-            if (MarsComm.desThree < MARS_ACTIVATED)
-                yield break;
+            // NEEDS CHANGE
+            // if (MarsComm.desThree < MARS_ACTIVATED)
+            //     yield break;
 
             float elapsedTime = 0f;
             float initialSupport = MarsComm.SUPPORT;
@@ -486,15 +499,16 @@ public static class gameData
             string[] _data = new string[] {
                MarsComm.currentTime.ToString(),
                MarsComm.buttonState.ToString(),
-               MarsComm.angleOne.ToString("G17"),
-               MarsComm.angleTwo.ToString("G17"),
-               MarsComm.angleThree.ToString("G17"),
-               MarsComm.angleFour.ToString("G17"),
-               MarsComm.forceOne.ToString("G17"),
-               MarsComm.calibBtnState.ToString("G17"),
-               MarsComm.desOne.ToString("G17"),
-               MarsComm.desTwo.ToString("G17"),
-               MarsComm.desThree.ToString("G17"),
+               MarsComm.angle1.ToString("G17"),
+               MarsComm.angle2.ToString("G17"),
+               MarsComm.angle3.ToString("G17"),
+               MarsComm.angle4.ToString("G17"),
+               MarsComm.force.ToString("G17"),
+               MarsComm.calibButton.ToString("G17"),
+               // NEEDS CHANGE
+               //    MarsComm.desOne.ToString("G17"),
+               //    MarsComm.desTwo.ToString("G17"),
+               //    MarsComm.desThree.ToString("G17"),
                playerPos,
                gameData.events.ToString("F2"),
                gameData.playerScore.ToString("F2"),
@@ -544,9 +558,37 @@ public class DataLogger
     }
 }
 
+public static class ConnectToRobot
+{
+    public static string _port;
+    public static bool isMARS = false;
+    public static bool isConnected = false;
 
-
-
-
-
-
+    public static void Connect(string port)
+    {
+        _port = port;
+        if (_port == null)
+        {
+            _port = "COM12";
+            JediComm.InitSerialComm(_port);
+        }
+        else
+        {
+            JediComm.InitSerialComm(_port);
+        }
+        if (JediComm.serPort != null)
+        {
+            if (JediComm.serPort.IsOpen == false)
+            {
+                UnityEngine.Debug.Log(_port);
+                JediComm.Connect();
+            }
+            isConnected = JediComm.serPort.IsOpen;
+        }
+    }
+    public static void disconnect()
+    {
+        ConnectToRobot.isMARS = false;
+        JediComm.Disconnect();
+    }
+}

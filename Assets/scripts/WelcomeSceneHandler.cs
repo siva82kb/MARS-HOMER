@@ -38,7 +38,7 @@ public class welcomSceneHandler : MonoBehaviour
             SceneManager.LoadScene("configuration");
             return;
         }
-        AppData.InitializeRobot();
+        // AppData.InitializeRobot();
 
         daySummaries = SessionDataHandler.CalculateMoveTimePerDay();
         SessionManager.Initialize(DataManager.directoryPathSession);
@@ -61,13 +61,13 @@ public class welcomSceneHandler : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (MarsComm.desThree != 1998)
-            AppData.sendToRobot(AppData.dataSendToRobot);
+        // if (MarsComm.desThree != 1998)
+            // AppData.sendToRobot(AppData.dataSendToRobot);
         // Attach PlutoButton release event after 2 seconds if it is not attached already.
         if (!attachPlutoButtonEvent && Time.timeSinceLevelLoad > 2)
         {
             attachPlutoButtonEvent = true;
-            MarsComm.OnButtonReleased += onMarsButtonReleased;
+            MarsComm.OnMarsButtonReleased += onMarsButtonReleased;
         }
 
         // Check if it time to switch to the next scene
@@ -127,7 +127,7 @@ public class welcomSceneHandler : MonoBehaviour
 
     private void OnDestroy()
     {
-        MarsComm.OnButtonReleased -= onMarsButtonReleased;
+        MarsComm.OnMarsButtonReleased -= onMarsButtonReleased;
     }
     private void OnApplicationQuit()
     {
