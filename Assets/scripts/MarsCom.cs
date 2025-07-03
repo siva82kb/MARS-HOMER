@@ -190,23 +190,23 @@ public static class MarsComm
     }
     static public float angle1
     {
-        get => currentSensorData[0];
+        get => currentSensorData[1];
     }
     static public float angle2
     {
-        get => currentSensorData[1];
+        get => currentSensorData[2];
     }
     static public float angle3
     {
-        get => currentSensorData[2];
+        get => currentSensorData[3];
     }
     static public float angle4
     {
-        get => currentSensorData[3];
+        get => currentSensorData[4];
     }
     static public float force
     {
-        get => currentSensorData[4];
+        get => currentSensorData[5];
     }
     static public float uaLengthByte
     {

@@ -8,6 +8,7 @@ using UnityEngine;
 public class DiagnosticSceneHandler : MonoBehaviour
 {
     public TMP_Text UpdateTextBox;
+    private static string FLOAT_FORMAT = "+0.00;-0.00";
 
     void Start()
     {
@@ -27,9 +28,7 @@ public class DiagnosticSceneHandler : MonoBehaviour
 
     private void onNewMarsData()
     {
-        // This method is called when new data is received from MARS
-        // You can handle the new data here if needed
-        Debug.Log("New data received from MARS.");
+        Debug.Log("New MARS data received.");
     }
 
     private void onMarsButtonReleased()
@@ -43,39 +42,39 @@ public class DiagnosticSceneHandler : MonoBehaviour
         // This method is called when the calibration button is released
         Debug.Log("Calibration button released.");
     }
-    
+
     public void updateTextBox()
     {
+        // State text
+        string runT = MarsComm.runTime.ToString("0.000").PadRight(10);
+        string packNo = MarsComm.packetNumber.ToString().PadRight(8);
+        string stateText = string.Join("\n", new string[] {
+            $"Device Time   : {runT} | Packet Numnber: {packNo}",
+            "",
+            ""
+        });
         //Construct the display text while ensuring values are safely converted to string
-        // string displayText = "Theta1        : " + MarsComm.angle1.ToString() + "\n" +
-        //                      "Theta2        : " + MarsComm.angle2.ToString() + "\n" +
-        //                      "Theta3        : " + MarsComm.angle3.ToString() + "\n" +
-        //                      "Theta4        : " + MarsComm.angle4.ToString() + "\n" +
-        //                      "IMUAng1       : " + MarsComm.imuAng1.ToString() + "\n" +
-        //                      "IMUAng2       : " + MarsComm.imuAng2.ToString() + "\n" +
-        //                      "IMUAng3       : " + MarsComm.imuAng3.ToString() + "\n" +
-        //                      "IMUAng4       : " + MarsComm.imuAng4.ToString() + "\n" +
-        //                      "Force1        : " + MarsComm.force.ToString() + "\n" +
-        //                      "calibBtnState : " + MarsComm.calibButton.ToString() + "\n" +
+        string robotAngles = string.Join(" ", new string[] {
+            MarsComm.angle1.ToString(FLOAT_FORMAT).PadRight(8),
+            MarsComm.angle2.ToString(FLOAT_FORMAT).PadRight(8),
+            MarsComm.angle3.ToString(FLOAT_FORMAT).PadRight(8),
+            MarsComm.angle4.ToString(FLOAT_FORMAT).PadRight(8),
+        });
+        string imuAngles = string.Join(" ", new string[] {
+            MarsComm.imu1Angle.ToString(FLOAT_FORMAT).PadRight(8),
+            MarsComm.imu2Angle.ToString(FLOAT_FORMAT).PadRight(8),
+            MarsComm.imu3Angle.ToString(FLOAT_FORMAT).PadRight(8),
+            MarsComm.imu4Angle.ToString(FLOAT_FORMAT).PadRight(8),
+        });
+        string sensorText = String.Join("\n", new string[] {
+            $"Robot Angles  : {robotAngles}",
+            $"IMU Angles    : {imuAngles}",
+            $"Force         : {MarsComm.force.ToString(FLOAT_FORMAT)}",
+            $"MARS Button   : {MarsComm.marButton}",
+            $"CALIB Button  : {MarsComm.calibButton}"
+        });
 
-        //                      "des1          : " + MarsComm.desOne.ToString() + "\n" +
-        //                      "des2          : " + MarsComm.desTwo.ToString() + "\n" +
-        //                      "des3          : " + MarsComm.desThree.ToString() + "\n" +
-        //                      "dataSndToRobot: " + MarsComm.pcParameter.ToString() + "\n" +
-        //                      "shoulderPosX  : " + MarsComm.shPosX.ToString() + "\n" +
-        //                      "shoulderPosy  : " + MarsComm.shPosY.ToString() + "\n" +
-        //                      "shoulderPosz  : " + MarsComm.shPosZ.ToString() + "\n" +
-        //                      "lenUpperArm   : " + MarsComm.lenUpperArm.ToString() + "\n" +
-        //                      "lenLowerArm   : " + MarsComm.lenUpperArm.ToString() + "\n" +
-        //                      "weight1       : " + MarsComm.lenUpperArm.ToString() + "\n" +
-        //                      "weight2       : " + MarsComm.lenUpperArm.ToString() + "\n" +
-
-        //                      //$"IMU1         :  aX - {MarsComm.imu1aX.ToString()}    aY - {MarsComm.imu1aY.ToString()}   aZ - {MarsComm.imu1aZ}" + "\n" +
-        //                      //$"IMU2         :  aX - {MarsComm.imu2aX.ToString()}    aY - {MarsComm.imu2aY.ToString()}   aZ - {MarsComm.imu2aZ}" + "\n" +
-        //                      //$"IMU3         :  aX - {MarsComm.imu3aX.ToString()}    aY - {MarsComm.imu3aY.ToString()}   aZ - {MarsComm.imu3aZ}" + "\n" +
-        //                      "Btn_st        : " + MarsComm.buttonState.ToString();
-
-        // UpdateTextBox.text = displayText;
+        UpdateTextBox.text = stateText + sensorText;
     }
 
     private void OnApplicationQuit()
