@@ -3,9 +3,10 @@ using System.IO;
 //using System.IO.Ports;
 using System;
 using System.ComponentModel;
+using System.Text;
 
 
-public static class MarsComm 
+public static class MarsComm
 {
     // For error logging
     // Thread-safe version using lock
@@ -22,9 +23,9 @@ public static class MarsComm
 
     // Device Level Constants
     public static readonly string[] OUTDATATYPE = new string[] { "SENSORSTREAM", "CONTROLPARAM", "DIAGNOSTICS", "VERSION" };
-    public static readonly string[] LIMBTYPE = new string[] { "NONE", "RIGHT", "LEFT" };
+    public static readonly string[] LIMBTYPE = new string[] { "NOLIMB", "RIGHT", "LEFT" };
     public static readonly string[] LIMBTEXT = new string[] {
-        "None",
+        "No Limb",
         "Right",
         "Left"
     };
@@ -75,8 +76,8 @@ public static class MarsComm
     public static readonly float MAX_SHLDR_Z_POS = 400.0f; // millimeters
 
     static public byte currentButtonState, previousButtonState;
-    static int sensorDataLength ; 
-   
+    static int sensorDataLength;
+
     // Button released event.
     public delegate void MarsButtonReleasedEvent();
     public static event MarsButtonReleasedEvent OnMarsButtonReleased;
@@ -264,70 +265,6 @@ public static class MarsComm
     {
         get => (sbyte)currentStateData[14];
     }
-    //if we need to get imuRaw values
-    //static public float imu1aX
-    //{
-    //    get
-    //    {
-    //        return currentSensorData[21];
-    //    }
-    //}
-    //static public float imu1aY
-    //{
-    //    get
-    //    {
-    //        return currentSensorData[22];
-    //    }
-    //}
-    //static public float imu1aZ
-    //{
-    //    get
-    //    {
-    //        return currentSensorData[23];
-    //    }
-    //}
-    //static public float imu2aX
-    //{
-    //    get
-    //    {
-    //        return currentSensorData[24];
-    //    }
-    //}
-    //static public float imu2aY
-    //{
-    //    get
-    //    {
-    //        return currentSensorData[25];
-    //    }
-    //}
-    //static public float imu2aZ
-    //{
-    //    get
-    //    {
-    //        return currentSensorData[26];
-    //    }
-    //}
-    //static public float imu3aX
-    //{
-    //    get
-    //    {
-    //        return currentSensorData[27];
-    //    }
-    //}
-    //static public float imu3aY
-    //{
-    //    get
-    //    {
-    //        return currentSensorData[28];
-    //    }
-    //}
-    //static public float imu3aZ
-    //{
-    //    get
-    //    {
-    //        return currentSensorData[29];
-    //    }
-    //}
     static public byte buttonState
     {
         get
@@ -335,7 +272,7 @@ public static class MarsComm
             return currentButtonState;
         }
     }
-    
+
     private static int getControlType(int statusByte)
     {
         return (statusByte & 0x0E) >> 1;
@@ -355,15 +292,7 @@ public static class MarsComm
         }
         return _str;
     }
-   
-    // static public void initalizeDataLength(int lenght)
-    // {
-    //     sensorDataLength = (int)(lenght - 2) / 4; //buttonState,checksum bytes
-    //     Debug.Log(sensorDataLength);
 
-    //     currentSensorData = new float[sensorDataLength];
-    // }
-    
     public static void parseByteArray(byte[] payloadBytes, int payloadCount, DateTime payloadTime)
     {
         Debug.Log("adsgasdg");
@@ -388,10 +317,12 @@ public static class MarsComm
         {
             // Print when error changes. If error is the same, then flip a coin to decide if we print or not.
             // This is to avoid flooding the log with the same error message. 
-            // if (prevErrorStatus != errorStatus || GetRandomNumber() <= 5) PlutoComLogger.LogError($"Error: {errorString} ({errorStatus}) | Time: {runTime:F2}");
-        } else {
+            // if (prevErrorStatus != errorStatus || GetRandomNumber() <= 5) MarsCommLogger.LogError($"Error: {errorString} ({errorStatus}) | Time: {runTime:F2}");
+        }
+        else
+        {
             // Print if the error is resolved.
-            // if (prevErrorStatus != errorStatus) PlutoComLogger.LogInfo($"Error Resolved: {errorString} | Previous Error: {getErrorString(prevErrorStatus)}({prevErrorStatus}) | Time: {runTime:F2}");
+            // if (prevErrorStatus != errorStatus) MarsCommLogger.LogInfo($"Error Resolved: {errorString} | Previous Error: {getErrorString(prevErrorStatus)}({prevErrorStatus}) | Time: {runTime:F2}");
         }
         // Limb type
         currentStateData[3] = rawBytes[4];
@@ -423,8 +354,6 @@ public static class MarsComm
                         0
                     );
                 }
-                // Print the values of the current sensor data.
-                // Debug.Log($"Received {OUTDATATYPE[_datatype]} Data | Packet Number: {packetNumber} | Run Time: {runTime:F2} | Sensor Data: {string.Join(", ", currentSensorData)}");
 
                 // Human limb parameters
                 // Upper arm length
@@ -462,28 +391,28 @@ public static class MarsComm
                 // Check if the MARS button has been released.
                 if (previousStateData[15] == 0 && currentStateData[15] == 1)
                 {
-                    // PlutoComLogger.LogInfo($"Pluto Button Released | Button: {currentStateData[6]} | Time: {runTime:F2}");
+                    // MarsCommLogger.LogInfo($"Pluto Button Released | Button: {currentStateData[6]} | Time: {runTime:F2}");
                     OnMarsButtonReleased?.Invoke();
                 }
 
                 // Check if the Calib button has been released.
                 if (previousStateData[16] == 0 && currentStateData[16] == 1)
                 {
-                    // PlutoComLogger.LogInfo($"Pluto Button Released | Button: {currentStateData[6]} | Time: {runTime:F2}");
+                    // MarsCommLogger.LogInfo($"Pluto Button Released | Button: {currentStateData[6]} | Time: {runTime:F2}");
                     OnCalibButtonReleased?.Invoke();
                 }
 
                 // Check if the control mode has been changed.
                 // if (getControlType(previousStateData[1]) != getControlType(currentStateData[1]))
                 // {
-                //     PlutoComLogger.LogInfo($"Control Mode Changed | ControlType: {getControlType(currentStateData[1])} | Time: {runTime:F2}");
+                //     MarsCommLogger.LogInfo($"Control Mode Changed | ControlType: {getControlType(currentStateData[1])} | Time: {runTime:F2}");
                 //     OnControlModeChange?.Invoke();
                 // }
 
                 // Check if the mechanism has been changed.
                 // if ((previousStateData[3] >> 4) != (currentStateData[3] >> 4))
                 // {
-                //     PlutoComLogger.LogInfo($"Mechanism Changed | Mechanism: {currentStateData[3] >> 4} | Time: {runTime:F2}");
+                //     MarsCommLogger.LogInfo($"Mechanism Changed | Mechanism: {currentStateData[3] >> 4} | Time: {runTime:F2}");
                 //     OnMechanismChange?.Invoke();
                 // }
 
@@ -492,10 +421,10 @@ public static class MarsComm
                 break;
             case "VERSION":
                 // Read the bytes into a string.
-                // deviceId = Encoding.ASCII.GetString(rawBytes, 5, rawBytes[0] - 4 - 1).Split(",")[0];
-                // version = Encoding.ASCII.GetString(rawBytes, 5, rawBytes[0] - 4 - 1).Split(",")[1];
-                // compileDate = Encoding.ASCII.GetString(rawBytes, 5, rawBytes[0] - 4 - 1).Split(",")[2];
-                // PlutoComLogger.LogInfo($"Received Version | Version: {version} | Compile Date: {compileDate} | Device ID: {deviceId}");
+                deviceId = Encoding.ASCII.GetString(rawBytes, 5, rawBytes[0] - 4 - 1).Split(",")[0];
+                version = Encoding.ASCII.GetString(rawBytes, 5, rawBytes[0] - 4 - 1).Split(",")[1];
+                compileDate = Encoding.ASCII.GetString(rawBytes, 5, rawBytes[0] - 4 - 1).Split(",")[2];
+                MarsCommLogger.LogInfo($"Received Version | Version: {version} | Compile Date: {compileDate} | Device ID: {deviceId}");
                 break;
         }
     }
@@ -608,6 +537,55 @@ public static class MarsComm
     private static byte encodeForeArmWeight(float faWeight) => EncodeHumanLimbParam(faWeight, MIN_FA_WEIGHT, MAX_FA_WEIGHT);
     private static byte encodeShoulderPosZ(float shPosZ) => EncodeHumanLimbParam(shPosZ, MIN_SHLDR_Z_POS, MAX_SHLDR_Z_POS);
 
+
+    /*
+     * Function to send data to the robot.
+     */
+    public static void startSensorStream()
+    {
+        MarsCommLogger.LogInfo("Starting Sensor Stream");
+        JediComm.SendMessage(new byte[] { (byte)INDATATYPECODES[Array.IndexOf(INDATATYPE, "START_STREAM")] });
+    }
+
+    public static void stopSensorStream()
+    {
+        MarsCommLogger.LogInfo("Stopping Sensor Stream");
+        JediComm.SendMessage(new byte[] { (byte)INDATATYPECODES[Array.IndexOf(INDATATYPE, "STOP_STREAM")] });
+    }
+
+    public static void setDiagnosticMode()
+    {
+        MarsCommLogger.LogInfo("Setting Diagnostic Mode");
+        JediComm.SendMessage(new byte[] { (byte)INDATATYPECODES[Array.IndexOf(INDATATYPE, "SET_DIAGNOSTICS")] });
+    }
+
+    public static void setLimb(string limb)
+    {
+        MarsCommLogger.LogInfo($"Setting Limb: {limb}");
+        JediComm.SendMessage(
+            new byte[] {
+                (byte)INDATATYPECODES[Array.IndexOf(INDATATYPE, "SET_LIMB")],
+                (byte)Array.IndexOf(LIMBTYPE, limb)
+            }
+        );
+    }
+
+    public static void getVersion()
+    {
+        MarsCommLogger.LogInfo("Getting Version");
+        JediComm.SendMessage(new byte[] { (byte)INDATATYPECODES[Array.IndexOf(INDATATYPE, "GET_VERSION")] });
+    }
+    public static void resetPacketNo()
+    {
+        MarsCommLogger.LogInfo($"Resetting Packet Number");
+        JediComm.SendMessage(new byte[] { (byte)INDATATYPECODES[Array.IndexOf(INDATATYPE, "RESET_PACKETNO")] });
+    }
+
+    public static void sendHeartbeat()
+    {
+        JediComm.SendMessage(new byte[] { (byte)INDATATYPECODES[Array.IndexOf(INDATATYPE, "HEARTBEAT")] });
+    }
+
     //To control the motor manually hold and release
     static public void onclickHold()
     {
@@ -629,3 +607,79 @@ public static class MarsComm
     }
 
 }
+
+
+public static class MarsCommLogger
+{
+    private static string logFilePath;
+    private static StreamWriter logWriter = null;
+    private static readonly object logLock = new object();
+
+    public static bool DEBUG = false;
+    public static string InBraces(string text) => $"[{text}]";
+
+    public static bool isLogging
+    {
+        get
+        {
+            return logFilePath != null;
+        }
+    }
+
+    public static void StartLogging(string dtstr)
+    {
+        // Start Log file only if we are not already logging.
+        if (isLogging) return;
+        // NEEDS CHANGE
+        // if (!Directory.Exists(DataManager.logPath)) Directory.CreateDirectory(DataManager.logPath);
+        // // Create the log file name.
+        // logFilePath = Path.Combine(DataManager.logPath, $"{dtstr}-plutocomm.log");
+
+        // Create the log file writer.
+        logWriter = new StreamWriter(logFilePath, true);
+        LogInfo("Created PLUTO log file.");
+    }
+
+    public static void StopLogging()
+    {
+        if (logWriter != null)
+        {
+            LogInfo("Closing log file.");
+            logWriter.Close();
+            logWriter = null;
+            logFilePath = null;
+        }
+    }
+
+    public static void LogMessage(string message, LogMessageType logMsgType)
+    {
+        lock (logLock)
+        {
+            if (logWriter != null)
+            {
+                // NEEDS CHANGE
+                // string _user = AppData.Instance.userData != null ? AppData.Instance.userData.hospNumber : "";
+                // string _msg = $"{DateTime.Now:dd-MM-yyyy HH:mm:ss} {logMsgType,-7} {InBraces(_user),-10} {InBraces(AppLogger.currentScene),-12} {InBraces(AppLogger.currentMechanism),-8} {InBraces(AppLogger.currentGame),-8} >> {message}";
+                // logWriter.WriteLine(_msg);
+                // logWriter.Flush();
+                // if (DEBUG) Debug.Log(_msg);
+            }
+        }
+    }
+
+    public static void LogInfo(string message)
+    {
+        LogMessage(message, LogMessageType.INFO);
+    }
+
+    public static void LogWarning(string message)
+    {
+        LogMessage(message, LogMessageType.WARNING);
+    }
+
+    public static void LogError(string message)
+    {
+        LogMessage(message, LogMessageType.ERROR);
+    }
+}
+

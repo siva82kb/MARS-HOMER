@@ -4,10 +4,14 @@ using System.Collections.Generic;
 using System.Drawing;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
+using System.Linq;
 
 public class DiagnosticSceneHandler : MonoBehaviour
 {
-    public TMP_Text UpdateTextBox;
+    public TMP_Text dataDisplayText;
+    public Dropdown ddLimbType;
+
     private static string FLOAT_FORMAT = "+0.00;-0.00";
 
     void Start()
@@ -15,15 +19,23 @@ public class DiagnosticSceneHandler : MonoBehaviour
          // Connect to the robot.
         ConnectToRobot.Connect(AppData.COMPort);
 
-        // Listen to MARS's event
-        MarsComm.OnMarsButtonReleased += onMarsButtonReleased;
-        MarsComm.OnCalibButtonReleased += onCalibButtonReleased;
-        MarsComm.OnNewMarsData += onNewMarsData;
+        // Initialize UI
+        InitializeUI();
+        // Attach callbacks
+        AttachControlCallbacks();
+
+        // Get device version.
+        MarsComm.getVersion();
+        MarsComm.startSensorStream();
     }
 
     private void Update()
     {
-        updateTextBox();
+        // MARS heartbeat
+        MarsComm.sendHeartbeat();
+
+        // Display device data
+        DisplayDeviceData();
     }
 
     private void onNewMarsData()
@@ -43,13 +55,65 @@ public class DiagnosticSceneHandler : MonoBehaviour
         Debug.Log("Calibration button released.");
     }
 
-    public void updateTextBox()
+    
+    private void InitializeUI()
+    {
+        // Fill dropdown list
+        ddLimbType.ClearOptions();
+        ddLimbType.AddOptions(MarsComm.LIMBTEXT.ToList());
+        // List<string> _ctrlList = MarsComm.CONTROLTYPETEXT.ToList();
+        // ddControlSelect.AddOptions(_ctrlList.Take(_ctrlList.Count - 1).ToList());
+        // // Clear panel selections.
+        // tglCalibSelect.enabled = true;
+        // tglCalibSelect.isOn = false;
+        // tglControlSelect.enabled = true;
+        // tglControlSelect.isOn = false;
+    }
+
+    public void AttachControlCallbacks()
+    {
+        // Dropdown value change.
+        ddLimbType.onValueChanged.AddListener(delegate { OnLimbTypeChange(); });
+        // // Toggle button
+        // tglCalibSelect.onValueChanged.AddListener(delegate { OnCalibrationChange(); });
+        // tglControlSelect.onValueChanged.AddListener(delegate { OnControlChange(); });
+        // tglDataLog.onValueChanged.AddListener(delegate { OnDataLogChange(); });
+
+        // // Dropdown value change.
+        // ddControlSelect.onValueChanged.AddListener(delegate { OnControlModeChange(); });
+
+        // // Slider value change.
+        // sldrTarget.onValueChanged.AddListener(delegate { OnControlTargetChange(); });
+        // sldrCtrlBound.onValueChanged.AddListener(delegate { OnControlBoundChange(); });
+        // sldrCtrlGain.onValueChanged.AddListener(delegate { OnControlGainChange(); });
+
+        // // Button click.
+        // btnNextRandomTarget.onClick.AddListener(delegate { OnNextRandomTarget(); });
+
+        // // AAN Demo Button click.
+        // btnAANDemo.onClick.AddListener(delegate { OnAANDemoSceneLoad(); });
+
+        // Listen to MARS's event
+        MarsComm.OnMarsButtonReleased += onMarsButtonReleased;
+        MarsComm.OnCalibButtonReleased += onCalibButtonReleased;
+        MarsComm.OnNewMarsData += onNewMarsData;
+    }
+
+    public void DisplayDeviceData()
     {
         // State text
-        string runT = MarsComm.runTime.ToString("0.000").PadRight(10);
+        string runT = MarsComm.runTime.ToString("0.000").PadRight(15);
         string packNo = MarsComm.packetNumber.ToString().PadRight(8);
         string stateText = string.Join("\n", new string[] {
-            $"Device Time   : {runT} | Packet Numnber: {packNo}",
+            $"Time          : {MarsComm.currentTime}",
+            $"Dev ID        : {MarsComm.deviceId}",
+            $"F/W Version   : {MarsComm.version}",
+            $"Compile Date  : {MarsComm.compileDate}",
+            "",
+            $"Device Time   : {runT} | Packet Number: {packNo}",
+            $"Status        : {MarsComm.OUTDATATYPE[MarsComm.status], -15} | Error : {MarsComm.errorString}",
+            $"Limb          : {MarsComm.LIMBTYPE[MarsComm.limb]}",
+            $"Control       : {MarsComm.CONTROLTYPE[MarsComm.controlType]}",
             "",
             ""
         });
@@ -74,7 +138,16 @@ public class DiagnosticSceneHandler : MonoBehaviour
             $"CALIB Button  : {MarsComm.calibButton}"
         });
 
-        UpdateTextBox.text = stateText + sensorText;
+        dataDisplayText.text = stateText + sensorText;
+    }
+
+    /*
+     * Callback functions.
+     */
+    private void OnLimbTypeChange()
+    {
+        // Set MARS limb type.
+        MarsComm.setLimb(MarsComm.LIMBTYPE[ddLimbType.value]);
     }
 
     private void OnApplicationQuit()
