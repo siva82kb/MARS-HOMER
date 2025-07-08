@@ -247,23 +247,23 @@ public static class MarsComm
     }
     static public float shPosZ
     {
-        get => decodeShoulderPosZ((byte)currentStateData[10]);
+        get => decodeShoulderPosZ((byte)currentStateData[8]);
     }
     static public short imu1Angle
     {
-        get => (sbyte)currentStateData[11];
+        get => (sbyte)currentStateData[9];
     }
     static public short imu2Angle
     {
-        get => (sbyte)currentStateData[12];
+        get => (sbyte)currentStateData[10];
     }
     static public short imu3Angle
     {
-        get => (sbyte)currentStateData[13];
+        get => (sbyte)currentStateData[11];
     }
     static public short imu4Angle
     {
-        get => (sbyte)currentStateData[14];
+        get => (sbyte)currentStateData[12];
     }
     static public byte buttonState
     {
@@ -364,23 +364,23 @@ public static class MarsComm
                 currentStateData[6] = rawBytes[(nSensors + 1) * 4 + 6 + 3];
                 // Forearm weight
                 currentStateData[7] = rawBytes[(nSensors + 1) * 4 + 6 + 4];
-                // Shoulder position X
-                currentStateData[8] = rawBytes[(nSensors + 1) * 4 + 6 + 5];
-                // Shoulder position Y
-                currentStateData[9] = rawBytes[(nSensors + 1) * 4 + 6 + 6];
+                // // Shoulder position X
+                // currentStateData[8] = rawBytes[(nSensors + 1) * 4 + 6 + 5];
+                // // Shoulder position Y
+                // currentStateData[9] = rawBytes[(nSensors + 1) * 4 + 6 + 6];
                 // Shoulder position Z
-                currentStateData[10] = rawBytes[(nSensors + 1) * 4 + 6 + 7];
+                currentStateData[8] = rawBytes[(nSensors + 1) * 4 + 6 + 5];
 
                 // IMU angles
+                currentStateData[9] = rawBytes[(nSensors + 1) * 4 + 6 + 6];
+                currentStateData[10] = rawBytes[(nSensors + 1) * 4 + 6 + 7];
                 currentStateData[11] = rawBytes[(nSensors + 1) * 4 + 6 + 8];
                 currentStateData[12] = rawBytes[(nSensors + 1) * 4 + 6 + 9];
-                currentStateData[13] = rawBytes[(nSensors + 1) * 4 + 6 + 10];
-                currentStateData[14] = rawBytes[(nSensors + 1) * 4 + 6 + 11];
 
                 // MARS button
-                currentStateData[15] = rawBytes[(nSensors + 1) * 4 + 6 + 12];
+                currentStateData[13] = rawBytes[(nSensors + 1) * 4 + 6 + 10];
                 // Calib button
-                currentStateData[16] = rawBytes[(nSensors + 1) * 4 + 6 + 13];
+                currentStateData[14] = rawBytes[(nSensors + 1) * 4 + 6 + 11];
 
                 // Number of current state data
                 currentStateData[0] = 3;
@@ -568,6 +568,12 @@ public static class MarsComm
                 (byte)Array.IndexOf(LIMBTYPE, limb)
             }
         );
+    }
+
+    public static void calibrate()
+    {
+        MarsCommLogger.LogInfo("Calibrating");
+        JediComm.SendMessage(new byte[] { (byte)INDATATYPECODES[Array.IndexOf(INDATATYPE, "CALIBRATE")] });
     }
 
     public static void getVersion()

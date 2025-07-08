@@ -11,6 +11,7 @@ public class DiagnosticSceneHandler : MonoBehaviour
 {
     public TMP_Text dataDisplayText;
     public Dropdown ddLimbType;
+    public Button btnCalibrate;
 
     private static string FLOAT_FORMAT = "+0.00;-0.00";
 
@@ -36,6 +37,9 @@ public class DiagnosticSceneHandler : MonoBehaviour
 
         // Display device data
         DisplayDeviceData();
+
+        // Update UI.
+        UpdateUI();
     }
 
     private void onNewMarsData()
@@ -74,6 +78,13 @@ public class DiagnosticSceneHandler : MonoBehaviour
     {
         // Dropdown value change.
         ddLimbType.onValueChanged.AddListener(delegate { OnLimbTypeChange(); });
+
+        // Calibrate button click.
+        btnCalibrate.onClick.AddListener(delegate {
+            // Send calibration command to MARS.
+            MarsComm.calibrate();
+            Debug.Log("Calibration command sent.");
+        });
         // // Toggle button
         // tglCalibSelect.onValueChanged.AddListener(delegate { OnCalibrationChange(); });
         // tglControlSelect.onValueChanged.AddListener(delegate { OnControlChange(); });
@@ -99,6 +110,13 @@ public class DiagnosticSceneHandler : MonoBehaviour
         MarsComm.OnNewMarsData += onNewMarsData;
     }
 
+    public void UpdateUI()
+    {
+        // Check if MARS has been calibrated.
+        btnCalibrate.enabled = (MarsComm.CALIBRATION[MarsComm.calibration] == "NOCALIB")
+            && (MarsComm.LIMBTYPE[ddLimbType.value] != "NOLIMB");
+    }
+
     public void DisplayDeviceData()
     {
         // State text
@@ -112,7 +130,7 @@ public class DiagnosticSceneHandler : MonoBehaviour
             "",
             $"Device Time   : {runT} | Packet Number: {packNo}",
             $"Status        : {MarsComm.OUTDATATYPE[MarsComm.status], -15} | Error : {MarsComm.errorString}",
-            $"Limb          : {MarsComm.LIMBTYPE[MarsComm.limb]}",
+            $"Limb          : {MarsComm.LIMBTYPE[MarsComm.limb], -15} | Calib : {MarsComm.CALIBRATION[MarsComm.calibration]}",
             $"Control       : {MarsComm.CONTROLTYPE[MarsComm.controlType]}",
             "",
             ""
