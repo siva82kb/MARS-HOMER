@@ -30,7 +30,7 @@ public partial class AppData
      * CONSTANT FIXED VARIABLES.
      */
     // COM Port for the device
-    public const string COMPort = "COM12";
+    public const string COMPort = "COM13";
 
     // static public readonly string comPort = "COM12";
     static public string selectedMovement;
@@ -569,7 +569,7 @@ public static class ConnectToRobot
         _port = port;
         if (_port == null)
         {
-            _port = "COM12";
+            _port = "COM13";
             JediComm.InitSerialComm(_port);
         }
         else

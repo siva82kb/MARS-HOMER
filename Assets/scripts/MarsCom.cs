@@ -30,6 +30,8 @@ public static class MarsComm
         "Left"
     };
     public static readonly string[] CALIBRATION = new string[] { "NOCALIB", "YESCALIB" };
+    public static readonly string[] LIMBKINPARAM = new string[] { "NOLIMBKINPARAM", "YESLIMBKINPARAM" };
+    public static readonly string[] LIMBDYNPARAM = new string[] { "NOLIMBDYNPARAM", "YESLIMBDYNPARAM" };
     public static readonly string[] CONTROLTYPE = new string[] { "NONE", "POSITION", "TORQUE", "ARM_WEIGHT_SUPPORT" };
     public static readonly string[] CONTROLTYPETEXT = new string[] {
         "None",
@@ -38,12 +40,12 @@ public static class MarsComm
         "Arm Weight Support"
     };
     public static readonly int[] SENSORNUMBER = new int[] {
-        5,  // SENSORSTREAM 
+        8,  // SENSORSTREAM 
         0,  // CONTROLPARAM
-        5   // DIAGNOSTICS
+        8   // DIAGNOSTICS
     };
     public static readonly double MAXTORQUE = 1.0; // Nm
-    public static readonly int[] INDATATYPECODES = new int[] { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x80 };
+    public static readonly int[] INDATATYPECODES = new int[] { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x80 };
     public static readonly string[] INDATATYPE = new string[] {
         "GET_VERSION",
         "RESET_PACKETNO",
@@ -54,6 +56,7 @@ public static class MarsComm
         "SET_CONTROL_TYPE",
         "SET_CONTROL_TARGET",
         "SET_DIAGNOSTICS",
+        "SET_LIMB_PARAM",
         "HEARTBEAT",
     };
     public static readonly string[] ERRORTYPES = new string[] {
@@ -179,7 +182,15 @@ public static class MarsComm
     }
     static public int limb
     {
-        get => currentStateData[3] & 0x0F;
+        get => currentStateData[3] & 0x03;
+    }
+    static public int limbKinParam
+    {
+        get => (currentStateData[3] & 0x04) >> 2;
+    }
+    static public int limbDynParam
+    {
+        get => (currentStateData[3] & 0x08) >> 3;
     }
     static public int marButton
     {
@@ -208,6 +219,18 @@ public static class MarsComm
     static public float force
     {
         get => currentSensorData[5];
+    }
+    static public float xEndpoint
+    {
+        get => currentSensorData[6] * 1e-3f;
+    }
+    static public float yEndpoint
+    {
+        get => currentSensorData[7] * 1e-3f;
+    }
+    static public float zEndpoint
+    {
+        get => currentSensorData[8] * 1e-3f;
     }
     static public float uaLengthByte
     {
@@ -570,6 +593,17 @@ public static class MarsComm
         );
     }
 
+    public static void setControlType(string controlType)
+    {
+        MarsCommLogger.LogInfo($"Setting Control Type: {controlType}");
+        JediComm.SendMessage(
+            new byte[] {
+                (byte)INDATATYPECODES[Array.IndexOf(INDATATYPE, "SET_CONTROL_TYPE")],
+                (byte)Array.IndexOf(CONTROLTYPE, controlType)
+            }
+        );
+    }
+
     public static void calibrate()
     {
         MarsCommLogger.LogInfo("Calibrating");
@@ -611,9 +645,27 @@ public static class MarsComm
         // AppData.sendToRobot(AppData.dataSendToRobot);
 
     }
-
 }
 
+public static class MarsKinDynamics
+{
+
+    public static float l1 = 30.00f; // Length of upper arm in cm
+    public static float l2 = 20.00f; // Length of forearm in cm
+
+    public static Vector3 ForwardKinematics(float theta1, float theta2, float theta3)
+    {
+        float x, y, z;
+        // Change the angles to radians
+        theta1 = theta1 * Mathf.Deg2Rad;
+        theta2 = theta2 * Mathf.Deg2Rad;
+        theta3 = theta3 * Mathf.Deg2Rad;
+        x = Mathf.Cos(theta1) * (l1 * Mathf.Cos(theta1) + l2 * Mathf.Cos(theta2 + theta3));
+        y = Mathf.Sin(theta1) * (l1 * Mathf.Cos(theta1) + l2 * Mathf.Cos(theta2 + theta3));
+        z = - l2 * Mathf.Sin(theta1) - l2 * Mathf.Sin(theta2 + theta3);
+        return new Vector3(x, y, z);
+    }
+}
 
 public static class MarsCommLogger
 {

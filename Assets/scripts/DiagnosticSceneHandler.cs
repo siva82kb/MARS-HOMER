@@ -6,14 +6,19 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
+using System.IO;
 
 public class DiagnosticSceneHandler : MonoBehaviour
 {
     public TMP_Text dataDisplayText;
     public Dropdown ddLimbType;
+    public Dropdown ddControlType;
     public Button btnCalibrate;
+    public Toggle tglLogData;
 
     private static string FLOAT_FORMAT = "+0.00;-0.00";
+    private string fileName = "";
+    private StreamWriter fileWriter = null;
 
     void Start()
     {
@@ -44,7 +49,12 @@ public class DiagnosticSceneHandler : MonoBehaviour
 
     private void onNewMarsData()
     {
-        Debug.Log("New MARS data received.");
+        // Write row to the file if logging is enabled.
+        if (fileWriter != null)
+        {
+            fileWriter.WriteLine($"{MarsComm.runTime},{MarsComm.packetNumber},{MarsComm.status},{MarsComm.errorString},{MarsComm.limb},{MarsComm.calibration},{MarsComm.limbKinParam},{MarsComm.limbDynParam},{MarsComm.angle1},{MarsComm.angle2},{MarsComm.angle3},{MarsComm.angle4},{MarsComm.force},{MarsComm.xEndpoint},{MarsComm.yEndpoint},{MarsComm.zEndpoint},{MarsComm.imu1Angle},{MarsComm.imu2Angle},{MarsComm.imu3Angle},{MarsComm.marButton},{MarsComm.calibButton}");
+            fileWriter.Flush();
+        }
     }
 
     private void onMarsButtonReleased()
@@ -59,25 +69,25 @@ public class DiagnosticSceneHandler : MonoBehaviour
         Debug.Log("Calibration button released.");
     }
 
-    
+
     private void InitializeUI()
     {
         // Fill dropdown list
         ddLimbType.ClearOptions();
         ddLimbType.AddOptions(MarsComm.LIMBTEXT.ToList());
+        ddControlType.AddOptions(MarsComm.CONTROLTYPETEXT.ToList());
         // List<string> _ctrlList = MarsComm.CONTROLTYPETEXT.ToList();
         // ddControlSelect.AddOptions(_ctrlList.Take(_ctrlList.Count - 1).ToList());
-        // // Clear panel selections.
-        // tglCalibSelect.enabled = true;
-        // tglCalibSelect.isOn = false;
-        // tglControlSelect.enabled = true;
-        // tglControlSelect.isOn = false;
+        // Clear panel selections.
+        tglLogData.enabled = true;
+        tglLogData.isOn = false;
     }
 
     public void AttachControlCallbacks()
     {
         // Dropdown value change.
         ddLimbType.onValueChanged.AddListener(delegate { OnLimbTypeChange(); });
+        ddControlType.onValueChanged.AddListener(delegate { OnControlTypeChange(); });
 
         // Calibrate button click.
         btnCalibrate.onClick.AddListener(delegate {
@@ -85,7 +95,9 @@ public class DiagnosticSceneHandler : MonoBehaviour
             MarsComm.calibrate();
             Debug.Log("Calibration command sent.");
         });
-        // // Toggle button
+
+        // Toggle button
+        tglLogData.onValueChanged.AddListener(onDataLogChange);
         // tglCalibSelect.onValueChanged.AddListener(delegate { OnCalibrationChange(); });
         // tglControlSelect.onValueChanged.AddListener(delegate { OnControlChange(); });
         // tglDataLog.onValueChanged.AddListener(delegate { OnDataLogChange(); });
@@ -115,6 +127,8 @@ public class DiagnosticSceneHandler : MonoBehaviour
         // Check if MARS has been calibrated.
         btnCalibrate.enabled = (MarsComm.CALIBRATION[MarsComm.calibration] == "NOCALIB")
             && (MarsComm.LIMBTYPE[ddLimbType.value] != "NOLIMB");
+        // Enable control type dropdown if limb is selected.
+        ddControlType.interactable = MarsComm.CALIBRATION[MarsComm.calibration] == "YESCALIB";
     }
 
     public void DisplayDeviceData()
@@ -130,7 +144,8 @@ public class DiagnosticSceneHandler : MonoBehaviour
             "",
             $"Device Time   : {runT} | Packet Number: {packNo}",
             $"Status        : {MarsComm.OUTDATATYPE[MarsComm.status], -15} | Error : {MarsComm.errorString}",
-            $"Limb          : {MarsComm.LIMBTYPE[MarsComm.limb], -15} | Calib : {MarsComm.CALIBRATION[MarsComm.calibration]}",
+            $"Calib         : {MarsComm.CALIBRATION[MarsComm.calibration]}",
+            $"Limb          : {MarsComm.LIMBTYPE[MarsComm.limb], -15} | {MarsComm.LIMBKINPARAM[MarsComm.limbKinParam], -15} | {MarsComm.LIMBDYNPARAM[MarsComm.limbDynParam]}",
             $"Control       : {MarsComm.CONTROLTYPE[MarsComm.controlType]}",
             "",
             ""
@@ -142,6 +157,11 @@ public class DiagnosticSceneHandler : MonoBehaviour
             MarsComm.angle3.ToString(FLOAT_FORMAT).PadRight(8),
             MarsComm.angle4.ToString(FLOAT_FORMAT).PadRight(8),
         });
+        string epPos = string.Join(" ", new string[] {
+            MarsComm.xEndpoint.ToString(FLOAT_FORMAT).PadRight(8),
+            MarsComm.yEndpoint.ToString(FLOAT_FORMAT).PadRight(8),
+            MarsComm.zEndpoint.ToString(FLOAT_FORMAT).PadRight(8),
+        });
         string imuAngles = string.Join(" ", new string[] {
             MarsComm.imu1Angle.ToString(FLOAT_FORMAT).PadRight(8),
             MarsComm.imu2Angle.ToString(FLOAT_FORMAT).PadRight(8),
@@ -151,6 +171,7 @@ public class DiagnosticSceneHandler : MonoBehaviour
         string sensorText = String.Join("\n", new string[] {
             $"Robot Angles  : {robotAngles}",
             $"IMU Angles    : {imuAngles}",
+            $"Endpoint Pos  : {epPos}",
             $"Force         : {MarsComm.force.ToString(FLOAT_FORMAT)}",
             $"MARS Button   : {MarsComm.marButton}",
             $"CALIB Button  : {MarsComm.calibButton}"
@@ -166,6 +187,33 @@ public class DiagnosticSceneHandler : MonoBehaviour
     {
         // Set MARS limb type.
         MarsComm.setLimb(MarsComm.LIMBTYPE[ddLimbType.value]);
+    }
+    private void OnControlTypeChange()
+    {
+        // Set MARS control type.
+        MarsComm.setControlType(MarsComm.CONTROLTYPE[ddControlType.value]);
+    }
+    private void onDataLogChange(bool isOn)
+    {
+        if (isOn)
+        {
+            // Enable data logging.
+            fileName = $"MARS_Data_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
+            fileWriter = new StreamWriter(fileName, true);
+            fileWriter.WriteLine($"DeviceID: {MarsComm.deviceId}");
+            fileWriter.WriteLine("runTime,packetNumber,status,errorString,limb,calib,limbkinparam,limbdynparam,angle1,angle2,angle3,angle4,force,epx,epy,epz,imuangle1,imuangle2,imuangle3,marbtn,calibbtn");
+            Debug.Log($"Data logging started. File: {fileName}");
+        }
+        else
+        {
+            // Disable data logging.
+            if (fileWriter != null)
+            {
+                fileWriter.Close();
+                fileWriter = null;
+                Debug.Log($"Data logging stopped. File saved: {fileName}");
+            }
+        }
     }
 
     private void OnApplicationQuit()
