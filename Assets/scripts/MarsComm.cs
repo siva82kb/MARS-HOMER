@@ -40,9 +40,9 @@ public static class MarsComm
         "Arm Weight Support"
     };
     public static readonly int[] SENSORNUMBER = new int[] {
-        8,  // SENSORSTREAM 
-        0,  // CONTROLPARAM
-        8   // DIAGNOSTICS
+        11,  // SENSORSTREAM 
+        0,   // CONTROLPARAM
+        16   // DIAGNOSTICS
     };
     public static readonly double MAXTORQUE = 1.0; // Nm
     public static readonly int[] INDATATYPECODES = new int[] { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x80 };
@@ -89,6 +89,9 @@ public static class MarsComm
     // New data event.
     public delegate void MarsNewDataEvent();
     public static event MarsNewDataEvent OnNewMarsData;
+    // Control change event.
+    public delegate void MarsControlModeChangeEvent();
+    public static event MarsControlModeChangeEvent OnControlModeChange;
 
 
     // MARS Robot Parameters
@@ -126,7 +129,7 @@ public static class MarsComm
     // For the following arrays, the first element represents the number of elements in the array.
     static private int[] previousStateData = new int[32];
     static private int[] currentStateData = new int[32];
-    static private float[] currentSensorData = new float[10];
+    static private float[] currentSensorData = new float[20];
 
     // Public variables
     static public DateTime previousTime { get; private set; }
@@ -204,6 +207,10 @@ public static class MarsComm
     {
         get => currentSensorData[1];
     }
+    static public float angularVelocity1
+    {
+        get => currentSensorData[16];
+    }
     static public float angle2
     {
         get => currentSensorData[2];
@@ -220,6 +227,10 @@ public static class MarsComm
     {
         get => currentSensorData[5];
     }
+    static public float torque
+    {
+        get => force * Mathf.Sqrt(Mathf.Pow(xEndpoint, 2) + Mathf.Pow(yEndpoint, 2));
+    }
     static public float xEndpoint
     {
         get => currentSensorData[6] * 1e-3f;
@@ -231,6 +242,34 @@ public static class MarsComm
     static public float zEndpoint
     {
         get => currentSensorData[8] * 1e-3f;
+    }
+    static public float target
+    {
+        get => currentSensorData[9];
+    }
+    static public float desired
+    {
+        get => currentSensorData[10];
+    }
+    static public float control
+    {
+        get => currentSensorData[11];
+    }
+    static public float errP
+    {
+        get => currentSensorData[12];
+    }
+    static public float errD
+    {
+        get => currentSensorData[13];
+    }
+    static public float errI
+    {
+        get => currentSensorData[14];
+    }
+    static public float gravityCompensationTorque
+    {
+        get => currentSensorData[15];
     }
     static public float uaLengthByte
     {
@@ -318,7 +357,6 @@ public static class MarsComm
 
     public static void parseByteArray(byte[] payloadBytes, int payloadCount, DateTime payloadTime)
     {
-        Debug.Log("adsgasdg");
         if (payloadCount == 0)
         {
             return;
@@ -365,6 +403,7 @@ public static class MarsComm
                 // Update current sensor data
                 int offset = 10;
                 int nSensors = SENSORNUMBER[_datatype];
+                Debug.Log("No of Sensors: " + nSensors);
                 currentSensorData[0] = nSensors;
                 for (int i = 0; i < nSensors; i++)
                 {
@@ -426,11 +465,11 @@ public static class MarsComm
                 }
 
                 // Check if the control mode has been changed.
-                // if (getControlType(previousStateData[1]) != getControlType(currentStateData[1]))
-                // {
-                //     MarsCommLogger.LogInfo($"Control Mode Changed | ControlType: {getControlType(currentStateData[1])} | Time: {runTime:F2}");
-                //     OnControlModeChange?.Invoke();
-                // }
+                if (getControlType(previousStateData[1]) != getControlType(currentStateData[1]))
+                {
+                    MarsCommLogger.LogInfo($"Control Mode Changed | ControlType: {getControlType(currentStateData[1])} | Time: {runTime:F2}");
+                    OnControlModeChange?.Invoke();
+                }
 
                 // Check if the mechanism has been changed.
                 // if ((previousStateData[3] >> 4) != (currentStateData[3] >> 4))
@@ -600,6 +639,25 @@ public static class MarsComm
             new byte[] {
                 (byte)INDATATYPECODES[Array.IndexOf(INDATATYPE, "SET_CONTROL_TYPE")],
                 (byte)Array.IndexOf(CONTROLTYPE, controlType)
+            }
+        );
+    }
+
+    public static void setControlTarget(float tgt)
+    {
+        if (CONTROLTYPE[controlType] == "NONE") return;
+        MarsCommLogger.LogInfo($"Setting Control Target: {target}");
+        byte[] tgt0Bytes = CONTROLTYPE[controlType] == "POSITION" ? BitConverter.GetBytes(angle1) : BitConverter.GetBytes(torque);
+        byte[] t0Bytes = BitConverter.GetBytes(0.0f);
+        byte[] tgt1Bytes = BitConverter.GetBytes(tgt);
+        byte[] durBytes = BitConverter.GetBytes(4.0f);
+        JediComm.SendMessage(
+            new byte[] {
+                (byte)INDATATYPECODES[Array.IndexOf(INDATATYPE, "SET_CONTROL_TARGET")],
+                tgt0Bytes[0],   tgt0Bytes[1],   tgt0Bytes[2],   tgt0Bytes[3],
+                t0Bytes[0],     t0Bytes[1],     t0Bytes[2],     t0Bytes[3],
+                tgt1Bytes[0],   tgt1Bytes[1],   tgt1Bytes[2],   tgt1Bytes[3],
+                durBytes[0],    durBytes[1],    durBytes[2],    durBytes[3]
             }
         );
     }

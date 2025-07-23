@@ -15,14 +15,18 @@ public class DiagnosticSceneHandler : MonoBehaviour
     public Dropdown ddControlType;
     public Button btnCalibrate;
     public Toggle tglLogData;
+    public Slider sldrTarget;
+    public TMP_Text targetValueText;
+    public Button btnSetTarget;
 
     private static string FLOAT_FORMAT = "+0.00;-0.00";
     private string fileName = "";
     private StreamWriter fileWriter = null;
+    private bool updateSliderRange = true;
 
     void Start()
     {
-         // Connect to the robot.
+        // Connect to the robot.
         ConnectToRobot.Connect(AppData.COMPort);
 
         // Initialize UI
@@ -33,6 +37,7 @@ public class DiagnosticSceneHandler : MonoBehaviour
         // Get device version.
         MarsComm.getVersion();
         MarsComm.startSensorStream();
+        MarsComm.setDiagnosticMode();
     }
 
     private void Update()
@@ -69,6 +74,13 @@ public class DiagnosticSceneHandler : MonoBehaviour
         Debug.Log("Calibration button released.");
     }
 
+    private void onControlModeChange()
+    {
+        // This method is called when the control mode is changed
+        Debug.Log($"Control mode changed to: {MarsComm.CONTROLTYPE[MarsComm.controlType]}");
+        // Set the update slider flag for the main thread to update the UI.
+        updateSliderRange = true;
+    }
 
     private void InitializeUI()
     {
@@ -76,8 +88,9 @@ public class DiagnosticSceneHandler : MonoBehaviour
         ddLimbType.ClearOptions();
         ddLimbType.AddOptions(MarsComm.LIMBTEXT.ToList());
         ddControlType.AddOptions(MarsComm.CONTROLTYPETEXT.ToList());
-        // List<string> _ctrlList = MarsComm.CONTROLTYPETEXT.ToList();
-        // ddControlSelect.AddOptions(_ctrlList.Take(_ctrlList.Count - 1).ToList());
+        // Disable set target button.
+        btnSetTarget.interactable = false;
+        // btnSetTarget.enabled = false;
         // Clear panel selections.
         tglLogData.enabled = true;
         tglLogData.isOn = false;
@@ -90,7 +103,8 @@ public class DiagnosticSceneHandler : MonoBehaviour
         ddControlType.onValueChanged.AddListener(delegate { OnControlTypeChange(); });
 
         // Calibrate button click.
-        btnCalibrate.onClick.AddListener(delegate {
+        btnCalibrate.onClick.AddListener(delegate
+        {
             // Send calibration command to MARS.
             MarsComm.calibrate();
             Debug.Log("Calibration command sent.");
@@ -105,8 +119,8 @@ public class DiagnosticSceneHandler : MonoBehaviour
         // // Dropdown value change.
         // ddControlSelect.onValueChanged.AddListener(delegate { OnControlModeChange(); });
 
-        // // Slider value change.
-        // sldrTarget.onValueChanged.AddListener(delegate { OnControlTargetChange(); });
+        // Slider value change.
+        sldrTarget.onValueChanged.AddListener(delegate { OnControlTargetChange(); });
         // sldrCtrlBound.onValueChanged.AddListener(delegate { OnControlBoundChange(); });
         // sldrCtrlGain.onValueChanged.AddListener(delegate { OnControlGainChange(); });
 
@@ -116,10 +130,14 @@ public class DiagnosticSceneHandler : MonoBehaviour
         // // AAN Demo Button click.
         // btnAANDemo.onClick.AddListener(delegate { OnAANDemoSceneLoad(); });
 
+        // Set target button click.
+        btnSetTarget.onClick.AddListener(delegate { OnTargetSet(); });
+
         // Listen to MARS's event
         MarsComm.OnMarsButtonReleased += onMarsButtonReleased;
         MarsComm.OnCalibButtonReleased += onCalibButtonReleased;
         MarsComm.OnNewMarsData += onNewMarsData;
+        MarsComm.OnControlModeChange += onControlModeChange;
     }
 
     public void UpdateUI()
@@ -129,6 +147,36 @@ public class DiagnosticSceneHandler : MonoBehaviour
             && (MarsComm.LIMBTYPE[ddLimbType.value] != "NOLIMB");
         // Enable control type dropdown if limb is selected.
         ddControlType.interactable = MarsComm.CALIBRATION[MarsComm.calibration] == "YESCALIB";
+        // Enable the set target button only if the control is not NONE.
+        btnSetTarget.interactable = MarsComm.CONTROLTYPE[MarsComm.controlType] != "NONE";
+
+        // Check of the slider range needs to be updated.
+        if (updateSliderRange)
+        {
+            // Change slider range based on control type.
+            if (MarsComm.CONTROLTYPE[MarsComm.controlType] == "POSITION")
+            {
+                sldrTarget.minValue = -120f;
+                sldrTarget.maxValue = 0f;
+                sldrTarget.value = MarsComm.angle1;
+                targetValueText.text = sldrTarget.value.ToString(FLOAT_FORMAT) + " deg";
+            }
+            else if (MarsComm.CONTROLTYPE[MarsComm.controlType] == "TORQUE")
+            {
+                sldrTarget.minValue = 0f;
+                sldrTarget.maxValue = 10f;
+                sldrTarget.value = MarsComm.torque;
+                targetValueText.text = sldrTarget.value.ToString(FLOAT_FORMAT) + " Nm";
+            }
+            else
+            {
+                sldrTarget.minValue = 0f;
+                sldrTarget.maxValue = 1f;
+                sldrTarget.value = 0;
+                targetValueText.text = "";
+            }
+            updateSliderRange = false;
+        }
     }
 
     public void DisplayDeviceData()
@@ -143,7 +191,7 @@ public class DiagnosticSceneHandler : MonoBehaviour
             $"Compile Date  : {MarsComm.compileDate}",
             "",
             $"Device Time   : {runT} | Packet Number: {packNo}",
-            $"Status        : {MarsComm.OUTDATATYPE[MarsComm.status], -15} | Error : {MarsComm.errorString}",
+            $"Status        : {MarsComm.OUTDATATYPE[MarsComm.dataType], -15} | Error : {MarsComm.errorString}",
             $"Calib         : {MarsComm.CALIBRATION[MarsComm.calibration]}",
             $"Limb          : {MarsComm.LIMBTYPE[MarsComm.limb], -15} | {MarsComm.LIMBKINPARAM[MarsComm.limbKinParam], -15} | {MarsComm.LIMBDYNPARAM[MarsComm.limbDynParam]}",
             $"Control       : {MarsComm.CONTROLTYPE[MarsComm.controlType]}",
@@ -173,10 +221,24 @@ public class DiagnosticSceneHandler : MonoBehaviour
             $"IMU Angles    : {imuAngles}",
             $"Endpoint Pos  : {epPos}",
             $"Force         : {MarsComm.force.ToString(FLOAT_FORMAT)}",
+            $"Target        : {MarsComm.target.ToString(FLOAT_FORMAT)}",
+            $"Desired       : {MarsComm.desired.ToString(FLOAT_FORMAT)}",
+            $"Control       : {MarsComm.control.ToString(FLOAT_FORMAT)}",
             $"MARS Button   : {MarsComm.marButton}",
             $"CALIB Button  : {MarsComm.calibButton}"
         });
-
+        // If DIAGNOSTICS is enabled, append diagnostics data
+        if (MarsComm.OUTDATATYPE[MarsComm.dataType] == "DIAGNOSTICS")
+        {
+            sensorText += String.Join("\n", new string[] {
+                "",
+                $"ErrorP        : {MarsComm.errP.ToString(FLOAT_FORMAT)}",
+                $"ErrorD        : {MarsComm.errD.ToString(FLOAT_FORMAT)}",
+                $"ErrorI        : {MarsComm.errI.ToString(FLOAT_FORMAT)}",
+                $"Grav. Comp.   : {MarsComm.gravityCompensationTorque.ToString(FLOAT_FORMAT)}",
+                $"Ang. Vel.     : {MarsComm.angularVelocity1.ToString(FLOAT_FORMAT)}"
+            });
+        }
         dataDisplayText.text = stateText + sensorText;
     }
 
@@ -214,6 +276,17 @@ public class DiagnosticSceneHandler : MonoBehaviour
                 Debug.Log($"Data logging stopped. File saved: {fileName}");
             }
         }
+    }
+    private void OnControlTargetChange()
+    {
+        targetValueText.text = sldrTarget.value.ToString(FLOAT_FORMAT)
+            + (MarsComm.CONTROLTYPE[MarsComm.controlType] == "POSITION" ? " deg" : " Nm");
+    }
+    private void OnTargetSet()
+    {
+        // Set target value for control.
+        MarsComm.setControlTarget(sldrTarget.value);
+        Debug.Log($"Control target set to: {sldrTarget.value}");
     }
 
     private void OnApplicationQuit()

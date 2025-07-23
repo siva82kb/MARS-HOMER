@@ -30,7 +30,7 @@ public partial class AppData
      * CONSTANT FIXED VARIABLES.
      */
     // COM Port for the device
-    public const string COMPort = "COM13";
+    public const string COMPort = "COM17"; //"COM13";
 
     // static public readonly string comPort = "COM12";
     static public string selectedMovement;
