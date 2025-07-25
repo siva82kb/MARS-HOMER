@@ -30,6 +30,7 @@ public static class MarsComm
         "Left"
     };
     public static readonly string[] CALIBRATION = new string[] { "NOCALIB", "YESCALIB" };
+    public static readonly string[] COMMAND_STATUS = new string[] { "NONE", "SUCCESS", "FAIL" };
     public static readonly string[] LIMBKINPARAM = new string[] { "NOLIMBKINPARAM", "YESLIMBKINPARAM" };
     public static readonly string[] LIMBDYNPARAM = new string[] { "NOLIMBDYNPARAM", "YESLIMBDYNPARAM" };
     public static readonly string[] CONTROLTYPE = new string[] { "NONE", "POSITION", "TORQUE", "ARM_WEIGHT_SUPPORT" };
@@ -42,10 +43,10 @@ public static class MarsComm
     public static readonly int[] SENSORNUMBER = new int[] {
         11,  // SENSORSTREAM 
         0,   // CONTROLPARAM
-        16   // DIAGNOSTICS
+        17   // DIAGNOSTICS
     };
     public static readonly double MAXTORQUE = 1.0; // Nm
-    public static readonly int[] INDATATYPECODES = new int[] { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x80 };
+    public static readonly int[] INDATATYPECODES = new int[] { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x80 };
     public static readonly string[] INDATATYPE = new string[] {
         "GET_VERSION",
         "RESET_PACKETNO",
@@ -56,7 +57,8 @@ public static class MarsComm
         "SET_CONTROL_TYPE",
         "SET_CONTROL_TARGET",
         "SET_DIAGNOSTICS",
-        "SET_LIMB_PARAM",
+        "SET_LIMB_KIN_PARAM",
+        "SET_LIMB_DYN_PARAM",
         "HEARTBEAT",
     };
     public static readonly string[] ERRORTYPES = new string[] {
@@ -203,6 +205,10 @@ public static class MarsComm
     {
         get => (currentStateData[3] >> 5) & 0x01;
     }
+    static public int recentCommandStatus
+    {
+        get => currentStateData[3] >> 6;
+    }
     static public float angle1
     {
         get => currentSensorData[1];
@@ -230,6 +236,10 @@ public static class MarsComm
     static public float torque
     {
         get => force * Mathf.Sqrt(Mathf.Pow(xEndpoint, 2) + Mathf.Pow(yEndpoint, 2));
+    }
+    static public float dTorque
+    {
+        get => currentSensorData[17];
     }
     static public float xEndpoint
     {
@@ -403,7 +413,6 @@ public static class MarsComm
                 // Update current sensor data
                 int offset = 10;
                 int nSensors = SENSORNUMBER[_datatype];
-                Debug.Log("No of Sensors: " + nSensors);
                 currentSensorData[0] = nSensors;
                 for (int i = 0; i < nSensors; i++)
                 {
@@ -426,10 +435,6 @@ public static class MarsComm
                 currentStateData[6] = rawBytes[(nSensors + 1) * 4 + 6 + 3];
                 // Forearm weight
                 currentStateData[7] = rawBytes[(nSensors + 1) * 4 + 6 + 4];
-                // // Shoulder position X
-                // currentStateData[8] = rawBytes[(nSensors + 1) * 4 + 6 + 5];
-                // // Shoulder position Y
-                // currentStateData[9] = rawBytes[(nSensors + 1) * 4 + 6 + 6];
                 // Shoulder position Z
                 currentStateData[8] = rawBytes[(nSensors + 1) * 4 + 6 + 5];
 
@@ -439,11 +444,6 @@ public static class MarsComm
                 currentStateData[11] = rawBytes[(nSensors + 1) * 4 + 6 + 8];
                 currentStateData[12] = rawBytes[(nSensors + 1) * 4 + 6 + 9];
 
-                // MARS button
-                currentStateData[13] = rawBytes[(nSensors + 1) * 4 + 6 + 10];
-                // Calib button
-                currentStateData[14] = rawBytes[(nSensors + 1) * 4 + 6 + 11];
-
                 // Number of current state data
                 currentStateData[0] = 3;
 
@@ -451,16 +451,18 @@ public static class MarsComm
                 frameRate = 1 / (runTime - prevRunTime);
 
                 // Check if the MARS button has been released.
-                if (previousStateData[15] == 0 && currentStateData[15] == 1)
+                if ((((previousStateData[3] >> 4) & 0x01) == 0) && (((currentStateData[3] >> 4) & 0x01) == 1))
                 {
                     // MarsCommLogger.LogInfo($"Pluto Button Released | Button: {currentStateData[6]} | Time: {runTime:F2}");
+                    Debug.Log("MARS button released.");
                     OnMarsButtonReleased?.Invoke();
                 }
 
                 // Check if the Calib button has been released.
-                if (previousStateData[16] == 0 && currentStateData[16] == 1)
+                if ((((previousStateData[3] >> 5) & 0x01) == 0) && (((currentStateData[3] >> 5) & 0x01) == 1))
                 {
                     // MarsCommLogger.LogInfo($"Pluto Button Released | Button: {currentStateData[6]} | Time: {runTime:F2}");
+                    Debug.Log("Calibration button released.");
                     OnCalibButtonReleased?.Invoke();
                 }
 
@@ -632,6 +634,19 @@ public static class MarsComm
         );
     }
 
+    public static void setHumanLimbKinParams(float uaLength, float faLength, float shPosZ)
+    {
+        MarsCommLogger.LogInfo($"Setting Human Limb Kinematic Parameters: UA Length: {uaLength}, FA Length: {faLength}, Shoulder Z Position: {shPosZ}");
+        JediComm.SendMessage(
+            new byte[] {
+                (byte)INDATATYPECODES[Array.IndexOf(INDATATYPE, "SET_LIMB_KIN_PARAM")],
+                encodeUpperArmLength(uaLength),
+                encodeForeArmLength(faLength),
+                encodeShoulderPosZ(shPosZ)
+            }
+        );
+    }
+
     public static void setControlType(string controlType)
     {
         MarsCommLogger.LogInfo($"Setting Control Type: {controlType}");
@@ -708,8 +723,10 @@ public static class MarsComm
 public static class MarsKinDynamics
 {
 
-    public static float l1 = 30.00f; // Length of upper arm in cm
-    public static float l2 = 20.00f; // Length of forearm in cm
+    public static float l1 = 475.0f; // Length of upper arm in mm
+    public static float l2 = 291.0f; // Length of forearm in mm
+    public static float l3 = 75.00f; // Length of hand in mm
+    public static float l4 = 43.80f; // Length of wrist in mm
 
     public static Vector3 ForwardKinematics(float theta1, float theta2, float theta3)
     {
@@ -718,9 +735,33 @@ public static class MarsKinDynamics
         theta1 = theta1 * Mathf.Deg2Rad;
         theta2 = theta2 * Mathf.Deg2Rad;
         theta3 = theta3 * Mathf.Deg2Rad;
-        x = Mathf.Cos(theta1) * (l1 * Mathf.Cos(theta1) + l2 * Mathf.Cos(theta2 + theta3));
-        y = Mathf.Sin(theta1) * (l1 * Mathf.Cos(theta1) + l2 * Mathf.Cos(theta2 + theta3));
-        z = - l2 * Mathf.Sin(theta1) - l2 * Mathf.Sin(theta2 + theta3);
+        float _temp = l1 * Mathf.Cos(theta2) + l2 * Mathf.Cos(theta2 + theta3);
+        x = Mathf.Cos(theta1) * _temp;
+        y = Mathf.Sin(theta1) * _temp;
+        z = -l1 * Mathf.Sin(theta2) - l2 * Mathf.Sin(theta2 + theta3);
+        return new Vector3(x, y, z);
+    }
+    
+    
+    public static Vector3 ForwardKinematicsExtended(float theta1, float theta2, float theta3, float theta4)
+    {
+        Debug.Log($"ForwardKinematicsExtended: theta1={theta1}, theta2={theta2}, theta3={theta3}, theta4={theta4}");
+        float x, y, z;
+        // Change the angles to radians
+        theta1 = theta1 * Mathf.Deg2Rad;
+        theta2 = theta2 * Mathf.Deg2Rad;
+        theta3 = theta3 * Mathf.Deg2Rad;
+        theta4 = theta4 * Mathf.Deg2Rad;
+        float _temp = l1 * Mathf.Cos(theta2)
+                      + l2 * Mathf.Cos(theta2 + theta3)
+                      + l3 * Mathf.Cos(theta2 + theta3 + theta4)
+                      - l4 * Mathf.Sin(theta2 + theta3 + theta4);
+        x = Mathf.Cos(theta1) * _temp;
+        y = Mathf.Sin(theta1) * _temp;
+        z = -l1 * Mathf.Sin(theta2)
+            - l2 * Mathf.Sin(theta2 + theta3)
+            - l3 * Mathf.Sin(theta2 + theta3 + theta4)
+            - l4 * Mathf.Cos(theta2 + theta3 + theta4);
         return new Vector3(x, y, z);
     }
 }

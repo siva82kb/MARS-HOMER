@@ -18,6 +18,12 @@ public class DiagnosticSceneHandler : MonoBehaviour
     public Slider sldrTarget;
     public TMP_Text targetValueText;
     public Button btnSetTarget;
+    public Toggle tglHLimbKinParamSet;
+    public Slider sldrHLimbUALength;
+    public Slider sldrHLimbFALength;
+    public TMP_Text hlbUALengthText;
+    public TMP_Text hlbFALengthText;
+    public TMP_Text hlbKinParamSetText;
 
     private static string FLOAT_FORMAT = "+0.00;-0.00";
     private string fileName = "";
@@ -33,6 +39,9 @@ public class DiagnosticSceneHandler : MonoBehaviour
         InitializeUI();
         // Attach callbacks
         AttachControlCallbacks();
+        // Invoke some callbacks to update the UI.
+        sldrHLimbUALength.onValueChanged.Invoke(sldrHLimbUALength.value);
+        sldrHLimbFALength.onValueChanged.Invoke(sldrHLimbFALength.value);
 
         // Get device version.
         MarsComm.getVersion();
@@ -70,8 +79,14 @@ public class DiagnosticSceneHandler : MonoBehaviour
 
     private void onCalibButtonReleased()
     {
-        // This method is called when the calibration button is released
-        Debug.Log("Calibration button released.");
+        // Do something only when the human limb kinematic parameters toggle is enabled.
+        if (!tglHLimbKinParamSet.isOn)
+        {
+            // If the toggle is not enabled, return early.
+            return;
+        }
+        // Get the current endpoint position from MARS robot.
+        Debug.Log(MarsKinDynamics.ForwardKinematicsExtended(MarsComm.angle1, MarsComm.angle2, MarsComm.angle3, MarsComm.angle4));
     }
 
     private void onControlModeChange()
@@ -90,10 +105,12 @@ public class DiagnosticSceneHandler : MonoBehaviour
         ddControlType.AddOptions(MarsComm.CONTROLTYPETEXT.ToList());
         // Disable set target button.
         btnSetTarget.interactable = false;
-        // btnSetTarget.enabled = false;
         // Clear panel selections.
         tglLogData.enabled = true;
         tglLogData.isOn = false;
+        // Disable slider for human limb kinematic parameters.
+        sldrHLimbUALength.interactable = false;
+        sldrHLimbFALength.interactable = false;
     }
 
     public void AttachControlCallbacks()
@@ -116,22 +133,35 @@ public class DiagnosticSceneHandler : MonoBehaviour
         // tglControlSelect.onValueChanged.AddListener(delegate { OnControlChange(); });
         // tglDataLog.onValueChanged.AddListener(delegate { OnDataLogChange(); });
 
-        // // Dropdown value change.
-        // ddControlSelect.onValueChanged.AddListener(delegate { OnControlModeChange(); });
-
+        // Human limb kinematic parameters toggle.
+        tglHLimbKinParamSet.onValueChanged.AddListener(delegate
+        {
+            // Enable or disable the sliders based on the toggle state.
+            bool isEnabled = tglHLimbKinParamSet.isOn;
+            sldrHLimbUALength.interactable = isEnabled;
+            sldrHLimbFALength.interactable = isEnabled;
+            hlbUALengthText.text = isEnabled ? "UA: " + sldrHLimbUALength.value.ToString(FLOAT_FORMAT) + " m" : "";
+            hlbFALengthText.text = isEnabled ? "FA: " + sldrHLimbFALength.value.ToString(FLOAT_FORMAT) + " m" : "";
+            hlbKinParamSetText.text = "Press the Calib button to set the parameters.\nMake sure the UA and FA values are set correctly.";
+        });
         // Slider value change.
         sldrTarget.onValueChanged.AddListener(delegate { OnControlTargetChange(); });
-        // sldrCtrlBound.onValueChanged.AddListener(delegate { OnControlBoundChange(); });
-        // sldrCtrlGain.onValueChanged.AddListener(delegate { OnControlGainChange(); });
-
-        // // Button click.
-        // btnNextRandomTarget.onClick.AddListener(delegate { OnNextRandomTarget(); });
-
-        // // AAN Demo Button click.
-        // btnAANDemo.onClick.AddListener(delegate { OnAANDemoSceneLoad(); });
+        sldrHLimbUALength.onValueChanged.AddListener(delegate {
+            hlbUALengthText.text = "UA: " + sldrHLimbUALength.value.ToString(FLOAT_FORMAT) + " m";
+        });
+        sldrHLimbFALength.onValueChanged.AddListener(delegate {
+            hlbFALengthText.text = "FA: " + sldrHLimbFALength.value.ToString(FLOAT_FORMAT) + " m";
+        });
 
         // Set target button click.
         btnSetTarget.onClick.AddListener(delegate { OnTargetSet(); });
+
+        // Human limb kin parameters button click.
+        // btnSetHLimbKinParams.onClick.AddListener(delegate {
+        //     // Set human limb kinematic parameters.
+        //     // MarsComm.setHumanLimbKinParams(sldrHLimbUALength.value, sldrHLimbFALength.value);
+        //     Debug.Log($"Human limb kinematic parameters set: UALength={sldrHLimbUALength.value}, FALength={sldrHLimbFALength.value}");
+        // });
 
         // Listen to MARS's event
         MarsComm.OnMarsButtonReleased += onMarsButtonReleased;
@@ -192,10 +222,9 @@ public class DiagnosticSceneHandler : MonoBehaviour
             "",
             $"Device Time   : {runT} | Packet Number: {packNo}",
             $"Status        : {MarsComm.OUTDATATYPE[MarsComm.dataType], -15} | Error : {MarsComm.errorString}",
-            $"Calib         : {MarsComm.CALIBRATION[MarsComm.calibration]}",
+            $"Calib         : {MarsComm.CALIBRATION[MarsComm.calibration], -15} | Cmd Status: {MarsComm.COMMAND_STATUS[MarsComm.recentCommandStatus]}",
             $"Limb          : {MarsComm.LIMBTYPE[MarsComm.limb], -15} | {MarsComm.LIMBKINPARAM[MarsComm.limbKinParam], -15} | {MarsComm.LIMBDYNPARAM[MarsComm.limbDynParam]}",
             $"Control       : {MarsComm.CONTROLTYPE[MarsComm.controlType]}",
-            "",
             ""
         });
         //Construct the display text while ensuring values are safely converted to string
@@ -236,7 +265,8 @@ public class DiagnosticSceneHandler : MonoBehaviour
                 $"ErrorD        : {MarsComm.errD.ToString(FLOAT_FORMAT)}",
                 $"ErrorI        : {MarsComm.errI.ToString(FLOAT_FORMAT)}",
                 $"Grav. Comp.   : {MarsComm.gravityCompensationTorque.ToString(FLOAT_FORMAT)}",
-                $"Ang. Vel.     : {MarsComm.angularVelocity1.ToString(FLOAT_FORMAT)}"
+                $"Ang. Vel.     : {MarsComm.angularVelocity1.ToString(FLOAT_FORMAT)}",
+                $"Torque Change : {MarsComm.dTorque.ToString(FLOAT_FORMAT)}"
             });
         }
         dataDisplayText.text = stateText + sensorText;

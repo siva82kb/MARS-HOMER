@@ -130,7 +130,6 @@ public static class JediComm
             // Number of bytes to read.
             rawBytes[plCount++] = (byte)serPort.ReadByte();
             chksum += rawBytes[0];
-            Debug.Log(rawBytes[0]);
             if (rawBytes[0] != 255)
             {
                 // Read all the payload bytes.
