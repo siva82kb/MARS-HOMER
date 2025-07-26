@@ -29,6 +29,14 @@ public class DiagnosticSceneHandler : MonoBehaviour
     private string fileName = "";
     private StreamWriter fileWriter = null;
     private bool updateSliderRange = true;
+    private const int MAX_ENDPOINTS = 10;
+    private int endpointCount = 0;
+    private Vector3[] endpointPositions = new Vector3[100];
+    private float setHLimbKinUALength = 0.0f;
+    private float setHLimbKinFALength = 0.0f;
+    private float setHLimbKinShPosZ = 0.0f;
+    // Flag to check the human limb kinematic parameters.
+    private bool hLimbKinParamCheckFlag = false;
 
     void Start()
     {
@@ -59,6 +67,44 @@ public class DiagnosticSceneHandler : MonoBehaviour
 
         // Update UI.
         UpdateUI();
+
+        hlbKinParamSetText.text = MarsKinDynamics.ForwardKinematicsExtended(MarsComm.angle1, MarsComm.angle2, MarsComm.angle3, MarsComm.angle4).ToString("F3");
+
+        // Human limb kinematic parameters calculation.
+        if (tglHLimbKinParamSet.isOn && MarsComm.calibButton == 0)
+        {
+            if (endpointCount < MAX_ENDPOINTS)
+            {
+                endpointPositions[endpointCount] = MarsKinDynamics.ForwardKinematicsExtended(MarsComm.angle1, MarsComm.angle2, MarsComm.angle3, MarsComm.angle4);
+                endpointCount++;
+            }
+        }
+        else
+        {
+            endpointCount = 0;
+        }
+
+        // Check the set human limb kinematic parameters.
+        if (hLimbKinParamCheckFlag)
+        {
+            // Check the human limb kinematic parameters.
+            if (MarsComm.limbKinParam == 0x01) MarsComm.getHumanLimbKinParams();
+        }
+        // if (hLimbKinParamCheckFlag)
+        // {
+        //     // Check if the human limb kinematic parameters are set.
+        //     if (MarsComm.uaLength != setHLimbKinUALength || MarsComm.faLength != setHLimbKinFALength || MarsComm.shPosZ != setHLimbKinShPosZ)
+        //     {
+        //         Debug.LogWarning("Human limb kinematic parameters are not set correctly.");
+        //         hLimbKinParamCheckFlag = false;
+        //         MarsComm.resetHumanLimbKinParams();
+        //     }
+        //     else
+        //     {
+        //         Debug.Log("Human limb kinematic parameters are set correctly.");
+        //         hLimbKinParamCheckFlag = false;
+        //     }
+        // }
     }
 
     private void onNewMarsData()
@@ -82,11 +128,26 @@ public class DiagnosticSceneHandler : MonoBehaviour
         // Do something only when the human limb kinematic parameters toggle is enabled.
         if (!tglHLimbKinParamSet.isOn)
         {
-            // If the toggle is not enabled, return early.
             return;
         }
         // Get the current endpoint position from MARS robot.
-        Debug.Log(MarsKinDynamics.ForwardKinematicsExtended(MarsComm.angle1, MarsComm.angle2, MarsComm.angle3, MarsComm.angle4));
+        // Compute the average position of the endpoints.
+        Vector3 averagePosition = Vector3.zero;
+        for (int i = 0; i < MAX_ENDPOINTS; i++)
+        {
+            averagePosition += endpointPositions[i];
+        }
+        averagePosition /= MAX_ENDPOINTS;
+        // Set the human limb kinematic parameters based on the average position.
+        setHLimbKinUALength = sldrHLimbUALength.value;
+        setHLimbKinFALength = sldrHLimbFALength.value;
+        setHLimbKinShPosZ = averagePosition.z;
+        Debug.Log($"Setting human limb kinematic parameters: UALength={setHLimbKinUALength}, FALength={setHLimbKinFALength}, Average Position Z={setHLimbKinShPosZ}");
+        MarsComm.setHumanLimbKinParams(setHLimbKinUALength, setHLimbKinFALength, setHLimbKinShPosZ);
+        // Get the human limb ki
+        MarsComm.getHumanLimbKinParams();
+        // Set the check flag to verify human limb kinematic parameters are set.
+        hLimbKinParamCheckFlag = true;
     }
 
     private void onControlModeChange()
@@ -95,6 +156,22 @@ public class DiagnosticSceneHandler : MonoBehaviour
         Debug.Log($"Control mode changed to: {MarsComm.CONTROLTYPE[MarsComm.controlType]}");
         // Set the update slider flag for the main thread to update the UI.
         updateSliderRange = true;
+    }
+
+    private void OnHumanLimbKinParamData()
+    {
+        // Check if the human limb kinematics parameters match the set values.
+        if (MarsComm.uaLength != setHLimbKinUALength || MarsComm.faLength != setHLimbKinFALength || MarsComm.shPosZ != setHLimbKinShPosZ)
+        {
+            Debug.LogWarning("Human limb kinematic parameters are not set correctly.");
+            hLimbKinParamCheckFlag = false;
+            MarsComm.resetHumanLimbKinParams();
+        }
+        else
+        {
+            Debug.Log("Human limb kinematic parameters are set correctly.");
+            hLimbKinParamCheckFlag = false;
+        }
     }
 
     private void InitializeUI()
@@ -146,10 +223,12 @@ public class DiagnosticSceneHandler : MonoBehaviour
         });
         // Slider value change.
         sldrTarget.onValueChanged.AddListener(delegate { OnControlTargetChange(); });
-        sldrHLimbUALength.onValueChanged.AddListener(delegate {
+        sldrHLimbUALength.onValueChanged.AddListener(delegate
+        {
             hlbUALengthText.text = "UA: " + sldrHLimbUALength.value.ToString(FLOAT_FORMAT) + " m";
         });
-        sldrHLimbFALength.onValueChanged.AddListener(delegate {
+        sldrHLimbFALength.onValueChanged.AddListener(delegate
+        {
             hlbFALengthText.text = "FA: " + sldrHLimbFALength.value.ToString(FLOAT_FORMAT) + " m";
         });
 
@@ -168,6 +247,7 @@ public class DiagnosticSceneHandler : MonoBehaviour
         MarsComm.OnCalibButtonReleased += onCalibButtonReleased;
         MarsComm.OnNewMarsData += onNewMarsData;
         MarsComm.OnControlModeChange += onControlModeChange;
+        MarsComm.onHumanLimbKinParamData += OnHumanLimbKinParamData;
     }
 
     public void UpdateUI()
@@ -215,12 +295,13 @@ public class DiagnosticSceneHandler : MonoBehaviour
         string runT = MarsComm.runTime.ToString("0.000").PadRight(15);
         string packNo = MarsComm.packetNumber.ToString().PadRight(8);
         string stateText = string.Join("\n", new string[] {
-            $"Time          : {MarsComm.currentTime}",
+            $"Time          : {MarsComm.currentTime, -15}",
             $"Dev ID        : {MarsComm.deviceId}",
             $"F/W Version   : {MarsComm.version}",
             $"Compile Date  : {MarsComm.compileDate}",
             "",
             $"Device Time   : {runT} | Packet Number: {packNo}",
+            $"Frame Rate    : {MarsComm.frameRate.ToString(FLOAT_FORMAT)} Hz",
             $"Status        : {MarsComm.OUTDATATYPE[MarsComm.dataType], -15} | Error : {MarsComm.errorString}",
             $"Calib         : {MarsComm.CALIBRATION[MarsComm.calibration], -15} | Cmd Status: {MarsComm.COMMAND_STATUS[MarsComm.recentCommandStatus]}",
             $"Limb          : {MarsComm.LIMBTYPE[MarsComm.limb], -15} | {MarsComm.LIMBKINPARAM[MarsComm.limbKinParam], -15} | {MarsComm.LIMBDYNPARAM[MarsComm.limbDynParam]}",
@@ -244,6 +325,12 @@ public class DiagnosticSceneHandler : MonoBehaviour
             MarsComm.imu2Angle.ToString(FLOAT_FORMAT).PadRight(8),
             MarsComm.imu3Angle.ToString(FLOAT_FORMAT).PadRight(8),
             MarsComm.imu4Angle.ToString(FLOAT_FORMAT).PadRight(8),
+        });
+        // Human limb parameters text
+        string hlbParamText = string.Join("\n", new string[] {
+            $"Kin Param     : (UA) {MarsComm.uaLength.ToString(FLOAT_FORMAT)}, (FA) {MarsComm.faLength.ToString(FLOAT_FORMAT)}, (Z) {MarsComm.shPosZ.ToString(FLOAT_FORMAT)}",
+            $"Dyn Param     : (UA) {MarsComm.uaWeight.ToString(FLOAT_FORMAT)}, (FA) {MarsComm.faWeight.ToString(FLOAT_FORMAT)}",
+            ""
         });
         string sensorText = String.Join("\n", new string[] {
             $"Robot Angles  : {robotAngles}",
@@ -269,7 +356,7 @@ public class DiagnosticSceneHandler : MonoBehaviour
                 $"Torque Change : {MarsComm.dTorque.ToString(FLOAT_FORMAT)}"
             });
         }
-        dataDisplayText.text = stateText + sensorText;
+        dataDisplayText.text = stateText + hlbParamText + sensorText;
     }
 
     /*

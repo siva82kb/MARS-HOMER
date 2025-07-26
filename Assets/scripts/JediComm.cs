@@ -4,6 +4,7 @@ using System.IO.Ports;
 using System.Linq;
 using System.Threading;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 /*
  * JediCom
@@ -130,6 +131,7 @@ public static class JediComm
             // Number of bytes to read.
             rawBytes[plCount++] = (byte)serPort.ReadByte();
             chksum += rawBytes[0];
+            // Debug.Log($"No. of Byte: {rawBytes[0]}");
             if (rawBytes[0] != 255)
             {
                 // Read all the payload bytes.
@@ -139,6 +141,7 @@ public static class JediComm
                     chksum += rawBytes[plCount - 1];
                 }
                 // Print Rawbytes
+                // Debug.Log("Raw Byte: " + string.Join(",", rawBytes));
                 _chksum = serPort.ReadByte();
                 return (_chksum == (chksum & 0xFF));
             }

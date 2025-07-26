@@ -22,7 +22,7 @@ public static class MarsComm
     }
 
     // Device Level Constants
-    public static readonly string[] OUTDATATYPE = new string[] { "SENSORSTREAM", "CONTROLPARAM", "DIAGNOSTICS", "VERSION" };
+    public static readonly string[] OUTDATATYPE = new string[] { "SENSORSTREAM", "CONTROLPARAM", "DIAGNOSTICS", "HLIMBKINPARAM", "HLIMBDYNPARAM", "VERSION" };
     public static readonly string[] LIMBTYPE = new string[] { "NOLIMB", "RIGHT", "LEFT" };
     public static readonly string[] LIMBTEXT = new string[] {
         "No Limb",
@@ -43,10 +43,13 @@ public static class MarsComm
     public static readonly int[] SENSORNUMBER = new int[] {
         11,  // SENSORSTREAM 
         0,   // CONTROLPARAM
-        17   // DIAGNOSTICS
+        17,  // DIAGNOSTICS
+        3,   // HLIMBKINPARAM
+        2,   // HLIMBDYNPARAM
     };
     public static readonly double MAXTORQUE = 1.0; // Nm
-    public static readonly int[] INDATATYPECODES = new int[] { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x80 };
+    public static readonly int[] INDATATYPECODES = new int[] { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E,
+                                                               0x80 };
     public static readonly string[] INDATATYPE = new string[] {
         "GET_VERSION",
         "RESET_PACKETNO",
@@ -59,6 +62,10 @@ public static class MarsComm
         "SET_DIAGNOSTICS",
         "SET_LIMB_KIN_PARAM",
         "SET_LIMB_DYN_PARAM",
+        "GET_LIMB_KIN_PARAM",
+        "GET_LIMB_DYN_PARAM",
+        "RESET_LIMB_KIN_PARAM",
+        "RESET_LIMB_DYN_PARAM",
         "HEARTBEAT",
     };
     public static readonly string[] ERRORTYPES = new string[] {
@@ -94,7 +101,8 @@ public static class MarsComm
     // Control change event.
     public delegate void MarsControlModeChangeEvent();
     public static event MarsControlModeChangeEvent OnControlModeChange;
-
+    public delegate void HumanLimKinParamData();
+    public static event HumanLimKinParamData onHumanLimbKinParamData;
 
     // MARS Robot Parameters
     private const float L1 = 475.0f;
@@ -129,8 +137,8 @@ public static class MarsComm
     // Private variables
     static private byte[] rawBytes = new byte[256];
     // For the following arrays, the first element represents the number of elements in the array.
-    static private int[] previousStateData = new int[32];
-    static private int[] currentStateData = new int[32];
+    static private int[] previousStateData = new int[16];
+    static private int[] currentStateData = new int[16];
     static private float[] currentSensorData = new float[20];
 
     // Public variables
@@ -143,6 +151,12 @@ public static class MarsComm
     static public ushort packetNumber { get; private set; }
     static public float runTime { get; private set; }
     static public float prevRunTime { get; private set; }
+    // Human limb parameters
+    static public float uaLength { get; private set; } = 0;
+    static public float faLength { get; private set; } = 0;
+    static public float uaWeight { get; private set; } = 0;
+    static public float faWeight { get; private set; } = 0;
+    static public float shPosZ { get; private set; } = 0;
     public static int GetMarsCodeFromLabel(string[] array, string value)
     {
         return Array.IndexOf(array, value) - 1;
@@ -281,61 +295,21 @@ public static class MarsComm
     {
         get => currentSensorData[15];
     }
-    static public float uaLengthByte
-    {
-        get => currentStateData[4];
-    }
-    static public float uaLength
-    {
-        get => decodeUpperArmLength((byte)currentStateData[4]);
-    }
-    static public float faLengthByte
-    {
-        get => currentStateData[5];
-    }
-    static public float faLength
-    {
-        get => decodeForeArmLength((byte)currentStateData[5]);
-    }
-    static public float uaWeightByte
-    {
-        get => currentStateData[6];
-    }
-    static public float uaWeight
-    {
-        get => decodeUpperArmWeight((byte)currentStateData[6]);
-    }
-    static public float faWeightByte
-    {
-        get => currentStateData[7];
-    }
-    static public float faWeight
-    {
-        get => decodeForeArmWeight((byte)currentStateData[7]);
-    }
-    static public float shPosZByte
-    {
-        get => currentStateData[10];
-    }
-    static public float shPosZ
-    {
-        get => decodeShoulderPosZ((byte)currentStateData[8]);
-    }
     static public short imu1Angle
     {
-        get => (sbyte)currentStateData[9];
+        get => (sbyte)currentStateData[4];
     }
     static public short imu2Angle
     {
-        get => (sbyte)currentStateData[10];
+        get => (sbyte)currentStateData[5];
     }
     static public short imu3Angle
     {
-        get => (sbyte)currentStateData[11];
+        get => (sbyte)currentStateData[6];
     }
     static public short imu4Angle
     {
-        get => (sbyte)currentStateData[12];
+        get => (sbyte)currentStateData[7];
     }
     static public byte buttonState
     {
@@ -367,6 +341,9 @@ public static class MarsComm
 
     public static void parseByteArray(byte[] payloadBytes, int payloadCount, DateTime payloadTime)
     {
+        int offset;
+        int nSensors;
+        int i;
         if (payloadCount == 0)
         {
             return;
@@ -400,6 +377,7 @@ public static class MarsComm
 
         // Handle data based on what type of data it is.
         byte _datatype = (byte)(currentStateData[1] >> 4);
+        // Debug.Log($"Data Type: {_datatype} {OUTDATATYPE[_datatype]}");
         switch (OUTDATATYPE[_datatype])
         {
             case "SENSORSTREAM":
@@ -411,10 +389,10 @@ public static class MarsComm
                 runTime = 0.001f * BitConverter.ToUInt32(new byte[] { rawBytes[7], rawBytes[8], rawBytes[9], rawBytes[10] });
 
                 // Update current sensor data
-                int offset = 10;
-                int nSensors = SENSORNUMBER[_datatype];
+                offset = 10;
+                nSensors = SENSORNUMBER[_datatype];
                 currentSensorData[0] = nSensors;
-                for (int i = 0; i < nSensors; i++)
+                for (i = 0; i < nSensors; i++)
                 {
                     currentSensorData[i + 1] = BitConverter.ToSingle(
                         new byte[] {
@@ -426,23 +404,23 @@ public static class MarsComm
                     );
                 }
 
-                // Human limb parameters
-                // Upper arm length
-                currentStateData[4] = rawBytes[(nSensors + 1) * 4 + 6 + 1];
-                // Forearm length
-                currentStateData[5] = rawBytes[(nSensors + 1) * 4 + 6 + 2];
-                // Upper arm weight
-                currentStateData[6] = rawBytes[(nSensors + 1) * 4 + 6 + 3];
-                // Forearm weight
-                currentStateData[7] = rawBytes[(nSensors + 1) * 4 + 6 + 4];
-                // Shoulder position Z
-                currentStateData[8] = rawBytes[(nSensors + 1) * 4 + 6 + 5];
+                // // Human limb parameters
+                // // Upper arm length
+                // currentStateData[4] = rawBytes[(nSensors + 1) * 4 + 6 + 1];
+                // // Forearm length
+                // currentStateData[5] = rawBytes[(nSensors + 1) * 4 + 6 + 2];
+                // // Upper arm weight
+                // currentStateData[6] = rawBytes[(nSensors + 1) * 4 + 6 + 3];
+                // // Forearm weight
+                // currentStateData[7] = rawBytes[(nSensors + 1) * 4 + 6 + 4];
+                // // Shoulder position Z
+                // currentStateData[8] = rawBytes[(nSensors + 1) * 4 + 6 + 5];
 
                 // IMU angles
-                currentStateData[9] = rawBytes[(nSensors + 1) * 4 + 6 + 6];
-                currentStateData[10] = rawBytes[(nSensors + 1) * 4 + 6 + 7];
-                currentStateData[11] = rawBytes[(nSensors + 1) * 4 + 6 + 8];
-                currentStateData[12] = rawBytes[(nSensors + 1) * 4 + 6 + 9];
+                currentStateData[4] = rawBytes[offset + nSensors * 4 + 1];
+                currentStateData[5] = rawBytes[offset + nSensors * 4 + 2];
+                currentStateData[6] = rawBytes[offset + nSensors * 4 + 3];
+                currentStateData[7] = rawBytes[offset + nSensors * 4 + 4];
 
                 // Number of current state data
                 currentStateData[0] = 3;
@@ -474,14 +452,14 @@ public static class MarsComm
                 }
 
                 // Check if the mechanism has been changed.
-                // if ((previousStateData[3] >> 4) != (currentStateData[3] >> 4))
-                // {
-                //     MarsCommLogger.LogInfo($"Mechanism Changed | Mechanism: {currentStateData[3] >> 4} | Time: {runTime:F2}");
-                //     OnMechanismChange?.Invoke();
-                // }
+                    // if ((previousStateData[3] >> 4) != (currentStateData[3] >> 4))
+                    // {
+                    //     MarsCommLogger.LogInfo($"Mechanism Changed | Mechanism: {currentStateData[3] >> 4} | Time: {runTime:F2}");
+                    //     OnMechanismChange?.Invoke();
+                    // }
 
-                // Invoke the new data event only for SENSORSTREAM or DIAGNOSTICS data.
-                OnNewMarsData?.Invoke();
+                    // Invoke the new data event only for SENSORSTREAM or DIAGNOSTICS data.
+                    OnNewMarsData?.Invoke();
                 break;
             case "VERSION":
                 // Read the bytes into a string.
@@ -489,6 +467,40 @@ public static class MarsComm
                 version = Encoding.ASCII.GetString(rawBytes, 5, rawBytes[0] - 4 - 1).Split(",")[1];
                 compileDate = Encoding.ASCII.GetString(rawBytes, 5, rawBytes[0] - 4 - 1).Split(",")[2];
                 MarsCommLogger.LogInfo($"Received Version | Version: {version} | Compile Date: {compileDate} | Device ID: {deviceId}");
+                break;
+            case "HLIMBKINPARAM":
+                Debug.Log("Received Limb Kinematic Parameters");
+                // Update current sensor data
+                offset = 4;
+                i = 0;
+                uaLength = BitConverter.ToSingle(
+                    new byte[] {
+                        rawBytes[offset + 1 + (i * 4)],
+                        rawBytes[offset + 2 + (i * 4)],
+                        rawBytes[offset + 3 + (i * 4)],
+                        rawBytes[offset + 4 + (i * 4)] },
+                    0
+                );
+                i++;
+                faLength = BitConverter.ToSingle(
+                    new byte[] {
+                        rawBytes[offset + 1 + (i * 4)],
+                        rawBytes[offset + 2 + (i * 4)],
+                        rawBytes[offset + 3 + (i * 4)],
+                        rawBytes[offset + 4 + (i * 4)] },
+                    0
+                );
+                i++;
+                shPosZ = BitConverter.ToSingle(
+                    new byte[] {
+                        rawBytes[offset + 1 + (i * 4)],
+                        rawBytes[offset + 2 + (i * 4)],
+                        rawBytes[offset + 3 + (i * 4)],
+                        rawBytes[offset + 4 + (i * 4)] },
+                    0
+                );
+                // Invoke the human limb kinematic parameters data event.
+                onHumanLimbKinParamData?.Invoke();
                 break;
         }
     }
@@ -586,20 +598,20 @@ public static class MarsComm
     }
 
     // Decode human limb parameters from byte values
-    public static float DecodeHumanLimbParam(byte val, float min, float max) => min + (max - min) * Mathf.Clamp(val / 255.0f, 0, 1);
-    private static float decodeUpperArmLength(byte uaLengthByte) => DecodeHumanLimbParam(uaLengthByte, MIN_UA_LENGTH, MAX_UA_LENGTH);
-    private static float decodeForeArmLength(byte faLengthByte) => DecodeHumanLimbParam(faLengthByte, MIN_FA_LENGTH, MAX_FA_LENGTH);
-    private static float decodeUpperArmWeight(byte uaWeightByte) => DecodeHumanLimbParam(uaWeightByte, MIN_UA_WEIGHT, MAX_UA_WEIGHT);
-    private static float decodeForeArmWeight(byte faWeightByte) => DecodeHumanLimbParam(faWeightByte, MIN_FA_WEIGHT, MAX_FA_WEIGHT);
-    private static float decodeShoulderPosZ(byte shPosZByte) => DecodeHumanLimbParam(shPosZByte, MIN_SHLDR_Z_POS, MAX_SHLDR_Z_POS);
+    // public static float DecodeHumanLimbParam(byte val, float min, float max) => min + (max - min) * Mathf.Clamp(val / 255.0f, 0, 1);
+    // private static float decodeUpperArmLength(byte uaLengthByte) => DecodeHumanLimbParam(uaLengthByte, MIN_UA_LENGTH, MAX_UA_LENGTH);
+    // private static float decodeForeArmLength(byte faLengthByte) => DecodeHumanLimbParam(faLengthByte, MIN_FA_LENGTH, MAX_FA_LENGTH);
+    // private static float decodeUpperArmWeight(byte uaWeightByte) => DecodeHumanLimbParam(uaWeightByte, MIN_UA_WEIGHT, MAX_UA_WEIGHT);
+    // private static float decodeForeArmWeight(byte faWeightByte) => DecodeHumanLimbParam(faWeightByte, MIN_FA_WEIGHT, MAX_FA_WEIGHT);
+    // private static float decodeShoulderPosZ(byte shPosZByte) => DecodeHumanLimbParam(shPosZByte, MIN_SHLDR_Z_POS, MAX_SHLDR_Z_POS);
 
     // Encode human limb parameters to byte values
-    public static byte EncodeHumanLimbParam(float val, float min, float max) => (byte)Mathf.Clamp((val - min) / (max - min) * 255.0f, 0, 255);
-    private static byte encodeUpperArmLength(float uaLength) => EncodeHumanLimbParam(uaLength, MIN_UA_LENGTH, MAX_UA_LENGTH);
-    private static byte encodeForeArmLength(float faLength) => EncodeHumanLimbParam(faLength, MIN_FA_LENGTH, MAX_FA_LENGTH);
-    private static byte encodeUpperArmWeight(float uaWeight) => EncodeHumanLimbParam(uaWeight, MIN_UA_WEIGHT, MAX_UA_WEIGHT);
-    private static byte encodeForeArmWeight(float faWeight) => EncodeHumanLimbParam(faWeight, MIN_FA_WEIGHT, MAX_FA_WEIGHT);
-    private static byte encodeShoulderPosZ(float shPosZ) => EncodeHumanLimbParam(shPosZ, MIN_SHLDR_Z_POS, MAX_SHLDR_Z_POS);
+    // public static byte EncodeHumanLimbParam(float val, float min, float max) => (byte)Mathf.Clamp((val - min) / (max - min) * 255.0f, 0, 255);
+    // private static byte encodeUpperArmLength(float uaLength) => EncodeHumanLimbParam(uaLength, MIN_UA_LENGTH, MAX_UA_LENGTH);
+    // private static byte encodeForeArmLength(float faLength) => EncodeHumanLimbParam(faLength, MIN_FA_LENGTH, MAX_FA_LENGTH);
+    // private static byte encodeUpperArmWeight(float uaWeight) => EncodeHumanLimbParam(uaWeight, MIN_UA_WEIGHT, MAX_UA_WEIGHT);
+    // private static byte encodeForeArmWeight(float faWeight) => EncodeHumanLimbParam(faWeight, MIN_FA_WEIGHT, MAX_FA_WEIGHT);
+    // private static byte encodeShoulderPosZ(float shPosZ) => EncodeHumanLimbParam(shPosZ, MIN_SHLDR_Z_POS, MAX_SHLDR_Z_POS);
 
 
     /*
@@ -637,14 +649,23 @@ public static class MarsComm
     public static void setHumanLimbKinParams(float uaLength, float faLength, float shPosZ)
     {
         MarsCommLogger.LogInfo($"Setting Human Limb Kinematic Parameters: UA Length: {uaLength}, FA Length: {faLength}, Shoulder Z Position: {shPosZ}");
+        byte[] uaLengthBytes = BitConverter.GetBytes(uaLength);
+        byte[] faLengthBytes = BitConverter.GetBytes(faLength);
+        byte[] shPosZBytes = BitConverter.GetBytes(shPosZ);
         JediComm.SendMessage(
             new byte[] {
                 (byte)INDATATYPECODES[Array.IndexOf(INDATATYPE, "SET_LIMB_KIN_PARAM")],
-                encodeUpperArmLength(uaLength),
-                encodeForeArmLength(faLength),
-                encodeShoulderPosZ(shPosZ)
+                uaLengthBytes[0], uaLengthBytes[1], uaLengthBytes[2], uaLengthBytes[3],
+                faLengthBytes[0], faLengthBytes[1], faLengthBytes[2], faLengthBytes[3],
+                shPosZBytes[0], shPosZBytes[1], shPosZBytes[2], shPosZBytes[3]
             }
         );
+    }
+
+    public static void resetHumanLimbKinParams()
+    {
+        MarsCommLogger.LogInfo("Resetting Human Limb Kinematic Parameters");
+        JediComm.SendMessage(new byte[] { (byte)INDATATYPECODES[Array.IndexOf(INDATATYPE, "RESET_LIMB_KIN_PARAM")] });
     }
 
     public static void setControlType(string controlType)
@@ -693,7 +714,11 @@ public static class MarsComm
         MarsCommLogger.LogInfo($"Resetting Packet Number");
         JediComm.SendMessage(new byte[] { (byte)INDATATYPECODES[Array.IndexOf(INDATATYPE, "RESET_PACKETNO")] });
     }
-
+    public static void getHumanLimbKinParams()
+    {
+        MarsCommLogger.LogInfo("Getting Limb Kinematic Parameters");
+        JediComm.SendMessage(new byte[] { (byte)INDATATYPECODES[Array.IndexOf(INDATATYPE, "GET_LIMB_KIN_PARAM")] });
+    }
     public static void sendHeartbeat()
     {
         JediComm.SendMessage(new byte[] { (byte)INDATATYPECODES[Array.IndexOf(INDATATYPE, "HEARTBEAT")] });
@@ -723,10 +748,10 @@ public static class MarsComm
 public static class MarsKinDynamics
 {
 
-    public static float l1 = 475.0f; // Length of upper arm in mm
-    public static float l2 = 291.0f; // Length of forearm in mm
-    public static float l3 = 75.00f; // Length of hand in mm
-    public static float l4 = 43.80f; // Length of wrist in mm
+    public static float l1 = 0.475f; // Length of upper arm in m
+    public static float l2 = 0.291f; // Length of forearm in m
+    public static float l3 = 0.075f; // Length of hand in m
+    public static float l4 = 0.0438f; // Length of wrist in m
 
     public static Vector3 ForwardKinematics(float theta1, float theta2, float theta3)
     {
@@ -745,7 +770,6 @@ public static class MarsKinDynamics
     
     public static Vector3 ForwardKinematicsExtended(float theta1, float theta2, float theta3, float theta4)
     {
-        Debug.Log($"ForwardKinematicsExtended: theta1={theta1}, theta2={theta2}, theta3={theta3}, theta4={theta4}");
         float x, y, z;
         // Change the angles to radians
         theta1 = theta1 * Mathf.Deg2Rad;
