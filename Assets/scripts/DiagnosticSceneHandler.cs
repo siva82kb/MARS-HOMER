@@ -24,6 +24,8 @@ public class DiagnosticSceneHandler : MonoBehaviour
     public TMP_Text hlbUALengthText;
     public TMP_Text hlbFALengthText;
     public TMP_Text hlbKinParamSetText;
+    public Toggle tglHLimbDynParamSet;
+    public TMP_Text hlbDynParamSetText;
 
     private static string FLOAT_FORMAT = "+0.00;-0.00";
     private string fileName = "";
@@ -37,6 +39,21 @@ public class DiagnosticSceneHandler : MonoBehaviour
     private float setHLimbKinShPosZ = 0.0f;
     // Flag to check the human limb kinematic parameters.
     private bool hLimbKinParamCheckFlag = false;
+    private bool hLimbKinParamSetDone = false;
+    // Dynamic parameter estimation variables.
+    private enum LimbDynEstState
+    {
+        WAITFORSTART = 0x00,
+        RECORDING = 0x01,
+        HOLDTEST = 0x02,
+        DONE = 0x03
+    }
+    private LimbDynEstState hLimbDynEstState = LimbDynEstState.WAITFORSTART;
+    private List<float> hAngle1 = new List<float>();
+    private List<float> hAngle2 = new List<float>();
+    private List<float> hAngle3 = new List<float>();
+    private List<float> torque = new List<float>();
+    private float uaW, faW;
 
     void Start()
     {
@@ -90,21 +107,11 @@ public class DiagnosticSceneHandler : MonoBehaviour
             // Check the human limb kinematic parameters.
             if (MarsComm.limbKinParam == 0x01) MarsComm.getHumanLimbKinParams();
         }
-        // if (hLimbKinParamCheckFlag)
-        // {
-        //     // Check if the human limb kinematic parameters are set.
-        //     if (MarsComm.uaLength != setHLimbKinUALength || MarsComm.faLength != setHLimbKinFALength || MarsComm.shPosZ != setHLimbKinShPosZ)
-        //     {
-        //         Debug.LogWarning("Human limb kinematic parameters are not set correctly.");
-        //         hLimbKinParamCheckFlag = false;
-        //         MarsComm.resetHumanLimbKinParams();
-        //     }
-        //     else
-        //     {
-        //         Debug.Log("Human limb kinematic parameters are set correctly.");
-        //         hLimbKinParamCheckFlag = false;
-        //     }
-        // }
+        if (hLimbKinParamSetDone)
+        {
+            tglHLimbKinParamSet.isOn = false;
+            hLimbKinParamSetDone = false;
+        }
     }
 
     private void onNewMarsData()
@@ -125,29 +132,52 @@ public class DiagnosticSceneHandler : MonoBehaviour
 
     private void onCalibButtonReleased()
     {
-        // Do something only when the human limb kinematic parameters toggle is enabled.
-        if (!tglHLimbKinParamSet.isOn)
+        if (tglHLimbKinParamSet.isOn)
         {
-            return;
+            // Get the current endpoint position from MARS robot.
+            // Compute the average position of the endpoints.
+            Vector3 averagePosition = Vector3.zero;
+            for (int i = 0; i < MAX_ENDPOINTS; i++)
+            {
+                averagePosition += endpointPositions[i];
+            }
+            averagePosition /= MAX_ENDPOINTS;
+            // Set the human limb kinematic parameters based on the average position.
+            setHLimbKinUALength = sldrHLimbUALength.value;
+            setHLimbKinFALength = sldrHLimbFALength.value;
+            setHLimbKinShPosZ = averagePosition.z;
+            Debug.Log($"Setting human limb kinematic parameters: UALength={setHLimbKinUALength}, FALength={setHLimbKinFALength}, Average Position Z={setHLimbKinShPosZ}");
+            MarsComm.setHumanLimbKinParams(setHLimbKinUALength, setHLimbKinFALength, setHLimbKinShPosZ);
+            // Get the human limb ki
+            MarsComm.getHumanLimbKinParams();
+            // Set the check flag to verify human limb kinematic parameters are set.
+            hLimbKinParamCheckFlag = true;
         }
-        // Get the current endpoint position from MARS robot.
-        // Compute the average position of the endpoints.
-        Vector3 averagePosition = Vector3.zero;
-        for (int i = 0; i < MAX_ENDPOINTS; i++)
+        else if (tglHLimbDynParamSet.isOn)
         {
-            averagePosition += endpointPositions[i];
+            // Check the current state and react.
+            switch (hLimbDynEstState)
+            {
+                case LimbDynEstState.WAITFORSTART:
+                    // Start recording human limb angles and torque.
+                    hLimbDynEstState = LimbDynEstState.RECORDING;
+                    hAngle1.Clear();
+                    hAngle2.Clear();
+                    hAngle3.Clear();
+                    torque.Clear();
+                    Debug.Log("Human limb dynamic parameter estimation started.");
+                    break;
+                case LimbDynEstState.RECORDING:
+                    // Stop recording and set the parameters.
+                    Debug.Log($"Estimated human limb dynamic parameters: UA Weight={uaW}, FA Weight={faW}");
+                    // MarsComm.setHumanLimbDynParams(uaW, faW);
+                    hLimbDynEstState = LimbDynEstState.HOLDTEST;
+                    break;
+                case LimbDynEstState.HOLDTEST:
+                    Debug.Log($"Hold Testing with the Weight Support Control.");
+                    break;
+            }
         }
-        averagePosition /= MAX_ENDPOINTS;
-        // Set the human limb kinematic parameters based on the average position.
-        setHLimbKinUALength = sldrHLimbUALength.value;
-        setHLimbKinFALength = sldrHLimbFALength.value;
-        setHLimbKinShPosZ = averagePosition.z;
-        Debug.Log($"Setting human limb kinematic parameters: UALength={setHLimbKinUALength}, FALength={setHLimbKinFALength}, Average Position Z={setHLimbKinShPosZ}");
-        MarsComm.setHumanLimbKinParams(setHLimbKinUALength, setHLimbKinFALength, setHLimbKinShPosZ);
-        // Get the human limb ki
-        MarsComm.getHumanLimbKinParams();
-        // Set the check flag to verify human limb kinematic parameters are set.
-        hLimbKinParamCheckFlag = true;
     }
 
     private void onControlModeChange()
@@ -171,6 +201,7 @@ public class DiagnosticSceneHandler : MonoBehaviour
         {
             Debug.Log("Human limb kinematic parameters are set correctly.");
             hLimbKinParamCheckFlag = false;
+            hLimbKinParamSetDone = true;
         }
     }
 
@@ -188,6 +219,11 @@ public class DiagnosticSceneHandler : MonoBehaviour
         // Disable slider for human limb kinematic parameters.
         sldrHLimbUALength.interactable = false;
         sldrHLimbFALength.interactable = false;
+        // Disable the human limb kinematic and dynamic parameters toggle.
+        tglHLimbKinParamSet.isOn = false;
+        tglHLimbDynParamSet.isOn = false;
+        tglHLimbKinParamSet.interactable = false;
+        tglHLimbDynParamSet.interactable = false;
     }
 
     public void AttachControlCallbacks()
@@ -206,9 +242,6 @@ public class DiagnosticSceneHandler : MonoBehaviour
 
         // Toggle button
         tglLogData.onValueChanged.AddListener(onDataLogChange);
-        // tglCalibSelect.onValueChanged.AddListener(delegate { OnCalibrationChange(); });
-        // tglControlSelect.onValueChanged.AddListener(delegate { OnControlChange(); });
-        // tglDataLog.onValueChanged.AddListener(delegate { OnDataLogChange(); });
 
         // Human limb kinematic parameters toggle.
         tglHLimbKinParamSet.onValueChanged.AddListener(delegate
@@ -235,13 +268,6 @@ public class DiagnosticSceneHandler : MonoBehaviour
         // Set target button click.
         btnSetTarget.onClick.AddListener(delegate { OnTargetSet(); });
 
-        // Human limb kin parameters button click.
-        // btnSetHLimbKinParams.onClick.AddListener(delegate {
-        //     // Set human limb kinematic parameters.
-        //     // MarsComm.setHumanLimbKinParams(sldrHLimbUALength.value, sldrHLimbFALength.value);
-        //     Debug.Log($"Human limb kinematic parameters set: UALength={sldrHLimbUALength.value}, FALength={sldrHLimbFALength.value}");
-        // });
-
         // Listen to MARS's event
         MarsComm.OnMarsButtonReleased += onMarsButtonReleased;
         MarsComm.OnCalibButtonReleased += onCalibButtonReleased;
@@ -259,6 +285,12 @@ public class DiagnosticSceneHandler : MonoBehaviour
         ddControlType.interactable = MarsComm.CALIBRATION[MarsComm.calibration] == "YESCALIB";
         // Enable the set target button only if the control is not NONE.
         btnSetTarget.interactable = MarsComm.CONTROLTYPE[MarsComm.controlType] != "NONE";
+
+        // Human limb kinematic and dynamic parameters toggle.
+        tglHLimbKinParamSet.interactable = (MarsComm.CALIBRATION[MarsComm.calibration] == "YESCALIB")
+            && tglHLimbDynParamSet.isOn == false;
+        tglHLimbDynParamSet.interactable = (MarsComm.limbKinParam == 0x01)
+            && tglHLimbKinParamSet.isOn == false;
 
         // Check of the slider range needs to be updated.
         if (updateSliderRange)
@@ -315,6 +347,11 @@ public class DiagnosticSceneHandler : MonoBehaviour
             MarsComm.angle3.ToString(FLOAT_FORMAT).PadRight(8),
             MarsComm.angle4.ToString(FLOAT_FORMAT).PadRight(8),
         });
+        string hlimAngles = string.Join(" ", new string[] {
+            MarsComm.phi1.ToString(FLOAT_FORMAT).PadRight(8),
+            MarsComm.phi2.ToString(FLOAT_FORMAT).PadRight(8),
+            MarsComm.phi3.ToString(FLOAT_FORMAT).PadRight(8)
+        });
         string epPos = string.Join(" ", new string[] {
             MarsComm.xEndpoint.ToString(FLOAT_FORMAT).PadRight(8),
             MarsComm.yEndpoint.ToString(FLOAT_FORMAT).PadRight(8),
@@ -335,13 +372,12 @@ public class DiagnosticSceneHandler : MonoBehaviour
         string sensorText = String.Join("\n", new string[] {
             $"Robot Angles  : {robotAngles}",
             $"IMU Angles    : {imuAngles}",
+            $"Human Angles  : {hlimAngles}",
             $"Endpoint Pos  : {epPos}",
             $"Force         : {MarsComm.force.ToString(FLOAT_FORMAT)}",
-            $"Target        : {MarsComm.target.ToString(FLOAT_FORMAT)}",
-            $"Desired       : {MarsComm.desired.ToString(FLOAT_FORMAT)}",
+            $"Target        : {MarsComm.target.ToString(FLOAT_FORMAT), -15} | Desired : {MarsComm.desired.ToString(FLOAT_FORMAT)}",
             $"Control       : {MarsComm.control.ToString(FLOAT_FORMAT)}",
-            $"MARS Button   : {MarsComm.marButton}",
-            $"CALIB Button  : {MarsComm.calibButton}"
+            $"MARS Button   : {MarsComm.marButton, -15} | Calib Button : {MarsComm.calibButton}"
         });
         // If DIAGNOSTICS is enabled, append diagnostics data
         if (MarsComm.OUTDATATYPE[MarsComm.dataType] == "DIAGNOSTICS")

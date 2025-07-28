@@ -4,6 +4,7 @@ using System.IO;
 using System;
 using System.ComponentModel;
 using System.Text;
+using System.Numerics;
 
 
 public static class MarsComm
@@ -41,9 +42,9 @@ public static class MarsComm
         "Arm Weight Support"
     };
     public static readonly int[] SENSORNUMBER = new int[] {
-        11,  // SENSORSTREAM 
+        14,  // SENSORSTREAM 
         0,   // CONTROLPARAM
-        17,  // DIAGNOSTICS
+        20,  // DIAGNOSTICS
         3,   // HLIMBKINPARAM
         2,   // HLIMBDYNPARAM
     };
@@ -139,7 +140,7 @@ public static class MarsComm
     // For the following arrays, the first element represents the number of elements in the array.
     static private int[] previousStateData = new int[16];
     static private int[] currentStateData = new int[16];
-    static private float[] currentSensorData = new float[20];
+    static private float[] currentSensorData = new float[32];
 
     // Public variables
     static public DateTime previousTime { get; private set; }
@@ -229,7 +230,7 @@ public static class MarsComm
     }
     static public float angularVelocity1
     {
-        get => currentSensorData[16];
+        get => currentSensorData[19];
     }
     static public float angle2
     {
@@ -253,19 +254,19 @@ public static class MarsComm
     }
     static public float dTorque
     {
-        get => currentSensorData[17];
+        get => currentSensorData[20];
     }
     static public float xEndpoint
     {
-        get => currentSensorData[6] * 1e-3f;
+        get => currentSensorData[6];
     }
     static public float yEndpoint
     {
-        get => currentSensorData[7] * 1e-3f;
+        get => currentSensorData[7];
     }
     static public float zEndpoint
     {
-        get => currentSensorData[8] * 1e-3f;
+        get => currentSensorData[8];
     }
     static public float target
     {
@@ -279,21 +280,33 @@ public static class MarsComm
     {
         get => currentSensorData[11];
     }
-    static public float errP
+    static public float phi1
     {
         get => currentSensorData[12];
     }
-    static public float errD
+    static public float phi2
     {
         get => currentSensorData[13];
     }
-    static public float errI
+    static public float phi3
     {
         get => currentSensorData[14];
     }
-    static public float gravityCompensationTorque
+    static public float errP
     {
         get => currentSensorData[15];
+    }
+    static public float errD
+    {
+        get => currentSensorData[16];
+    }
+    static public float errI
+    {
+        get => currentSensorData[17];
+    }
+    static public float gravityCompensationTorque
+    {
+        get => currentSensorData[18];
     }
     static public short imu1Angle
     {
@@ -403,7 +416,6 @@ public static class MarsComm
                         0
                     );
                 }
-
                 // // Human limb parameters
                 // // Upper arm length
                 // currentStateData[4] = rawBytes[(nSensors + 1) * 4 + 6 + 1];
@@ -753,7 +765,7 @@ public static class MarsKinDynamics
     public static float l3 = 0.075f; // Length of hand in m
     public static float l4 = 0.0438f; // Length of wrist in m
 
-    public static Vector3 ForwardKinematics(float theta1, float theta2, float theta3)
+    public static UnityEngine.Vector3 ForwardKinematics(float theta1, float theta2, float theta3)
     {
         float x, y, z;
         // Change the angles to radians
@@ -764,11 +776,10 @@ public static class MarsKinDynamics
         x = Mathf.Cos(theta1) * _temp;
         y = Mathf.Sin(theta1) * _temp;
         z = -l1 * Mathf.Sin(theta2) - l2 * Mathf.Sin(theta2 + theta3);
-        return new Vector3(x, y, z);
+        return new UnityEngine.Vector3(x, y, z);
     }
-    
-    
-    public static Vector3 ForwardKinematicsExtended(float theta1, float theta2, float theta3, float theta4)
+
+    public static UnityEngine.Vector3 ForwardKinematicsExtended(float theta1, float theta2, float theta3, float theta4)
     {
         float x, y, z;
         // Change the angles to radians
@@ -786,7 +797,50 @@ public static class MarsKinDynamics
             - l2 * Mathf.Sin(theta2 + theta3)
             - l3 * Mathf.Sin(theta2 + theta3 + theta4)
             - l4 * Mathf.Cos(theta2 + theta3 + theta4);
-        return new Vector3(x, y, z);
+        return new UnityEngine.Vector3(x, y, z);
+    }
+
+    public static float[] RecursiveDynamicParameterEstimatior(float[] angles, float torque, float[] prevParam, )
+    {
+        float[] param = new float[2];
+
+
+        return param;
+    }
+}
+
+public class RecursiveLeastSqaures
+{
+    public float[] theta { get; private set; }
+    public float[,] P { get; private set; }
+    public float lambda { get; private set; } = 1.0f;
+    public float[] K { get; private set; }
+    public int i { get; private set; } = 0;
+    private int N;
+
+    public RecursiveLeastSqaures(int N)
+    {
+        this.N = N;
+        theta = new float[N]; // Initialize theta to zero
+        P = new float[N, N];
+        K = new float[N];
+        ResetEstimator();
+    }
+
+    public void ResetEstimator()
+    {
+        i = 0;
+        // Initialize P to identity matrix
+        for (int j = 0; j < N; j++)
+        {
+            theta[j] = 0.0f;
+            P[j, j] = 1.0f;
+        }
+    }
+
+    public void Update(float[] x, float y)
+    {
+
     }
 }
 
