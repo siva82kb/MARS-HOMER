@@ -7,6 +7,9 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
 using System.IO;
+using UnityEditor.ShaderKeywordFilter;
+using Unity.Mathematics;
+using Unity.VisualScripting;
 
 public class DiagnosticSceneHandler : MonoBehaviour
 {
@@ -27,7 +30,7 @@ public class DiagnosticSceneHandler : MonoBehaviour
     public Toggle tglHLimbDynParamSet;
     public TMP_Text hlbDynParamSetText;
 
-    private static string FLOAT_FORMAT = "+0.00;-0.00";
+    private static string FLOAT_FORMAT = "+0.000;-0.000";
     private string fileName = "";
     private StreamWriter fileWriter = null;
     private bool updateSliderRange = true;
@@ -44,16 +47,22 @@ public class DiagnosticSceneHandler : MonoBehaviour
     private enum LimbDynEstState
     {
         WAITFORSTART = 0x00,
-        RECORDING = 0x01,
-        HOLDTEST = 0x02,
-        DONE = 0x03
+        SETUPFORESTIMATION = 0x01,
+        ESTIMATE = 0x02,
+        ESTIMATIONDONE = 0x03,
+        HOLDTEST = 0x04,
+        TEARDOWNSETUP = 0x05,
+        DONE = 0x06
     }
     private LimbDynEstState hLimbDynEstState = LimbDynEstState.WAITFORSTART;
-    private List<float> hAngle1 = new List<float>();
-    private List<float> hAngle2 = new List<float>();
-    private List<float> hAngle3 = new List<float>();
-    private List<float> torque = new List<float>();
-    private float uaW, faW;
+    private bool readyForStateChange = false;
+    private const int nParams = 2;
+    private const int maxParamEstimates = 250;
+    private RecursiveLeastSquares rlsHLimbWeights = new RecursiveLeastSquares(nParams);
+    private float[,] weightParams = new float[maxParamEstimates, nParams];
+    private int weightParamsIndex = 0;
+    private float[] weightParamsMean = new float[nParams];
+    private float[] weightParamsStdev = new float[nParams];
 
     void Start()
     {
@@ -85,33 +94,128 @@ public class DiagnosticSceneHandler : MonoBehaviour
         // Update UI.
         UpdateUI();
 
-        hlbKinParamSetText.text = MarsKinDynamics.ForwardKinematicsExtended(MarsComm.angle1, MarsComm.angle2, MarsComm.angle3, MarsComm.angle4).ToString("F3");
+        // Run the human limb dynamic parameter estimation state machine.
+        RunHumanLimbDynParamEstimation();
+    }
 
-        // Human limb kinematic parameters calculation.
-        if (tglHLimbKinParamSet.isOn && MarsComm.calibButton == 0)
+    private void RunHumanLimbDynParamEstimation()
+    {
+        if (hLimbDynEstState == LimbDynEstState.WAITFORSTART) return;
+        switch (hLimbDynEstState)
         {
-            if (endpointCount < MAX_ENDPOINTS)
+            case LimbDynEstState.SETUPFORESTIMATION:
+                // Wait for the start of the estimation.
+                handleSetupForEstimation();
+                break;
+            case LimbDynEstState.ESTIMATE:
+                // Update the estimtate
+                rlsHLimbWeights.Update(new float[] {
+                    (float) (Math.Sin(MarsComm.phi1 * Mathf.Deg2Rad) * Math.Cos(MarsComm.phi2 * Mathf.Deg2Rad)),
+                    (float) (Math.Sin(MarsComm.phi1 * Mathf.Deg2Rad) * Math.Cos((MarsComm.phi2 - MarsComm.phi3) * Mathf.Deg2Rad))
+                }, MarsComm.torque);
+                // Update the human limb dynamic parameters.
+                if (computeMeanAndStdev())
+                {
+                    hLimbDynEstState = LimbDynEstState.ESTIMATIONDONE;
+                    // Send the weight parameters to MARS.
+                }
+                break;
+            case LimbDynEstState.ESTIMATIONDONE:
+                // Perform hold testing with the estimated weights.
+                readyForStateChange = true;
+                break;
+            case LimbDynEstState.HOLDTEST:
+                // Perform hold testing with the estimated weights.
+                break;
+            case LimbDynEstState.TEARDOWNSETUP:
+                // Teardown the setup for estimation.
+                if (handleTearDownSetup())
+                {
+                    hLimbDynEstState = LimbDynEstState.DONE;
+                }
+                break;
+            case LimbDynEstState.DONE:
+                // Reset the state to WAITFORSTART after completion.
+                hLimbDynEstState = LimbDynEstState.WAITFORSTART;
+                break;
+        } 
+    }
+
+    private bool computeMeanAndStdev()
+    {
+        float _var = 0;
+        for (int _i = 0; _i < nParams; _i++)
+        {
+            weightParams[weightParamsIndex, _i] = rlsHLimbWeights.theta[_i];
+        }
+        weightParamsIndex = (weightParamsIndex + 1) % maxParamEstimates;
+        // Display the parameters mean and standard deviation.
+        hlbDynParamSetText.text = "";
+        for (int _i = 0; _i < nParams; _i++)
+        {
+            weightParamsMean[_i] = 0f;
+            weightParamsStdev[_i] = 0f;
+            for (int _j = 0; _j < maxParamEstimates; _j++)
             {
-                endpointPositions[endpointCount] = MarsKinDynamics.ForwardKinematicsExtended(MarsComm.angle1, MarsComm.angle2, MarsComm.angle3, MarsComm.angle4);
-                endpointCount++;
+                weightParamsMean[_i] += weightParams[_j, _i];
             }
-        }
-        else
-        {
-            endpointCount = 0;
-        }
+            weightParamsMean[_i] /= maxParamEstimates;
+            for (int _j = 0; _j < maxParamEstimates; _j++)
+            {
+                weightParamsStdev[_i] += Mathf.Pow(weightParams[_j, _i] - weightParamsMean[_i], 2);
+            }
+            weightParamsStdev[_i] = Mathf.Sqrt(weightParamsStdev[_i] / maxParamEstimates);
 
-        // Check the set human limb kinematic parameters.
-        if (hLimbKinParamCheckFlag)
-        {
-            // Check the human limb kinematic parameters.
-            if (MarsComm.limbKinParam == 0x01) MarsComm.getHumanLimbKinParams();
+            // Add parameter mean +/- stdev to the text.
+            float _variation = 100 * weightParamsStdev[_i] / Math.Abs(weightParamsMean[_i]);
+            hlbDynParamSetText.text += $"{_i + 1}: {weightParamsMean[_i]:F3} +/- {weightParamsStdev[_i]:F3} [{_variation:F3}]\n";
+            _var += weightParamsStdev[_i];
         }
-        if (hLimbKinParamSetDone)
+        return _var / nParams < 5f;
+    }
+
+    private void handleSetupForEstimation()
+    {
+        // Check if the control mode is position, else set and leave.
+        if (MarsComm.CONTROLTYPE[MarsComm.controlType] != "POSITION")
         {
-            tglHLimbKinParamSet.isOn = false;
-            hLimbKinParamSetDone = false;
+            MarsComm.setControlType("POSITION");
+            return;
         }
+        // Check if the target position is set to -90 degrees.
+        if (MarsComm.target != -90f)
+        {
+            MarsComm.setControlTarget(-90f);
+            return;
+        }
+        // Check if the robot has reached the target position.
+        if (Mathf.Abs(MarsComm.angle1 - MarsComm.target) < 2.5)
+        {
+            readyForStateChange = true;
+            rlsHLimbWeights.ResetEstimator();
+        }
+    }
+
+    private bool handleTearDownSetup()
+    {
+        // Check if the target position is set to -90 degrees.
+        if (MarsComm.target != 0f)
+        {
+            MarsComm.setControlTarget(0f);
+            return false;
+        }
+        // Check if the robot has reached the target position.
+        if (Mathf.Abs(MarsComm.angle1 - MarsComm.target) > 2.5)
+        {
+            return false;
+        }
+        // Check if the control mode is position, else set and leave.
+        if (MarsComm.CONTROLTYPE[MarsComm.controlType] != "NONE")
+        {
+            MarsComm.setControlType("NONE");
+            return false;
+        }
+        return true;
     }
 
     private void onNewMarsData()
@@ -119,7 +223,7 @@ public class DiagnosticSceneHandler : MonoBehaviour
         // Write row to the file if logging is enabled.
         if (fileWriter != null)
         {
-            fileWriter.WriteLine($"{MarsComm.runTime},{MarsComm.packetNumber},{MarsComm.status},{MarsComm.errorString},{MarsComm.limb},{MarsComm.calibration},{MarsComm.limbKinParam},{MarsComm.limbDynParam},{MarsComm.angle1},{MarsComm.angle2},{MarsComm.angle3},{MarsComm.angle4},{MarsComm.force},{MarsComm.xEndpoint},{MarsComm.yEndpoint},{MarsComm.zEndpoint},{MarsComm.imu1Angle},{MarsComm.imu2Angle},{MarsComm.imu3Angle},{MarsComm.marButton},{MarsComm.calibButton}");
+            fileWriter.WriteLine($"{MarsComm.runTime},{MarsComm.packetNumber},{MarsComm.status},{MarsComm.errorString},{MarsComm.limb},{MarsComm.calibration},{MarsComm.limbKinParam},{MarsComm.limbDynParam},{MarsComm.angle1},{MarsComm.angle2},{MarsComm.angle3},{MarsComm.angle4},{MarsComm.force},{MarsComm.torque},{MarsComm.xEndpoint},{MarsComm.yEndpoint},{MarsComm.zEndpoint},{MarsComm.phi1},{MarsComm.phi2},{MarsComm.phi3},{MarsComm.imu1Angle},{MarsComm.imu2Angle},{MarsComm.imu3Angle},{MarsComm.marButton},{MarsComm.calibButton},{MarsComm.target},{MarsComm.desired},{MarsComm.control}");
             fileWriter.Flush();
         }
     }
@@ -153,30 +257,23 @@ public class DiagnosticSceneHandler : MonoBehaviour
             // Set the check flag to verify human limb kinematic parameters are set.
             hLimbKinParamCheckFlag = true;
         }
-        else if (tglHLimbDynParamSet.isOn)
+        else if (tglHLimbDynParamSet.isOn && readyForStateChange)
         {
             // Check the current state and react.
             switch (hLimbDynEstState)
             {
-                case LimbDynEstState.WAITFORSTART:
+                case LimbDynEstState.SETUPFORESTIMATION:
                     // Start recording human limb angles and torque.
-                    hLimbDynEstState = LimbDynEstState.RECORDING;
-                    hAngle1.Clear();
-                    hAngle2.Clear();
-                    hAngle3.Clear();
-                    torque.Clear();
-                    Debug.Log("Human limb dynamic parameter estimation started.");
+                    hLimbDynEstState = LimbDynEstState.ESTIMATE;
+                    rlsHLimbWeights.ResetEstimator();
                     break;
-                case LimbDynEstState.RECORDING:
-                    // Stop recording and set the parameters.
-                    Debug.Log($"Estimated human limb dynamic parameters: UA Weight={uaW}, FA Weight={faW}");
-                    // MarsComm.setHumanLimbDynParams(uaW, faW);
+                case LimbDynEstState.ESTIMATIONDONE:
                     hLimbDynEstState = LimbDynEstState.HOLDTEST;
                     break;
                 case LimbDynEstState.HOLDTEST:
-                    Debug.Log($"Hold Testing with the Weight Support Control.");
                     break;
             }
+            readyForStateChange = false;
         }
     }
 
@@ -265,6 +362,9 @@ public class DiagnosticSceneHandler : MonoBehaviour
             hlbFALengthText.text = "FA: " + sldrHLimbFALength.value.ToString(FLOAT_FORMAT) + " m";
         });
 
+        // Human limb dynamic parameters toggle.
+        tglHLimbDynParamSet.onValueChanged.AddListener(delegate { OnHLimbDynParamEstimate(); });
+
         // Set target button click.
         btnSetTarget.onClick.AddListener(delegate { OnTargetSet(); });
 
@@ -305,8 +405,8 @@ public class DiagnosticSceneHandler : MonoBehaviour
             }
             else if (MarsComm.CONTROLTYPE[MarsComm.controlType] == "TORQUE")
             {
-                sldrTarget.minValue = 0f;
-                sldrTarget.maxValue = 10f;
+                sldrTarget.minValue = -10f;
+                sldrTarget.maxValue = 0f;
                 sldrTarget.value = MarsComm.torque;
                 targetValueText.text = sldrTarget.value.ToString(FLOAT_FORMAT) + " Nm";
             }
@@ -318,6 +418,34 @@ public class DiagnosticSceneHandler : MonoBehaviour
                 targetValueText.text = "";
             }
             updateSliderRange = false;
+        }
+
+        // Update the human limb kinematic parameters text.
+        hlbKinParamSetText.text = MarsKinDynamics.ForwardKinematicsExtended(MarsComm.angle1, MarsComm.angle2, MarsComm.angle3, MarsComm.angle4).ToString("F3");
+        // Human limb kinematic parameters calculation.
+        if (tglHLimbKinParamSet.isOn && MarsComm.calibButton == 0)
+        {
+            if (endpointCount < MAX_ENDPOINTS)
+            {
+                endpointPositions[endpointCount] = MarsKinDynamics.ForwardKinematicsExtended(MarsComm.angle1, MarsComm.angle2, MarsComm.angle3, MarsComm.angle4);
+                endpointCount++;
+            }
+        }
+        else
+        {
+            endpointCount = 0;
+        }
+
+        // Check the set human limb kinematic parameters.
+        if (hLimbKinParamCheckFlag)
+        {
+            // Check the human limb kinematic parameters.
+            if (MarsComm.limbKinParam == 0x01) MarsComm.getHumanLimbKinParams();
+        }
+        if (hLimbKinParamSetDone)
+        {
+            tglHLimbKinParamSet.isOn = false;
+            hLimbKinParamSetDone = false;
         }
     }
 
@@ -367,6 +495,7 @@ public class DiagnosticSceneHandler : MonoBehaviour
         string hlbParamText = string.Join("\n", new string[] {
             $"Kin Param     : (UA) {MarsComm.uaLength.ToString(FLOAT_FORMAT)}, (FA) {MarsComm.faLength.ToString(FLOAT_FORMAT)}, (Z) {MarsComm.shPosZ.ToString(FLOAT_FORMAT)}",
             $"Dyn Param     : (UA) {MarsComm.uaWeight.ToString(FLOAT_FORMAT)}, (FA) {MarsComm.faWeight.ToString(FLOAT_FORMAT)}",
+            "",
             ""
         });
         string sensorText = String.Join("\n", new string[] {
@@ -374,7 +503,7 @@ public class DiagnosticSceneHandler : MonoBehaviour
             $"IMU Angles    : {imuAngles}",
             $"Human Angles  : {hlimAngles}",
             $"Endpoint Pos  : {epPos}",
-            $"Force         : {MarsComm.force.ToString(FLOAT_FORMAT)}",
+            $"Force         : {MarsComm.force.ToString(FLOAT_FORMAT), -15} | Torque : {MarsComm.torque.ToString(FLOAT_FORMAT)}",
             $"Target        : {MarsComm.target.ToString(FLOAT_FORMAT), -15} | Desired : {MarsComm.desired.ToString(FLOAT_FORMAT)}",
             $"Control       : {MarsComm.control.ToString(FLOAT_FORMAT)}",
             $"MARS Button   : {MarsComm.marButton, -15} | Calib Button : {MarsComm.calibButton}"
@@ -416,7 +545,7 @@ public class DiagnosticSceneHandler : MonoBehaviour
             fileName = $"MARS_Data_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
             fileWriter = new StreamWriter(fileName, true);
             fileWriter.WriteLine($"DeviceID: {MarsComm.deviceId}");
-            fileWriter.WriteLine("runTime,packetNumber,status,errorString,limb,calib,limbkinparam,limbdynparam,angle1,angle2,angle3,angle4,force,epx,epy,epz,imuangle1,imuangle2,imuangle3,marbtn,calibbtn");
+            fileWriter.WriteLine("runTime,packetNumber,status,errorString,limb,calib,limbkinparam,limbdynparam,angle1,angle2,angle3,angle4,force,torque,epx,epy,epz,phi1,phi2,phi3,imuangle1,imuangle2,imuangle3,marbtn,calibbtn,target,desired,control");
             Debug.Log($"Data logging started. File: {fileName}");
         }
         else
@@ -441,7 +570,20 @@ public class DiagnosticSceneHandler : MonoBehaviour
         MarsComm.setControlTarget(sldrTarget.value);
         Debug.Log($"Control target set to: {sldrTarget.value}");
     }
-
+    private void OnHLimbDynParamEstimate()
+    {
+        // Set the robot to position control mode, with target postion as -90deg.
+        if (tglHLimbDynParamSet.isOn)
+        {
+            // Enable the human limb dynamic parameter estimation.
+            hLimbDynEstState = LimbDynEstState.SETUPFORESTIMATION;
+        }
+        else
+        {
+            // Get out of the human limb dynamic parameter estimation mode.
+            hLimbDynEstState = LimbDynEstState.TEARDOWNSETUP;
+        }
+    }
     private void OnApplicationQuit()
     {
         Application.Quit();

@@ -5,6 +5,8 @@ using System;
 using System.ComponentModel;
 using System.Text;
 using System.Numerics;
+using System.Data;
+using System.Drawing.Drawing2D;
 
 
 public static class MarsComm
@@ -691,14 +693,14 @@ public static class MarsComm
         );
     }
 
-    public static void setControlTarget(float tgt)
+    public static void setControlTarget(float tgt, float dur = 6.0f)
     {
         if (CONTROLTYPE[controlType] == "NONE") return;
         MarsCommLogger.LogInfo($"Setting Control Target: {target}");
         byte[] tgt0Bytes = CONTROLTYPE[controlType] == "POSITION" ? BitConverter.GetBytes(angle1) : BitConverter.GetBytes(torque);
         byte[] t0Bytes = BitConverter.GetBytes(0.0f);
         byte[] tgt1Bytes = BitConverter.GetBytes(tgt);
-        byte[] durBytes = BitConverter.GetBytes(4.0f);
+        byte[] durBytes = BitConverter.GetBytes(dur);
         JediComm.SendMessage(
             new byte[] {
                 (byte)INDATATYPECODES[Array.IndexOf(INDATATYPE, "SET_CONTROL_TARGET")],
@@ -799,17 +801,9 @@ public static class MarsKinDynamics
             - l4 * Mathf.Cos(theta2 + theta3 + theta4);
         return new UnityEngine.Vector3(x, y, z);
     }
-
-    public static float[] RecursiveDynamicParameterEstimatior(float[] angles, float torque, float[] prevParam, )
-    {
-        float[] param = new float[2];
-
-
-        return param;
-    }
 }
 
-public class RecursiveLeastSqaures
+public class RecursiveLeastSquares
 {
     public float[] theta { get; private set; }
     public float[,] P { get; private set; }
@@ -818,7 +812,7 @@ public class RecursiveLeastSqaures
     public int i { get; private set; } = 0;
     private int N;
 
-    public RecursiveLeastSqaures(int N)
+    public RecursiveLeastSquares(int N)
     {
         this.N = N;
         theta = new float[N]; // Initialize theta to zero
@@ -831,16 +825,173 @@ public class RecursiveLeastSqaures
     {
         i = 0;
         // Initialize P to identity matrix
-        for (int j = 0; j < N; j++)
+        for (int row = 0; row < N; row++)
         {
-            theta[j] = 0.0f;
-            P[j, j] = 1.0f;
+            for (int col = 0; col < N; col++)
+            {
+                P[row, col] = (row == col) ? 1.0f : 0.0f; // Identity matrix
+            }
+            theta[row] = 0.0f;
         }
     }
 
     public void Update(float[] x, float y)
     {
+        // Compute the Kalman gain
+        updateKalmanGain(x);
 
+        // Compute the prediction error
+        float error = y - InnerProduct(theta, x);
+        // Update the parameter estimates
+        for (int row = 0; row < N; row++)
+        {
+            theta[row] += K[row] * error;
+        }
+
+        // Update the covariance matrix P
+        float[,] PAdjust = MatrixMultiply(OuterProduct(K, x), P);
+        for (int row = 0; row < N; row++)
+        {
+            for (int col = 0; col < N; col++)
+            {
+                P[row, col] -= PAdjust[row, col] / lambda;
+            }
+        }
+
+        // Update the covariance matrix P with the new values
+        i += 1;
+    }
+    // public void Update(float[] x, float y)
+    // {
+    //     // Compute the Kalman gain
+    //     updateKalmanGain(x);
+
+    //     // Compute the prediction error
+    //     float error = y;
+    //     for (int row = 0; row < N; row++)
+    //     {
+    //         error -= theta[row] * x[row];
+    //     }
+
+    //     // Update the parameter estimates
+    //     for (int row = 0; row < N; row++)
+    //     {
+    //         theta[row] += K[row] * error;
+    //     }
+
+    //     // Update the covariance matrix P
+    //     // Computer
+    //     for (int row = 0; row < N; row++)
+    //     {
+    //         for (int col = 0; col < N; col++)
+    //         {
+    //             P[row, col] -= K[row] * x[col] * P[row, col] / lambda;
+    //         }
+    //     }
+
+    //     // Update the covariance matrix P with the new values
+    //     i += 1;
+    // }
+
+    private void updateKalmanGain(float[] x)
+    {
+        K = MatrixVectorMultiply(P, x);
+        float denom = 1 + InnerProduct(x, K);
+        // Update the Kalman gain
+        for (int row = 0; row < N; row++)
+        {
+            K[row] /= denom;
+        }
+    }
+
+    private static float InnerProduct(float[] a, float[] b)
+    {
+        float sum = 0.0f;
+        for (int i = 0; i < a.Length; i++)
+        {
+            sum += a[i] * b[i];
+        }
+        return sum;
+    }
+
+    private static float[,] OuterProduct(float[] a, float[] b)
+    {
+        float[,] result = new float[a.Length, b.Length];
+        for (int i = 0; i < a.Length; i++)
+        {
+            for (int j = 0; j < b.Length; j++)
+            {
+                result[i, j] = a[i] * b[j];
+            }
+        }
+        return result;
+    }
+
+    private static float[,] MatrixMultiply(float[,] A, float[,] B)
+    {
+        int rowsA = A.GetLength(0);
+        int colsA = A.GetLength(1);
+        int rowsB = B.GetLength(0);
+        int colsB = B.GetLength(1);
+
+        if (colsA != rowsB)
+            throw new InvalidOperationException("Matrix dimensions do not match for multiplication.");
+
+        float[,] result = new float[rowsA, colsB];
+        for (int i = 0; i < rowsA; i++)
+        {
+            for (int j = 0; j < colsB; j++)
+            {
+                result[i, j] = 0.0f;
+                for (int k = 0; k < colsA; k++)
+                {
+                    result[i, j] += A[i, k] * B[k, j];
+                }
+            }
+        }
+        return result;
+    }
+
+    // Post-multiply a matrix with a vector
+    private static float[] MatrixVectorMultiply(float[,] A, float[] b)
+    {
+        int rowsA = A.GetLength(0);
+        int colsA = A.GetLength(1);
+
+        if (colsA != b.Length)
+            throw new InvalidOperationException("Incompatible matrix and vector dimensions.");
+
+        float[] result = new float[rowsA];
+        for (int i = 0; i < rowsA; i++)
+        {
+            result[i] = 0.0f;
+            for (int j = 0; j < colsA; j++)
+            {
+                result[i] += A[i, j] * b[j];
+            }
+        }
+        return result;
+    }
+
+    // Pre-multiply a vector with a matrix
+    private static float[] MatrixVectorMultiply(float[] b, float[,] A)
+    {
+        int rowsA = A.GetLength(0);
+        int colsA = A.GetLength(1);
+
+        if (rowsA != b.Length)
+            throw new InvalidOperationException("Incompatible matrix and vector dimensions.");
+
+        float[] result = new float[colsA];
+        for (int i = 0; i < colsA; i++)
+        {
+            result[i] = 0.0f;
+            for (int j = 0; j < rowsA; j++)
+            {
+                result[i] += A[j, i] * b[j];
+            }
+        }
+        return result;
     }
 }
 
