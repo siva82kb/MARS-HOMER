@@ -406,7 +406,7 @@ public class DiagnosticSceneHandler : MonoBehaviour
             else if (MarsComm.CONTROLTYPE[MarsComm.controlType] == "TORQUE")
             {
                 sldrTarget.minValue = -10f;
-                sldrTarget.maxValue = 0f;
+                sldrTarget.maxValue = 10f;
                 sldrTarget.value = MarsComm.torque;
                 targetValueText.text = sldrTarget.value.ToString(FLOAT_FORMAT) + " Nm";
             }
@@ -567,8 +567,18 @@ public class DiagnosticSceneHandler : MonoBehaviour
     private void OnTargetSet()
     {
         // Set target value for control.
-        MarsComm.setControlTarget(sldrTarget.value);
-        Debug.Log($"Control target set to: {sldrTarget.value}");
+        if (MarsComm.CONTROLTYPE[MarsComm.controlType] == "POSITION")
+        {
+            // Set the target position.
+            MarsComm.setControlTarget(sldrTarget.value);
+            Debug.Log($"Control target set to: {sldrTarget.value} deg");
+        }
+        else if (MarsComm.CONTROLTYPE[MarsComm.controlType] == "TORQUE")
+        {
+            // Set the target torque.
+            MarsComm.setControlTarget(sldrTarget.value, dur: 3f);
+            Debug.Log($"Control target set to: {sldrTarget.value} Nm");
+        }
     }
     private void OnHLimbDynParamEstimate()
     {

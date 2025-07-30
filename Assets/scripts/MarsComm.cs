@@ -697,7 +697,16 @@ public static class MarsComm
     {
         if (CONTROLTYPE[controlType] == "NONE") return;
         MarsCommLogger.LogInfo($"Setting Control Target: {target}");
-        byte[] tgt0Bytes = CONTROLTYPE[controlType] == "POSITION" ? BitConverter.GetBytes(angle1) : BitConverter.GetBytes(torque);
+        // Set the start position.
+        byte[] tgt0Bytes;
+        if (CONTROLTYPE[controlType] == "POSITION")
+        {
+            tgt0Bytes = (target == INVALID_TARGET) ? BitConverter.GetBytes(angle1) : BitConverter.GetBytes(target);
+        }
+        else
+        {
+            tgt0Bytes = (target == INVALID_TARGET) ? BitConverter.GetBytes(torque) : BitConverter.GetBytes(target);
+        }
         byte[] t0Bytes = BitConverter.GetBytes(0.0f);
         byte[] tgt1Bytes = BitConverter.GetBytes(tgt);
         byte[] durBytes = BitConverter.GetBytes(dur);
