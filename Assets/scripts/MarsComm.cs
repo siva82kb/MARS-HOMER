@@ -79,16 +79,16 @@ public static class MarsComm
     public static readonly int INVALID_TARGET = 999;
 
     // Human Limb Parameter Constants
-    public static readonly float MIN_UA_LENGTH = 200.0f; // millimeters
-    public static readonly float MAX_UA_LENGTH = 400.0f; // millimeters
-    public static readonly float MIN_FA_LENGTH = 200.0f; // millimeters
-    public static readonly float MAX_FA_LENGTH = 500.0f; // millimeters
-    public static readonly float MIN_UA_WEIGHT = 1.0f; // Kg
-    public static readonly float MAX_UA_WEIGHT = 5.0f; // Kg
-    public static readonly float MIN_FA_WEIGHT = 1.0f; // Kg
-    public static readonly float MAX_FA_WEIGHT = 5.0f; // Kg
-    public static readonly float MIN_SHLDR_Z_POS = 100.0f; // millimeters
-    public static readonly float MAX_SHLDR_Z_POS = 400.0f; // millimeters
+    public static readonly float MIN_UA_LENGTH = 200.0f;    // millimeters
+    public static readonly float MAX_UA_LENGTH = 400.0f;    // millimeters
+    public static readonly float MIN_FA_LENGTH = 200.0f;    // millimeters
+    public static readonly float MAX_FA_LENGTH = 500.0f;    // millimeters
+    public static readonly float MIN_UA_WEIGHT = -8.0f;     // Nm
+    public static readonly float MAX_UA_WEIGHT = -1.0f;     // Nm
+    public static readonly float MIN_FA_WEIGHT = -8.0f;     // Nm
+    public static readonly float MAX_FA_WEIGHT = -0.1f;     // Nm
+    public static readonly float MIN_SHLDR_Z_POS = 100.0f;  // millimeters
+    public static readonly float MAX_SHLDR_Z_POS = 400.0f;  // millimeters
 
     static public byte currentButtonState, previousButtonState;
     static int sensorDataLength;
@@ -106,6 +106,8 @@ public static class MarsComm
     public static event MarsControlModeChangeEvent OnControlModeChange;
     public delegate void HumanLimKinParamData();
     public static event HumanLimKinParamData onHumanLimbKinParamData;
+    public delegate void HumanLimDynParamData();
+    public static event HumanLimDynParamData onHumanLimbDynParamData;
 
     // MARS Robot Parameters
     private const float L1 = 475.0f;
@@ -516,6 +518,31 @@ public static class MarsComm
                 // Invoke the human limb kinematic parameters data event.
                 onHumanLimbKinParamData?.Invoke();
                 break;
+            case "HLIMBDYNPARAM":
+                Debug.Log("Received Limb Dynamic Parameters");
+                // Update current sensor data
+                offset = 4;
+                i = 0;
+                uaWeight = BitConverter.ToSingle(
+                    new byte[] {
+                        rawBytes[offset + 1 + (i * 4)],
+                        rawBytes[offset + 2 + (i * 4)],
+                        rawBytes[offset + 3 + (i * 4)],
+                        rawBytes[offset + 4 + (i * 4)] },
+                    0
+                );
+                i++;
+                faWeight = BitConverter.ToSingle(
+                    new byte[] {
+                        rawBytes[offset + 1 + (i * 4)],
+                        rawBytes[offset + 2 + (i * 4)],
+                        rawBytes[offset + 3 + (i * 4)],
+                        rawBytes[offset + 4 + (i * 4)] },
+                    0
+                );
+                // Invoke the human limb dynamic parameters data event.
+                onHumanLimbDynParamData?.Invoke();
+                break;
         }
     }
     // static public void parseRawBytes(byte[] rawBytes, uint payloadSize ,DateTime plTime)
@@ -676,10 +703,30 @@ public static class MarsComm
         );
     }
 
+    public static void setHumanLimbDynParams(float uaWeight, float faWeight)
+    {
+        MarsCommLogger.LogInfo($"Setting Human Limb Dynamic Parameters: UA Weight: {uaWeight}, FA Weight: {faWeight}");
+        byte[] uaWeightBytes = BitConverter.GetBytes(uaWeight);
+        byte[] faWeightBytes = BitConverter.GetBytes(faWeight);
+        JediComm.SendMessage(
+            new byte[] {
+                (byte)INDATATYPECODES[Array.IndexOf(INDATATYPE, "SET_LIMB_DYN_PARAM")],
+                uaWeightBytes[0], uaWeightBytes[1], uaWeightBytes[2], uaWeightBytes[3],
+                faWeightBytes[0], faWeightBytes[1], faWeightBytes[2], faWeightBytes[3]
+            }
+        );
+    }
+
     public static void resetHumanLimbKinParams()
     {
         MarsCommLogger.LogInfo("Resetting Human Limb Kinematic Parameters");
         JediComm.SendMessage(new byte[] { (byte)INDATATYPECODES[Array.IndexOf(INDATATYPE, "RESET_LIMB_KIN_PARAM")] });
+    }
+
+    public static void resetHumanLimbDynParams()
+    {
+        MarsCommLogger.LogInfo("Resetting Human Limb Dynamic Parameters");
+        JediComm.SendMessage(new byte[] { (byte)INDATATYPECODES[Array.IndexOf(INDATATYPE, "RESET_LIMB_DYN_PARAM")] });
     }
 
     public static void setControlType(string controlType)
@@ -741,6 +788,11 @@ public static class MarsComm
     {
         MarsCommLogger.LogInfo("Getting Limb Kinematic Parameters");
         JediComm.SendMessage(new byte[] { (byte)INDATATYPECODES[Array.IndexOf(INDATATYPE, "GET_LIMB_KIN_PARAM")] });
+    }
+    public static void getHumanLimbDynParams()
+    {
+        MarsCommLogger.LogInfo("Getting Limb Dynamic Parameters");
+        JediComm.SendMessage(new byte[] { (byte)INDATATYPECODES[Array.IndexOf(INDATATYPE, "GET_LIMB_DYN_PARAM")] });
     }
     public static void sendHeartbeat()
     {

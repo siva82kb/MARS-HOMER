@@ -40,9 +40,15 @@ public class DiagnosticSceneHandler : MonoBehaviour
     private float setHLimbKinUALength = 0.0f;
     private float setHLimbKinFALength = 0.0f;
     private float setHLimbKinShPosZ = 0.0f;
+    private float setHLimbDynUAWeight = 0.0f;
+    private float setHLimbDynFAWeight = 0.0f;
     // Flag to check the human limb kinematic parameters.
     private bool hLimbKinParamCheckFlag = false;
     private bool hLimbKinParamSetDone = false;
+    // Flag to check the human limb dynamic parameters.
+    // private bool hLimbDynParamSetFlag = false;
+    private bool hLimbDynParamCheckFlag = false;
+    private bool hLimbDynParamSetDone = false;
     // Dynamic parameter estimation variables.
     private enum LimbDynEstState
     {
@@ -106,26 +112,39 @@ public class DiagnosticSceneHandler : MonoBehaviour
             case LimbDynEstState.SETUPFORESTIMATION:
                 // Wait for the start of the estimation.
                 handleSetupForEstimation();
+                // Send the weight parameters to MARS.
+                // setHLimbDynUAWeight = -5.686f;
+                // setHLimbDynFAWeight = -0.241f;
+                // MarsComm.setHumanLimbDynParams(setHLimbDynUAWeight, setHLimbDynFAWeight);
                 break;
             case LimbDynEstState.ESTIMATE:
-                // Update the estimtate
+                // Update the estimtate if parameters are not yet estimated.
                 rlsHLimbWeights.Update(new float[] {
                     (float) (Math.Sin(MarsComm.phi1 * Mathf.Deg2Rad) * Math.Cos(MarsComm.phi2 * Mathf.Deg2Rad)),
                     (float) (Math.Sin(MarsComm.phi1 * Mathf.Deg2Rad) * Math.Cos((MarsComm.phi2 - MarsComm.phi3) * Mathf.Deg2Rad))
                 }, MarsComm.torque);
-                // Update the human limb dynamic parameters.
+                // Check if we need to change state.
                 if (computeMeanAndStdev())
                 {
                     hLimbDynEstState = LimbDynEstState.ESTIMATIONDONE;
-                    // Send the weight parameters to MARS.
+                    readyForStateChange = false;
                 }
                 break;
             case LimbDynEstState.ESTIMATIONDONE:
-                // Perform hold testing with the estimated weights.
-                readyForStateChange = true;
+                if (readyForStateChange) break;
+                // Not ready for change. Set the parameters in the firmware.
+                // Send the weight parameters to MARS.
+                setHLimbDynUAWeight = weightParamsMean[0];
+                setHLimbDynFAWeight = weightParamsMean[1];
+                MarsComm.setHumanLimbDynParams(setHLimbDynUAWeight, setHLimbDynFAWeight);
+                // Get the human limb dynamic parameters from MARS.
+                MarsComm.getHumanLimbDynParams();
+                // Set the check flag to verify human limb dynamic parameters are set.
+                hLimbDynParamCheckFlag = true;
                 break;
             case LimbDynEstState.HOLDTEST:
                 // Perform hold testing with the estimated weights.
+                // Set the control type to AWS.
                 break;
             case LimbDynEstState.TEARDOWNSETUP:
                 // Teardown the setup for estimation.
@@ -143,7 +162,7 @@ public class DiagnosticSceneHandler : MonoBehaviour
 
     private bool computeMeanAndStdev()
     {
-        float _var = 0;
+        bool[] _done = new bool[nParams];
         for (int _i = 0; _i < nParams; _i++)
         {
             weightParams[weightParamsIndex, _i] = rlsHLimbWeights.theta[_i];
@@ -169,9 +188,9 @@ public class DiagnosticSceneHandler : MonoBehaviour
             // Add parameter mean +/- stdev to the text.
             float _variation = 100 * weightParamsStdev[_i] / Math.Abs(weightParamsMean[_i]);
             hlbDynParamSetText.text += $"{_i + 1}: {weightParamsMean[_i]:F3} +/- {weightParamsStdev[_i]:F3} [{_variation:F3}]\n";
-            _var += weightParamsStdev[_i];
+            _done[_i] = _variation < 5f;
         }
-        return _var / nParams < 5f;
+        return _done.All(x => x);
     }
 
     private void handleSetupForEstimation()
@@ -252,7 +271,7 @@ public class DiagnosticSceneHandler : MonoBehaviour
             setHLimbKinShPosZ = averagePosition.z;
             Debug.Log($"Setting human limb kinematic parameters: UALength={setHLimbKinUALength}, FALength={setHLimbKinFALength}, Average Position Z={setHLimbKinShPosZ}");
             MarsComm.setHumanLimbKinParams(setHLimbKinUALength, setHLimbKinFALength, setHLimbKinShPosZ);
-            // Get the human limb ki
+            // Get the human limb kinematic parameters from MARS.
             MarsComm.getHumanLimbKinParams();
             // Set the check flag to verify human limb kinematic parameters are set.
             hLimbKinParamCheckFlag = true;
@@ -288,7 +307,7 @@ public class DiagnosticSceneHandler : MonoBehaviour
     private void OnHumanLimbKinParamData()
     {
         // Check if the human limb kinematics parameters match the set values.
-        if (MarsComm.uaLength != setHLimbKinUALength || MarsComm.faLength != setHLimbKinFALength || MarsComm.shPosZ != setHLimbKinShPosZ)
+        if (MarsComm.limbKinParam != 0x01 || MarsComm.uaLength != setHLimbKinUALength || MarsComm.faLength != setHLimbKinFALength || MarsComm.shPosZ != setHLimbKinShPosZ)
         {
             Debug.LogWarning("Human limb kinematic parameters are not set correctly.");
             hLimbKinParamCheckFlag = false;
@@ -299,6 +318,27 @@ public class DiagnosticSceneHandler : MonoBehaviour
             Debug.Log("Human limb kinematic parameters are set correctly.");
             hLimbKinParamCheckFlag = false;
             hLimbKinParamSetDone = true;
+        }
+    }
+
+    private void OnHumanLimbDynParamData()
+    {
+        // Check if the human limb dynamics parameters match the set values.
+        if (MarsComm.limbDynParam != 0x01 || MarsComm.uaWeight != setHLimbDynUAWeight || MarsComm.faWeight != setHLimbDynFAWeight)
+        {
+            Debug.LogWarning("Human limb dynamic parameters are not set correctly.");
+            hLimbDynParamCheckFlag = false;
+            hLimbDynParamSetDone = false;
+            MarsComm.resetHumanLimbDynParams();
+            readyForStateChange = false;
+        }
+        else
+        {
+            Debug.Log("Human limb dynamic parameters are set correctly.");
+            hLimbDynParamCheckFlag = false;
+            hLimbDynParamSetDone = true;
+            // Ready to change state.
+            readyForStateChange = true;
         }
     }
 
@@ -374,6 +414,7 @@ public class DiagnosticSceneHandler : MonoBehaviour
         MarsComm.OnNewMarsData += onNewMarsData;
         MarsComm.OnControlModeChange += onControlModeChange;
         MarsComm.onHumanLimbKinParamData += OnHumanLimbKinParamData;
+        MarsComm.onHumanLimbDynParamData += OnHumanLimbDynParamData;
     }
 
     public void UpdateUI()
@@ -446,6 +487,18 @@ public class DiagnosticSceneHandler : MonoBehaviour
         {
             tglHLimbKinParamSet.isOn = false;
             hLimbKinParamSetDone = false;
+        }
+
+        // Check the set human limb dynamic parameters.
+        if (hLimbDynParamCheckFlag)
+        {
+            // Check the human limb dynamic parameters.
+            if (MarsComm.limbDynParam == 0x01) MarsComm.getHumanLimbDynParams();
+        }
+        if (hLimbDynParamSetDone)
+        {
+            // tglHLimbDynParamSet.isOn = false;
+            hLimbDynParamSetDone = false;
         }
     }
 

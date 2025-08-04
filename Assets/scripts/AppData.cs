@@ -19,7 +19,7 @@ using UnityEngine.SceneManagement;
 using System.Collections;
 using Unity.VisualScripting;
 
-
+     
 public partial class AppData
 {
     // Singleton
