@@ -29,6 +29,9 @@ public class DiagnosticSceneHandler : MonoBehaviour
     public TMP_Text hlbKinParamSetText;
     public Toggle tglHLimbDynParamSet;
     public TMP_Text hlbDynParamSetText;
+    public Button btnStartDynParamEstimation;
+    public Button btnTestAWSHold;
+    public Button btnAllDone;
 
     private static string FLOAT_FORMAT = "+0.000;-0.000";
     private string fileName = "";
@@ -45,23 +48,22 @@ public class DiagnosticSceneHandler : MonoBehaviour
     // Flag to check the human limb kinematic parameters.
     private bool hLimbKinParamCheckFlag = false;
     private bool hLimbKinParamSetDone = false;
-    // Flag to check the human limb dynamic parameters.
-    // private bool hLimbDynParamSetFlag = false;
-    private bool hLimbDynParamCheckFlag = false;
-    private bool hLimbDynParamSetDone = false;
+    // Flags to run the human limb dynamic parameter estimation statemachine.
+    // X | X | X | X | All Done | Test AWS | Param Set | Start Estimation | Set Up Ready
+    private byte stateMachineFlags = 0x00;
     // Dynamic parameter estimation variables.
     private enum LimbDynEstState
     {
         WAITFORSTART = 0x00,
         SETUPFORESTIMATION = 0x01,
-        ESTIMATE = 0x02,
-        ESTIMATIONDONE = 0x03,
-        HOLDTEST = 0x04,
-        TEARDOWNSETUP = 0x05,
-        DONE = 0x06
+        WAITFORESTIMATION = 0x02,
+        ESTIMATE = 0x03,
+        ESTIMATIONDONE = 0x04,
+        WAITFORHOLDTEST = 0x05,
+        HOLDTEST = 0x06,
+        ALLDONE = 0x07
     }
     private LimbDynEstState hLimbDynEstState = LimbDynEstState.WAITFORSTART;
-    private bool readyForStateChange = false;
     private const int nParams = 2;
     private const int maxParamEstimates = 250;
     private RecursiveLeastSquares rlsHLimbWeights = new RecursiveLeastSquares(nParams);
@@ -82,6 +84,9 @@ public class DiagnosticSceneHandler : MonoBehaviour
         // Invoke some callbacks to update the UI.
         sldrHLimbUALength.onValueChanged.Invoke(sldrHLimbUALength.value);
         sldrHLimbFALength.onValueChanged.Invoke(sldrHLimbFALength.value);
+
+        // Reset the human limb dynamic parameter estimation statemachine flag.
+        stateMachineFlags = 0x00;
 
         // Get device version.
         MarsComm.getVersion();
@@ -107,15 +112,24 @@ public class DiagnosticSceneHandler : MonoBehaviour
     private void RunHumanLimbDynParamEstimation()
     {
         if (hLimbDynEstState == LimbDynEstState.WAITFORSTART) return;
+        Debug.Log(hLimbDynEstState);
         switch (hLimbDynEstState)
         {
             case LimbDynEstState.SETUPFORESTIMATION:
                 // Wait for the start of the estimation.
-                handleSetupForEstimation();
-                // Send the weight parameters to MARS.
-                // setHLimbDynUAWeight = -5.686f;
-                // setHLimbDynFAWeight = -0.241f;
-                // MarsComm.setHumanLimbDynParams(setHLimbDynUAWeight, setHLimbDynFAWeight);
+                handleSetupDynParamEstimation();
+                // Check statemachine flag
+                if ((stateMachineFlags & 0x01) == 0x01)
+                {
+                    hLimbDynEstState = LimbDynEstState.WAITFORESTIMATION;
+                }
+                break;
+            case LimbDynEstState.WAITFORESTIMATION:
+                // Check statemachine flag
+                if ((stateMachineFlags & 0x02) == 0x02)
+                {
+                    hLimbDynEstState = LimbDynEstState.ESTIMATE;
+                }
                 break;
             case LimbDynEstState.ESTIMATE:
                 // Update the estimtate if parameters are not yet estimated.
@@ -127,37 +141,65 @@ public class DiagnosticSceneHandler : MonoBehaviour
                 if (computeMeanAndStdev())
                 {
                     hLimbDynEstState = LimbDynEstState.ESTIMATIONDONE;
-                    readyForStateChange = false;
                 }
                 break;
             case LimbDynEstState.ESTIMATIONDONE:
-                if (readyForStateChange) break;
-                // Not ready for change. Set the parameters in the firmware.
-                // Send the weight parameters to MARS.
-                setHLimbDynUAWeight = weightParamsMean[0];
-                setHLimbDynFAWeight = weightParamsMean[1];
-                MarsComm.setHumanLimbDynParams(setHLimbDynUAWeight, setHLimbDynFAWeight);
-                // Get the human limb dynamic parameters from MARS.
-                MarsComm.getHumanLimbDynParams();
-                // Set the check flag to verify human limb dynamic parameters are set.
-                hLimbDynParamCheckFlag = true;
+                if ((stateMachineFlags & 0x04) == 0x04)
+                {
+                    // Check statemachine flag
+                    hLimbDynEstState = LimbDynEstState.WAITFORHOLDTEST;
+                }
+                else
+                {
+                    // Send the weight parameters to MARS.
+                    setHLimbDynUAWeight = weightParamsMean[0];
+                    setHLimbDynFAWeight = weightParamsMean[1];
+                    MarsComm.setHumanLimbDynParams(setHLimbDynUAWeight, setHLimbDynFAWeight);
+                    // Get the human limb dynamic parameters from MARS.
+                    MarsComm.getHumanLimbDynParams();
+                }
+                break;
+            case LimbDynEstState.WAITFORHOLDTEST:
+                // Check statemachine flag
+                if ((stateMachineFlags & 0x08) == 0x08)
+                {
+                    hLimbDynEstState = LimbDynEstState.HOLDTEST;
+                }
                 break;
             case LimbDynEstState.HOLDTEST:
                 // Perform hold testing with the estimated weights.
-                // Set the control type to AWS.
-                break;
-            case LimbDynEstState.TEARDOWNSETUP:
-                // Teardown the setup for estimation.
-                if (handleTearDownSetup())
+                // Check the current control type.
+                if (MarsComm.CONTROLTYPE[MarsComm.controlType] != "AWS")
                 {
-                    hLimbDynEstState = LimbDynEstState.DONE;
+                    // Set the control mode to AWS.
+                    MarsComm.setControlType("AWS");
+                }
+                else
+                {
+                    // CHeck of the target is set to 100% weight support.
+                    if (MarsComm.target != 1.0f)
+                    {
+                        // Set the target to 100% weight support.
+                        MarsComm.setControlTarget(1.0f);
+                    }
+                }
+                // Check statemachine flag
+                if ((stateMachineFlags & 0x10) == 0x10)
+                {
+                    hLimbDynEstState = LimbDynEstState.ALLDONE;
                 }
                 break;
-            case LimbDynEstState.DONE:
-                // Reset the state to WAITFORSTART after completion.
-                hLimbDynEstState = LimbDynEstState.WAITFORSTART;
+            case LimbDynEstState.ALLDONE:
+                // Handle all done.
+                // Wait for the start of the estimation.
+                handleSetupDynParamEstimation();
+                // Check statemachine flag
+                if ((stateMachineFlags & 0x20) == 0x20)
+                {
+                    hLimbDynEstState = LimbDynEstState.WAITFORSTART;
+                }
                 break;
-        } 
+        }
     }
 
     private bool computeMeanAndStdev()
@@ -193,12 +235,13 @@ public class DiagnosticSceneHandler : MonoBehaviour
         return _done.All(x => x);
     }
 
-    private void handleSetupForEstimation()
+    private void handleSetupDynParamEstimation()
     {
         // Check if the control mode is position, else set and leave.
         if (MarsComm.CONTROLTYPE[MarsComm.controlType] != "POSITION")
         {
             MarsComm.setControlType("POSITION");
+            MarsComm.setControlTarget(-90f);
             return;
         }
         // Check if the target position is set to -90 degrees.
@@ -210,8 +253,15 @@ public class DiagnosticSceneHandler : MonoBehaviour
         // Check if the robot has reached the target position.
         if (Mathf.Abs(MarsComm.angle1 - MarsComm.target) < 2.5)
         {
-            readyForStateChange = true;
-            rlsHLimbWeights.ResetEstimator();
+            if (hLimbDynEstState == LimbDynEstState.SETUPFORESTIMATION)
+            {
+                stateMachineFlags = (byte) (stateMachineFlags | 0x01);
+                rlsHLimbWeights.ResetEstimator();
+            }
+            else if (hLimbDynEstState == LimbDynEstState.ALLDONE)
+            {
+                stateMachineFlags = (byte) (stateMachineFlags | 0x20);
+            }
         }
     }
 
@@ -276,24 +326,6 @@ public class DiagnosticSceneHandler : MonoBehaviour
             // Set the check flag to verify human limb kinematic parameters are set.
             hLimbKinParamCheckFlag = true;
         }
-        else if (tglHLimbDynParamSet.isOn && readyForStateChange)
-        {
-            // Check the current state and react.
-            switch (hLimbDynEstState)
-            {
-                case LimbDynEstState.SETUPFORESTIMATION:
-                    // Start recording human limb angles and torque.
-                    hLimbDynEstState = LimbDynEstState.ESTIMATE;
-                    rlsHLimbWeights.ResetEstimator();
-                    break;
-                case LimbDynEstState.ESTIMATIONDONE:
-                    hLimbDynEstState = LimbDynEstState.HOLDTEST;
-                    break;
-                case LimbDynEstState.HOLDTEST:
-                    break;
-            }
-            readyForStateChange = false;
-        }
     }
 
     private void onControlModeChange()
@@ -327,18 +359,13 @@ public class DiagnosticSceneHandler : MonoBehaviour
         if (MarsComm.limbDynParam != 0x01 || MarsComm.uaWeight != setHLimbDynUAWeight || MarsComm.faWeight != setHLimbDynFAWeight)
         {
             Debug.LogWarning("Human limb dynamic parameters are not set correctly.");
-            hLimbDynParamCheckFlag = false;
-            hLimbDynParamSetDone = false;
             MarsComm.resetHumanLimbDynParams();
-            readyForStateChange = false;
+            stateMachineFlags = (byte)(stateMachineFlags & 0xFB);
         }
         else
         {
             Debug.Log("Human limb dynamic parameters are set correctly.");
-            hLimbDynParamCheckFlag = false;
-            hLimbDynParamSetDone = true;
-            // Ready to change state.
-            readyForStateChange = true;
+            stateMachineFlags = (byte)(stateMachineFlags | 0x04);
         }
     }
 
@@ -347,7 +374,7 @@ public class DiagnosticSceneHandler : MonoBehaviour
         // Fill dropdown list
         ddLimbType.ClearOptions();
         ddLimbType.AddOptions(MarsComm.LIMBTEXT.ToList());
-        ddControlType.AddOptions(MarsComm.CONTROLTYPETEXT.ToList());
+        ddControlType.AddOptions(GetAvailableControlTypes(MarsComm.CONTROLTYPETEXT.ToList()));
         // Disable set target button.
         btnSetTarget.interactable = false;
         // Clear panel selections.
@@ -361,6 +388,25 @@ public class DiagnosticSceneHandler : MonoBehaviour
         tglHLimbDynParamSet.isOn = false;
         tglHLimbKinParamSet.interactable = false;
         tglHLimbDynParamSet.interactable = false;
+    }
+
+    private List<Dropdown.OptionData> GetAvailableControlTypes(List<string> list)
+    {
+        List<Dropdown.OptionData> options = new List<Dropdown.OptionData>();
+        foreach (string item in list)
+        {
+            if (item != "Arm Weight Support")
+            {
+                options.Add(new Dropdown.OptionData(item));
+                continue;
+            }
+            if (MarsComm.limbKinParam == 0x01 && MarsComm.limbDynParam == 0x01)
+            {
+                // Add AWS option only if human limb kinematic and dynamic parameters are set.
+                options.Add(new Dropdown.OptionData(item));
+            }
+        }
+        return options;
     }
 
     public void AttachControlCallbacks()
@@ -407,6 +453,15 @@ public class DiagnosticSceneHandler : MonoBehaviour
 
         // Set target button click.
         btnSetTarget.onClick.AddListener(delegate { OnTargetSet(); });
+
+        // Start dynamic parameter estimation button click.
+        btnStartDynParamEstimation.onClick.AddListener(delegate { OnStartDynParamEstimation(); });
+
+        // Test AWS hold button click.
+        btnTestAWSHold.onClick.AddListener(delegate { OnTestAWSHold(); });
+
+        // Dynamic parameter estimation all done button click.
+        btnAllDone.onClick.AddListener(delegate { OnDynParamAllDone(); });
 
         // Listen to MARS's event
         MarsComm.OnMarsButtonReleased += onMarsButtonReleased;
@@ -489,17 +544,10 @@ public class DiagnosticSceneHandler : MonoBehaviour
             hLimbKinParamSetDone = false;
         }
 
-        // Check the set human limb dynamic parameters.
-        if (hLimbDynParamCheckFlag)
-        {
-            // Check the human limb dynamic parameters.
-            if (MarsComm.limbDynParam == 0x01) MarsComm.getHumanLimbDynParams();
-        }
-        if (hLimbDynParamSetDone)
-        {
-            // tglHLimbDynParamSet.isOn = false;
-            hLimbDynParamSetDone = false;
-        }
+        // Update Dynamic parameter estimation buttons.
+        btnStartDynParamEstimation.interactable = hLimbDynEstState == LimbDynEstState.WAITFORESTIMATION;
+        btnTestAWSHold.interactable = hLimbDynEstState == LimbDynEstState.WAITFORHOLDTEST;
+        btnAllDone.interactable = hLimbDynEstState == LimbDynEstState.HOLDTEST;
     }
 
     public void DisplayDeviceData()
@@ -644,7 +692,31 @@ public class DiagnosticSceneHandler : MonoBehaviour
         else
         {
             // Get out of the human limb dynamic parameter estimation mode.
-            hLimbDynEstState = LimbDynEstState.TEARDOWNSETUP;
+
+        }
+    }
+    private void OnStartDynParamEstimation()
+    {
+        // Check if we are in the appropriate state.
+        if (hLimbDynEstState == LimbDynEstState.WAITFORESTIMATION)
+        {
+            stateMachineFlags = (byte) (stateMachineFlags | 0x02);
+        }
+    }
+    private void OnTestAWSHold()
+    {
+        // Check if we are in the appropriate state.
+        if (hLimbDynEstState == LimbDynEstState.WAITFORHOLDTEST)
+        {
+            stateMachineFlags = (byte) (stateMachineFlags | 0x08);
+        }
+    }
+    private void OnDynParamAllDone()
+    {
+        // Check if we are in the appropriate state.
+        if (hLimbDynEstState == LimbDynEstState.HOLDTEST)
+        {
+            stateMachineFlags = (byte) (stateMachineFlags | 0x10);
         }
     }
     private void OnApplicationQuit()

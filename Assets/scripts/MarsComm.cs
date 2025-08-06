@@ -36,7 +36,7 @@ public static class MarsComm
     public static readonly string[] COMMAND_STATUS = new string[] { "NONE", "SUCCESS", "FAIL" };
     public static readonly string[] LIMBKINPARAM = new string[] { "NOLIMBKINPARAM", "YESLIMBKINPARAM" };
     public static readonly string[] LIMBDYNPARAM = new string[] { "NOLIMBDYNPARAM", "YESLIMBDYNPARAM" };
-    public static readonly string[] CONTROLTYPE = new string[] { "NONE", "POSITION", "TORQUE", "ARM_WEIGHT_SUPPORT" };
+    public static readonly string[] CONTROLTYPE = new string[] { "NONE", "POSITION", "TORQUE", "AWS" };
     public static readonly string[] CONTROLTYPETEXT = new string[] {
         "None",
         "Position",
@@ -732,6 +732,7 @@ public static class MarsComm
     public static void setControlType(string controlType)
     {
         MarsCommLogger.LogInfo($"Setting Control Type: {controlType}");
+        Debug.Log("Setting Control Type: " + controlType);
         JediComm.SendMessage(
             new byte[] {
                 (byte)INDATATYPECODES[Array.IndexOf(INDATATYPE, "SET_CONTROL_TYPE")],
@@ -750,9 +751,13 @@ public static class MarsComm
         {
             tgt0Bytes = (target == INVALID_TARGET) ? BitConverter.GetBytes(angle1) : BitConverter.GetBytes(target);
         }
-        else
+        else if (CONTROLTYPE[controlType] == "TORQUE")
         {
             tgt0Bytes = (target == INVALID_TARGET) ? BitConverter.GetBytes(torque) : BitConverter.GetBytes(target);
+        }
+        else
+        {
+            tgt0Bytes = (target == INVALID_TARGET) ? BitConverter.GetBytes(1.0) : BitConverter.GetBytes(target);
         }
         byte[] t0Bytes = BitConverter.GetBytes(0.0f);
         byte[] tgt1Bytes = BitConverter.GetBytes(tgt);
