@@ -51,7 +51,7 @@ public static class MarsComm
         2,   // HLIMBDYNPARAM
     };
     public static readonly double MAXTORQUE = 1.0; // Nm
-    public static readonly int[] INDATATYPECODES = new int[] { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E,
+    public static readonly int[] INDATATYPECODES = new int[] { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
                                                                0x80 };
     public static readonly string[] INDATATYPE = new string[] {
         "GET_VERSION",
@@ -69,6 +69,7 @@ public static class MarsComm
         "GET_LIMB_DYN_PARAM",
         "RESET_LIMB_KIN_PARAM",
         "RESET_LIMB_DYN_PARAM",
+        "TRANSITION_CONTROL",
         "HEARTBEAT",
     };
     public static readonly string[] ERRORTYPES = new string[] {
@@ -519,7 +520,6 @@ public static class MarsComm
                 onHumanLimbKinParamData?.Invoke();
                 break;
             case "HLIMBDYNPARAM":
-                Debug.Log("Received Limb Dynamic Parameters");
                 // Update current sensor data
                 offset = 4;
                 i = 0;
@@ -540,6 +540,7 @@ public static class MarsComm
                         rawBytes[offset + 4 + (i * 4)] },
                     0
                 );
+                Debug.Log($"Received Limb Dynamic Parameters: UA Weight: {uaWeight}, FA Weight: {faWeight}");
                 // Invoke the human limb dynamic parameters data event.
                 onHumanLimbDynParamData?.Invoke();
                 break;
@@ -765,6 +766,38 @@ public static class MarsComm
         JediComm.SendMessage(
             new byte[] {
                 (byte)INDATATYPECODES[Array.IndexOf(INDATATYPE, "SET_CONTROL_TARGET")],
+                tgt0Bytes[0],   tgt0Bytes[1],   tgt0Bytes[2],   tgt0Bytes[3],
+                t0Bytes[0],     t0Bytes[1],     t0Bytes[2],     t0Bytes[3],
+                tgt1Bytes[0],   tgt1Bytes[1],   tgt1Bytes[2],   tgt1Bytes[3],
+                durBytes[0],    durBytes[1],    durBytes[2],    durBytes[3]
+            }
+        );
+    }
+    
+    public static void transitionControl(string ctrlType, float tgt, float dur)
+    {
+        MarsCommLogger.LogInfo("Transitioning Control Type to " + ctrlType + " from " + CONTROLTYPE[MarsComm.controlType] + ".");
+        Debug.Log("Transitioning Control Type to " + ctrlType + " from " + CONTROLTYPE[MarsComm.controlType] + ".");
+        byte[] tgt0Bytes;
+        if (ctrlType == "POSITION")
+        {
+            tgt0Bytes = BitConverter.GetBytes(angle1);
+        }
+        else if (ctrlType == "AWS")
+        {
+            tgt0Bytes = BitConverter.GetBytes(1.0f);
+        }
+        else
+        {
+            tgt0Bytes = BitConverter.GetBytes(0f);
+        }
+        byte[] t0Bytes = BitConverter.GetBytes(0.0f);
+        byte[] tgt1Bytes = BitConverter.GetBytes(tgt);
+        byte[] durBytes = BitConverter.GetBytes(dur);
+        JediComm.SendMessage(
+            new byte[] {
+                (byte)INDATATYPECODES[Array.IndexOf(INDATATYPE, "TRANSITION_CONTROL")],
+                (byte)Array.IndexOf(CONTROLTYPE, ctrlType),
                 tgt0Bytes[0],   tgt0Bytes[1],   tgt0Bytes[2],   tgt0Bytes[3],
                 t0Bytes[0],     t0Bytes[1],     t0Bytes[2],     t0Bytes[3],
                 tgt1Bytes[0],   tgt1Bytes[1],   tgt1Bytes[2],   tgt1Bytes[3],
