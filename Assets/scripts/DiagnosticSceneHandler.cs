@@ -37,7 +37,7 @@ public class DiagnosticSceneHandler : MonoBehaviour
     public Toggle tglTransitionControlTest;
     public Dropdown ddTransCtrlType;
     public Slider sldrTranCtrlTarget;
-    public TMP_Text tranCtrlTargetValueText;
+    public TMP_Text transCtrlTargetValueText;
     public Button btnTranCtrlSetTarget;
 
     private static string FLOAT_FORMAT = "+0.000;-0.000";
@@ -161,6 +161,8 @@ public class DiagnosticSceneHandler : MonoBehaviour
                 else
                 {
                     // Send the weight parameters to MARS.
+                    Debug.Log("Setting human limb dynamic parameters: " +
+                        $"UA Weight = {weightParamsMean[0]:F3}, FA Weight = {weightParamsMean[1]:F3}");
                     setHLimbDynUAWeight = weightParamsMean[0];
                     setHLimbDynFAWeight = weightParamsMean[1];
                     MarsComm.setHumanLimbDynParams(setHLimbDynUAWeight, setHLimbDynFAWeight);
@@ -399,7 +401,7 @@ public class DiagnosticSceneHandler : MonoBehaviour
         ddTransCtrlType.AddOptions(MarsComm.CONTROLTYPETEXT.Where(x => x != "Torque").ToList());
         ddTransCtrlType.interactable = false;
         sldrTranCtrlTarget.interactable = false;
-        tranCtrlTargetValueText.text = "";
+        transCtrlTargetValueText.text = "";
         btnTranCtrlSetTarget.interactable = false;
     }
 
@@ -478,9 +480,7 @@ public class DiagnosticSceneHandler : MonoBehaviour
         // Transition Control Testing callbacks
         tglTransitionControlTest.onValueChanged.AddListener(delegate { OnTransitionControlSelect(); });
         ddTransCtrlType.onValueChanged.AddListener(delegate { OnTransCtrlTypeChange(); });
-        // tglTransCtrlPosition.onValueChanged.AddListener(delegate { OnTransPositionControlSelect(); });
-        // tglTransCtrlAWS.onValueChanged.AddListener(delegate { OnTransAWSControlSelect(); });
-
+        btnTranCtrlSetTarget.onClick.AddListener(delegate { OnTransCtrlSetTarget(); });
 
         // Listen to MARS's event
         MarsComm.OnMarsButtonReleased += onMarsButtonReleased;
@@ -584,7 +584,7 @@ public class DiagnosticSceneHandler : MonoBehaviour
         bool isTransitionControlTestEnabled = tglTransitionControlTest.isOn;
         ddTransCtrlType.interactable = isTransitionControlTestEnabled;
         // Update to reflect the current control type.
-        if (updateTransCtrlUI)
+        if (isTransitionControlTestEnabled && updateTransCtrlUI)
         {
             ddTransCtrlType.value = MarsComm.CONTROLTYPE[MarsComm.controlType] switch
             {
@@ -593,7 +593,33 @@ public class DiagnosticSceneHandler : MonoBehaviour
                 "AWS" => 2,
                 _ => 0
             };
+            // Update the slider range and value.
+            if (MarsComm.CONTROLTYPE[MarsComm.controlType] == "POSITION")
+            {
+                sldrTranCtrlTarget.minValue = -120f;
+                sldrTranCtrlTarget.maxValue = 0f;
+                sldrTranCtrlTarget.value = -90f;
+            }
+            else if (MarsComm.CONTROLTYPE[MarsComm.controlType] == "AWS")
+            {
+                sldrTranCtrlTarget.minValue = 0f;
+                sldrTranCtrlTarget.maxValue = 1f;
+                sldrTranCtrlTarget.value = 1f;
+            }
             updateTransCtrlUI = false;
+        }
+        // Update test.
+        if (isTransitionControlTestEnabled && MarsComm.CONTROLTYPE[MarsComm.controlType] == "NONE")
+        {
+            transCtrlTargetValueText.text = "";
+        }
+        else if (isTransitionControlTestEnabled && MarsComm.CONTROLTYPE[MarsComm.controlType] == "POSITION")
+        {
+            transCtrlTargetValueText.text = sldrTranCtrlTarget.value.ToString(FLOAT_FORMAT) + " deg";
+        }
+        else if (isTransitionControlTestEnabled && MarsComm.CONTROLTYPE[MarsComm.controlType] == "AWS")
+        {
+            transCtrlTargetValueText.text = (100 * sldrTranCtrlTarget.value).ToString(FLOAT_FORMAT) + "%";
         }
         // Slider and button are enabled only if the control is set.
         sldrTranCtrlTarget.interactable = ((MarsComm.CONTROLTYPE[MarsComm.controlType] == "POSITION")
@@ -754,7 +780,7 @@ public class DiagnosticSceneHandler : MonoBehaviour
         else
         {
             // Get out of the human limb dynamic parameter estimation mode.
-
+            MarsComm.setControlType("NONE");
         }
     }
     private void OnStartDynParamEstimation()
@@ -785,21 +811,9 @@ public class DiagnosticSceneHandler : MonoBehaviour
     private void OnTransitionControlSelect()
     {
         // Temporary.
-        if (tglTransitionControlTest.isOn)
+        if (tglTransitionControlTest.isOn == false)
         {
-            // Set the kinematic parameter.
-            setHLimbKinUALength = 0.3f;
-            setHLimbKinFALength = 0.17f;
-            setHLimbKinShPosZ = 0.3011f;
-            MarsComm.setHumanLimbKinParams(setHLimbKinUALength, setHLimbKinFALength, setHLimbKinShPosZ);
-            // Get the human limb kinematic parameters from MARS.
-            MarsComm.getHumanLimbKinParams();
-            // Set the dynamic parameters.
-            setHLimbDynUAWeight = -6.37f;
-            setHLimbDynFAWeight = -0.6312f;
-            MarsComm.setHumanLimbDynParams(setHLimbDynUAWeight, setHLimbDynFAWeight);
-            // Get the human limb dynamic parameters from MARS.
-            MarsComm.getHumanLimbDynParams();
+            MarsComm.transitionControl("NONE", 0, 5);
         }
     }
     private void OnTransCtrlTypeChange()
@@ -820,6 +834,10 @@ public class DiagnosticSceneHandler : MonoBehaviour
         {
             MarsComm.transitionControl("AWS", 1f, 5f);
         }
+    }
+    private void OnTransCtrlSetTarget()
+    {
+        MarsComm.setControlTarget(sldrTranCtrlTarget.value, dur: 5f);
     }
     private void OnApplicationQuit()
     {

@@ -4161,7 +4161,7 @@ MonoBehaviour:
   tglTransitionControlTest: {fileID: 92181766}
   ddTransCtrlType: {fileID: 1980788141}
   sldrTranCtrlTarget: {fileID: 1329717193}
-  tranCtrlTargetValueText: {fileID: 856591419}
+  transCtrlTargetValueText: {fileID: 856591419}
   btnTranCtrlSetTarget: {fileID: 620643471}
 --- !u!4 &988474313
 Transform:
