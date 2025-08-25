@@ -73,5 +73,3 @@ crashlytics-build.properties
 
 # Custom ignores
 data/
-private/
-MARS_Data_*.csv

@@ -3,101 +3,62 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System;
+using UnityEngine.UI;
 
 
 public class Drawlines : MonoBehaviour
 {
-  
-    float max_x_init;
-    float min_x_init;
-    float max_y_init;
-    float min_y_init;
 
-    double x_c;
-    double y_c;
+    float endPointMaxX;
+    float endPointMinX;
+    float endPointMaxY;
+    float endPointMinY;
 
-    double y_value, y_u;
-
+    //Line render
     public static LineRenderer lr;
-    public static List<Vector3> paths_draw;
-    public static List<Vector3> paths_pass;
+    public static List<Vector3> unityDrawValues;
+    public static List<Vector3> endPntPos;
+    public int OFFSET;
 
-    string hospno;
-    int hand_use;
 
-    double x_value;
-    double x_u;
+   
+    public static  double zEndPoint, unityValX, yEndPoint, unityValY , centerValX, centerValY;
 
-    int[] DEPENDENT = new int[] { 0, -1, 1 };
     void Start()
     {
-        hand_use = AppData.useHand;
-        Debug.Log(hand_use);
-        if (hand_use == 1)
-        {
-            max_x_init = 591;
-            min_x_init = -91;
-            max_y_init = 75;
-            min_y_init = -575;
-        }
-        else if (hand_use == 2)
-        {
-            max_x_init = 591;
-            min_x_init = -91;
-            max_y_init = -175;
-            min_y_init = -775;
-        }
-        
-        paths_draw = new List<Vector3>();
-        paths_pass = new List<Vector3>();
+        //meter 
+        endPointMaxX = 0.800f;
+        endPointMinX = -0.082f;
+        endPointMaxY = -0.092f;
+        endPointMinY = -0.800f;
+       
+
+        unityDrawValues = new List<Vector3>();
+        endPntPos = new List<Vector3>();
         lr = GetComponent<LineRenderer>();
         lr.SetWidth(0.1f, 0.1f);
 
-        x_c = (max_x_init + min_x_init) / 2;
-        y_c = (max_y_init + min_y_init) / 2;
-    }
-
-    void Update()
-    {
-        Time.timeScale = 1;
+        centerValX = (endPointMaxX + endPointMinX) / 2;
+        centerValY = (endPointMaxY + endPointMinY) / 2;
+        OFFSET = AppData.Instance.userData.useHand == 1 ? -1 : 1;
 
     }
     void FixedUpdate()
     {
-        if (hand_use == 1)
-        {
-            float theta1 = -MarsComm.angle1;
-            float theta2 = -MarsComm.angle2;
-            float theta3 = -MarsComm.angle3;
-
-            x_value = (-(475 * Mathf.Sin(3.14f / 180 * theta2) + 291 * Mathf.Sin(3.14f / 180 * theta2 + 3.14f / 180 * theta3)));
-            y_value = ((Mathf.Sin(3.14f / 180 * theta1) * (475 * Mathf.Cos(3.14f / 180 * theta2) + 291 * Mathf.Cos(3.14f / 180 * theta2 + 3.14f / 180 * theta3))));
-            Debug.Log(x_value + "...   ... " + y_value);
-            y_u = -(((y_value - y_c) * 7) / (max_y_init - min_y_init)) + 1;
-
-            x_u = (((x_value - x_c) * 14) / (max_x_init - min_x_init));
-        }
-        else if (hand_use == 2)
-        {
-            y_value = ((Mathf.Sin(3.14f / 180 * MarsComm.angle1) * (475 * Mathf.Cos(3.14f / 180 * MarsComm.angle2) + 291 * Mathf.Cos(3.14f / 180 * MarsComm.angle2 + 3.14f / 180 * MarsComm.angle3))));
-            x_value = (-(475 * Mathf.Sin(3.14f / 180 * MarsComm.angle2) + 291 * Mathf.Sin(3.14f / 180 * MarsComm.angle2 + 3.14f / 180 * MarsComm.angle3)));
-            x_u = -(((x_value - x_c) * 14) / (max_x_init - min_x_init));
-            y_u = -(((y_value - y_c) * 7) / (max_y_init - min_y_init)) + 1;
-        }
-        //y_value = ((Mathf.Sin(3.14f / 180 * (DEPENDENT[AppData.useHand]*MarsComm.angle1)) * (475 * Mathf.Cos(3.14f / 180 * (DEPENDENT[AppData.useHand]*MarsComm.angle2)) + 291 * Mathf.Cos(3.14f / 180 * (DEPENDENT[AppData.useHand] * MarsComm.angle2)+ 3.14f / 180 * (DEPENDENT[AppData.useHand] * MarsComm.angle3)))));
-        //x_value = (-(475 * Mathf.Sin(3.14f / 180 * (DEPENDENT[AppData.useHand] * MarsComm.angle2)) + 291 * Mathf.Sin(3.14f / 180 * (DEPENDENT[AppData.useHand] * MarsComm.angle2) + 3.14f / 180 * (DEPENDENT[AppData.useHand] * MarsComm.angle3))));
-        //x_u = DEPENDENT[AppData.useHand] * -(((x_value - x_c) * 14) / (max_x_init - min_x_init));
-        //y_u = -(((y_value - y_c) * 7) / (max_y_init - min_y_init)) + 1;
-        Vector3 to_draw_values = new Vector3((float)x_u, (float)y_u, 0.0f);
-        Vector3 to_pass_values = new Vector3((float)x_value, (float)y_value, 0.0f);
-
-        paths_draw.Add(to_draw_values);
-        paths_pass.Add(to_pass_values);
-
-        lr.positionCount = paths_draw.Count;
-        lr.SetPositions(paths_draw.ToArray());
+        if(DrawArea.instance.countDown>0)
+                return;
+        Vector3 endPointPosition = MarsKinDynamics.ForwardKinematicsExtended(MarsComm.angle1,MarsComm.angle2,MarsComm.angle3,MarsComm.angle4);
+        zEndPoint = endPointPosition.z;
+        yEndPoint = endPointPosition.y;
+        unityValX = OFFSET*(((zEndPoint - centerValX) * 10) / (endPointMaxX - endPointMinX)); //10-width
+        unityValY = -(((yEndPoint - centerValY) * 7) / (endPointMaxY - endPointMinY)) + 1;//7-hight unity scene draw area
+        Vector3 toDrawValues = new Vector3((float)unityValX, (float)unityValY, 0.0f);
+        Vector3 endPointValues = new Vector3((float)zEndPoint, (float)yEndPoint, 0.0f);
+        unityDrawValues.Add(toDrawValues);
+        endPntPos.Add(endPointValues);
+        lr.positionCount = unityDrawValues.Count;
+        lr.SetPositions(unityDrawValues.ToArray());
         lr.useWorldSpace = true;
     }
-
-
+   
 }

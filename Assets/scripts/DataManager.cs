@@ -1,9 +1,10 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Data;
+using System.Linq;
 using System.IO;
+using System.Data;
 using UnityEngine;
+using System.Text;
+
 /*
  * Summary Data Class
  */
@@ -15,91 +16,125 @@ public struct DaySummary
 }
 public class DataManager : MonoBehaviour
 {
+    public static readonly string userIdPath =
+       AppData.Instance.userID != null
+       ? Path.Combine(Application.dataPath, "data", AppData.Instance.userID)
+       : Application.dataPath;
+
+    public static string basePath = FixPath(Path.Combine(userIdPath, "data"));
+
+   
     public static readonly string directoryPath = Application.dataPath + "/data";
-    static string directoryPathConfig;
+
    
-    static string directoryPathRawData;
-    public static string directoryAssessmentData;
-    public static string directoryPathSession { get; private set; }
-    public static string filePathforConfig = $"{Application.dataPath}/data/configdata.csv";
-    public static string filePathSessionData { get; private set; }
-    public static string filePathAssessmentData { get; private set; }
-   
+    static string dirPathRawData;
+    public static string dirPathROMData;
+    public static string sessionDirPath { get; private set; }
+    public static string configFilePath {  get; private set; }
+    public static string sessionFilePath { get; private set; }
+    public static string assessFilePath { get; private set; }
+    public static string logDirPath { get; private set; }
+    public static string logPath { get; private set; }
+    public static string dynLimParaFilePath { get; private set; }
+
     public static string filePathUploadStatus = Application.dataPath + "/uploadStatus.txt";
-    public static string SupportCalibrationFileName = "SupportCalibration.csv";
-    public static string[] ROMWithSupportFileNames = new string[]
-    {
-      "FullWeightSupport.csv",
-      "HalfWeightSupport.csv",
-      "NoWeightSupport.csv"
+
+  
+    public static string[] SESSIONFILEHEADER = new string[] {
+        "SessionNumber", "DateTime",
+        "TrialNumberDay", "TrialNumberSession", "TrialType", "TrialStartTime", "TrialStopTime", "TrialRawDataFile",
+        "Movement",
+        "GameName", "GameParameter", "GameSpeed",
+        "AssistMode", "DesiredSuccessRate", "SuccessRate","","","MoveTime"
     };
+    // Raw data header.
+    public static string[] RAWFILEHEADER = new string[]
+    {
+        "DeviceRunTime", "PacketNumber", "Status", "ErrorString",
+        "Limb", "Calibration", "LimbKinParam", "limbDynParam",
+        "Target", "Desired", "Control",
+        "Angle1", "Angle2", "Angle3", "Angle4",
+        "ImuAngle1", "ImuAngle2", "ImuAngle3","ImuAngle4",
+        "Force", "Torque",
+        "EndPointX", "EndPointY", "EndPointZ",
+        "Phi1", "Phi2", "Phi3",
+        "GamePlayerX", "GamePlayerY", "GameTargetX", "GameTargetY", "GameState"
+
+    };
+   
+    public static string[] RAWFILEHEADER_ = new string[] {
+        "angle1","angle2","angle3","angle4","playerx","playery","targetx,targety","gamestate"
+    };
+    public static string DATETIMEFORMAT = "yyyy-MM-dd HH:mm:ss";
+
+    public static string GetRomFileName(string Movement, string Mode) => FixPath(Path.Combine(dirPathROMData, $"{Movement}-{Mode}-rom.csv"));
+    public static string GetTrialRawDataFileName(
+        int sessNo,
+        int trialNo,
+        string game,
+        string movement) => FixPath(Path.Combine(dirPathRawData, $"raw-sess{sessNo:D2}-trial{trialNo:D3}-{game}-{movement}.csv"));
     public static void createFileStructure()
     {
-        directoryAssessmentData = directoryPath + "/assessmentData";
-        directoryPathSession = directoryPath + "/sessions";
-        directoryPathRawData = directoryPath + "/rawdata";
+        dirPathROMData = basePath + "/rom";
+        sessionDirPath = basePath + "/sessions";
+        dirPathRawData = basePath + "/rawdata";
+        logPath = basePath + "/applog";
+        dynLimParaFilePath = FixPath(Path.Combine(dirPathROMData, "DYNLIMPARAM.csv"));
+        sessionFilePath = FixPath(Path.Combine(sessionDirPath, "sessions.csv"));
+        assessFilePath = dirPathROMData + "/assessment.csv";
+        Directory.CreateDirectory(basePath);
+        Directory.CreateDirectory(sessionDirPath);
+        Directory.CreateDirectory(dirPathRawData);
+        Directory.CreateDirectory(dirPathROMData);
+        Debug.Log("Directory created at: " + basePath);
         
-        filePathSessionData = directoryPathSession + "/sessions.csv";
-        filePathAssessmentData = directoryAssessmentData + "/assessment.csv";
-
-        // Check if the directory exists
-        if (!Directory.Exists(directoryPath))
-        { 
-            // If not, create the directory
-            Directory.CreateDirectory(directoryPath);
-            //Directory.CreateDirectory(directoryPathConfig);
-            Directory.CreateDirectory(directoryPathSession);
-            Directory.CreateDirectory(directoryPathRawData);
-            Directory.CreateDirectory(directoryAssessmentData);
-          
-            File.Create(filePathSessionData).Dispose(); // Ensure the file handle is released
-            File.Create(filePathAssessmentData).Dispose(); // Ensure the file handle is released
-            Debug.Log("Directory created at: " + directoryPath);
-        }
-        writeHeader(filePathSessionData);
     }
 
-    public static void writeHeader(string path)
+    public static string FixPath(string path) => path.Replace("\\", "/");
+
+    public static void setUserId(string userID)
     {
-        try
-        {
-            // Check if the file exists and if it is empty (i.e., no lines in the file)
-            if (File.Exists(path) && File.ReadAllLines(path).Length == 0)
-            {
-                // Define the CSV header string, separating each column with a comma
-                string headerData = "SessionNumber,DateTime,Assessment,StartTime,StopTime,GameName,TrialDataFileLocation,DeviceSetupFile,AssistMode,AssistModeParameter,Movement,MoveTime,useHand,upperarmLength,forearmLength";
-
-                // Write the header to the file
-                File.WriteAllText(path, headerData + "\n"); // Add a new line after the header
-                Debug.Log("Header written successfully.");
-            }
-            else
-            {
-                //Debug.Log("Writing failed or header already exists.");
-            }
-        }
-        catch (Exception ex)
-        {
-            // Catch any other generic exceptions
-            Debug.LogError("An error occurred while writing the header: " + ex.Message);
-        }
+        basePath = FixPath(Path.Combine(Application.dataPath, "data", AppData.Instance.userID, "data"));
+        configFilePath = basePath + "/configdata.csv";
     }
 
-    /*
-     * Load a CSV file into a DataTable.
-     */
+    public static void CreateSessionFile(string device, string location, string[] header = null)
+    {
+
+        // Ensure the Sessions.csv file has headers if it doesn't exist
+        if (!File.Exists(sessionFilePath))
+        {
+            header ??= SESSIONFILEHEADER;
+            using (var writer = new StreamWriter(sessionFilePath, false, Encoding.UTF8))
+            {
+                // Write the preheader details
+                writer.WriteLine($":Device: {device}");
+                writer.WriteLine($":Location: {location}");
+                writer.WriteLine(String.Join(",", header));
+            }
+            AppLogger.LogWarning("Sessions.csv file not founds. Created one.");
+        }
+    }
     public static DataTable loadCSV(string filePath)
     {
-        DataTable dTable = new DataTable();
         if (!File.Exists(filePath))
         {
-            return dTable;
+            return null;
         }
-        // Read all lines from the CSV file
+        DataTable dTable = new DataTable();
         var lines = File.ReadAllLines(filePath);
         if (lines.Length == 0) return null;
 
-        // Read the header line to create columns
+        // Ignore all preheaders that start with ':'
+        int i = 0;
+        while (lines[i].StartsWith(":")) i++;
+        // Only preheader lines are present
+        if (i >= lines.Length) return null;
+        lines = lines.Skip(i).ToArray();
+        // Nothing to read
+        if (lines.Length == 0) return null;
+
+        // Read and parse the header line
         var headers = lines[0].Split(',');
         foreach (var header in headers)
         {
@@ -107,131 +142,139 @@ public class DataManager : MonoBehaviour
         }
 
         // Read the rest of the data lines
-        for (int i = 1; i < lines.Length; i++)
+        for (i = 1; i < lines.Length; i++)
         {
             var row = dTable.NewRow();
             var fields = lines[i].Split(',');
-            
             for (int j = 0; j < headers.Length; j++)
             {
                 row[j] = fields[j];
-                //Debug.Log(row[j]);
             }
             dTable.Rows.Add(row);
         }
         return dTable;
     }
+  
 }
 
 
-    // Start is called before the first frame update
-    public enum LogMessageType
-    {
+
+
+// Start is called before the first frame update
+public enum LogMessageType
+ {
         INFO,
         WARNING,
         ERROR
+ }
+public static class AppLogger
+{
+    private static string logFilePath;
+    private static StreamWriter logWriter = null;
+    private static readonly object logLock = new object();
+    public static string currentScene { get; private set; } = "";
+    public static string currentMechanism { get; private set; } = "";
+    public static string currentGame { get; private set; } = "";
+
+    public static bool DEBUG = true;
+    public static string InBraces(string text) => $"[{text}]";
+
+    public static bool isLogging
+    {
+        get
+        {
+            return logFilePath != null;
+        }
     }
-    public static class AppLogger
-     {
-        public static readonly string directoryPath = Application.dataPath + "/data";
-        private static string logFilePath;
-        private static StreamWriter logWriter = null;
-        private static readonly object logLock = new object();
-        public static string currentScene { get; private set; } = "";
-        public static string currentMechanism { get; private set; } = "";
-        public static string currentGame { get; private set; } = "";
-        public static bool isLogging
+
+    public static string StartLogging(string scene)
+    {
+        // Start Log file only if we are not already logging.
+        if (isLogging)
         {
-            get
-            {
-                return logFilePath != null;
-            }
+            return null;
         }
-        public static void StartLogging(string scene)
+        if (!Directory.Exists(DataManager.logPath))
         {
-            // Start Log file only if we are not already logging.
-            if (isLogging)
-            {
-                return;
-            }
+            Directory.CreateDirectory(DataManager.logPath);
+        }
+        string _dtstr = DateTime.Now.ToString("dd-MM-yyyy-HH-mm-ss");
+        logFilePath = Path.Combine(DataManager.logPath, $"{_dtstr}-application.log");
+      
+        // Create the log file and write the header.
+        logWriter = new StreamWriter(logFilePath, true, Encoding.UTF8);
+        currentScene = scene;
+        LogInfo("Created MARS log file.");
+        return _dtstr;
+    }
 
-            if (!Directory.Exists(directoryPath + "/applog"))
-            {
-                 Directory.CreateDirectory(directoryPath + "/applog");
-            }
-
-        // Not logging right now. Create a new one.
-        logFilePath = directoryPath + $"/applog/log-{DateTime.Now:dd-MM-yyyy-HH-mm-ss}.log";
-            if (!File.Exists(logFilePath))
-            {
-                using (File.Create(logFilePath)) { }
-            }
-            logWriter = new StreamWriter(logFilePath, true);
+    public static void SetCurrentScene(string scene)
+    {
+        if (isLogging)
+        {
             currentScene = scene;
-            LogInfo("Created PLUTO log file.");
+            LogInfo($"Scene set to '{currentScene}'.");
         }
+    }
 
-        public static void SetCurrentScene(string scene)
+    public static void SetCurrentMovement(string mechanism)
+    {
+        Debug.Log(mechanism);
+        if (isLogging)
         {
-            if (isLogging)
-            {
-                currentScene = scene;
-            }
+            currentMechanism = mechanism;
+            LogInfo($"Mars movement set to '{currentMechanism}'.");
         }
+    }
 
-        public static void SetCurrentMechanism(string movement)
+    public static void SetCurrentGame(string game)
+    {
+        if (isLogging)
         {
-            if (isLogging)
-            {
-                currentMechanism = movement;
-            }
+            currentGame = game;
+            LogInfo($"PLUTO game set to '{currentGame}'.");
         }
+    }
 
-        public static void SetCurrentGame(string game)
+    public static void StopLogging()
+    {
+        if (logWriter != null)
         {
-            if (isLogging)
-            {
-                currentGame = game;
-            }
+            LogInfo("Closing log file.");
+            logWriter.Close();
+            logWriter = null;
+            logFilePath = null;
+            currentScene = "";
         }
+    }
 
-        public static void StopLogging()
+    public static void LogMessage(string message, LogMessageType logMsgType)
+    {
+        lock (logLock)
         {
             if (logWriter != null)
             {
-                LogInfo("Closing log file.");
-                logWriter.Close();
-                logWriter = null;
-                logFilePath = null;
-                currentScene = "";
+                string _user = AppData.Instance.userData != null ? AppData.Instance.userData.hospNumber : "";
+                string _msg = $"{DateTime.Now:dd-MM-yyyy HH:mm:ss} {logMsgType,-7} {InBraces(_user),-10} {InBraces(currentScene),-12} {InBraces(currentMechanism),-8} {InBraces(currentGame),-8} >> {message}";
+                logWriter.WriteLine(_msg);
+                logWriter.Flush();
+                if (DEBUG) Debug.Log(_msg);
             }
-        }
-
-        public static void LogMessage(string message, LogMessageType logMsgType)
-        {
-            lock (logLock)
-            {
-                if (logWriter != null)
-                {
-                    logWriter.WriteLine($"{DateTime.Now:dd-MM-yyyy HH:mm:ss} {logMsgType,-7} [{currentScene}] [{currentMechanism}] [{currentGame}] {message}");
-                    logWriter.Flush();
-                }
-            }
-        }
-
-        public static void LogInfo(string message)
-        {
-            LogMessage(message, LogMessageType.INFO);
-        }
-
-        public static void LogWarning(string message)
-        {
-            LogMessage(message, LogMessageType.WARNING);
-        }
-
-        public static void LogError(string message)
-        {
-            LogMessage(message, LogMessageType.ERROR);
         }
     }
 
+    public static void LogInfo(string message)
+    {
+        LogMessage(message, LogMessageType.INFO);
+    }
+
+    public static void LogWarning(string message)
+    {
+        LogMessage(message, LogMessageType.WARNING);
+    }
+
+    public static void LogError(string message)
+    {
+        LogMessage(message, LogMessageType.ERROR);
+    }
+}

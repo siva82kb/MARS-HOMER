@@ -546,119 +546,8 @@ public static class MarsComm
                 break;
         }
     }
-    // static public void parseRawBytes(byte[] rawBytes, uint payloadSize ,DateTime plTime)
-    // {
-    //     Debug.Log(payloadSize);
-    //     //Debug.Log(rawBytes.Length);
-    //     sensorDataLength = (int)(payloadSize - 2) / 4; //buttonState,checksum bytes
-    //     Debug.Log(sensorDataLength);
-    //     if ( rawBytes.Length < payloadSize)
-    //     {
-    //         //Debug.Log("working");
-    //         return;
-    //     }
-    //     try
-    //     {
-    //         previousButtonState = currentButtonState;
-    //         currentTime = plTime;
-    //         for (int i = 0; i < sensorDataLength; i++)
-    //         {  
-    //            //10 float values
-    //             currentSensorData[i] = BitConverter.ToSingle (
-    //                                         new byte[] { rawBytes[(i * 4) + 1],
-    //                                                      rawBytes[(i * 4) + 2],
-    //                                                      rawBytes[(i * 4) + 3],
-    //                                                      rawBytes[(i * 4) + 4]
-    //                                         }
-
-    //             );
-
-    //         }
-    //         currentButtonState = rawBytes[payloadSize - 1];
-    //         //// Check if the button has been released.
-    //         if (previousButtonState == 0 && currentButtonState == 1)
-    //         {
-    //             OnButtonReleased?.Invoke();
-    //         }
-
-    //     }
-    //     catch (Exception ex)
-    //     {
-    //         Debug.LogError($"Error in parseRawBytes: {ex.Message}");
-    //     }
-
-    // }
-
-    static public void computeShouderPosition()
-    {
-
-        // theta1 = OFFSET[AppData.useHand] * angleOne;
-        // theta2 = OFFSET[AppData.useHand] * angleTwo;
-        // theta3 = OFFSET[AppData.useHand] * angleThree;
-        // theta4 = OFFSET[AppData.useHand] * angleFour;
-
-        // zvec[0] = Mathf.Cos(theta1) * Mathf.Cos(theta2 + theta3 + theta4);
-        // zvec[1] = Mathf.Sin(theta1) * Mathf.Cos(theta2 + theta3 + theta4);
-        // zvec[2] = -Mathf.Sin(theta2 + theta3 + theta4);
-
-        // endPt[0] = Mathf.Cos(theta1) * (len1 * Mathf.Cos(theta2) + len2 * Mathf.Cos(theta2 + theta3));
-        // endPt[1] = Mathf.Sin(theta1) * (len1 * Mathf.Cos(theta2) + len2 * Mathf.Cos(theta2 + theta3));
-        // endPt[2] = -len1 * Mathf.Sin(theta2) - len2 * Mathf.Sin(theta2 + theta3);
-
-        // if (calibrationSceneHandler.calibrationState > 0)
-        // {
-        //     shPos = new float[] { endPt[0], endPt[1] + AppData.lu, endPt[2] - AppData.lf };
-        // }
-
-        // elPt[0] = endPt[0] - AppData.lf * zvec[0];
-        // elPt[1] = endPt[1] - AppData.lf * zvec[1];
-        // elPt[2] = endPt[2] - AppData.lf * zvec[2];
-
-        // fA[0] = endPt[0] - elPt[0];
-        // fA[1] = endPt[1] - elPt[1];
-        // fA[2] = endPt[2] - elPt[2];
-
-        // uA[0] = elPt[0] - shPos[0];
-        // uA[1] = elPt[1] - shPos[1];
-        // uA[2] = elPt[2] - shPos[2];
-
-        // if (Mathf.Abs((fA[0] * uA[0] + fA[1] * uA[1] + fA[2] * uA[2]) / (AppData.lf * AppData.lu)) > 0.9999999f)
-        // {
-        //     elF = 0;
-        // }
-        // else
-        // {
-        //     elF = Mathf.Acos((fA[0] * uA[0] + fA[1] * uA[1] + fA[2] * uA[2]) / (AppData.lf * AppData.lu));
-        // }
-        // shF = Mathf.Atan2(endPt[1], endPt[0]);
-
-        // if (Mathf.Abs(uA[2] / AppData.lu) < 1)
-        // {
-        //     shA = Mathf.Asin(uA[2] / AppData.lu);
-        // }
-
-    }
-
-    // Decode human limb parameters from byte values
-    // public static float DecodeHumanLimbParam(byte val, float min, float max) => min + (max - min) * Mathf.Clamp(val / 255.0f, 0, 1);
-    // private static float decodeUpperArmLength(byte uaLengthByte) => DecodeHumanLimbParam(uaLengthByte, MIN_UA_LENGTH, MAX_UA_LENGTH);
-    // private static float decodeForeArmLength(byte faLengthByte) => DecodeHumanLimbParam(faLengthByte, MIN_FA_LENGTH, MAX_FA_LENGTH);
-    // private static float decodeUpperArmWeight(byte uaWeightByte) => DecodeHumanLimbParam(uaWeightByte, MIN_UA_WEIGHT, MAX_UA_WEIGHT);
-    // private static float decodeForeArmWeight(byte faWeightByte) => DecodeHumanLimbParam(faWeightByte, MIN_FA_WEIGHT, MAX_FA_WEIGHT);
-    // private static float decodeShoulderPosZ(byte shPosZByte) => DecodeHumanLimbParam(shPosZByte, MIN_SHLDR_Z_POS, MAX_SHLDR_Z_POS);
-
-    // Encode human limb parameters to byte values
-    // public static byte EncodeHumanLimbParam(float val, float min, float max) => (byte)Mathf.Clamp((val - min) / (max - min) * 255.0f, 0, 255);
-    // private static byte encodeUpperArmLength(float uaLength) => EncodeHumanLimbParam(uaLength, MIN_UA_LENGTH, MAX_UA_LENGTH);
-    // private static byte encodeForeArmLength(float faLength) => EncodeHumanLimbParam(faLength, MIN_FA_LENGTH, MAX_FA_LENGTH);
-    // private static byte encodeUpperArmWeight(float uaWeight) => EncodeHumanLimbParam(uaWeight, MIN_UA_WEIGHT, MAX_UA_WEIGHT);
-    // private static byte encodeForeArmWeight(float faWeight) => EncodeHumanLimbParam(faWeight, MIN_FA_WEIGHT, MAX_FA_WEIGHT);
-    // private static byte encodeShoulderPosZ(float shPosZ) => EncodeHumanLimbParam(shPosZ, MIN_SHLDR_Z_POS, MAX_SHLDR_Z_POS);
-
-
-    /*
-     * Function to send data to the robot.
-     */
+   
+    
     public static void startSensorStream()
     {
         MarsCommLogger.LogInfo("Starting Sensor Stream");
@@ -1115,14 +1004,13 @@ public static class MarsCommLogger
     {
         // Start Log file only if we are not already logging.
         if (isLogging) return;
-        // NEEDS CHANGE
-        // if (!Directory.Exists(DataManager.logPath)) Directory.CreateDirectory(DataManager.logPath);
-        // // Create the log file name.
-        // logFilePath = Path.Combine(DataManager.logPath, $"{dtstr}-plutocomm.log");
+        if (!Directory.Exists(DataManager.logPath)) Directory.CreateDirectory(DataManager.logPath);
+        // Create the log file name.
+        logFilePath = Path.Combine(DataManager.logPath, $"{dtstr}-marscomm.log");
 
         // Create the log file writer.
         logWriter = new StreamWriter(logFilePath, true);
-        LogInfo("Created PLUTO log file.");
+        LogInfo("Created MARS log file.");
     }
 
     public static void StopLogging()
@@ -1142,12 +1030,11 @@ public static class MarsCommLogger
         {
             if (logWriter != null)
             {
-                // NEEDS CHANGE
-                // string _user = AppData.Instance.userData != null ? AppData.Instance.userData.hospNumber : "";
-                // string _msg = $"{DateTime.Now:dd-MM-yyyy HH:mm:ss} {logMsgType,-7} {InBraces(_user),-10} {InBraces(AppLogger.currentScene),-12} {InBraces(AppLogger.currentMechanism),-8} {InBraces(AppLogger.currentGame),-8} >> {message}";
-                // logWriter.WriteLine(_msg);
-                // logWriter.Flush();
-                // if (DEBUG) Debug.Log(_msg);
+                string _user = AppData.Instance.userData != null ? AppData.Instance.userData.hospNumber : "";
+                string _msg = $"{DateTime.Now:dd-MM-yyyy HH:mm:ss} {logMsgType,-7} {InBraces(_user),-10} {InBraces(AppLogger.currentScene),-12} {InBraces(AppLogger.currentMechanism),-8} {InBraces(AppLogger.currentGame),-8} >> {message}";
+                logWriter.WriteLine(_msg);
+                logWriter.Flush();
+                if (DEBUG) Debug.Log(_msg);
             }
         }
     }
