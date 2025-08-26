@@ -117,7 +117,7 @@ public partial class AppData
         };
 
         // Write the trial row to the session file.
-        using (StreamWriter sw = new StreamWriter(DataManager.sessionFilePath, true, Encoding.UTF8))
+        using (StreamWriter sw = new StreamWriter(DataManager.sessionFile, true, Encoding.UTF8))
         {
             // Write the trial row to the session file.
             sw.WriteLine(string.Join(",", trialRow));
@@ -153,7 +153,7 @@ public partial class AppData
         
         rawDataString.AppendLine($":DesiredSuccessRate: ");
         rawDataString.AppendLine($":ControlBound: ");
-        rawDataString.AppendLine(string.Join(",", DataManager.RAWFILEHEADER_));
+        rawDataString.AppendLine(string.Join(",", DataManager.RAWFILEHEADER));
 
         // Attach the event handler for data logging.
         MarsComm.OnNewMarsData += OnNewMarsDataDataLogging;

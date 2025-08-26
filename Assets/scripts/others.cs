@@ -128,7 +128,7 @@ public class marsUserData
 
         // Read the therapy configuration data.
         parseTherapyConfigData();
-        if (File.Exists(DataManager.sessionFilePath))
+        if (File.Exists(DataManager.sessionFile))
         {
             
             parseMovementMoveTimePrev();
@@ -222,7 +222,7 @@ public class marsUserData
     {
         List<float> lastTwoSuccessRates = new List<float>();
 
-        dTableSession = DataManager.loadCSV(DataManager.sessionFilePath);
+        dTableSession = DataManager.loadCSV(DataManager.sessionFile);
 
         if (dTableSession == null || dTableSession.Rows.Count == 0)
         {
@@ -750,7 +750,7 @@ public class DynLimParameters{
     private void ReadFromFile()
     {
         string datetime;
-        string fileName = DataManager.dynLimParaFilePath;
+        string fileName = DataManager.limbParamFile;
         if (!File.Exists(fileName))
             return;
         DataTable romData = DataManager.loadCSV(fileName);
@@ -777,14 +777,14 @@ public class DynLimParameters{
     {
         string[] FILEHEADER = new string[] { "DateTIme", "hLimbDynUAWeight", "hLimbDynFAWeight" };
 
-        if (!File.Exists(DataManager.dynLimParaFilePath))
+        if (!File.Exists(DataManager.limbParamFile))
         {
-            using (var writer = new StreamWriter(DataManager.dynLimParaFilePath, false, Encoding.UTF8))
+            using (var writer = new StreamWriter(DataManager.limbParamFile, false, Encoding.UTF8))
             {
                 writer.WriteLine(string.Join(",", FILEHEADER));
             }
         }
-        using (StreamWriter file = new StreamWriter(DataManager.dynLimParaFilePath, true))
+        using (StreamWriter file = new StreamWriter(DataManager.limbParamFile, true))
         {
             file.WriteLine(string.Join(",", new string[] { DateTime.Now.ToString(), hLimbDynUAWeight.ToString(), hLimbDynFAWeight.ToString() }));
         }

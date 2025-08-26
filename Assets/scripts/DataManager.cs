@@ -14,6 +14,7 @@ public struct DaySummary
     public string Date { get; set; }
     public float MoveTime { get; set; }
 }
+
 public class DataManager : MonoBehaviour
 {
     public static readonly string userIdPath =
@@ -21,98 +22,85 @@ public class DataManager : MonoBehaviour
        ? Path.Combine(Application.dataPath, "data", AppData.Instance.userID)
        : Application.dataPath;
 
-    public static string basePath = FixPath(Path.Combine(userIdPath, "data"));
-
-   
-    public static readonly string directoryPath = Application.dataPath + "/data";
-
-   
-    static string dirPathRawData;
-    public static string dirPathROMData;
-    public static string sessionDirPath { get; private set; }
-    public static string configFilePath {  get; private set; }
-    public static string sessionFilePath { get; private set; }
-    public static string assessFilePath { get; private set; }
-    public static string logDirPath { get; private set; }
+    public static string basePath = FixPath(Path.Combine(userIdPath, "data"));   
+    // public static readonly string directoryPath = Application.dataPath + "/data";
+    // static string dirPathRawData;
+    // public static string dirPathROMData;
+    public static string sessionPath { get; private set; }
+    public static string rawPath { get; private set; }
+    public static string romPath { get; private set; }
+    public static string gamepath { get; private set; }
     public static string logPath { get; private set; }
-    public static string dynLimParaFilePath { get; private set; }
 
-    public static string filePathUploadStatus = Application.dataPath + "/uploadStatus.txt";
-
-  
+    public static string sessionFile { get; private set; }
+    public static readonly string configFile = basePath + "/configdata.csv";
+    public static readonly string limbParamFile = basePath + "/limbparameters.csv";
+    // public static string dynLimParaFilePath { get; private set; }
+    // public static string filePathUploadStatus = Application.dataPath + "/uploadStatus.txt";
     public static string[] SESSIONFILEHEADER = new string[] {
         "SessionNumber", "DateTime",
         "TrialNumberDay", "TrialNumberSession", "TrialType", "TrialStartTime", "TrialStopTime", "TrialRawDataFile",
         "Movement",
         "GameName", "GameParameter", "GameSpeed",
-        "AssistMode", "DesiredSuccessRate", "SuccessRate","","","MoveTime"
+        "AssistMode", "DesiredSuccessRate", "SuccessRate", "", "", "MoveTime"
     };
     // Raw data header.
     public static string[] RAWFILEHEADER = new string[]
     {
         "DeviceRunTime", "PacketNumber", "Status", "ErrorString",
-        "Limb", "Calibration", "LimbKinParam", "limbDynParam",
+        "Limb", "Calibration", "LimbKinParam", "LimbDynParam",
         "Target", "Desired", "Control",
-        "Angle1", "Angle2", "Angle3", "Angle4",
-        "ImuAngle1", "ImuAngle2", "ImuAngle3","ImuAngle4",
-        "Force", "Torque",
+        "MarsAngle1", "MarsAngle2", "MarsAngle3", "MarsAngle4",
         "EndPointX", "EndPointY", "EndPointZ",
-        "Phi1", "Phi2", "Phi3",
+        "Force", "Torque",
+        "HumanAngle1", "HumanAngle2", "HumanAngle3",
         "GamePlayerX", "GamePlayerY", "GameTargetX", "GameTargetY", "GameState"
 
     };
-   
-    public static string[] RAWFILEHEADER_ = new string[] {
-        "angle1","angle2","angle3","angle4","playerx","playery","targetx,targety","gamestate"
-    };
     public static string DATETIMEFORMAT = "yyyy-MM-dd HH:mm:ss";
 
-    public static string GetRomFileName(string Movement, string Mode) => FixPath(Path.Combine(dirPathROMData, $"{Movement}-{Mode}-rom.csv"));
-    public static string GetTrialRawDataFileName(
-        int sessNo,
-        int trialNo,
-        string game,
-        string movement) => FixPath(Path.Combine(dirPathRawData, $"raw-sess{sessNo:D2}-trial{trialNo:D3}-{game}-{movement}.csv"));
-    public static void createFileStructure()
+    // Functions to generate file names.
+    public static string GetRomFileName(string movement, string mode) => FixPath(Path.Combine(romPath, $"{movement}-{mode}-rom.csv"));
+    public static string GetTrialRawDataFileName(int sessNo, int trialNo, string game, string movement) => FixPath(Path.Combine(rawPath, $"raw-sess{sessNo:D2}-trial{trialNo:D3}-{game}-{movement}.csv"));
+
+    public static void CreateFileStructure()
     {
-        dirPathROMData = basePath + "/rom";
-        sessionDirPath = basePath + "/sessions";
-        dirPathRawData = basePath + "/rawdata";
+        sessionPath = basePath + "/sessions";
+        romPath = basePath + "/rom";
+        rawPath = basePath + "/rawdata";
+        gamepath = basePath + "/game";
         logPath = basePath + "/applog";
-        dynLimParaFilePath = FixPath(Path.Combine(dirPathROMData, "DYNLIMPARAM.csv"));
-        sessionFilePath = FixPath(Path.Combine(sessionDirPath, "sessions.csv"));
-        assessFilePath = dirPathROMData + "/assessment.csv";
+        sessionFile = FixPath(Path.Combine(sessionPath, "sessions.csv"));
         Directory.CreateDirectory(basePath);
-        Directory.CreateDirectory(sessionDirPath);
-        Directory.CreateDirectory(dirPathRawData);
-        Directory.CreateDirectory(dirPathROMData);
+        Directory.CreateDirectory(sessionPath);
+        Directory.CreateDirectory(rawPath);
+        Directory.CreateDirectory(romPath);
         Debug.Log("Directory created at: " + basePath);
-        
     }
 
     public static string FixPath(string path) => path.Replace("\\", "/");
 
-    public static void setUserId(string userID)
-    {
-        basePath = FixPath(Path.Combine(Application.dataPath, "data", AppData.Instance.userID, "data"));
-        configFilePath = basePath + "/configdata.csv";
-    }
+    // public static void setUserId(string userID)
+    // {
+    //     basePath = FixPath(Path.Combine(Application.dataPath, "data", AppData.Instance.userID, "data"));
+    //     configFile = basePath + "/configdata.csv";
+    // }
 
     public static void CreateSessionFile(string device, string location, string[] header = null)
     {
 
         // Ensure the Sessions.csv file has headers if it doesn't exist
-        if (!File.Exists(sessionFilePath))
+        if (!File.Exists(sessionFile))
         {
             header ??= SESSIONFILEHEADER;
-            using (var writer = new StreamWriter(sessionFilePath, false, Encoding.UTF8))
+            using (var writer = new StreamWriter(sessionFile, false, Encoding.UTF8))
             {
                 // Write the preheader details
                 writer.WriteLine($":Device: {device}");
                 writer.WriteLine($":Location: {location}");
-                writer.WriteLine(String.Join(",", header));
+                writer.WriteLine(string.Join(",", header));
             }
-            AppLogger.LogWarning("Sessions.csv file not founds. Created one.");
+            AppLogger.LogWarning("Sessions.csv file not found. Created one.");
         }
     }
     public static DataTable loadCSV(string filePath)

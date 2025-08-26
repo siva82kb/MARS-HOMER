@@ -28,34 +28,37 @@ public class welcomSceneHandler : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        // Check if the directory exists
+        if (!Directory.Exists(DataManager.basePath)) Directory.CreateDirectory(DataManager.basePath);
+        if (!File.Exists(DataManager.configFile)) SceneManager.LoadScene("CONFIG");
+
         // Initialize.
         Debug.Log(DataManager.basePath);
         if (!Directory.Exists(DataManager.basePath))
         {
-            
             SceneManager.LoadScene("getConfig");
             return;
         }
 
-        // Get all subdirectories excluding metadata
-        var validUserDirs = Directory.GetDirectories(DataManager.basePath)
-        .Select(Path.GetFileName)
-        .Where(name => !name.ToLower().Contains("meta"))
-        .ToList();
+        // // Get all subdirectories excluding metadata
+        // var validUserDirs = Directory.GetDirectories(DataManager.basePath)
+        // .Select(Path.GetFileName)
+        // .Where(name => !name.ToLower().Contains("meta"))
+        // .ToList();
        
 
-        if (validUserDirs.Count == 1)
-        {
-            AppData.Instance.setUser(validUserDirs[0]);
-            DataManager.setUserId(AppData.Instance.userID);
-        }
+        // if (validUserDirs.Count == 1)
+        // {
+        //     AppData.Instance.setUser(validUserDirs[0]);
+        //     DataManager.setUserId(AppData.Instance.userID);
+        // }
 
-        if (!File.Exists(DataManager.configFilePath))
-        {
+        // if (!File.Exists(DataManager.configFilePath))
+        // {
             
-            SceneManager.LoadScene("getConfig");
-            return;
-        }
+        //     SceneManager.LoadScene("getConfig");
+        //     return;
+        // }
 
         AppData.Instance.Initialize(SceneManager.GetActiveScene().name);
         AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);

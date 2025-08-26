@@ -12,7 +12,7 @@ public partial class AppData
     public static AppData Instance => _instance.Value;
 
 
-    static public readonly string COMPort = "COM35";
+    static public readonly string COMPort = "COM4";
 
     /*
    * SESSION DETAILS
@@ -56,7 +56,7 @@ public partial class AppData
         startTime = DateTime.Now;
 
         // Create file structure.
-        DataManager.createFileStructure();
+        DataManager.CreateFileStructure();
 
         // Start logging.
         string _dtstr = AppLogger.StartLogging(scene);
@@ -67,10 +67,10 @@ public partial class AppData
 
      
         // Initialize the user data.
-        UnityEngine.Debug.Log(DataManager.configFilePath);
-        UnityEngine.Debug.Log(DataManager.sessionFilePath);
+        UnityEngine.Debug.Log(DataManager.configFile);
+        UnityEngine.Debug.Log(DataManager.sessionFile);
 
-        userData = new marsUserData(DataManager.configFilePath, DataManager.sessionFilePath);
+        userData = new marsUserData(DataManager.configFile, DataManager.sessionFile);
         transitionControl = new MarsTransitionControl();
         // Selected movement and game.
         selectedMovement = null;

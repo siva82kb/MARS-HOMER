@@ -22,7 +22,7 @@ public class OneTimeConfig : MonoBehaviour
     public TMP_Dropdown affectedSideDropdown;
 
     public TextMeshProUGUI totalDurationText;
-    public Animator animator; // Assign UI element’s Animator in Inspector
+    public Animator animator; // Assign UI elementï¿½s Animator in Inspector
     [SerializeField]private AudioSource audioSource;
     public string upperArmLength = "250";
     public string foreArmLength = "150";
@@ -137,26 +137,24 @@ public class OneTimeConfig : MonoBehaviour
             string headers = "Date,name,hospno,Startdate,end ,age,TotaDuration,SFE,SABDU,ELFE,useHand,forearmLength,upperarmLength";
         string data = $"{date},{name},{hospitalId},{startDate},{endDate},{age},{totalDuration},{sfe},{sabad},{elfe},{trainingSide},{upperArmLength},{foreArmLength}";
 
-
-        string directoryPath = DataManager.directoryPath;
-        if (!Directory.Exists(directoryPath))
+        if (!Directory.Exists(DataManager.basePath))
         {
-            Directory.CreateDirectory(directoryPath);
+            Directory.CreateDirectory(DataManager.basePath);
         }
      
 
-        if (File.Exists(DataManager.configFilePath))
+        if (File.Exists(DataManager.configFile))
         {
             Debug.Log("Configuration File Already Exists. you can't update Here");
         }
         else {
-            if (!File.Exists(DataManager.configFilePath))
+            if (!File.Exists(DataManager.configFile))
             {
-                File.Create(DataManager.configFilePath).Dispose();
-                File.WriteAllText(DataManager.configFilePath, headers + Environment.NewLine);
-                Debug.Log("Data saved to CSV: " + DataManager.configFilePath);
+                File.Create(DataManager.configFile).Dispose();
+                File.WriteAllText(DataManager.configFile, headers + Environment.NewLine);
+                Debug.Log("Data saved to CSV: " + DataManager.configFile);
             }
-            File.AppendAllText(DataManager.configFilePath, data + Environment.NewLine);
+            File.AppendAllText(DataManager.configFile, data + Environment.NewLine);
 
             SceneManager.LoadScene("welcomeScene");
 
