@@ -320,6 +320,7 @@ public class DiagnosticSceneHandler : MonoBehaviour
             setHLimbKinUALength = sldrHLimbUALength.value;
             setHLimbKinFALength = sldrHLimbFALength.value;
             setHLimbKinShPosZ = averagePosition.z;
+           
             Debug.Log($"Setting human limb kinematic parameters: UALength={setHLimbKinUALength}, FALength={setHLimbKinFALength}, Average Position Z={setHLimbKinShPosZ}");
             MarsComm.setHumanLimbKinParams(setHLimbKinUALength, setHLimbKinFALength, setHLimbKinShPosZ);
             // Get the human limb kinematic parameters from MARS.
@@ -340,6 +341,7 @@ public class DiagnosticSceneHandler : MonoBehaviour
 
     private void OnHumanLimbKinParamData()
     {
+        Debug.Log(MarsComm.uaLength + "," + MarsComm.faLength + "," + MarsComm.shPosZ);
         // Check if the human limb kinematics parameters match the set values.
         if (MarsComm.limbKinParam != 0x01 || MarsComm.uaLength != setHLimbKinUALength || MarsComm.faLength != setHLimbKinFALength || MarsComm.shPosZ != setHLimbKinShPosZ)
         {

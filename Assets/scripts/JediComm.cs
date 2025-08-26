@@ -123,7 +123,7 @@ public static class JediComm
         plCount = 0;
         int chksum = 0;
         int _chksum;
-      
+
         if ((serPort.ReadByte() == HeaderIn) && (serPort.ReadByte() == HeaderIn))
         {
             plCount = 0;
@@ -158,8 +158,8 @@ public static class JediComm
         }
     }
 
-   public static void SendMessage(byte[] outBytes)
-   {
+    public static void SendMessage(byte[] outBytes)
+    {
         // Prepare the payload (with the header, length, message, and checksum)
         List<byte> outPayload = new List<byte> {
             HeaderOut,                     // Header byte 1
@@ -169,7 +169,7 @@ public static class JediComm
 
         // Add the message bytes to the payload
         outPayload.AddRange(outBytes);
-         
+
         // Calculate checksum (sum of all bytes modulo 256)
         byte checksum = (byte)(outPayload.Sum(b => b) % 256);
 
