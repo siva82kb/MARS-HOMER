@@ -40,8 +40,7 @@ public class Drawlines : MonoBehaviour
 
         centerValX = (endPointMaxX + endPointMinX) / 2;
         centerValY = (endPointMaxY + endPointMinY) / 2;
-        OFFSET = AppData.Instance.userData.useHand == 1 ? -1 : 1;
-
+        OFFSET = AppData.Instance.userData.rightArm ? -1 : 1;
     }
     void FixedUpdate()
     {

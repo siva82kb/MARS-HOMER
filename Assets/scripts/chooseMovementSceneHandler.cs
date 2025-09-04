@@ -89,7 +89,7 @@ public class MovementSceneHandler : MonoBehaviour
         foreach (Transform child in movementSelectGroup.transform)
         {
             Toggle toggleComponent = child.GetComponent<Toggle>();
-            bool isPrescribed = AppData.Instance.userData.movementMoveTimePrsc[toggleComponent.name] > 0;
+            bool isPrescribed = AppData.Instance.userData.moveTimePrsc[toggleComponent.name] > 0;
             // Hide the component if it has no prescribed time.
             toggleComponent.interactable = isPrescribed;
             toggleComponent.gameObject.SetActive(isPrescribed);
@@ -102,7 +102,7 @@ public class MovementSceneHandler : MonoBehaviour
                 if (timeLeftText != null)
                 {
                     // Set the text to your desired value
-                    timeLeftText.text = $"{AppData.Instance.userData.getTodayMoveTimeForMovement(toggleComponent.name)} / {AppData.Instance.userData.movementMoveTimePrsc[toggleComponent.name]} min";
+                    timeLeftText.text = $"{AppData.Instance.userData.getTodayMoveTimeForMovement(toggleComponent.name)} / {AppData.Instance.userData.moveTimePrsc[toggleComponent.name]} min";
                 }
                 else
                 {

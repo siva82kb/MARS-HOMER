@@ -13,13 +13,16 @@ public class UserCalibrationSceneHandler : MonoBehaviour
     //ui related variables
     public TMP_Text instructionText;
     public TMP_Text statusText;
-    public TMP_InputField uaLength;
-    public TMP_InputField faLength;
-    public Button btnLimbLengthSet;
+    public TMP_Text uaLength;
+    public TMP_Text faLength;
+    public TMP_Text epPosition;
+    private readonly string prevScene = "ROBOTCALIB";
     private readonly string nextScene = "USERCALIB";
     private bool attachMarsButtonEvent = true;
     private string _limb;
     private bool buttonPressed;
+    private static string FLOAT_FORMAT = "+0.000;-0.000";
+
 
     void Start()
     {
@@ -33,20 +36,22 @@ public class UserCalibrationSceneHandler : MonoBehaviour
         AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);
         AppLogger.LogInfo($"{SceneManager.GetActiveScene().name} scene started.");
 
-        // Reset limb.
-        MarsComm.setLimb("NOLIMB");
-
-        // Set limb for MARS.
-        _limb = AppData.Instance.userData.rightHand ? "RIGHT" : "LEFT";
+        // Check if the device is calibrated.
+        if (MarsComm.CALIBRATION[MarsComm.calibration] == "NOCALIB")
+        {
+           SceneManager.LoadScene(prevScene);
+        }
 
         // Initialize UI
-        statusText.text = "";
-        instructionText.text = "";
+        InitUI();
     }
 
     void Update()
     {
         MarsComm.sendHeartbeat();
+        
+        // Debug.Log(MarsComm.xEndpoint);
+        epPosition.text = $"{(100 * MarsComm.xEndpoint).ToString(FLOAT_FORMAT)}cm, {(100 * MarsComm.yEndpoint).ToString(FLOAT_FORMAT)}cm, {(100 * MarsComm.zEndpoint).ToString(FLOAT_FORMAT)}cm";
 
         // Wait for a second before doing anything.
         if (Time.timeSinceLevelLoad < 1) return;
@@ -84,6 +89,15 @@ public class UserCalibrationSceneHandler : MonoBehaviour
                 instructionText.color = new Color32(202, 108, 0, 255);
             }
         }
+    }
+
+    public void InitUI()
+    {
+        statusText.text = "";
+        instructionText.text = "";
+        uaLength.text = (100 * AppData.Instance.userData.uaLength).ToString() + "cm";
+        faLength.text = (100 * AppData.Instance.userData.faLength).ToString() + "cm";
+        epPosition.text = $"{(100 * MarsComm.xEndpoint).ToString(FLOAT_FORMAT)}cm, {(100 * MarsComm.yEndpoint).ToString(FLOAT_FORMAT)}cm, {(100 * MarsComm.zEndpoint).ToString(FLOAT_FORMAT)}cm";
     }
 
     public void onMarsButtonReleased()

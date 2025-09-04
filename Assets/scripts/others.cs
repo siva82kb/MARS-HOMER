@@ -45,38 +45,28 @@ public class MarsUserData
     public DataTable dTableSupportConfig = null;
     public string hospNumber;
     public DateTime startDate;
-    public bool rightHand { private set; get; }
-    public int useHand;
+    public bool rightArm { private set; get; }
+    public int limb { get { return rightArm ? 1 : 2; } }
     public float faLength;
     public float uaLength;
     public void setUALength(float uaLength)
     {
         this.uaLength = uaLength;
-
     }
     public void setFALength(float faLength)
     {
         this.faLength = faLength;
-
     }
-    public Dictionary<string, float> movementMoveTimePrsc { get; private set; } // Prescribed movement time
-    public Dictionary<string, float> movementMoveTimeCurr { get; private set; } // Current movement time
-    public Dictionary<string, float> movementMoveTimePrev { get; private set; } // Previous movement time 
+    public Dictionary<string, float> moveTimePrsc { get; private set; } // Prescribed movement time
+    public Dictionary<string, float> moveTimeCurr { get; private set; } // Current movement time
+    public Dictionary<string, float> moveTimePrev { get; private set; } // Previous movement time 
     // Total movement times.
     public float totalMoveTimePrsc
     {
         get
         {
-            if (movementMoveTimePrsc == null)
-            {
-                return -1f;
-            }
-            else
-            {
-                // Add all entries of the movement move time dictionary
-                return movementMoveTimePrsc.Values.Sum();
-
-            }
+            if (moveTimePrsc == null) return -1f;
+            else return moveTimePrsc.Values.Sum();
         }
     }
     public int totalMoveTimeRemaining
@@ -87,11 +77,9 @@ public class MarsUserData
             float _Prsc = 0f;
             foreach (string movement in MarsDefs.Movements)
             {
-                _Prsc += movementMoveTimePrsc[movement];
-                _total += movementMoveTimePrev[movement] - movementMoveTimeCurr[movement];
+                _Prsc += moveTimePrsc[movement];
+                _total += moveTimePrev[movement] - moveTimeCurr[movement];
             }
-            //Debug.Log(_Prsc + "prescribed");
-            //Debug.Log(_total + "done");
             if (_Prsc < _total)
             {
                 isExceeded = true;
@@ -110,35 +98,35 @@ public class MarsUserData
 
     public MarsUserData(string configData, string sessionData)
     {
-        if (File.Exists(configData))
-        {
-            dTableConfig = DataManager.loadCSV(configData);
-        }
+        // Read the file if it exists.
+        if (File.Exists(configData)) dTableConfig = DataManager.loadCSV(configData);
+        else return;
+
         // Create session file if it does not exist.
         if (!File.Exists(sessionData)) DataManager.CreateSessionFile("MARS", GetDeviceLocation());
 
         // Read the session file
         dTableSession = DataManager.loadCSV(sessionData);
-        movementMoveTimeCurr = createMoveTimeDictionary();
+        moveTimeCurr = createMoveTimeDictionary();
 
         // Read the therapy configuration data.
         parseTherapyConfigData();
         if (File.Exists(DataManager.sessionFile))
         {
-            parseMovementMoveTimePrev();
+            parsemoveTimePrev();
         }
     }
 
-    public void parseMovementMoveTimePrev()
+    public void parsemoveTimePrev()
     {
-        movementMoveTimePrev = createMoveTimeDictionary();
+        moveTimePrev = createMoveTimeDictionary();
         for (int i = 0; i < MarsDefs.Movements.Length; i++)
         {
             var _totalMoveTime = dTableSession.AsEnumerable()
                 .Where(row => DateTime.ParseExact(row.Field<string>(dateTime), DataManager.DATETIMEFORMAT, CultureInfo.InvariantCulture).Date == DateTime.Now.Date)
                 .Where(row => row.Field<string>(movement) == MarsDefs.Movements[i])
                 .Sum(row => Convert.ToInt32(row[moveTime]));
-            movementMoveTimePrev[MarsDefs.Movements[i]] = _totalMoveTime / 60f;
+            moveTimePrev[MarsDefs.Movements[i]] = _totalMoveTime / 60f;
         }
     }
 
@@ -162,31 +150,23 @@ public class MarsUserData
     {
         DataRow lastRow = dTableConfig.Rows[dTableConfig.Rows.Count - 1];
         hospNumber = lastRow.Field<string>("HospitalNumber");
-        rightHand = lastRow.Field<string>("TrainingSide").ToLower() == "right";
-        startDate = DateTime.ParseExact(lastRow.Field<string>("Startdate"), "dd-MM-yyyy", CultureInfo.InvariantCulture);
-        movementMoveTimePrsc = createMoveTimeDictionary();//prescribed time
+        rightArm = lastRow.Field<string>("TrainingSide").ToLower() == "RIGHT";
+        startDate = DateTime.ParseExact(lastRow.Field<string>("StartDate"), "dd-MM-yyyy", CultureInfo.InvariantCulture);
+        moveTimePrsc = createMoveTimeDictionary();
         for (int i = 0; i < MarsDefs.Movements.Length; i++)
         {
-            movementMoveTimePrsc[MarsDefs.Movements[i]] = float.Parse(lastRow.Field<string>(MarsDefs.Movements[i]));
+            moveTimePrsc[MarsDefs.Movements[i]] = float.Parse(lastRow.Field<string>(MarsDefs.Movements[i]));
         }
-        if (rightHand)
-        {
-            useHand = 1;
-        }
-        else
-        {
-            useHand = 2;
-        }
-        faLength = float.Parse(lastRow.Field<string>("forearmLength"));
-        uaLength = float.Parse(lastRow.Field<string>("upperarmLength"));
-        //Debug.Log($"{useHand},{faLength}, {uaLength}");
+        faLength = float.Parse(lastRow.Field<string>("ForearmLength"));
+        uaLength = float.Parse(lastRow.Field<string>("UpperarmLength"));
+        Debug.Log($"{limb},{faLength}, {uaLength}");
     }
 
     public string GetDeviceLocation() => dTableConfig.Rows[dTableConfig.Rows.Count - 1].Field<string>("Location");
 
     public int getTodayMoveTimeForMovement(string movement)
     {
-        return (int)movementMoveTimePrev[movement] + (int)movementMoveTimeCurr[movement];
+        return (int)moveTimePrev[movement] + (int)moveTimeCurr[movement];
     }
 
     public DaySummary[] CalculateMoveTimePerDay(int noOfPastDays = 7)

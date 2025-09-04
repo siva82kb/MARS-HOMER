@@ -34,7 +34,7 @@ public class RobotCalibrationSceneHandler : MonoBehaviour
         MarsComm.setLimb("NOLIMB");
 
         // Set limb for MARS.
-        _limb = AppData.Instance.userData.rightHand ? "RIGHT" : "LEFT";
+        _limb = MarsComm.LIMBTYPE[AppData.Instance.userData.limb];
 
         // Initialize UI
         statusText.text = "";
@@ -46,7 +46,7 @@ public class RobotCalibrationSceneHandler : MonoBehaviour
         MarsComm.sendHeartbeat();
 
         // Wait for a second before doing anything.
-        if (Time.timeSinceLevelLoad < 1) return;
+        if (Time.timeSinceLevelLoad < 0.25) return;
 
         // Attach MARS event listeners.
         if (attachMarsButtonEvent)

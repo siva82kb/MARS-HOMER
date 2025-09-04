@@ -18,10 +18,7 @@ public struct DaySummary
 public class DataManager : MonoBehaviour
 {
     public static readonly string basePath = FixPath(Path.Combine(Application.dataPath, "data"));
-    public static string userpath;    
-    // public static readonly string directoryPath = Application.dataPath + "/data";
-    // static string dirPathRawData;
-    // public static string dirPathROMData;
+    public static string userpath;
     public static string sessionPath { get; private set; }
     public static string rawPath { get; private set; }
     public static string romPath { get; private set; }
@@ -38,7 +35,7 @@ public class DataManager : MonoBehaviour
         "TrialNumberDay", "TrialNumberSession", "TrialType", "TrialStartTime", "TrialStopTime", "TrialRawDataFile",
         "Movement",
         "GameName", "GameParameter", "GameSpeed",
-        "AssistMode", "DesiredSuccessRate", "SuccessRate", "", "", "MoveTime"
+        "AssistMode", "DesiredSuccessRate", "SuccessRate", "MoveTime"
     };
     // Raw data header.
     public static string[] RAWFILEHEADER = new string[]
@@ -86,7 +83,6 @@ public class DataManager : MonoBehaviour
 
     public static void CreateSessionFile(string device, string location, string[] header = null)
     {
-
         // Ensure the Sessions.csv file has headers if it doesn't exist
         if (!File.Exists(sessionFile))
         {

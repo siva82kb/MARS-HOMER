@@ -146,15 +146,12 @@ public class calibrationSceneHandler : MonoBehaviour
         switch (calibState)
         {
             case CALIBSTATES.SETUPLIMB:
-               
                 if (MarsComm.LIMBTYPE[MarsComm.limb] == "NOLIMB")
                 {
-                    MarsComm.setLimb(MarsComm.LIMBTYPE[AppData.Instance.userData.useHand]);
+                    MarsComm.setLimb(MarsComm.LIMBTYPE[AppData.Instance.userData.rightArm ? 1 : 2]);
                     return;
                 }
-                 
                 break;
-
             case CALIBSTATES.CALIBRATE:
                 if (MarsComm.CALIBRATION[MarsComm.calibration] == "NOCALIB")
                 {
@@ -167,7 +164,6 @@ public class calibrationSceneHandler : MonoBehaviour
                 }
                 calibState = CALIBSTATES.SETLIMBKINPARA;
                 break;
-          
             case CALIBSTATES.SETLIMBKINPARA:
                 if(MarsComm.CALIBRATION[MarsComm.calibration] == "NOCALIB")
                     calibState = CALIBSTATES.CALIBRATE;

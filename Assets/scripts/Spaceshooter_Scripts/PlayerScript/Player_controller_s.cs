@@ -61,8 +61,7 @@ public class Player_controller_s : MonoBehaviour
         yMinMars = currRom[2];
         yMaxMars = currRom[3];
 
-        OFFSET = AppData.Instance.userData.useHand == 1 ? -1 : 1;
-
+        OFFSET = AppData.Instance.userData.rightArm ? -1 : 1;
     }
    
     public void FixedUpdate()

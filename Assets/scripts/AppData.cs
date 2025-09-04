@@ -37,11 +37,10 @@ public partial class AppData
 
     /* DO OBJECT CREATION HERE */
     public string selectedGame { get; private set; } = null;
-
     public MarsMovement selectedMovement { get; private set; }
     public MarsUserData userData;
     public MarsTransitionControl transitionControl { get; private set; }
-    // public static float[] dataSendToRobot;  //parameters send  to robot
+    public string trainingSide => userData?.limb != null ? MarsComm.LIMBTYPE[userData.limb] : MarsComm.LIMBTYPE[0];
 
     public void Initialize(string scene)
     {
@@ -129,16 +128,14 @@ public partial class AppData
         AppLogger.SetCurrentMovement(selectedMovement.name);
         AppLogger.LogInfo($"Trial numbers for ' {selectedMovement.name}' updated. Day: {selectedMovement.trialNumberDay}, Session: {selectedMovement.trialNumberSession}.");
     }
+
     public void SetGame(string game)
     {
         selectedGame = game;
     }
-   
-    public string trainingSide => userData?.rightHand == true ? "RIGHT" : "LEFT";
-
-    // Check training size.
+    
+    // Check training side.
     public bool IsTrainingSide(string side) => string.Equals(trainingSide, side, StringComparison.OrdinalIgnoreCase);
-
 }
 
 public static class ConnectToRobot
