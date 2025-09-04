@@ -3,6 +3,7 @@ using System.Text;
 using System;
 using Debug = UnityEngine.Debug;
 using UnityEngine;
+using System.IO;
 
 public partial class AppData
 {
@@ -31,46 +32,41 @@ public partial class AppData
     private StringBuilder rawDataString = null;
     private readonly object rawDataLock = new object();
     private StringBuilder aanExecDataString = null;
-
     public string userID { get; private set; } = null;
-
     public float successRate { get; private set; } = 0f;
-
 
     /* DO OBJECT CREATION HERE */
     public string selectedGame { get; private set; } = null;
 
-    public MarsMovement selectedMovement {  get; private set; }
-
-    public marsUserData userData;
+    public MarsMovement selectedMovement { get; private set; }
+    public MarsUserData userData;
     public MarsTransitionControl transitionControl { get; private set; }
+    // public static float[] dataSendToRobot;  //parameters send  to robot
 
-    
-    public static float[] dataSendToRobot;  //parameters send  to robot
-
-    public void Initialize(string scene, bool doNotResetMovement = true)
+    public void Initialize(string scene)
     {
-        UnityEngine.Debug.Log(Application.persistentDataPath);
-
         // Set sesstion start time.
         startTime = DateTime.Now;
 
+        // First check if this is a single user case.
+        // Check if the base directory has only one folder.
+        if (Directory.GetDirectories(DataManager.basePath).Length == 1)
+        {
+            // If so, set the user ID to the name of that folder.
+            AppData.Instance.setUser(Path.GetFileName(Directory.GetDirectories(DataManager.basePath)[0]));
+        }
+
         // Create file structure.
-        DataManager.CreateFileStructure();
+        DataManager.CreateFileStructure(AppData.Instance.userID);
 
         // Start logging.
         string _dtstr = AppLogger.StartLogging(scene);
 
         //Connect and init robot.
-        InitializeRobotConnection(doNotResetMovement, _dtstr);
-        
-
+        InitializeRobotConnection(_dtstr);
      
         // Initialize the user data.
-        UnityEngine.Debug.Log(DataManager.configFile);
-        UnityEngine.Debug.Log(DataManager.sessionFile);
-
-        userData = new marsUserData(DataManager.configFile, DataManager.sessionFile);
+        userData = new MarsUserData(DataManager.configFile, DataManager.sessionFile);
         transitionControl = new MarsTransitionControl();
         // Selected movement and game.
         selectedMovement = null;
@@ -79,22 +75,17 @@ public partial class AppData
         // Get current session number.
         currentSessionNumber = userData.dTableSession.Rows.Count > 0 ?
             Convert.ToInt32(userData.dTableSession.Rows[userData.dTableSession.Rows.Count - 1]["SessionNumber"]) + 1 : 1;
-        AppLogger.LogWarning($"Session number set to {currentSessionNumber}.");
-
-        //set to upload the data to the AWS
-        //awsManager.changeUploadStatus(awsManager.status[0]);
+        AppLogger.LogInfo($"Session number set to {currentSessionNumber}.");
     }
 
-
-    //waiting for MarsComm
-    private void InitializeRobotConnection(bool doNotResetMov, string datetimestr = null)
+    // Waiting for MarsComm
+    private void InitializeRobotConnection(string datetimestr = null)
     {
         //Initialize the MARS Comm logger.
         if (datetimestr != null)
         {
             MarsCommLogger.StartLogging(datetimestr);
         }
-
         if (!ConnectToRobot.isMARS)
         {
             ConnectToRobot.Connect(COMPort);
@@ -102,28 +93,27 @@ public partial class AppData
         MarsComm.getVersion();
         MarsComm.startSensorStream();
 
-        //// Check if the connection is successful.
+        // Check if the connection is successful.
         if (!ConnectToRobot.isConnected)
         {
             AppLogger.LogError($"Failed to connect to MARS @ {COMPort}.");
             throw new Exception($"Failed to connect to MARS @ {COMPort}.");
         }
-        AppLogger.LogInfo($"Connected to MARS @ {COMPort}.");
-        //// Set control to NONE, calibrate and get version.
-       
+        AppLogger.LogInfo($"Connected to MARS @ {COMPort}.");       
         AppLogger.LogInfo($"MARS SensorStream started.");
     }
+
     public void InitializeRobotDiagnostics()
     {
         ConnectToRobot.Connect(COMPort);
-
     }
 
     public void setUser(string user)
     {
         userID = user;
-        UnityEngine.Debug.Log($" id : {userID}");
+        AppLogger.LogInfo($"User ID set to {userID}.");
     }
+
     public void SetMovement(string name)
     {
         if (string.IsNullOrEmpty(name))
@@ -173,7 +163,6 @@ public static class ConnectToRobot
         {
             if (JediComm.serPort.IsOpen == false)
             {
-                UnityEngine.Debug.Log(_port);
                 JediComm.Connect();
             }
             isConnected = JediComm.serPort.IsOpen;

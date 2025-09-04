@@ -12,7 +12,7 @@ EditorBuildSettings:
     path: Assets/Scenes/DIAGNOSTICS.unity
     guid: 2cda990e2423bbf4892e6590ba056729
   - enabled: 1
-    path: Assets/Scenes/CALIB.unity
+    path: Assets/Scenes/ROBOTCALIB.unity
     guid: 02b1b3a8a6ce6294faf928e79d71b01d
   - enabled: 1
     path: Assets/Scenes/CHOOSEMOVEMENT.unity
@@ -149,5 +149,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/WEIGHTEST.unity
     guid: 873379b4e24d8c54aa8978fed016276a
+  - enabled: 1
+    path: Assets/Scenes/USERCALIB.unity
+    guid: bc6442da60ae5ed4b80c55906fe4f6a4
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0

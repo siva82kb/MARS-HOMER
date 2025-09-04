@@ -17,12 +17,8 @@ public struct DaySummary
 
 public class DataManager : MonoBehaviour
 {
-    public static readonly string userIdPath =
-       AppData.Instance.userID != null
-       ? Path.Combine(Application.dataPath, "data", AppData.Instance.userID)
-       : Application.dataPath;
-
-    public static string basePath = FixPath(Path.Combine(userIdPath, "data"));   
+    public static readonly string basePath = FixPath(Path.Combine(Application.dataPath, "data"));
+    public static string userpath;    
     // public static readonly string directoryPath = Application.dataPath + "/data";
     // static string dirPathRawData;
     // public static string dirPathROMData;
@@ -33,8 +29,8 @@ public class DataManager : MonoBehaviour
     public static string logPath { get; private set; }
 
     public static string sessionFile { get; private set; }
-    public static readonly string configFile = basePath + "/configdata.csv";
-    public static readonly string limbParamFile = basePath + "/limbparameters.csv";
+    public static string configFile;
+    public static string limbParamFile;
     // public static string dynLimParaFilePath { get; private set; }
     // public static string filePathUploadStatus = Application.dataPath + "/uploadStatus.txt";
     public static string[] SESSIONFILEHEADER = new string[] {
@@ -63,28 +59,30 @@ public class DataManager : MonoBehaviour
     public static string GetRomFileName(string movement, string mode) => FixPath(Path.Combine(romPath, $"{movement}-{mode}-rom.csv"));
     public static string GetTrialRawDataFileName(int sessNo, int trialNo, string game, string movement) => FixPath(Path.Combine(rawPath, $"raw-sess{sessNo:D2}-trial{trialNo:D3}-{game}-{movement}.csv"));
 
-    public static void CreateFileStructure()
+    public static void CreateFileStructure(string userID)
     {
-        sessionPath = basePath + "/sessions";
-        romPath = basePath + "/rom";
-        rawPath = basePath + "/rawdata";
-        gamepath = basePath + "/game";
-        logPath = basePath + "/applog";
+        // Update the user ID path. If the userID is empty, do nothing.
+        if (string.IsNullOrEmpty(userID)) return;
+        // User ID is not empty.
+        userpath = FixPath(Path.Combine(basePath, userID, "data"));
+        configFile = userpath + "/configdata.csv";
+        limbParamFile = userpath + "/limbparameters.csv";
+        sessionPath = userpath + "/sessions";
+        romPath = userpath + "/rom";
+        rawPath = userpath + "/rawdata";
+        gamepath = userpath + "/game";
+        logPath = userpath + "/applog";
         sessionFile = FixPath(Path.Combine(sessionPath, "sessions.csv"));
-        Directory.CreateDirectory(basePath);
+        // Directory.CreateDirectory(basePath);
         Directory.CreateDirectory(sessionPath);
-        Directory.CreateDirectory(rawPath);
         Directory.CreateDirectory(romPath);
-        Debug.Log("Directory created at: " + basePath);
+        Directory.CreateDirectory(rawPath);
+        Directory.CreateDirectory(gamepath);
+        Directory.CreateDirectory(logPath);
+        Debug.Log("Directory created at: " + userpath);
     }
 
     public static string FixPath(string path) => path.Replace("\\", "/");
-
-    // public static void setUserId(string userID)
-    // {
-    //     basePath = FixPath(Path.Combine(Application.dataPath, "data", AppData.Instance.userID, "data"));
-    //     configFile = basePath + "/configdata.csv";
-    // }
 
     public static void CreateSessionFile(string device, string location, string[] header = null)
     {
@@ -163,7 +161,6 @@ public static class AppLogger
     public static string currentScene { get; private set; } = "";
     public static string currentMechanism { get; private set; } = "";
     public static string currentGame { get; private set; } = "";
-
     public static bool DEBUG = true;
     public static string InBraces(string text) => $"[{text}]";
 

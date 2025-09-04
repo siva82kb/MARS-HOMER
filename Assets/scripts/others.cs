@@ -16,7 +16,7 @@ using System.Diagnostics.Eventing.Reader;
 
 public static class MarsDefs
 {
-    public static readonly string[] Movements = new string[] {"SABDU","ELFE","SFE"};
+    public static readonly string[] Movements = new string[] { "SABDU", "ELFE", "SFE" };
    
     public static int getMovementIndex(string Movement)
     {
@@ -24,30 +24,28 @@ public static class MarsDefs
     }
 }
 
-public class marsUserData
+public class MarsUserData
 {
-    public  bool isExceeded { get; private set; }
-    public  DataTable dTableConfig = null;
-    public  DataTable dTableSession = null;
-    public  DataTable dTableAssessment = null;
-    public  DataTable dTableSupportConfig = null;
-    public  string hospNumber;
-    public DateTime startDate;
-
-    public bool rightHand { private set; get; }
-    //File headers
+    // Static variables.
+    static public string DATEFORMAT = "dd-MM-yyyy";
+    // File headers
     static public string movement = "Movement";
     static public string moveTime = "MoveTime";
     static public string dateTime = "DateTime";
-  
-    static public string dateFormat = "dd-MM-yyyy";
     static public string hosno = "hospno";
     static public string startDateH = "startdate";
     static public string useHandHeader = "TrainingSide";
     static public string forearmLength = "forearmLength";
     static public string upperarmLength = "upperarmLength";
 
-
+    public bool isExceeded { get; private set; }
+    public DataTable dTableConfig = null;
+    public DataTable dTableSession = null;
+    public DataTable dTableAssessment = null;
+    public DataTable dTableSupportConfig = null;
+    public string hospNumber;
+    public DateTime startDate;
+    public bool rightHand { private set; get; }
     public int useHand;
     public float faLength;
     public float uaLength;
@@ -61,14 +59,11 @@ public class marsUserData
         this.faLength = faLength;
 
     }
-
-    public  Dictionary<string, float> movementMoveTimePrsc { get; private set; } // Prescribed movement time
-    public  Dictionary<string, float> movementMoveTimeCurr { get; private set; } // Current movement time
-
-    public  Dictionary<string, float> movementMoveTimePrev { get; private set; } // Previous movement time 
-
+    public Dictionary<string, float> movementMoveTimePrsc { get; private set; } // Prescribed movement time
+    public Dictionary<string, float> movementMoveTimeCurr { get; private set; } // Current movement time
+    public Dictionary<string, float> movementMoveTimePrev { get; private set; } // Previous movement time 
     // Total movement times.
-    public  float totalMoveTimePrsc
+    public float totalMoveTimePrsc
     {
         get
         {
@@ -84,7 +79,7 @@ public class marsUserData
             }
         }
     }
-    public  int totalMoveTimeRemaining
+    public int totalMoveTimeRemaining
     {
         get
         {
@@ -113,7 +108,7 @@ public class marsUserData
         }
     }
 
-    public marsUserData(string configData, string sessionData)
+    public MarsUserData(string configData, string sessionData)
     {
         if (File.Exists(configData))
         {
@@ -130,14 +125,11 @@ public class marsUserData
         parseTherapyConfigData();
         if (File.Exists(DataManager.sessionFile))
         {
-            
             parseMovementMoveTimePrev();
         }
-     
-       
     }
 
-    public  void parseMovementMoveTimePrev()
+    public void parseMovementMoveTimePrev()
     {
         movementMoveTimePrev = createMoveTimeDictionary();
         for (int i = 0; i < MarsDefs.Movements.Length; i++)
@@ -165,6 +157,7 @@ public class marsUserData
         TimeSpan duration = DateTime.Now - startDate;
         return (int)duration.TotalDays;
     }
+
     private void parseTherapyConfigData()
     {
         DataRow lastRow = dTableConfig.Rows[dTableConfig.Rows.Count - 1];
@@ -190,6 +183,7 @@ public class marsUserData
     }
 
     public string GetDeviceLocation() => dTableConfig.Rows[dTableConfig.Rows.Count - 1].Field<string>("Location");
+
     public int getTodayMoveTimeForMovement(string movement)
     {
         return (int)movementMoveTimePrev[movement] + (int)movementMoveTimeCurr[movement];
@@ -205,7 +199,7 @@ public class marsUserData
             DateTime _day = today.AddDays(-i);
             // Get the summary data for this date.
             var _moveTime = AppData.Instance.userData.dTableSession.AsEnumerable()
-                .Where(row => DateTime.ParseExact(row.Field<string>(dateTime),DataManager.DATETIMEFORMAT, CultureInfo.InvariantCulture).Date == _day)
+                .Where(row => DateTime.ParseExact(row.Field<string>(dateTime), DataManager.DATETIMEFORMAT, CultureInfo.InvariantCulture).Date == _day)
                 .Sum(row => Convert.ToInt32(row[moveTime]));
             // Create the day summary.
             daySummaries[i - 1] = new DaySummary
@@ -218,6 +212,7 @@ public class marsUserData
         }
         return daySummaries;
     }
+
     public List<float> GetLastTwoSuccessRates(string movement, string gameName)
     {
         List<float> lastTwoSuccessRates = new List<float>();
@@ -237,7 +232,7 @@ public class marsUserData
                 row.Field<string>("GameName") == gameName)
             .OrderByDescending(row => DateTime.ParseExact(row.Field<string>("TrialStartTime"), DataManager.DATETIMEFORMAT, CultureInfo.InvariantCulture))
             .ToList();
-  
+
         var successRows = dTableSession.AsEnumerable()
         .Where(row =>
             row.Field<string>("Mechanism") == movement &&
@@ -263,19 +258,15 @@ public class marsUserData
         {
             Others.highestSuccessRate = 0f;
         }
-
-
         if (!filteredRows.Any())
         {
             return null;
         }
-
         // Get all success rates from today
         var todayRates = filteredRows
             .Where(row => DateTime.ParseExact(row.Field<string>("TrialStartTime"), DataManager.DATETIMEFORMAT, CultureInfo.InvariantCulture).Date == today)
             .Select(row => Convert.ToSingle(row["SuccessRate"]))
             .ToList();
-
         if (todayRates.Count >= 2)
         {
             lastTwoSuccessRates.Add(todayRates[1]);
@@ -303,14 +294,11 @@ public class marsUserData
             lastTwoSuccessRates.Add(previousDayRate);
             lastTwoSuccessRates.Add(0f);
         }
-
-        while (lastTwoSuccessRates.Count < 2)
-            lastTwoSuccessRates.Add(0f);
-
+        while (lastTwoSuccessRates.Count < 2) lastTwoSuccessRates.Add(0f);
         return lastTwoSuccessRates;
     }
-
 }
+
 public static class Others
 {
     public static float gameTime = 0f;
@@ -322,15 +310,13 @@ public static class Others
 }
 
 
-
-
 public class MarsMovement
 {
-    
+
     public string name { get; private set; }
     public string side { get; private set; }
-    
-    public string MarsMode {  get; private set; }
+
+    public string MarsMode { get; private set; }
     public void setMode(String mode)
     {
         MarsMode = mode;
@@ -346,7 +332,7 @@ public class MarsMovement
     public ROM newRomHWS { get; private set; }
     public ROM currRomHWS { get => newRomHWS.isaromRomSet ? newRomHWS : (oldRomHWS.isaromRomSet ? oldRomHWS : null); }
     public bool aromCompletedHWS { get; private set; }
-    
+
     //MarsMOde - NWS
     public ROM oldRomNWS { get; private set; }
     public ROM newRomNWS { get; private set; }
@@ -362,19 +348,19 @@ public class MarsMovement
     {
         this.name = name?.ToUpper() ?? string.Empty;
         this.side = side;
-       
+
         //objs MarsMode - FWS
-        oldRomFWS = new ROM(this.name,"FWS");
+        oldRomFWS = new ROM(this.name, "FWS");
         newRomFWS = new ROM();
         aromCompletedFWS = false;
 
         //objs MarsMode - FWS
-        oldRomHWS = new ROM(this.name,"HWS");
+        oldRomHWS = new ROM(this.name, "HWS");
         newRomHWS = new ROM();
         aromCompletedHWS = false;
 
         //objs MarsMode - FWS
-        oldRomNWS = new ROM(this.name,"NWS");
+        oldRomNWS = new ROM(this.name, "NWS");
         newRomNWS = new ROM();
         aromCompletedNWS = false;
 
@@ -382,9 +368,6 @@ public class MarsMovement
         //currSpeed = -1f;
         UpdateTrialNumbers(sessno);
     }
-
-
-    //public bool IsSpeedUpdated() => currSpeed > 0;
 
     public void NextTrail()
     {
@@ -396,17 +379,18 @@ public class MarsMovement
     public float[] CurrentAromHWS => currRomHWS == null ? null : new float[] { currRomHWS.aromMinX, currRomHWS.aromMaxX, currRomHWS.aromMinY, currRomHWS.aromMaxY };
     public float[] CurrentAromNWS => currRomNWS == null ? null : new float[] { currRomNWS.aromMinX, currRomNWS.aromMaxX, currRomNWS.aromMinY, currRomNWS.aromMaxY };
 
-
     public void ResetRomValuesFWS()
     {
-        newRomFWS.setRom(0, 0,0,0);
+        newRomFWS.setRom(0, 0, 0, 0);
         aromCompletedFWS = false;
     }
+
     public void ResetRomValuesHWS()
     {
         newRomHWS.setRom(0, 0, 0, 0);
         aromCompletedHWS = false;
     }
+
     public void ResetRomValuesNWS()
     {
         newRomNWS.setRom(0, 0, 0, 0);
@@ -415,9 +399,9 @@ public class MarsMovement
 
     public void SetNewRomValuesFWS(float minx, float maxx, float miny, float maxy)
     {
-        newRomFWS.setRom(minx,maxx,miny,maxy);
-        if (minx != 0 || maxx != 0 || miny!=0 || maxy!=0) aromCompletedFWS = true;
-      
+        newRomFWS.setRom(minx, maxx, miny, maxy);
+        if (minx != 0 || maxx != 0 || miny != 0 || maxy != 0) aromCompletedFWS = true;
+
         if (newRomFWS.movement == null)
         {
             newRomFWS.SetMovement(this.name);
@@ -432,7 +416,7 @@ public class MarsMovement
     {
         newRomHWS.setRom(minx, maxx, miny, maxy);
         if (minx != 0 || maxx != 0 || miny != 0 || maxy != 0) aromCompletedHWS = true;
-       
+
         if (newRomHWS.movement == null)
         {
             newRomHWS.SetMovement(this.name);
@@ -447,7 +431,7 @@ public class MarsMovement
     {
         newRomNWS.setRom(minx, maxx, miny, maxy);
         if (minx != 0 || maxx != 0 || miny != 0 || maxy != 0) aromCompletedNWS = true;
-      
+
         if (newRomNWS.movement == null)
         {
             newRomNWS.SetMovement(this.name);
@@ -469,6 +453,7 @@ public class MarsMovement
             newRomNWS.WriteToAssessmentFile();
         }
     }
+
     /*
      * Function to update the trial numbers for the day and session for the movement for today.
      */
@@ -506,14 +491,13 @@ public class MarsMovement
         trialNumberSession = selRows.Max(row => Convert.ToInt32(row.Field<string>("TrialNumberSession")));
     }
 }
+
 public class ROM
 {
-    public static string[] FILEHEADER = new string[] {
-        "DateTime", "MinX","MaxX","MinY","MaxY"
-    };
+    public static string[] FILEHEADER = new string[] { "DateTime", "MinX", "MaxX", "MinY", "MaxY" };
     // Class attributes to store data read from the file
     public string datetime;
-    public float aromMinX {  get; private set; }
+    public float aromMinX { get; private set; }
     public float aromMaxX { get; private set; }
     public float aromMinY { get; private set; }
     public float aromMaxY { get; private set; }
@@ -526,7 +510,7 @@ public class ROM
     public string movement { get; private set; }
 
     // Constructor that reads the file and initializes values based on the mechanism
-    public ROM(string movementName,string marsMode, bool readFromFile = true)
+    public ROM(string movementName, string marsMode, bool readFromFile = true)
     {
         SetMarsMode(marsMode);
         if (readFromFile) ReadFromFile(movementName);
@@ -539,7 +523,6 @@ public class ROM
             aromMaxX = 0;
             aromMinY = 0;
             aromMaxY = 0;
-          
         }
     }
 
@@ -555,10 +538,10 @@ public class ROM
     }
 
     public void SetMovement(string mov) => movement = (movement == null) ? mov : movement;
-    public void SetMarsMode(string Mode) => mode = (mode == null) ? Mode:mode ; // fws,hws,nws modes
+    public void SetMarsMode(string Mode) => mode = (mode == null) ? Mode : mode; // fws,hws,nws modes
 
-   
-    public void setRom(float Minx , float Maxx, float Miny, float Maxy)
+
+    public void setRom(float Minx, float Maxx, float Miny, float Maxy)
     {
         aromMinX = Minx;
         aromMaxX = Maxx;
@@ -568,8 +551,8 @@ public class ROM
     }
     public void WriteToAssessmentFile()
     {
-        string fileName = DataManager.GetRomFileName(movement,mode);
-        
+        string fileName = DataManager.GetRomFileName(movement, mode);
+
         // Create the file if it doesn't exist
         if (!File.Exists(fileName))
         {
@@ -579,10 +562,10 @@ public class ROM
             }
         }
 
-        Debug.Log(fileName+"filenameass"+movement+mode);
+        Debug.Log(fileName + "filenameass" + movement + mode);
         using (StreamWriter file = new StreamWriter(fileName, true))
         {
-            file.WriteLine(string.Join(",", new string[] { datetime, aromMinX.ToString(), aromMaxX.ToString(), aromMinY.ToString(), aromMaxY.ToString()}));
+            file.WriteLine(string.Join(",", new string[] { datetime, aromMinX.ToString(), aromMaxX.ToString(), aromMinY.ToString(), aromMaxY.ToString() }));
         }
     }
 
@@ -616,6 +599,7 @@ public class ROM
 
     }
 }
+
 public class MarsTransitionControl
 {
     public DynLimParameters oldLimbDynWeights { get; private set; }
@@ -721,11 +705,12 @@ public class MarsTransitionControl
     }
 
 }
-public class DynLimParameters{
+public class DynLimParameters
+{
     public float hLimbDynUAWeight { get; private set; }
-    public  float hLimbDynFAWeight { get; private set; }
+    public float hLimbDynFAWeight { get; private set; }
 
-    public  bool isParamSet  {get => hLimbDynUAWeight!=0 && hLimbDynUAWeight!=0 ;}
+    public bool isParamSet { get => hLimbDynUAWeight != 0 && hLimbDynUAWeight != 0; }
 
     public DynLimParameters()
     {
@@ -734,7 +719,7 @@ public class DynLimParameters{
     }
     public DynLimParameters(bool readFromFile)
     {
-        if(readFromFile)ReadFromFile();
+        if (readFromFile) ReadFromFile();
         else
         {
             hLimbDynUAWeight = 0;
@@ -745,7 +730,7 @@ public class DynLimParameters{
     {
         hLimbDynUAWeight = uaWeight;
         hLimbDynFAWeight = faWeight;
-       
+
     }
     private void ReadFromFile()
     {
@@ -759,23 +744,23 @@ public class DynLimParameters{
         {
             // Set default values for the mechanism.
             datetime = null;
-           
+
             return;
         }
         // Assign ROM from the last row.
         datetime = romData.Rows[romData.Rows.Count - 1].Field<string>("DateTime");
         hLimbDynUAWeight = float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("hLimbDynUAWeight"));
         hLimbDynFAWeight = float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("hLimbDynFAWeight"));
-       
+
     }
     public void resetValues()
     {
-        hLimbDynUAWeight = 0; 
+        hLimbDynUAWeight = 0;
         hLimbDynFAWeight = 0;
     }
     public void WritelimbDynPara()
     {
-        string[] FILEHEADER = new string[] { "DateTIme", "hLimbDynUAWeight", "hLimbDynFAWeight" };
+        string[] FILEHEADER = new string[] { "DateTTime", "hLimbDynUAWeight", "hLimbDynFAWeight" };
 
         if (!File.Exists(DataManager.limbParamFile))
         {
@@ -790,10 +775,6 @@ public class DynLimParameters{
         }
     }
 }
-//public class MarsController
-//{
-
-//}
 
 public static class Miscellaneous
 {

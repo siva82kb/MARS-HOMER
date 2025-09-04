@@ -448,16 +448,14 @@ public static class MarsComm
                 // Check if the MARS button has been released.
                 if ((((previousStateData[3] >> 4) & 0x01) == 0) && (((currentStateData[3] >> 4) & 0x01) == 1))
                 {
-                    // MarsCommLogger.LogInfo($"Pluto Button Released | Button: {currentStateData[6]} | Time: {runTime:F2}");
-                    Debug.Log("MARS button released.");
+                    MarsCommLogger.LogInfo($"MARS Button Released | Button: {currentStateData[6]} | Time: {runTime:F2}");
                     OnMarsButtonReleased?.Invoke();
                 }
 
                 // Check if the Calib button has been released.
                 if ((((previousStateData[3] >> 5) & 0x01) == 0) && (((currentStateData[3] >> 5) & 0x01) == 1))
                 {
-                    // MarsCommLogger.LogInfo($"Pluto Button Released | Button: {currentStateData[6]} | Time: {runTime:F2}");
-                    Debug.Log("Calibration button released.");
+                    MarsCommLogger.LogInfo($"Calibration Button Released | Button: {currentStateData[6]} | Time: {runTime:F2}");
                     OnCalibButtonReleased?.Invoke();
                 }
 
@@ -726,25 +724,25 @@ public static class MarsComm
         JediComm.SendMessage(new byte[] { (byte)INDATATYPECODES[Array.IndexOf(INDATATYPE, "HEARTBEAT")] });
     }
 
-    //To control the motor manually hold and release
-    static public void onclickHold()
-    {
-        AppLogger.LogInfo($"motor on hold");
-        controlStatus = CONTROL_STATUS_CODE[0];
-        thetades1 = MarsComm.angle1;
-        AppData.dataSendToRobot = new float[] { 0, thetades1, 0, controlStatus };
-        // AppData.sendToRobot(AppData.dataSendToRobot);
+    // //To control the motor manually hold and release
+    // static public void onclickHold()
+    // {
+    //     AppLogger.LogInfo($"motor on hold");
+    //     controlStatus = CONTROL_STATUS_CODE[0];
+    //     thetades1 = MarsComm.angle1;
+    //     AppData.dataSendToRobot = new float[] { 0, thetades1, 0, controlStatus };
+    //     // AppData.sendToRobot(AppData.dataSendToRobot);
 
-        Debug.Log("Hold enabled");
-    }
-    static public void onclickRealease()
-    {
-        AppLogger.LogInfo($"motor on released");
-        controlStatus = CONTROL_STATUS_CODE[1];
-        AppData.dataSendToRobot = AppData.dataSendToRobot = new float[] { 0.0f, 0.0f, 0.0f, controlStatus };
-        // AppData.sendToRobot(AppData.dataSendToRobot);
+    //     Debug.Log("Hold enabled");
+    // }
+    // static public void onclickRealease()
+    // {
+    //     AppLogger.LogInfo($"motor on released");
+    //     controlStatus = CONTROL_STATUS_CODE[1];
+    //     AppData.dataSendToRobot = AppData.dataSendToRobot = new float[] { 0.0f, 0.0f, 0.0f, controlStatus };
+    //     // AppData.sendToRobot(AppData.dataSendToRobot);
 
-    }
+    // }
 }
 
 public static class MarsKinDynamics

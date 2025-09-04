@@ -9,12 +9,11 @@ using UnityEngine.UI;
 
 public class OneTimeConfig : MonoBehaviour
 {
-    public TMP_InputField nameField;
-    public TMP_InputField ageField;
+    public TMP_InputField name;
+    public TMP_InputField age;
     public TMP_InputField hospitalIdField;
     public TMP_InputField startDateField;
     public TMP_InputField endDateField;
-
     public TMP_InputField sfeField;
     public TMP_InputField sabad;
     public TMP_InputField elfe;
@@ -57,8 +56,8 @@ public class OneTimeConfig : MonoBehaviour
     }
     private void Update()
     {
-        if (string.IsNullOrWhiteSpace(nameField.text) ||
-          string.IsNullOrWhiteSpace(ageField.text) ||
+        if (string.IsNullOrWhiteSpace(name.text) ||
+          string.IsNullOrWhiteSpace(age.text) ||
           string.IsNullOrWhiteSpace(hospitalIdField.text) ||
           string.IsNullOrWhiteSpace(startDateField.text) ||
           string.IsNullOrWhiteSpace(endDateField.text)||
@@ -101,8 +100,8 @@ public class OneTimeConfig : MonoBehaviour
 
     public void saveConfig()
     {
-        if (string.IsNullOrWhiteSpace(nameField.text) ||
-          string.IsNullOrWhiteSpace(ageField.text) ||
+        if (string.IsNullOrWhiteSpace(name.text) ||
+          string.IsNullOrWhiteSpace(age.text) ||
           string.IsNullOrWhiteSpace(hospitalIdField.text) ||
           string.IsNullOrWhiteSpace(startDateField.text) ||
           string.IsNullOrWhiteSpace(endDateField.text))
@@ -112,8 +111,8 @@ public class OneTimeConfig : MonoBehaviour
         }
 
         string date = DateTime.Now.ToString("dd-MM-yyyy");
-        string name = nameField.text;
-        string age = ageField.text;
+        string name = name.text;
+        string age = age.text;
         string hospitalId = hospitalIdField.text;
         string startDate = startDateField.text;
         string endDate = endDateField.text;
