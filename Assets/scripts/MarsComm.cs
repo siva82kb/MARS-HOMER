@@ -484,7 +484,6 @@ public static class MarsComm
                 MarsCommLogger.LogInfo($"Received Version | Version: {version} | Compile Date: {compileDate} | Device ID: {deviceId}");
                 break;
             case "HLIMBKINPARAM":
-                Debug.Log("Received Limb Kinematic Parameters");
                 // Update current sensor data
                 offset = 4;
                 i = 0;

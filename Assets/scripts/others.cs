@@ -39,16 +39,17 @@ public class MarsUserData
     static public string upperarmLength = "upperarmLength";
 
     public bool isExceeded { get; private set; }
-    public DataTable dTableConfig = null;
-    public DataTable dTableSession = null;
-    public DataTable dTableAssessment = null;
-    public DataTable dTableSupportConfig = null;
+    public DataTable dTableConfig { get; private set; } = null;
+    public DataTable dTableSession { get; private set; } = null;
+    public DataTable dTableAssessment { get; private set; } = null;
+    public DataTable dTableSupportConfig { get; private set; } = null;
+    public DataTable dTableLimbParam { get; private set; } = null;
     public string hospNumber;
     public DateTime startDate;
     public bool rightArm { private set; get; }
     public int limb { get { return rightArm ? 1 : 2; } }
-    public float faLength;
-    public float uaLength;
+    public float faLength { get; private set; }
+    public float uaLength { get; private set; }
     public void setUALength(float uaLength)
     {
         this.uaLength = uaLength;
@@ -57,6 +58,9 @@ public class MarsUserData
     {
         this.faLength = faLength;
     }
+    public float uaWeight { get; private set; }
+    public float faWeight { get; private set; }
+    public bool isLimbWeightAvailable => (uaWeight > 0) && (faWeight > 0);
     public Dictionary<string, float> moveTimePrsc { get; private set; } // Prescribed movement time
     public Dictionary<string, float> moveTimeCurr { get; private set; } // Current movement time
     public Dictionary<string, float> moveTimePrev { get; private set; } // Previous movement time 
@@ -92,29 +96,22 @@ public class MarsUserData
                 _total = (_Prsc - _total);
                 return (int)_total;
             }
-
         }
     }
 
-    public MarsUserData(string configData, string sessionData)
+    public MarsUserData(string configFile, string sessionFile, string limbParamFile, string userID)
     {
-        // Read the file if it exists.
-        if (File.Exists(configData)) dTableConfig = DataManager.loadCSV(configData);
+        // Read parse configuration if it exists.
+        if (File.Exists(configFile)) readParseTherapyConfigData(configFile);
         else return;
 
-        // Create session file if it does not exist.
-        if (!File.Exists(sessionData)) DataManager.CreateSessionFile("MARS", GetDeviceLocation());
+        // Ready parse the session data if it exists.
+        if (!File.Exists(sessionFile)) DataManager.CreateSessionFile(userID, "MARS", GetDeviceLocation());
+        readParseSessionData(sessionFile);
 
-        // Read the session file
-        dTableSession = DataManager.loadCSV(sessionData);
-        moveTimeCurr = createMoveTimeDictionary();
-
-        // Read the therapy configuration data.
-        parseTherapyConfigData();
-        if (File.Exists(DataManager.sessionFile))
-        {
-            parsemoveTimePrev();
-        }
+        // Read parse the limb parameters file.
+        if (!File.Exists(limbParamFile)) DataManager.CreateLimbParamFile(userID, "MARS", GetDeviceLocation());
+        readParseLimbParamData(sessionFile);
     }
 
     public void parsemoveTimePrev()
@@ -146,8 +143,9 @@ public class MarsUserData
         return (int)duration.TotalDays;
     }
 
-    private void parseTherapyConfigData()
+    private void readParseTherapyConfigData(string configFile)
     {
+        dTableConfig = DataManager.loadCSV(configFile);
         DataRow lastRow = dTableConfig.Rows[dTableConfig.Rows.Count - 1];
         hospNumber = lastRow.Field<string>("HospitalNumber");
         rightArm = lastRow.Field<string>("TrainingSide").ToLower() == "RIGHT";
@@ -159,7 +157,31 @@ public class MarsUserData
         }
         faLength = float.Parse(lastRow.Field<string>("ForearmLength"));
         uaLength = float.Parse(lastRow.Field<string>("UpperarmLength"));
-        Debug.Log($"{limb},{faLength}, {uaLength}");
+    }
+
+    private void readParseSessionData(string sessionFile)
+    {
+        // Read the session file
+        dTableSession = DataManager.loadCSV(sessionFile);
+        // Create the current move time dictionary for the current session.
+        moveTimeCurr = createMoveTimeDictionary();
+        // Get the summary of move times from the previous sessions.
+        parsemoveTimePrev();
+    }
+
+    private void readParseLimbParamData(string limbParamFile)
+    {
+        dTableLimbParam = DataManager.loadCSV(limbParamFile);
+        uaWeight = 0f;
+        faWeight = 0f;
+        
+        // Return if there is not last row.
+        if (dTableLimbParam.Rows.Count == 0) return;
+
+        // There is a valid last row.
+        DataRow lastRow = dTableLimbParam.Rows[dTableLimbParam.Rows.Count - 1];
+        uaWeight = float.Parse(lastRow.Field<string>("UpperarmWeight"));
+        faWeight = float.Parse(lastRow.Field<string>("ForearmWeight"));
     }
 
     public string GetDeviceLocation() => dTableConfig.Rows[dTableConfig.Rows.Count - 1].Field<string>("Location");
@@ -292,7 +314,6 @@ public static class Others
 
 public class MarsMovement
 {
-
     public string name { get; private set; }
     public string side { get; private set; }
 
@@ -301,6 +322,7 @@ public class MarsMovement
     {
         MarsMode = mode;
     }
+
     //MarsMode - FWS
     public ROM oldRomFWS { get; private set; }
     public ROM newRomFWS { get; private set; }
@@ -764,6 +786,3 @@ public static class Miscellaneous
     }
 
 }
-
-
-

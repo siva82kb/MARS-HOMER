@@ -13,7 +13,7 @@ public class RobotCalibrationSceneHandler : MonoBehaviour
     //ui related variables
     public TMP_Text instructionText;
     public TMP_Text statusText;
-    public readonly string nextScene = "USERCALIB";
+    public readonly string nextScene = "USERSETUP";
     private bool attachMarsButtonEvent = true;
     private string _limb;
     private bool buttonPressed;

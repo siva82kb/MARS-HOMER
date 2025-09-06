@@ -27,9 +27,17 @@ public class DataManager : MonoBehaviour
 
     public static string sessionFile { get; private set; }
     public static string configFile;
+    private static readonly string configFileName = "configdata.csv";
     public static string limbParamFile;
-    // public static string dynLimParaFilePath { get; private set; }
-    // public static string filePathUploadStatus = Application.dataPath + "/uploadStatus.txt";
+    // Limb parameters file name.
+    private static string limbParametersFileName = "limbparameters.csv";
+    // Limb parameters file header
+    public static string[] LIMBPARAMFILEHEADER = new string[] {
+        "DateTime", "Limb", "UpperarmLength", "UpperarmWeight", "ForearmLength", "ForearmWeight"
+    };
+    // Session file name.
+    private static string sessionFileName = "sessions.csv";
+    // Session file header
     public static string[] SESSIONFILEHEADER = new string[] {
         "SessionNumber", "DateTime",
         "TrialNumberDay", "TrialNumberSession", "TrialType", "TrialStartTime", "TrialStopTime", "TrialRawDataFile",
@@ -62,15 +70,14 @@ public class DataManager : MonoBehaviour
         if (string.IsNullOrEmpty(userID)) return;
         // User ID is not empty.
         userpath = FixPath(Path.Combine(basePath, userID, "data"));
-        configFile = userpath + "/configdata.csv";
-        limbParamFile = userpath + "/limbparameters.csv";
+        configFile = userpath + $"/{configFileName}";
+        limbParamFile = userpath + $"/{limbParametersFileName}";
         sessionPath = userpath + "/sessions";
         romPath = userpath + "/rom";
         rawPath = userpath + "/rawdata";
         gamepath = userpath + "/game";
         logPath = userpath + "/applog";
-        sessionFile = FixPath(Path.Combine(sessionPath, "sessions.csv"));
-        // Directory.CreateDirectory(basePath);
+        sessionFile = FixPath(Path.Combine(sessionPath, sessionFileName));
         Directory.CreateDirectory(sessionPath);
         Directory.CreateDirectory(romPath);
         Directory.CreateDirectory(rawPath);
@@ -81,7 +88,7 @@ public class DataManager : MonoBehaviour
 
     public static string FixPath(string path) => path.Replace("\\", "/");
 
-    public static void CreateSessionFile(string device, string location, string[] header = null)
+    public static void CreateSessionFile(string userID, string device, string location, string[] header = null)
     {
         // Ensure the Sessions.csv file has headers if it doesn't exist
         if (!File.Exists(sessionFile))
@@ -90,13 +97,33 @@ public class DataManager : MonoBehaviour
             using (var writer = new StreamWriter(sessionFile, false, Encoding.UTF8))
             {
                 // Write the preheader details
-                writer.WriteLine($":Device: {device}");
                 writer.WriteLine($":Location: {location}");
+                writer.WriteLine($":Device: {device}");
+                writer.WriteLine($":User: {userID}");
                 writer.WriteLine(string.Join(",", header));
             }
             AppLogger.LogWarning("Sessions.csv file not found. Created one.");
         }
     }
+
+    public static void CreateLimbParamFile(string userID, string device, string location, string[] header = null)
+    {
+        // Ensure the LimbParameters.csv file has headers if it doesn't exist
+        if (!File.Exists(limbParamFile))
+        {
+            header ??= LIMBPARAMFILEHEADER;
+            using (var writer = new StreamWriter(limbParamFile, false, Encoding.UTF8))
+            {
+                // Write the preheader details
+                writer.WriteLine($":Location: {location}");
+                writer.WriteLine($":Device: {device}");
+                writer.WriteLine($":User: {userID}");
+                writer.WriteLine(string.Join(",", header));
+            }
+            AppLogger.LogWarning($"{limbParametersFileName} file not found. Created one.");
+        }
+    }
+
     public static DataTable loadCSV(string filePath)
     {
         if (!File.Exists(filePath))
@@ -140,8 +167,6 @@ public class DataManager : MonoBehaviour
 }
 
 
-
-
 // Start is called before the first frame update
 public enum LogMessageType
  {
@@ -149,6 +174,8 @@ public enum LogMessageType
         WARNING,
         ERROR
  }
+ 
+
 public static class AppLogger
 {
     private static string logFilePath;
@@ -181,7 +208,7 @@ public static class AppLogger
         }
         string _dtstr = DateTime.Now.ToString("dd-MM-yyyy-HH-mm-ss");
         logFilePath = Path.Combine(DataManager.logPath, $"{_dtstr}-application.log");
-      
+
         // Create the log file and write the header.
         logWriter = new StreamWriter(logFilePath, true, Encoding.UTF8);
         currentScene = scene;
