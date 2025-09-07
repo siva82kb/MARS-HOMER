@@ -28,13 +28,6 @@ public class DataManager : MonoBehaviour
     public static string sessionFile { get; private set; }
     public static string configFile;
     private static readonly string configFileName = "configdata.csv";
-    public static string limbParamFile;
-    // Limb parameters file name.
-    private static string limbParametersFileName = "limbparameters.csv";
-    // Limb parameters file header
-    public static string[] LIMBPARAMFILEHEADER = new string[] {
-        "DateTime", "Limb", "UpperarmLength", "UpperarmWeight", "ForearmLength", "ForearmWeight"
-    };
     // Session file name.
     private static string sessionFileName = "sessions.csv";
     // Session file header
@@ -71,7 +64,6 @@ public class DataManager : MonoBehaviour
         // User ID is not empty.
         userpath = FixPath(Path.Combine(basePath, userID, "data"));
         configFile = userpath + $"/{configFileName}";
-        limbParamFile = userpath + $"/{limbParametersFileName}";
         sessionPath = userpath + "/sessions";
         romPath = userpath + "/rom";
         rawPath = userpath + "/rawdata";
@@ -103,24 +95,6 @@ public class DataManager : MonoBehaviour
                 writer.WriteLine(string.Join(",", header));
             }
             AppLogger.LogWarning("Sessions.csv file not found. Created one.");
-        }
-    }
-
-    public static void CreateLimbParamFile(string userID, string device, string location, string[] header = null)
-    {
-        // Ensure the LimbParameters.csv file has headers if it doesn't exist
-        if (!File.Exists(limbParamFile))
-        {
-            header ??= LIMBPARAMFILEHEADER;
-            using (var writer = new StreamWriter(limbParamFile, false, Encoding.UTF8))
-            {
-                // Write the preheader details
-                writer.WriteLine($":Location: {location}");
-                writer.WriteLine($":Device: {device}");
-                writer.WriteLine($":User: {userID}");
-                writer.WriteLine(string.Join(",", header));
-            }
-            AppLogger.LogWarning($"{limbParametersFileName} file not found. Created one.");
         }
     }
 
@@ -163,7 +137,6 @@ public class DataManager : MonoBehaviour
         }
         return dTable;
     }
-  
 }
 
 

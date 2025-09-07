@@ -147,16 +147,7 @@ EditorBuildSettings:
     path: Assets/Scenes/DRAWAREA.unity
     guid: 39136515ba527ee47be39a423a1d8bf9
   - enabled: 1
-    path: Assets/Scenes/WEIGHTEST.unity
-    guid: 873379b4e24d8c54aa8978fed016276a
-  - enabled: 1
-    path: Assets/Scenes/USERSETUP.unity
-    guid: bc6442da60ae5ed4b80c55906fe4f6a4
-  - enabled: 1
-    path: Assets/Scenes/LIMBWEST.unity
-    guid: 6993017ecd0f831449789a613e0eca48
-  - enabled: 1
-    path: Assets/Scenes/LIMBWSET.unity
-    guid: 72973ce254f2d184581808a3286898ba
+    path: Assets/Scenes/CHOOSEPLANE.unity
+    guid: 07071288b99b4954f90bc8ec537a3a0b
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0

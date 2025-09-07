@@ -50,6 +50,7 @@ public class MarsUserData
     public int limb { get { return rightArm ? 1 : 2; } }
     public float faLength { get; private set; }
     public float uaLength { get; private set; }
+    public float trainingPlaneAngle { get; private set; } = 0f; // In degrees
     public void setUALength(float uaLength)
     {
         this.uaLength = uaLength;
@@ -58,9 +59,6 @@ public class MarsUserData
     {
         this.faLength = faLength;
     }
-    public float uaWeight { get; private set; }
-    public float faWeight { get; private set; }
-    public bool isLimbWeightAvailable => (uaWeight > 0) && (faWeight > 0);
     public Dictionary<string, float> moveTimePrsc { get; private set; } // Prescribed movement time
     public Dictionary<string, float> moveTimeCurr { get; private set; } // Current movement time
     public Dictionary<string, float> moveTimePrev { get; private set; } // Previous movement time 
@@ -99,7 +97,7 @@ public class MarsUserData
         }
     }
 
-    public MarsUserData(string configFile, string sessionFile, string limbParamFile, string userID)
+    public MarsUserData(string configFile, string sessionFile, string userID)
     {
         // Read parse configuration if it exists.
         if (File.Exists(configFile)) readParseTherapyConfigData(configFile);
@@ -108,10 +106,6 @@ public class MarsUserData
         // Ready parse the session data if it exists.
         if (!File.Exists(sessionFile)) DataManager.CreateSessionFile(userID, "MARS", GetDeviceLocation());
         readParseSessionData(sessionFile);
-
-        // Read parse the limb parameters file.
-        if (!File.Exists(limbParamFile)) DataManager.CreateLimbParamFile(userID, "MARS", GetDeviceLocation());
-        readParseLimbParamData(sessionFile);
     }
 
     public void parsemoveTimePrev()
@@ -157,6 +151,7 @@ public class MarsUserData
         }
         faLength = float.Parse(lastRow.Field<string>("ForearmLength"));
         uaLength = float.Parse(lastRow.Field<string>("UpperarmLength"));
+        trainingPlaneAngle = float.Parse(lastRow.Field<string>("TrainingPlaneAngle"));
     }
 
     private void readParseSessionData(string sessionFile)
@@ -167,21 +162,6 @@ public class MarsUserData
         moveTimeCurr = createMoveTimeDictionary();
         // Get the summary of move times from the previous sessions.
         parsemoveTimePrev();
-    }
-
-    private void readParseLimbParamData(string limbParamFile)
-    {
-        dTableLimbParam = DataManager.loadCSV(limbParamFile);
-        uaWeight = 0f;
-        faWeight = 0f;
-        
-        // Return if there is not last row.
-        if (dTableLimbParam.Rows.Count == 0) return;
-
-        // There is a valid last row.
-        DataRow lastRow = dTableLimbParam.Rows[dTableLimbParam.Rows.Count - 1];
-        uaWeight = float.Parse(lastRow.Field<string>("UpperarmWeight"));
-        faWeight = float.Parse(lastRow.Field<string>("ForearmWeight"));
     }
 
     public string GetDeviceLocation() => dTableConfig.Rows[dTableConfig.Rows.Count - 1].Field<string>("Location");

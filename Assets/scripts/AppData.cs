@@ -64,7 +64,7 @@ public partial class AppData
         InitializeRobotConnection(_dtstr);
      
         // Initialize the user data.
-        userData = new MarsUserData(DataManager.configFile, DataManager.sessionFile, DataManager.limbParamFile, AppData.Instance.userID);
+        userData = new MarsUserData(DataManager.configFile, DataManager.sessionFile, AppData.Instance.userID);
 
         // Selected movement and game.
         selectedMovement = null;

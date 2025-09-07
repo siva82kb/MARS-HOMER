@@ -13,7 +13,8 @@ public class RobotCalibrationSceneHandler : MonoBehaviour
     //ui related variables
     public TMP_Text instructionText;
     public TMP_Text statusText;
-    public readonly string nextScene = "USERSETUP";
+    public readonly string choosePlaneScene = "CHOOSEPLANE";
+    public readonly string chooseMoveScene = "CHOOSEMOVE";
     private bool attachMarsButtonEvent = true;
     private string _limb;
     private bool buttonPressed;
@@ -65,7 +66,19 @@ public class RobotCalibrationSceneHandler : MonoBehaviour
         if (MarsComm.CALIBRATION[MarsComm.calibration] == "YESCALIB")
         {
             instructionText.text = "MARS calibration successful.";
-            SceneManager.LoadScene(nextScene);
+            // Check of the training plane angle is set.
+            if (AppData.Instance.userData.trainingPlaneAngle == 0f)
+            {
+                AppLogger.LogInfo("Training Plane Angle is not set. Going to Choose Plane scene.");
+                SceneManager.LoadScene(choosePlaneScene);
+                return;
+            }
+            else
+            {
+                AppLogger.LogInfo("Training Plane Angle is set. Going to Choose Move scene.");
+                SceneManager.LoadScene(chooseMoveScene);
+                return;
+            }
         }
         else
         {
