@@ -81,7 +81,7 @@ public class assessROM : MonoBehaviour
             case MARSMODE.FWS:
                 if (MarsComm.target != 1.0f)
                 {
-                    AppData.Instance.transitionControl.setFWS();
+                    // AppData.Instance.transitionControl.setFWS();
                     return;
                 }
                 SceneManager.LoadScene("DRAWAREA");
@@ -89,7 +89,7 @@ public class assessROM : MonoBehaviour
             case MARSMODE.HWS:
                 if (MarsComm.target != 0.5f)
                 {
-                    AppData.Instance.transitionControl.setHWS();
+                    // AppData.Instance.transitionControl.setHWS();
                     return;
                 }
                 SceneManager.LoadScene("DRAWAREA");
@@ -97,7 +97,7 @@ public class assessROM : MonoBehaviour
             case MARSMODE.NWS:
                 if (MarsComm.target != 0.0f)
                 {
-                    AppData.Instance.transitionControl.setNWS();
+                    // AppData.Instance.transitionControl.setNWS();
                     return;
                 }
                 SceneManager.LoadScene("DRAWAREA");

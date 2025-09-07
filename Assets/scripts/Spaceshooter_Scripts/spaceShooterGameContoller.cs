@@ -227,7 +227,7 @@ public class spaceShooterGameContoller : MonoBehaviour
     public void updateMarsSupportUI()
     {
         //support.text = $"Support : {AppData.ArmSupportController.getGain()}%";
-        SupportSlider.fillAmount = MarsComm.SUPPORT;
+        // SupportSlider.fillAmount = MarsComm.SUPPORT;
     }
    
   

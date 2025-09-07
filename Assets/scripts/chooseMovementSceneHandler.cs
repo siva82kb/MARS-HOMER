@@ -51,8 +51,8 @@ public class MovementSceneHandler : MonoBehaviour
     void Update()
     {
         MarsComm.sendHeartbeat();
-        AppData.Instance.transitionControl.enable();
-        marsActivation.SetActive(AppData.Instance.transitionControl.isEnable);
+        // AppData.Instance.transitionControl.enable();
+        // marsActivation.SetActive(AppData.Instance.transitionControl.isEnable);
         message.gameObject.SetActive(MarsComm.CONTROLTYPE[MarsComm.controlType] == "AWS");
         SetAWSMessage.gameObject.SetActive(MarsComm.CONTROLTYPE[MarsComm.controlType] != "AWS");
 
@@ -178,10 +178,10 @@ public class MovementSceneHandler : MonoBehaviour
             Debug.LogWarning("Select at least one toggle to proceed.");
         }
 
-        if (AppData.Instance.transitionControl.readyToChange)
-        {
-            AppData.Instance.transitionControl.setFWS();
-        }
+        // if (AppData.Instance.transitionControl.readyToChange)
+        // {
+        //     AppData.Instance.transitionControl.setFWS();
+        // }
     }
 
     void LoadNextScene()

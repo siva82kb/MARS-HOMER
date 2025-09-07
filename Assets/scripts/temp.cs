@@ -53,7 +53,7 @@ public class calibrationSceneHandler : MonoBehaviour
         AppLogger.LogInfo($"{SceneManager.GetActiveScene().name} scene started.");
         MarsComm.OnMarsButtonReleased += onMarsButtonReleased;
         MarsComm.OnCalibButtonReleased += onCalibButtonReleased;
-        MarsComm.onHumanLimbKinParamData += OnHumanLimbKinParamData;
+        // MarsComm.onHumanLimbKinParamData += OnHumanLimbKinParamData;
         calibState = CALIBSTATES.SETUPLIMB;
         initUI()
 ;    }
@@ -114,31 +114,13 @@ public class calibrationSceneHandler : MonoBehaviour
             setHLimbKinFALength = (float)AppData.Instance.userData.faLength;
             setHLimbKinShPosZ = averagePosition.z;
             Debug.Log($"Setting human limb kinematic parameters: UALength={setHLimbKinUALength}, FALength={setHLimbKinFALength}, Average Position Z={setHLimbKinShPosZ}");
-            MarsComm.setHumanLimbKinParams(setHLimbKinUALength, setHLimbKinFALength, setHLimbKinShPosZ);
+            // MarsComm.setHumanLimbKinParams(setHLimbKinUALength, setHLimbKinFALength, setHLimbKinShPosZ);
             // Get the human limb kinematic parameters from MARS.
-            MarsComm.getHumanLimbKinParams();
+            // MarsComm.getHumanLimbKinParams();
            
         }
     }
     
-    private void OnHumanLimbKinParamData()
-    {
-        // Check if the human limb kinematics parameters match the set values.
-        if (MarsComm.limbKinParam != 0x01 || MarsComm.uaLength != setHLimbKinUALength || MarsComm.faLength != setHLimbKinFALength || MarsComm.shPosZ != setHLimbKinShPosZ)
-        {
-            Debug.LogWarning("Human limb kinematic parameters are not set correctly.");
-        
-            MarsComm.resetHumanLimbKinParams();
-        }
-        else
-        {
-           
-            calibState = CALIBSTATES.ALLDONE;
-            Debug.Log("Human limb kinematic parameters are set correctly.");
-           
-        }
-    }
-
     private void RunCalibStateMachine()
     {
         if (calibState == CALIBSTATES.WAITFORSTART) return;
@@ -165,7 +147,7 @@ public class calibrationSceneHandler : MonoBehaviour
                 calibState = CALIBSTATES.SETLIMBKINPARA;
                 break;
             case CALIBSTATES.SETLIMBKINPARA:
-                if(MarsComm.CALIBRATION[MarsComm.calibration] == "NOCALIB")
+                if (MarsComm.CALIBRATION[MarsComm.calibration] == "NOCALIB")
                     calibState = CALIBSTATES.CALIBRATE;
                 Debug.Log(MarsKinDynamics.ForwardKinematicsExtended(MarsComm.angle1, MarsComm.angle2, MarsComm.angle3, MarsComm.angle4));
                 messageTxt.text = "Perform the procedure as illustrated, then press the calibration button in the MARS device.";
@@ -186,15 +168,15 @@ public class calibrationSceneHandler : MonoBehaviour
             case CALIBSTATES.CHANGESCENE:
 
                 //check need to calibrater or not
-                if (AppData.Instance.transitionControl.isDynLimbParamExist)
-                {
-                    SceneManager.LoadScene("CHOOSEMOVEMENT");
-                }
-                else
-                {
-                    SceneManager.LoadScene("WEIGHTEST");
+                // if (AppData.Instance.transitionControl.isDynLimbParamExist)
+                // {
+                //     SceneManager.LoadScene("CHOOSEMOVEMENT");
+                // }
+                // else
+                // {
+                //     SceneManager.LoadScene("WEIGHTEST");
 
-                }
+                // }
 
                 break;
         }
@@ -224,7 +206,7 @@ public class calibrationSceneHandler : MonoBehaviour
     {
         string calibStatus = MarsComm.calibration == 1 ? "DONE" : "CALIBRATE";
         calibTxt.text = $"STATUS : {calibStatus}";
-        kinParaTxt.text = $"KIN-PARAM: \n\t{MarsComm.uaLength}m\n\t{MarsComm.faLength}m\n\t{MarsComm.shPosZ}";
+        // kinParaTxt.text = $"KIN-PARAM: \n\t{MarsComm.uaLength}m\n\t{MarsComm.faLength}m\n\t{MarsComm.shPosZ}";
         calibTick.enabled = MarsComm.CALIBRATION[MarsComm.calibration] != "NOCALIB";
         CalibSetupImg.SetActive(calibState == CALIBSTATES.CALIBRATE || calibState == CALIBSTATES.SETUPLIMB);
         kinSetupImg.SetActive(calibState == CALIBSTATES.SETLIMBKINPARA);

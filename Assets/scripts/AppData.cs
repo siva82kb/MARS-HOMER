@@ -39,7 +39,6 @@ public partial class AppData
     public string selectedGame { get; private set; } = null;
     public MarsMovement selectedMovement { get; private set; }
     public MarsUserData userData;
-    public MarsTransitionControl transitionControl { get; private set; }
     public string trainingSide => userData?.limb != null ? MarsComm.LIMBTYPE[userData.limb] : MarsComm.LIMBTYPE[0];
 
     public void Initialize(string scene)
@@ -66,7 +65,7 @@ public partial class AppData
      
         // Initialize the user data.
         userData = new MarsUserData(DataManager.configFile, DataManager.sessionFile, DataManager.limbParamFile, AppData.Instance.userID);
-        transitionControl = new MarsTransitionControl();
+
         // Selected movement and game.
         selectedMovement = null;
         selectedGame = null;

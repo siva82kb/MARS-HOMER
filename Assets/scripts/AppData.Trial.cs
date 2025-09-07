@@ -183,8 +183,8 @@ public partial class AppData
             rawDataString.Append($"{MarsComm.errorString},");
             rawDataString.Append($"{MarsComm.limb},");
             rawDataString.Append($"{MarsComm.calibration},");
-            rawDataString.Append($"{MarsComm.limbKinParam},");
-            rawDataString.Append($"{MarsComm.limbDynParam},");
+            // rawDataString.Append($"{MarsComm.limbKinParam},");
+            // rawDataString.Append($"{MarsComm.limbDynParam},");
             rawDataString.Append($"{MarsComm.target},");
             rawDataString.Append($"{MarsComm.desired},");
             rawDataString.Append($"{MarsComm.control},");
@@ -201,9 +201,9 @@ public partial class AppData
             rawDataString.Append($"{MarsComm.xEndpoint},");
             rawDataString.Append($"{MarsComm.yEndpoint},");
             rawDataString.Append($"{MarsComm.zEndpoint},");
-            rawDataString.Append($"{MarsComm.phi1},");
-            rawDataString.Append($"{MarsComm.phi2},");
-            rawDataString.Append($"{MarsComm.phi3},");
+            // rawDataString.Append($"{MarsComm.phi1},");
+            // rawDataString.Append($"{MarsComm.phi2},");
+            // rawDataString.Append($"{MarsComm.phi3},");
          
             // Game Data
             rawDataString.Append($"{GetGamePlayerPosition()},");
