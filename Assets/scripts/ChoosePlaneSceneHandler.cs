@@ -21,13 +21,27 @@ public class ChoosePlaneSceneHandler : MonoBehaviour
     public readonly string robotCalibScene = "ROBOTCALIB";
     public readonly string nextScene = "CHOOSEMOVE";
     private bool attachMarsButtonEvent = true;
-    private string _limb;
-    private bool buttonPressed;
+    // Training plane choosing state
+    private enum ChooseTrainingPlaneStates
+    {
+        WAIT_FOR_HORIZONTAL_REACH,
+        WAIT_FOR_LIMB_ATTACHMENT,
+        TEST_TRAINING_PLANES,
+        SAVE_TRAINING_PLANE,
+    }
+    private ChooseTrainingPlaneStates currentState = ChooseTrainingPlaneStates.WAIT_FOR_HORIZONTAL_REACH;
+    private bool marsButtonReleased = false;
+    private bool calibButtonReleased = false;
 
     void Start()
     {
-        // Initialize AppData
-        AppData.Instance.Initialize(SceneManager.GetActiveScene().name);
+        MarsComm.sendHeartbeat();
+
+        // Initialize AppData if needed
+        if (AppData.Instance.userData == null)
+        {
+            AppData.Instance.Initialize(SceneManager.GetActiveScene().name);
+        }
 
         // Check if the directory exists
         if (!Directory.Exists(DataManager.basePath)) Directory.CreateDirectory(DataManager.basePath);
@@ -44,23 +58,27 @@ public class ChoosePlaneSceneHandler : MonoBehaviour
 
         // Initialize UI
         InitUI();
+
+        // Initialize state
+        currentState = ChooseTrainingPlaneStates.WAIT_FOR_HORIZONTAL_REACH;
+        marsButtonReleased = false;
+        calibButtonReleased = false;
     }
 
     void Update()
     {
         MarsComm.sendHeartbeat();
 
-        // // Wait for a second before doing anything.
-        // if (Time.timeSinceLevelLoad < 0.25) return;
+        // Wait for a second before doing anything.
+        if (Time.timeSinceLevelLoad < 0.25) return;
 
-        // // Attach MARS event listeners.
-        // if (attachMarsButtonEvent)
-        // {
-        //     attachMarsButtonEvent = false;
-        //     // Set limb
-        //     MarsComm.setLimb(_limb);
-        //     MarsComm.OnMarsButtonReleased += onMarsButtonReleased;
-        // }
+        // Attach MARS event listeners.
+        if (attachMarsButtonEvent)
+        {
+            attachMarsButtonEvent = false;
+            MarsComm.OnMarsButtonReleased += onMarsButtonReleased;
+            MarsComm.OnCalibButtonReleased += onCalibButtonReleased;
+        }
 
         // // Update status text.
         // string _status = $"User Limb: {_limb} | {MarsComm.CALIBRATION[MarsComm.calibration]}\n{MarsComm.imu1Angle}deg, {MarsComm.imu2Angle}deg, {MarsComm.imu3Angle}deg, {MarsComm.imu4Angle}deg";
@@ -112,9 +130,16 @@ public class ChoosePlaneSceneHandler : MonoBehaviour
         // Send the calibration command.
         MarsComm.calibrate();
     }
+
+    public void onCalibButtonReleased()
+    {
+        // Send the calibration command.
+        MarsComm.calibrate();
+    }
     private void OnDestroy()
     {
         MarsComm.OnMarsButtonReleased -= onMarsButtonReleased;
+        MarsComm.OnCalibButtonReleased -= onCalibButtonReleased;
     }
     private void OnApplicationQuit()
     {
