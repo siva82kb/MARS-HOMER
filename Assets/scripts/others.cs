@@ -44,6 +44,7 @@ public class MarsUserData
     public DataTable dTableAssessment { get; private set; } = null;
     public DataTable dTableSupportConfig { get; private set; } = null;
     public DataTable dTableLimbParam { get; private set; } = null;
+    public string userID { get; private set; }
     public string hospNumber;
     public DateTime startDate;
     public bool rightArm { private set; get; }
@@ -99,13 +100,20 @@ public class MarsUserData
 
     public MarsUserData(string configFile, string sessionFile, string userID)
     {
+        // Set the user ID.
+        this.userID = userID;
+
         // Read parse configuration if it exists.
         if (File.Exists(configFile)) readParseTherapyConfigData(configFile);
         else return;
 
-        // Ready parse the session data if it exists.
-        if (!File.Exists(sessionFile)) DataManager.CreateSessionFile(userID, "MARS", GetDeviceLocation());
+        // Read parse the session data if it exists.
+        if (!File.Exists(sessionFile)) DataManager.CreateSessionFile(this.userID, "MARS", GetDeviceLocation());
         readParseSessionData(sessionFile);
+
+        // Read parse the training plane data if it exists.
+        if (!File.Exists(DataManager.trainingPlaneFile)) DataManager.CreateTrainingPlaneFile(this.userID, "MARS", GetDeviceLocation());
+        readParseTrainingPlaneData(DataManager.trainingPlaneFile);
     }
 
     public void parsemoveTimePrev()
@@ -151,7 +159,7 @@ public class MarsUserData
         }
         faLength = float.Parse(lastRow.Field<string>("ForearmLength"));
         uaLength = float.Parse(lastRow.Field<string>("UpperarmLength"));
-        trainingPlaneAngle = float.Parse(lastRow.Field<string>("TrainingPlaneAngle"));
+        // trainingPlaneAngle = float.Parse(lastRow.Field<string>("TrainingPlaneAngle"));
     }
 
     private void readParseSessionData(string sessionFile)
@@ -162,6 +170,27 @@ public class MarsUserData
         moveTimeCurr = createMoveTimeDictionary();
         // Get the summary of move times from the previous sessions.
         parsemoveTimePrev();
+    }
+
+    private void readParseTrainingPlaneData(string trainingPlaneFile)
+    {
+        DataTable dTrainPlane = DataManager.loadCSV(trainingPlaneFile);
+        trainingPlaneAngle = 0f;
+        if (dTrainPlane.Rows.Count == 0) return;
+        DataRow lastRow = dTrainPlane.Rows[dTrainPlane.Rows.Count - 1];
+        trainingPlaneAngle = float.Parse(lastRow.Field<string>("TrainingPlaneAngle"));
+    }
+
+    public void writeUpdateTrainingPlaneData(float tpAngle)
+    {
+        // Create the file if it does not exist.
+        if (!File.Exists(DataManager.trainingPlaneFile)) DataManager.CreateTrainingPlaneFile(userID, "MARS", GetDeviceLocation());
+        // Append the new training plane angle to the file.
+        using (var writer = new StreamWriter(DataManager.trainingPlaneFile, true, Encoding.UTF8))
+        {
+            string _dtstr = DateTime.Now.ToString(DataManager.DATETIMEFORMAT);
+            writer.WriteLine($"{_dtstr},{tpAngle}");
+        }
     }
 
     public string GetDeviceLocation() => dTableConfig.Rows[dTableConfig.Rows.Count - 1].Field<string>("Location");

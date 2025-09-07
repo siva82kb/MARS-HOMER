@@ -28,6 +28,11 @@ public class DataManager : MonoBehaviour
     public static string sessionFile { get; private set; }
     public static string configFile;
     private static readonly string configFileName = "configdata.csv";
+    public static string trainingPlaneFile;
+    private static readonly string trainingPlaneFileName = "trainingplane.csv";
+    public static string[] TRAININGPLANEFILEHEADER = new string[] {
+        "DateTime", "TrainingPlaneAngle"
+    };
     // Session file name.
     private static string sessionFileName = "sessions.csv";
     // Session file header
@@ -64,6 +69,7 @@ public class DataManager : MonoBehaviour
         // User ID is not empty.
         userpath = FixPath(Path.Combine(basePath, userID, "data"));
         configFile = userpath + $"/{configFileName}";
+        trainingPlaneFile = userpath + $"/{trainingPlaneFileName}";
         sessionPath = userpath + "/sessions";
         romPath = userpath + "/rom";
         rawPath = userpath + "/rawdata";
@@ -95,6 +101,24 @@ public class DataManager : MonoBehaviour
                 writer.WriteLine(string.Join(",", header));
             }
             AppLogger.LogWarning("Sessions.csv file not found. Created one.");
+        }
+    }
+
+    public static void CreateTrainingPlaneFile(string userID, string device, string location, string[] header = null)
+    {
+        // Ensure the TrainingPlanes.csv file has headers if it doesn't exist
+        if (!File.Exists(trainingPlaneFile))
+        {
+            header ??= TRAININGPLANEFILEHEADER;
+            using (var writer = new StreamWriter(trainingPlaneFile, false, Encoding.UTF8))
+            {
+                // Write the preheader details
+                writer.WriteLine($":Location: {location}");
+                writer.WriteLine($":Device: {device}");
+                writer.WriteLine($":User: {userID}");
+                writer.WriteLine(string.Join(",", header));
+            }
+            AppLogger.LogWarning($"{trainingPlaneFileName} file not found. Created one.");
         }
     }
 
