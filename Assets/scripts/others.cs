@@ -785,4 +785,11 @@ public static class Miscellaneous
         return dayOfWeek.ToString().Substring(0, 3);
     }
 
+    public static float HumanLimbWeightTorque(float phi1, float phi2, float phi3, float uaWeight, float faWeight)
+    {
+        float _sp1 = Mathf.Sin(phi1 * Mathf.Deg2Rad);
+        float _cp2 = Mathf.Cos(phi2 * Mathf.Deg2Rad);
+        float _cp23 = Mathf.Cos((phi2 - phi3) * Mathf.Deg2Rad);
+        return uaWeight * _sp1 * _cp2 + faWeight * _sp1 * _cp23;
+    }
 }

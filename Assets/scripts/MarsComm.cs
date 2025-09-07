@@ -139,7 +139,6 @@ public static class MarsComm
     public static int controlStatus;
     public static float thetades1;
 
-
     // Private variables
     static private byte[] rawBytes = new byte[256];
     // For the following arrays, the first element represents the number of elements in the array.
