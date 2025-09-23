@@ -7,16 +7,18 @@ using UnityEngine.UI;
 
 public class Whack_WelcomeScript : MonoBehaviour
 {
-     private string filepath = Path.Combine(Application.dataPath, "Patient_Data", "Whack_Score.csv");
-      public Button[] levelButtons;
-      private int currentLevel = 1;
-
+    private string filepath = Path.Combine(Application.dataPath, "Patient_Data", "Whack_Score.csv");
+    public Button[] levelButtons;
+    private int currentLevel = 1;
     private int currentScore = 0;
+    private bool changeScene = false;
     // Start is called before the first frame update
-       public void Start()
+    public void Start()
     {
+        MarsComm.sendHeartbeat();
         InitializeLevelButtons();
-        Checkscore();
+        //Checkscore();
+        MarsComm.OnMarsButtonReleased += onMarsButtonReleased;
     }
       private void InitializeLevelButtons()
     {
@@ -25,6 +27,21 @@ public class Whack_WelcomeScript : MonoBehaviour
         {
             button.interactable = false;
         }
+    }
+    public void FixedUpdate()
+    {
+        MarsComm.sendHeartbeat();
+        if (changeScene) 
+        {
+            SceneManager.LoadScene("Whack_Lvl4");
+        }
+        changeScene = false;
+
+    }
+    public void onMarsButtonReleased()
+    {
+      changeScene = true;
+
     }
     private void Checkscore()
     {
@@ -63,26 +80,15 @@ public class Whack_WelcomeScript : MonoBehaviour
         }
     }
     public void onclick_start(){
-        SceneManager.LoadScene("Whack_levels");
-    }
-    public void Back(){
-        // SceneManager.LoadScene("Back");
-        // Application.Quit();
-    }
-    public void lvl_1(){
-        SceneManager.LoadScene("Whack_Lvl1");
-
-    }
-     public void lvl_2(){
-        SceneManager.LoadScene("Whack_Lvl2");
-    }
-     public void lvl_3(){
-        SceneManager.LoadScene("Whack_Lvl3");
-    }
-     public void lvl_4(){
         SceneManager.LoadScene("Whack_Lvl4");
     }
-    public void onClick_WelcomeScene(){
-        SceneManager.LoadScene("Whack_WelcomeScene");
+    public void Back(){
+        SceneManager.LoadScene("CHOOSEMOVE");
+     
+    }
+
+    private void OnDestroy()
+    {
+        MarsComm.OnMarsButtonReleased -= onMarsButtonReleased;
     }
 }

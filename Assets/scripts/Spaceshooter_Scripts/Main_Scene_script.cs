@@ -9,7 +9,7 @@ public class Main_Scene_script : MonoBehaviour
 {
   
     public static bool changeScene = false;
-    public readonly string nextScene = "space_shooter_level";
+    public readonly string nextScene = "SpaceShooter_Level1";
     // Start is called before the first frame update
     void Start()
     {
@@ -36,20 +36,16 @@ public class Main_Scene_script : MonoBehaviour
     changeScene = true;
 
 }
-
     private void LoadTargetScene()
     {
         AppLogger.LogInfo($"Switching to the next scene '{nextScene}'.");
         SceneManager.LoadScene(nextScene);
     }
 
-    public void onClick_gotoLevel()
-    {
-        SceneManager.LoadScene("space_shooter_level");
-    }
+ 
     public void onclick_gotochoose()
     {
-        SceneManager.LoadScene("CHOOSEMOVEMENT");
+        SceneManager.LoadScene("CHOOSEMOVE");
     }
     private void OnDestroy()
     {

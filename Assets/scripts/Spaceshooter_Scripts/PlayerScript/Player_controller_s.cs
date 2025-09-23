@@ -8,13 +8,11 @@ using static AppData;
 
 public class Player_controller_s : MonoBehaviour
 {
+    public static Player_controller_s instance;
     // Start is called before the first frame update
     Camera mainCamera;
     private Vector2 screenBounds;
     private Vector3 endPoint;
-
-    // Start is called before the first frame update
-    public float speed = 4f;
 
     [SerializeField]
     private GameObject Player_bullet;
@@ -28,22 +26,25 @@ public class Player_controller_s : MonoBehaviour
 
     public static float xMin, yMin, xMax, yMax;
 
-    public float ShootInterval = 10f;
+    public float ShootInterval = 1.5f;
     private float timeSinceLastShot = 0f;  // Timer to track intervals between shots
   
-    float th1, th2, th3, yEndPoint, zEndPoing;
+    float  yEndPoint, zEndPoing;
     float xPoint, yPoint;
     public float tilt;
     public float[] currRom;
 
     //default values
-    public static float yMinMars = 175;
-    public static float yMaxMars = 775;
-    public static float zMinMars = 291 - 300;
-    public static float zMaxMars = 291 + 300;
+    public static float yMinendPnt;
+    public static float yMaxendPnt;
+    public static float zMinendPnt;
+    public static float zMaxendPnt;
     public int OFFSET;
- 
-    Vector3 temp;
+
+    private void Awake()
+    {
+        instance = this;
+    }
     void Start()
     {
         mainCamera = Camera.main;
@@ -55,34 +56,53 @@ public class Player_controller_s : MonoBehaviour
         audioSource = GetComponent<AudioSource>();
 
         //GET ROM DATA
-        currRom = AppData.Instance.selectedMovement.CurrentAromFWS;
-        zMinMars = currRom[0];
-        zMaxMars = currRom[1];
-        yMinMars = currRom[2];
-        yMaxMars = currRom[3];
+        currRom = AppData.Instance.selectedMovement.CurrentArom;
+        zMinendPnt = currRom[0];
+        zMaxendPnt = currRom[1];
+      
 
         OFFSET = AppData.Instance.userData.rightArm ? -1 : 1;
     }
-   
+
+    private float smoothSpeed = 15f;
+
     public void FixedUpdate()
     {
-        endPoint = MarsKinDynamics.ForwardKinematicsExtended(MarsComm.angle1, MarsComm.angle2, MarsComm.angle3, MarsComm.angle4);
-
-      
-        yEndPoint = endPoint.y;
+        endPoint = MarsComm.planeEndPoints;
         zEndPoing = endPoint.z;
-        xPoint = OFFSET*((xMin + xMax) / 2.0f + (xMax - xMin) / (zMaxMars - zMinMars) * (zEndPoing - ((zMinMars + zMaxMars) / 2.0f)));
-        yPoint = ((yMin + yMax) / 2.0f - (yMax - yMin) / (yMaxMars - yMinMars) * (yEndPoint - ((yMinMars + yMaxMars) / 2.0f)));
+        xPoint = OFFSET * (
+            (xMin + xMax) / 2.0f +
+            (xMax - xMin) / (zMaxendPnt - zMinendPnt) *
+            (zEndPoing - ((zMinendPnt + zMaxendPnt) / 2.0f))
+        );
 
-        transform.position = new Vector3(Mathf.Clamp(xPoint, xMin, xMax),
-            Mathf.Clamp(yPoint, yMin, yMax),
-            -8.0f);
-
-        //Initiate Bullet
-        shootTime();
        
+
+        // target position
+        Vector3 targetPos = new Vector3(
+            Mathf.Clamp(xPoint, xMin, xMax),
+            -4.0f,
+            -8.0f
+        );
+
+        //// constant-speed movement (no delay)
+        //transform.position = Vector3.MoveTowards(
+        //    transform.position,
+        //    targetPos,
+        //    smoothSpeed * Time.fixedDeltaTime
+        //);
+        // smooth movement
+        transform.position = Vector3.Lerp(
+            transform.position,
+            targetPos,
+            smoothSpeed * Time.fixedDeltaTime
+        );
+
+        // Initiate Bullet
+        shootTime();
     }
- 
+
+
     void shootTime()
     {
        
@@ -91,9 +111,7 @@ public class Player_controller_s : MonoBehaviour
             || !spaceShooterGameContoller.Instance.isGameStarted
             )
         {
-           
-            return; // Stop shooting when the game is over
-
+            return; // Stop shooting when the game is ove
         }
         // Track time passed
         timeSinceLastShot += Time.deltaTime;
@@ -115,6 +133,7 @@ public class Player_controller_s : MonoBehaviour
         }
         Destroy(Laser, 1.0f);
     }
+ 
     public void DestroyPlayer()
     {
         Destroy(gameObject);

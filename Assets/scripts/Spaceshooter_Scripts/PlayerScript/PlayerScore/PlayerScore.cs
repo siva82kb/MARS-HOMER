@@ -65,37 +65,25 @@ public class PlayerScore : MonoBehaviour
     }
     public void AsteroidScore()
     {
-        if (!File.Exists(F_path))
-        {
-            File.WriteAllText(F_path, "0,0");
-        }
-        if (File.Exists(F_path))
-        {
-            // string[] lines = File.ReadAllLines(F_path);
-
-            currentScore += 1;
-            currTrialScore += 1;
-            ScoreText.text = $"Score: {currTrialScore}";
-            string data = $"{currentScore},{currentLevel}";
-            File.WriteAllText(F_path, data);
-        }
-
+        currentScore += 1;
+        currTrialScore += 1;
+        ScoreText.text = $"Score: {currTrialScore}";    
     }
     public void DeductScore(){
-         if (!File.Exists(F_path))
-        {
-            File.WriteAllText(F_path, "0,0");
-        }
-        if (File.Exists(F_path))
-        {
-            // string[] lines = File.ReadAllLines(F_path);
+        // if (!File.Exists(F_path))
+        //{
+        //    File.WriteAllText(F_path, "0,0");
+        //}
+        //if (File.Exists(F_path))
+        //{
+        //    // string[] lines = File.ReadAllLines(F_path);
 
-            currentScore -= 5;
-            currTrialScore -= 0;
-            ScoreText.text = $"Score: {currTrialScore}";
-            string data = $"{currentScore},{currentLevel}";
-            File.WriteAllText(F_path, data);
-        }
+        //    currentScore -= 5;
+        //    currTrialScore -= 0;
+        //    ScoreText.text = $"Score: {currTrialScore}";
+        //    //string data = $"{currentScore},{currentLevel}";
+        //    //File.WriteAllText(F_path, data);
+        //}
     }
 
 

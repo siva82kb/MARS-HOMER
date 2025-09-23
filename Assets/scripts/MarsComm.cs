@@ -4,7 +4,7 @@ using System.IO;
 using System;
 using System.ComponentModel;
 using System.Text;
-using System.Numerics;
+
 using System.Data;
 using System.Drawing.Drawing2D;
 
@@ -39,6 +39,7 @@ public static class MarsComm
         "None",
         "Position"
     };
+
     public static readonly int[] SENSORNUMBER = new int[] {
         0,   // Dummy
         11,  // SENSORSTREAM 
@@ -64,6 +65,13 @@ public static class MarsComm
         "MCURRSENSERR",
         "NOHEARTBEAT"
     };
+    public static readonly string[] MOVETYPE = new string[]
+    {
+        "MEDIAL-LATERAL",
+        "ANTERIOR-POSTERIOR",
+        "COMBINE[ML-AP]"
+
+    };
     public static readonly int INVALID_TARGET = 999;
     static public byte currentButtonState, previousButtonState;
     static int sensorDataLength;
@@ -79,7 +87,7 @@ public static class MarsComm
     // Control change event.
     public delegate void MarsControlModeChangeEvent();
     public static event MarsControlModeChangeEvent OnControlModeChange;
-    
+
     // MARS Robot Parameters
     private const float L1 = 475.0f;
     private const float L2 = 291.0f;
@@ -126,6 +134,8 @@ public static class MarsComm
     static public ushort packetNumber { get; private set; }
     static public float runTime { get; private set; }
     static public float prevRunTime { get; private set; }
+   
+
     public static int GetMarsCodeFromLabel(string[] array, string value)
     {
         return Array.IndexOf(array, value) - 1;
@@ -275,6 +285,10 @@ public static class MarsComm
             return currentButtonState;
         }
     }
+    static public Vector3 planeEndPoints
+    { 
+        get => MarsKinDynamics.ForwardKinematicsInThePlane(angle2, angle3); 
+    }
 
     private static int getControlType(int statusByte)
     {
@@ -396,6 +410,7 @@ public static class MarsComm
 
                 // Invoke the new data event only for SENSORSTREAM or DIAGNOSTICS data.
                 OnNewMarsData?.Invoke();
+
                 break;
             case "VERSION":
                 // Read the bytes into a string.
@@ -405,6 +420,7 @@ public static class MarsComm
                 MarsCommLogger.LogInfo($"Received Version | Version: {version} | Compile Date: {compileDate} | Device ID: {deviceId}");
                 break;
         }
+
     }
    
     
@@ -546,6 +562,32 @@ public static class MarsKinDynamics
         z = -l1 * Mathf.Sin(theta2) - l2 * Mathf.Sin(theta2 + theta3);
         return new UnityEngine.Vector3(x, y, z);
     }
+    public static UnityEngine.Vector3 ForwardKinematicsInThePlane(float theta2, float theta3)
+    {
+        float x, y, z;
+        theta2 *= Mathf.Deg2Rad;
+        theta3 *= Mathf.Deg2Rad;
+
+        float _temp = l1 * Mathf.Cos(theta2) + l2 * Mathf.Cos(theta2 + theta3);
+        x = 0;
+        y = _temp; 
+        z = -l1 * Mathf.Sin(theta2) - l2 * Mathf.Sin(theta2 + theta3);
+        return new UnityEngine.Vector3(x, y, z);
+    }
+
+
+    //public static UnityEngine.Vector3 ForwardKinematicsInThePlane(float theta2, float theta3)
+    //{
+    //    float x, y, z;
+    //    // Change the angles to radians
+    //    theta2 = theta2 * Mathf.Deg2Rad;
+    //    theta3 = theta3 * Mathf.Deg2Rad;
+    //    float _temp = l1 * Mathf.Cos(theta2) + l2 * Mathf.Cos(theta2 + theta3);
+    //    x = 0;
+    //    y = _temp;
+    //    z = l1 - l2 * Mathf.Sin(theta2 + theta3);
+    //    return new UnityEngine.Vector3(x, y, z);
+    //}
 
     public static UnityEngine.Vector3 ForwardKinematicsExtended(float theta1, float theta2, float theta3, float theta4)
     {

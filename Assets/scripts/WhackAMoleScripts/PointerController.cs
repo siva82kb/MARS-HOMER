@@ -7,53 +7,83 @@ public class PointerController : MonoBehaviour
     // Start is called before the first frame update
     
     public float speed = 4f;
-    public float min_x, max_x, min_y, max_y;
+    public float xMin, xMax, yMin, yMax;
+    float yEndPoint, zEndPoing;
+    float xPoint, yPoint;
+    private Vector3 endPoint;
+    public int OFFSET;
+    public float[] currRom;
 
+    //default values
+    public static float yMinendPnt;
+    public static float yMaxendPnt;
+    public static float zMinendPnt;
+    public static float zMaxendPnt;
 
     void Start()
     {
-        
-    }
+        MarsComm.sendHeartbeat();
+        //GET ROM DATA
+        currRom = AppData.Instance.selectedMovement.CurrentArom;
+        zMinendPnt = currRom[0];
+        zMaxendPnt = currRom[1];
+        yMinendPnt = currRom[2];
+        yMaxendPnt = currRom[3];
 
+        OFFSET = AppData.Instance.userData.rightArm ? -1 : 1;
+    }
+    private void FixedUpdate()
+    {
+        MarsComm.sendHeartbeat();
+        endPoint = MarsComm.planeEndPoints;
+        yEndPoint = endPoint.y;
+        zEndPoing = endPoint.z;
+        xPoint = OFFSET * ((xMin + xMax) / 2.0f + (xMax - xMin) / (zMaxendPnt - zMinendPnt) * (zEndPoing - ((zMinendPnt + zMaxendPnt) / 2.0f)));
+        yPoint = -((yMin + yMax) / 2.0f - (yMax - yMin) / (yMaxendPnt - yMinendPnt) * (yEndPoint - ((yMinendPnt + yMaxendPnt) / 2.0f)));
+
+        transform.position = new Vector3(Mathf.Clamp(xPoint, xMin, xMax),
+            Mathf.Clamp(yPoint, yMin, yMax),
+            0f);
+    }
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetAxisRaw("Horizontal") > 0f)
-        {
-            Vector3 temp = transform.position;
-            temp.x += speed * Time.deltaTime;
+    //    if (Input.GetAxisRaw("Horizontal") > 0f)
+    //    {
+    //        Vector3 temp = transform.position;
+    //        temp.x += speed * Time.deltaTime;
 
-            if (temp.x > max_x)
-                temp.x = max_x;
-            transform.position = temp;
+    //        if (temp.x > xMax)
+    //            temp.x = xMax;
+    //        transform.position = temp;
 
-        }
-        else if (Input.GetAxisRaw("Horizontal") < 0f)
-        {
-            Vector3 temp = transform.position;
-            temp.x -= speed * Time.deltaTime;
+    //    }
+    //    else if (Input.GetAxisRaw("Horizontal") < 0f)
+    //    {
+    //        Vector3 temp = transform.position;
+    //        temp.x -= speed * Time.deltaTime;
 
-            if (temp.x < min_x)
-                temp.x = min_x;
-            transform.position = temp;
-        }
-        if (Input.GetAxisRaw("Vertical") > 0f)
-        {
-            Vector3 temp = transform.position;
-            temp.y += speed * Time.deltaTime;
+    //        if (temp.x < xMin)
+    //            temp.x = xMin;
+    //        transform.position = temp;
+    //    }
+    //    if (Input.GetAxisRaw("Vertical") > 0f)
+    //    {
+    //        Vector3 temp = transform.position;
+    //        temp.y += speed * Time.deltaTime;
 
-            if (temp.y > max_y)
-                temp.y = max_y;
-            transform.position = temp;
-        }
-        else if (Input.GetAxisRaw("Vertical") < 0f)
-        {
-            Vector3 temp = transform.position;
-            temp.y -= speed * Time.deltaTime;
+    //        if (temp.y > yMax)
+    //            temp.y = yMax;
+    //        transform.position = temp;
+    //    }
+    //    else if (Input.GetAxisRaw("Vertical") < 0f)
+    //    {
+    //        Vector3 temp = transform.position;
+    //        temp.y -= speed * Time.deltaTime;
 
-            if (temp.y < min_y)
-                temp.y = min_y;
-            transform.position = temp;
-        } 
+    //        if (temp.y < yMin)
+    //            temp.y = yMin;
+    //        transform.position = temp;
+    //    }
     }
 }
