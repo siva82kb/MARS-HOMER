@@ -83,7 +83,7 @@ public class welcomeSceneHandler : MonoBehaviour
         {
             timeRemainingToday.text = $"Done +{movetime}[min]";
             timeRemainingToday.color = Color.green;
-            Debug.Log("workinng");
+           
         }
         else
         {

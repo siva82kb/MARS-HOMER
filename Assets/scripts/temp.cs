@@ -110,8 +110,8 @@ public class calibrationSceneHandler : MonoBehaviour
             }
             averagePosition /= MAX_ENDPOINTS;
             // Set the human limb kinematic parameters based on the average position.
-            setHLimbKinUALength = (float)AppData.Instance.userData.uaLength;
-            setHLimbKinFALength = (float)AppData.Instance.userData.faLength;
+            //setHLimbKinUALength = (float)AppData.Instance.userData.uaLength;
+            //setHLimbKinFALength = (float)AppData.Instance.userData.faLength;
             setHLimbKinShPosZ = averagePosition.z;
             Debug.Log($"Setting human limb kinematic parameters: UALength={setHLimbKinUALength}, FALength={setHLimbKinFALength}, Average Position Z={setHLimbKinShPosZ}");
             // MarsComm.setHumanLimbKinParams(setHLimbKinUALength, setHLimbKinFALength, setHLimbKinShPosZ);
@@ -196,8 +196,8 @@ public class calibrationSceneHandler : MonoBehaviour
         //change Lenght of Arm Dynamically
         setLenght.onClick.AddListener(delegate
         {
-            AppData.Instance.userData.setFALength(float.Parse(faLength.text));
-            AppData.Instance.userData.setUALength(float.Parse(uaLength.text));
+            //AppData.Instance.userData.setFALength(float.Parse(faLength.text));
+            //AppData.Instance.userData.setUALength(float.Parse(uaLength.text));
             setLenght.gameObject.SetActive(!setLenght.IsActive());
         });
 

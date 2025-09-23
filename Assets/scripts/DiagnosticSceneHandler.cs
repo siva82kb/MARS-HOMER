@@ -21,6 +21,7 @@ public class DiagnosticSceneHandler : MonoBehaviour
     public TMP_Text targetValueText;
     public Button btnSetTarget;
     public Toggle tglCtrlPosition;
+    public Text ePosP;
     
     private static string FLOAT_FORMAT = "+0.000;-0.000";
     private string fileName = "";
@@ -365,6 +366,9 @@ public class DiagnosticSceneHandler : MonoBehaviour
             }
             updateControlControls = false;
         }
+        ePosP.text = $"EndPointPos P :{MarsComm.planeEndPoints.ToString(FLOAT_FORMAT)}\n"+
+                    $"EndPointPos   :{MarsKinDynamics.ForwardKinematics(MarsComm.angle1,MarsComm.angle2,MarsComm.angle3).ToString(FLOAT_FORMAT)}";
+        
     }
 
     public void DisplayDeviceData()
@@ -404,10 +408,13 @@ public class DiagnosticSceneHandler : MonoBehaviour
             MarsComm.imu3Angle.ToString(FLOAT_FORMAT).PadRight(8),
             MarsComm.imu4Angle.ToString(FLOAT_FORMAT).PadRight(8),
         });
+       
+       
         string sensorText = String.Join("\n", new string[] {
             $"Robot Angles  : {robotAngles}",
             $"IMU Angles    : {imuAngles}",
             $"Endpoint Pos  : {epPos}",
+            //$"Endpoing Pos P: {epsInPlaneDebug}",
             $"Force         : {MarsComm.force.ToString(FLOAT_FORMAT), -15} | Torque : {MarsComm.torque.ToString(FLOAT_FORMAT)}",
             $"Target        : {MarsComm.target.ToString(FLOAT_FORMAT), -15} | Desired : {MarsComm.desired.ToString(FLOAT_FORMAT)}",
             $"Control       : {MarsComm.control.ToString(FLOAT_FORMAT)}",

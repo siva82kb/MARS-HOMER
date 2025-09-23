@@ -13,7 +13,7 @@ public partial class AppData
     public static AppData Instance => _instance.Value;
 
 
-    static public readonly string COMPort = "COM4";
+    static public readonly string COMPort = "COM50"; //1-35//2-30//3-32//4-50
 
     /*
    * SESSION DETAILS
@@ -23,7 +23,7 @@ public partial class AppData
     public DateTime? stopTime { get; private set; }
     public DateTime trialStartTime { get; set; }
     public DateTime? trialStopTime { get; set; }
-
+  
     /*
     * Logging file names.
     */

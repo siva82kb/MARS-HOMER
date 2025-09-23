@@ -1,5 +1,6 @@
 
 using System;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -10,6 +11,9 @@ using System.Text;
  */
 public partial class AppData
 {
+    //Trail Detials
+    public float gameTime { get; set; } = 0;
+    public float gameSpeed { get; set; }
     // Start a new trial.
     public void StartNewTrial()
     {
@@ -34,6 +38,17 @@ public partial class AppData
                 $"TrialRawDataFile: {trialRawDataFile.Split('/').Last()}"
         });
         AppLogger.LogInfo($"StartNewTrial | {_tdetails}");
+
+        //Get GamelastSpeed of current Movement
+        if (userData.dTableSession.Rows.Count == 0) return;
+        var lastRowForMovement = userData.dTableSession.AsEnumerable()
+                                .Where(r => r.Field<string>("Movement") == AppData.Instance.selectedMovement.name)
+                                .LastOrDefault();
+
+        if (lastRowForMovement != null)
+        {
+            gameSpeed = float.Parse(lastRowForMovement.Field<string>("GameSpeed"));
+        }
     }
 
     public void StopTrial(int nTargets, int nSuccess, int nFailure)
@@ -84,8 +99,6 @@ public partial class AppData
             $"{selectedMovement.trialNumberDay}",
             // "TrialNumberSession"
             $"{selectedMovement.trialNumberSession}",
-            // "TrialType"
-            $"{""}",
             // "TrialStartTime"
             trialStartTime.ToString(DataManager.DATETIMEFORMAT),
             // "TrialStopTime"
@@ -99,21 +112,11 @@ public partial class AppData
             // "GameParameter"
             null,
             // "GameSpeed"
-            "",//speedData.gameSpeed.ToString(),
-            // "AssistMode"
-            
-            //trialType == HomerTherapy.TrialType.SR85PCCATCH ? "ACTIVE" : "AAN",
-            $"{selectedMovement.MarsMode}",//need to change to transition control
-            // "DesiredSuccessRate"
-            $"",
+            $"{gameSpeed}",
             // "SuccessRate"
             $"{successRate}",
-            // "CurrentControlBound"
-            "",//trialType == HomerTherapy.TrialType.SR85PCCATCH ? "0" : $"{_currControlBound:F3}",
-            // "NextControlBound"
-            "",//trialType == HomerTherapy.TrialType.SR85PCCATCH ?  "0": $"{aanController.currentCtrlBound:F3}",
             //gameTime
-            Others.gameTime.ToString()
+            AppData.Instance.gameTime.ToString()
         };
 
         // Write the trial row to the session file.
@@ -137,20 +140,14 @@ public partial class AppData
         //// Initialize the string builders.
         rawDataString = new StringBuilder();
         // Write pre-header and header information
-        rawDataString.AppendLine($":Device: PLUTO");
+        rawDataString.AppendLine($":Device: MARS");
         rawDataString.AppendLine($":Location: {userData.GetDeviceLocation()}");
-        rawDataString.AppendLine($":Mechanism: {selectedMovement.name}");
+        rawDataString.AppendLine($":Movement: {selectedMovement.name}");
         rawDataString.AppendLine($":Game: {selectedGame}");
         rawDataString.AppendLine($":TrialType: ");
         rawDataString.AppendLine($":TrialStartTime: {trialStartTime:yyyy-MM-ddTHH:mm:ss}");
         rawDataString.AppendLine($":TrialNumberDay: {selectedMovement.trialNumberDay}");
-        if(selectedMovement.name != "SFE")
-        {
-            rawDataString.AppendLine($":FWS-ROM: X-[{selectedMovement.CurrentAromFWS[0]:F3},{selectedMovement.CurrentAromFWS[1]:F3}],Y-[{selectedMovement.CurrentAromFWS[2]:F3},{selectedMovement.CurrentAromFWS[3]:F3}]");
-            rawDataString.AppendLine($":HWS-ROM: X-[{selectedMovement.CurrentAromHWS[0]:F3},{selectedMovement.CurrentAromHWS[1]:F3}],Y-[{selectedMovement.CurrentAromHWS[2]:F3},{selectedMovement.CurrentAromHWS[3]:F3}]");
-            rawDataString.AppendLine($":FWS-ROM: X-[{selectedMovement.CurrentAromNWS[0]:F3},{selectedMovement.CurrentAromNWS[1]:F3}],Y-[{selectedMovement.CurrentAromNWS[2]:F3},{selectedMovement.CurrentAromNWS[3]:F3}]");
-        }
-        
+        rawDataString.AppendLine($":FWS-ROM: X-[{selectedMovement.CurrentArom[0]:F3},{selectedMovement.CurrentArom[1]:F3}],Y-[{selectedMovement.CurrentArom[2]:F3},{selectedMovement.CurrentArom[3]:F3}]");
         rawDataString.AppendLine($":DesiredSuccessRate: ");
         rawDataString.AppendLine($":ControlBound: ");
         rawDataString.AppendLine(string.Join(",", DataManager.RAWFILEHEADER));
@@ -158,15 +155,7 @@ public partial class AppData
         // Attach the event handler for data logging.
         MarsComm.OnNewMarsData += OnNewMarsDataDataLogging;
     }
-    //"DeviceRunTime","PacketNumber","Status","ErrorString",
-    //    "Limb","Calibration","LimbKinParam","limbDynParam",
-    //    "Target","Desired","Control",
-    //    "Angle1","Angle2","Angle3","Angle4",
-    //    "ImuAngle1","ImuAngle2","ImuAngle3",
-    //    "Force","Torque",
-    //    "EndPointX","EndPointY","EndPointZ",
-    //    "Phi1","Phi2","Phi3",
-    //    "GamePlayerX","GamePlayerY","GameTargetX","GameTargetY","GameState"
+ 
     public void OnNewMarsDataDataLogging()
     {
         lock (rawDataLock)
@@ -183,33 +172,25 @@ public partial class AppData
             rawDataString.Append($"{MarsComm.errorString},");
             rawDataString.Append($"{MarsComm.limb},");
             rawDataString.Append($"{MarsComm.calibration},");
-            // rawDataString.Append($"{MarsComm.limbKinParam},");
-            // rawDataString.Append($"{MarsComm.limbDynParam},");
             rawDataString.Append($"{MarsComm.target},");
             rawDataString.Append($"{MarsComm.desired},");
             rawDataString.Append($"{MarsComm.control},");
             rawDataString.Append($"{MarsComm.angle1},");
             rawDataString.Append($"{MarsComm.angle2},");
             rawDataString.Append($"{MarsComm.angle3},");
-            rawDataString.Append($"{MarsComm.angle4},");
             rawDataString.Append($"{MarsComm.imu1Angle},");
             rawDataString.Append($"{MarsComm.imu2Angle},");
             rawDataString.Append($"{MarsComm.imu3Angle},");
-            rawDataString.Append($"{MarsComm.imu4Angle},");
             rawDataString.Append($"{MarsComm.force},");
             rawDataString.Append($"{MarsComm.torque},");
             rawDataString.Append($"{MarsComm.xEndpoint},");
             rawDataString.Append($"{MarsComm.yEndpoint},");
             rawDataString.Append($"{MarsComm.zEndpoint},");
-            // rawDataString.Append($"{MarsComm.phi1},");
-            // rawDataString.Append($"{MarsComm.phi2},");
-            // rawDataString.Append($"{MarsComm.phi3},");
-         
-            // Game Data
+            rawDataString.Append($"{MarsComm.planeEndPoints.y}");
+            rawDataString.Append($"{MarsComm.planeEndPoints.z}");
             rawDataString.Append($"{GetGamePlayerPosition()},");
             rawDataString.Append($"{GetGameTargetPosition()},");
-            rawDataString.Append($"{GetGameState()},");
-        
+            rawDataString.Append($"{GetGameState()}");
             rawDataString.Append("\n");
         }
     }
@@ -245,11 +226,14 @@ public partial class AppData
         }
         else if (selectedGame == "pong_game")
         {
-            return $"{pongGameController.instance.PlayerPosition.x:F3},{pongGameController.instance.PlayerPosition.y:F3}";
+            return $"{pongGameController.Instance.playerPosition.x:F3},{pongGameController.Instance.playerPosition.y:F3}";
         }
-        else if (selectedGame == "FlappyGame")
+
+        else if (selectedGame == "Whack_WelcomeScene")
         {
-            return $"{FlappyGameControl.instance.PlayerPosition.x:F3},{FlappyGameControl.instance.PlayerPosition.y:F3}";
+
+            return $"{WAMGameController.Instance.playerPosition.x:F3},{WAMGameController.Instance.playerPosition.y:F3}";
+
         }
         return ",";
     }
@@ -266,11 +250,15 @@ public partial class AppData
         }
         else if (selectedGame == "pong_game")
         {
-            if (pongGameController.instance.TargetPosition.HasValue) return $"{pongGameController.instance.TargetPosition.Value.x:F3},{pongGameController.instance.TargetPosition.Value.y:F3}";
+            if (pongGameController.Instance.targetPosition.HasValue) return $"{pongGameController.Instance.targetPosition.Value.x:F3},{pongGameController.Instance.targetPosition.Value.y:F3}";
         }
-        else if (selectedGame == "FlappyGame")
+
+        else if (selectedGame == "Whack_WelcomeScene")
         {
-            if (FlappyGameControl.instance.TargetPosition.HasValue) return $"{FlappyGameControl.instance.TargetPosition.Value.x:F3},{FlappyGameControl.instance.TargetPosition.Value.y:F3}";
+            if (WAMGameController.Instance.targetPosition.HasValue)
+            {
+                return $"{WAMGameController.Instance.targetPosition.Value.x:F3},{WAMGameController.Instance.targetPosition.Value.y:F3}";
+            }
         }
         return ",";
     }
@@ -284,12 +272,18 @@ public partial class AppData
         }
         else if (selectedGame == "pong_game")
         {
-            return $"{pongGameController.instance.gameState}";
+            return $"{pongGameController.Instance.gameState}";
         }
-        else if (selectedGame == "FlappyGame")
+       
+        else if(selectedGame == "Whack_WelcomeScene")
         {
-            return $"{FlappyGameControl.instance.gameState}";
+            return $"{WAMGameController.Instance.gameState}";
         }
-        return "";
+            return "";
+    }
+    public void updateSessionDetials()
+    {
+        AppData.Instance.userData.readParseSessionData(DataManager.sessionFile);
+       
     }
 }

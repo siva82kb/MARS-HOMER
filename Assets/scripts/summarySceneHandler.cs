@@ -16,6 +16,8 @@ public class summarySceneHandler : MonoBehaviour
 
     public void Start()
     {
+        if (MarsComm.CONTROLTYPE[MarsComm.controlType] != "NONE")
+            MarsComm.setControlType("NONE");
 
         MarsComm.OnMarsButtonReleased += onMarsButtonReleased;
         // Inialize the logger
@@ -28,6 +30,7 @@ public class summarySceneHandler : MonoBehaviour
 
     void Update()
     {
+        MarsComm.sendHeartbeat();
         while (_actionQueue.TryDequeue(out var action))
         {
             action.Invoke(); // Execute the action
@@ -51,6 +54,7 @@ public class summarySceneHandler : MonoBehaviour
         // Enqueue the disconnect and quit actions
         _actionQueue.Enqueue(() =>
         {
+           
             AppLogger.LogInfo("Disconnected form Mars And Application closed succesfully");
             JediComm.Disconnect();
             Application.Quit();

@@ -221,7 +221,7 @@ public class FlappyGameControl : MonoBehaviour
     public void endGame()
     {
             float gameTime = trialDuration - triaTimeLeft;
-            Others.gameTime = (gameTime < trialDuration) ? (int)gameTime : trialDuration;
+            AppData.Instance.gameTime = (gameTime < trialDuration) ? (int)gameTime : trialDuration;
             AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
             gameState = GameStates.DONE;
     }

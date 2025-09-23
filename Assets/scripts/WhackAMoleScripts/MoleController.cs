@@ -1,47 +1,64 @@
 using System.Collections;
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
 public class MoleController : MonoBehaviour
 {
-    public float popUpHeight = 1.5f;
+    public float popUpHeight = 1.44f;
     public float speed = 5f;
     public float popUpTime = 1.5f; // Only for Levels > 2
 
     private Vector3 hiddenPosition;
     private Vector3 visiblePosition;
-    private bool moleVisible = false;
+    public bool moleVisible = false;
     private bool hasBeenHit = false;
-    private GameManagerW gm;
+    private WAMGameController gm;
 
-    public bool IsMoleActive() => moleVisible;
+    public SpriteRenderer spriteRenderer;   // Drag your SpriteRenderer here
+    public Sprite[] sprites;//0-happy,1-sad,2-surprise Assign multiple sprites in Inspector//
 
+    //private int currentIndex = 0;
+
+  
+  
     void Start()
     {
-        gm = FindObjectOfType<GameManagerW>();
+        gm = FindObjectOfType<WAMGameController>();
         hiddenPosition = transform.position;
+        if (spriteRenderer == null)
+            spriteRenderer = GetComponent<SpriteRenderer>();
+
         visiblePosition = transform.position + Vector3.up * popUpHeight;
         transform.position = hiddenPosition; // Start hidden
     }
 
-    public IEnumerator StartMoleRoutine(bool waitForHit)
+    
+    public void PopUPMole(bool waitForHit)
     {
-        yield return MoveMole(visiblePosition);
+        spriteRenderer.sprite = sprites[0];
+        StartCoroutine(MoveMole(visiblePosition));
         moleVisible = true;
         hasBeenHit = false;
+    }
 
-        if (waitForHit)
-        {
-            yield return new WaitUntil(() => hasBeenHit); // Wait until the mole is hit
-        }
-        else
-        {
-            yield return new WaitForSeconds(popUpTime); // Disappear after some time
-        }
+    public void failDownMole()
+    {
+       
+        spriteRenderer.sprite = sprites[2];
+        Invoke(nameof(MoveDown), 0.2f);
+    }
+    public void succDownMole()
+    {
+       
+        spriteRenderer.sprite = sprites[1];
+        Invoke(nameof(MoveDown), 0.2f);
 
-        yield return MoveMole(hiddenPosition);
+    }
+    private void MoveDown()
+    {
+        StartCoroutine(MoveMole(hiddenPosition));
         moleVisible = false;
-
-        gm.MoleCycleComplete(); // Notify GameManager
+        hasBeenHit = false;
     }
 
     IEnumerator MoveMole(Vector3 target)
@@ -61,23 +78,24 @@ public class MoleController : MonoBehaviour
 
     public void RegisterHit()
     {
+        WAMGameController.Instance.nSuccess++;
         hasBeenHit = true;
     }
 
     public bool HasBeenHit()
     {
+
         return hasBeenHit;
     }
 
-    public void ForceMoleDown()
+    private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (moleVisible)
+        if(collision.gameObject.name == "cursor")
         {
-            StopAllCoroutines();
-            StartCoroutine(MoveMole(hiddenPosition));
-            moleVisible = false;
-            gm.MoleCycleComplete(); // Notify GameManager
+            RegisterHit();
+            Debug.Log("hit");
         }
+        Debug.Log(collision.gameObject.name);
     }
 }
 

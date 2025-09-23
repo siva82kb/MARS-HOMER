@@ -1,6 +1,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.IO;
 using TMPro;
@@ -21,22 +22,22 @@ public class spaceShooterGameContoller : MonoBehaviour
     public TextMeshProUGUI timerText;
     public TextMeshProUGUI angletext;
     public Text messTxt;
+    public Text gameSpeedTxt;
     public GameObject startImage;
     public GameObject PauseImage;
-   
-    public float gameDuration = 60f; // Game duration in seconds
-    
-    
-    //level related variables
-    private int finalScore;
-    private int currentLevel;
-    private string path = Path.Combine(Application.dataPath, "Patient_Data", "ScoreManager.csv");
+    public GameObject GameControl;
+    public float smoothFactor = 5f;
     public GameObject newSpaceshipPanel;
+    public GameObject reminderPanel;
+
     public bool Levelunlocked = false;
 
     private float timer;
     public static bool changeScene = false;
-    private float eventDelayTimer = 0f, gameSpeed;
+    private float eventDelayTimer = 0f, 
+                  gameSpeed = 1f;
+    private float targetSpeed;
+  
     private bool runOnce = false;
 
     // Game score related variables.
@@ -50,7 +51,8 @@ public class spaceShooterGameContoller : MonoBehaviour
     public bool isSuccess { get; private set; } = false;
     public bool isFailure { get; private set; } = false;
 
-    
+    public float gameDuration = 60f; // Game duration in seconds
+
 
     public void setisSuccess()
     {
@@ -81,11 +83,7 @@ public class spaceShooterGameContoller : MonoBehaviour
         get => _gameState;
         private set => _gameState = value;
     }
-    
-    public void setGameState(GameStates gameState)
-    {
-        this.gameState = gameState;
-    }
+ 
    
     public Vector3 playerPosition {  get; private set; }
    
@@ -106,11 +104,21 @@ public class spaceShooterGameContoller : MonoBehaviour
     }
     void Start()
     {
+        MarsComm.sendHeartbeat();
         initUI();
         isGameStarted = false;
         MarsComm.OnMarsButtonReleased += onMarsButtonReleased;
-      
-      
+        AppData.Instance.updateSessionDetials();
+        if (AppData.Instance.selectedMovement.trialNumberDay >= AppData.Instance.userData.moveTimePrsc[AppData.Instance.selectedMovement.name])
+        {
+            reminderPanel.SetActive(true);
+
+        }
+        else
+        {
+            reminderPanel.SetActive(false);
+
+        }
     }
  
     // Update is called once per frame
@@ -135,11 +143,18 @@ public class spaceShooterGameContoller : MonoBehaviour
         {
             changeScene = false;
         }
+        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.G))
+        {
+            GameControl.gameObject.SetActive(!GameControl.gameObject.activeSelf);
+          
+        }
+        //Game Speed - for GameObject Smooth Transition
+        gameSpeed = Mathf.Lerp(gameSpeed, targetSpeed, Time.deltaTime * smoothFactor);
+        gameSpeedTxt.text = gameSpeed.ToString();
     }
 
     private void FixedUpdate()
     {
-
         RunStateMachine();
         playerPosition = GameObject.FindGameObjectWithTag("Player").transform.position;
         targetObject = GameObject.FindGameObjectWithTag("Asteroid");
@@ -177,6 +192,7 @@ public class spaceShooterGameContoller : MonoBehaviour
                 if (eventDelayTimer <= 0f && !runOnce)
                 {
                     AsteroidSpawner.Instance.SpawnAsteroid();
+                    AsteroidFall.instance.SetFallSpeed(gameSpeed);
                     nTargets++;
                     eventDelayTimer = 0.05f;
                     runOnce = true;
@@ -218,18 +234,20 @@ public class spaceShooterGameContoller : MonoBehaviour
                 }
                 break;
             case GameStates.STOP:
-                GameOver();
+                gameOver();
                 break;
         }
 
     }
-   
-    public void updateMarsSupportUI()
+    public void IncreaseSpeed()
     {
-        //support.text = $"Support : {AppData.ArmSupportController.getGain()}%";
-        // SupportSlider.fillAmount = MarsComm.SUPPORT;
+        targetSpeed = Mathf.Clamp(targetSpeed + 0.5f, 1f, 5f); // step change in target
     }
-   
+
+    public void DecreaseSpeed()
+    {
+        targetSpeed = Mathf.Clamp(targetSpeed - 0.5f, 1f, 5f);
+    }
   
     public void onMarsButtonReleased()
     {
@@ -264,39 +282,34 @@ public class spaceShooterGameContoller : MonoBehaviour
        
     }
 
-    private void savedata()
+    public void gameOver()
     {
-        //using the currentscore variable in playerscore to append the player score in csv file when game ends
-        int currentscores = PlayerScore.Instance.currentScore;
-        string score = $"{currentscores},{currentLevel}";
-        File.WriteAllText(path, score);
-
-    }
-
-    public void GameOver()
-    {
-
         if (Levelunlocked == false && !isGameFinished)
         {
-
             GameOverPanel.SetActive(true);
-
             //cal gameTime
             int gametime = (int)gameDuration - (int)timer;
-            Others.gameTime = gametime< gameDuration ? gametime: gameDuration;
-
+            AppData.Instance.gameTime = gametime< gameDuration ? gametime: gameDuration;
+            AppData.Instance.gameSpeed = gameSpeed;
             //stop trail
             AppData.Instance.StopTrial(nTargets,nSuccess,nFailure);
-
-            savedata();
         }
-
         timerText.text = "Time:0s";
         isGameFinished = true; // Set game over state 
+    }
+    public void onClickExit()
+    {
+        if (gameState != GameStates.WAITING && gameState != GameStates.STOP)
+        {
+            gameOver();
 
+        }
+
+        SceneManager.LoadScene("CHOOSEMOVE");
     }
     public void startGame()
     {
+        reminderPanel.SetActive(false);
         //start new Trail
         AppData.Instance.StartNewTrial();
 
@@ -312,15 +325,9 @@ public class spaceShooterGameContoller : MonoBehaviour
         GameOverPanel.SetActive(false);
         startImage.SetActive(false);
         messTxt.enabled = false;
-        if (File.Exists(path))
-        {
-            string[] lines = File.ReadAllLines(path);
-            string[] values = lines[0].Split(','); // Split the line by commas
-            if (values.Length >= 2)
-            {
-                int.TryParse(values[1], out currentLevel); // Parse the second value as currentLevel
-            }
-        }
+        
+        gameSpeed = AppData.Instance.gameSpeed<=0 ? gameSpeed : AppData.Instance.gameSpeed;
+        targetSpeed = gameSpeed;
        
     }
 
@@ -335,7 +342,7 @@ public class spaceShooterGameContoller : MonoBehaviour
     
     public void Back_to_ChooseLevel()
     {
-        SceneManager.LoadScene("space_shooter_level");
+        SceneManager.LoadScene("CHOOSEMOVE");
     }
     public void UnlockShipPanel()
     {
@@ -343,115 +350,12 @@ public class spaceShooterGameContoller : MonoBehaviour
         {
             newSpaceshipPanel.SetActive(true);
             Levelunlocked = true;
-            GameOver();
+            gameOver();
 
         }
 
     }
-    public void secondlevel()
-    {
-
-        finalScore = 0;
-        if (currentLevel <= 2)
-        {
-            currentLevel = 2;
-        }
-        string data = $"{finalScore},{currentLevel}";
-        File.WriteAllText(path, data);
-        SceneManager.LoadScene("SpaceShooter_Level2");
-    }
-    public void thirdlevel()
-    {
-        finalScore = 0;
-        if (currentLevel <= 3)
-        {
-            currentLevel = 3;
-        }
-        string data = $"{finalScore},{currentLevel}";
-        File.WriteAllText(path, data);
-        SceneManager.LoadScene("SpaceShooter_Level3");
-
-    }
-    public void fourthlevel()
-    {
-        finalScore = 0;
-        if (currentLevel <= 4)
-        {
-            currentLevel = 4;
-        }
-        string data = $"{finalScore},{currentLevel}";
-        File.WriteAllText(path, data);
-        SceneManager.LoadScene("SpaceShooter_Level4");
-
-    }
-    public void fifthlevel()
-    {
-        finalScore = 0;
-        if (currentLevel <= 5)
-        {
-            currentLevel = 5;
-        }
-        string data = $"{finalScore},{currentLevel}";
-        File.WriteAllText(path, data);
-        SceneManager.LoadScene("SpaceShooter_Level5");
-
-    }
-    public void sixthlevel()
-    {
-        finalScore = 0;
-        if (currentLevel <= 6)
-        {
-            currentLevel = 6;
-        }
-        string data = $"{finalScore},{currentLevel}";
-        File.WriteAllText(path, data);
-        SceneManager.LoadScene("SpaceShooter_Level6");
-
-    }
-    public void seventhlevel()
-    {
-        finalScore = 0;
-        if (currentLevel <= 7)
-        {
-            currentLevel = 7;
-        }
-        string data = $"{finalScore},{currentLevel}";
-        File.WriteAllText(path, data);
-        SceneManager.LoadScene("SpaceShooter_Level7");
-    }
-    public void eigthlevel()
-    {
-        finalScore = 0;
-        if (currentLevel <= 8)
-        {
-            currentLevel = 8;
-        }
-        string data = $"{finalScore},{currentLevel}";
-        File.WriteAllText(path, data);
-        SceneManager.LoadScene("SpaceShooter_Level8");
-    }
-    public void ninthlevel()
-    {
-        finalScore = 0;
-        if (currentLevel <= 9)
-        {
-            currentLevel = 9;
-        }
-        string data = $"{finalScore},{currentLevel}";
-        File.WriteAllText(path, data);
-        SceneManager.LoadScene("SpaceShooter_Level9");
-    }
-    public void tenthlevel()
-    {
-        finalScore = 0;
-        if (currentLevel <= 10)
-        {
-            currentLevel = 10;
-        }
-        string data = $"{finalScore},{currentLevel}";
-        File.WriteAllText(path, data);
-        SceneManager.LoadScene("SpaceShooter_Level9");
-    }
+  
     private void OnApplicationQuit()
     {
         Application.Quit();

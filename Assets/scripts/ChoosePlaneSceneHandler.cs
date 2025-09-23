@@ -71,9 +71,18 @@ public class ChoosePlaneSceneHandler : MonoBehaviour
 
         // Initialize UI
         InitUI();
-
-        // Initialize state
-        currentState = ChooseTrainingPlaneStates.WAIT_FOR_HORIZONTAL_REACH;
+        if (MarsComm.CONTROLTYPE[MarsComm.controlType] == "POSITION")
+        {
+           
+            currentState = ChooseTrainingPlaneStates.WAIT_FOR_LIMB_ATTACHMENT;
+        }
+        else
+        {
+            // Initialize state
+            currentState = ChooseTrainingPlaneStates.WAIT_FOR_HORIZONTAL_REACH;
+        }
+           
+            
         marsButtonReleased = false;
         calibButtonReleased = false;
     }
@@ -90,7 +99,6 @@ public class ChoosePlaneSceneHandler : MonoBehaviour
         {
             attachMarsButtonEvent = false;
             MarsComm.OnMarsButtonReleased += onMarsButtonReleased;
-            MarsComm.OnCalibButtonReleased += onCalibButtonReleased;
         }
 
         // Run the statemachine
@@ -120,6 +128,7 @@ public class ChoosePlaneSceneHandler : MonoBehaviour
         //         instructionText.color = new Color32(202, 108, 0, 255);
         //     }
         // }
+      
     }
 
     private void InitUI()
@@ -143,6 +152,7 @@ public class ChoosePlaneSceneHandler : MonoBehaviour
         ctrlBoundText.GameObject().SetActive(false);
         sliderCtrlBound.interactable = false;
         sliderCtrlBound.GameObject().SetActive(false);
+       
     }
 
     private void runStateMachine()
@@ -201,7 +211,7 @@ public class ChoosePlaneSceneHandler : MonoBehaviour
                 if (newTrainingPlaneAngle)
                 {
                     // New training plane angle is ready to be set. It will be set when the calib button is pressed.
-                    instructionText.text = "Press Calib button to set the new training plane angle.";
+                    instructionText.text = "Press Set Plane to set the new training plane angle.";
                     // Check if the calib buttons has been pressed.
                     if (setNewTrainingPlaneAngle)
                     {
@@ -275,8 +285,7 @@ public class ChoosePlaneSceneHandler : MonoBehaviour
             marsButtonReleased = true;
         }
     }
-
-    public void onCalibButtonReleased()
+    public void onClickSetPlane()
     {
         // Check if new training plane angle is to be set.
         if ((currentState == ChooseTrainingPlaneStates.TEST_TRAINING_PLANES) && newTrainingPlaneAngle)
@@ -284,8 +293,9 @@ public class ChoosePlaneSceneHandler : MonoBehaviour
             // Send the training plane angle.
             setNewTrainingPlaneAngle = true;
         }
-    }
 
+    }
+   
     private void OnTrainPlaneSliderValueChanged()
     {
         // Check the state and act accordingly.
@@ -298,7 +308,6 @@ public class ChoosePlaneSceneHandler : MonoBehaviour
     private void OnDestroy()
     {
         MarsComm.OnMarsButtonReleased -= onMarsButtonReleased;
-        MarsComm.OnCalibButtonReleased -= onCalibButtonReleased;
     }
 
     private void OnApplicationQuit()

@@ -5,7 +5,11 @@ using UnityEngine;
 public class AsteroidFall : MonoBehaviour
 {
     public float fallSpeed = 1.5f;  // Speed at which the asteroid falls
-
+    public static AsteroidFall instance;
+    private void Awake()
+    {
+        instance = this;
+    }
     void Update()
     {
         // Move the asteroid downwards
