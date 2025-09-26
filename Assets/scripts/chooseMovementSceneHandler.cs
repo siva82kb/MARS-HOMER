@@ -74,16 +74,17 @@ public class MovementSceneHandler : MonoBehaviour
             currentState = SETUPMARS.DONE;
         }
 
+        // Attach the MARSComm callbacks.
         AttachCallbacks();
-        //update SessionDetials
+
+        // Update Session Detials
         AppData.Instance.updateSessionDetials();
 
         UpdateMovementToggleButtons();
-
         StartCoroutine(DelayedAttachListeners());
-      
-        message.text = "";
 
+        // Clear the message text.
+        message.text = "";
     }
 
     void Update()

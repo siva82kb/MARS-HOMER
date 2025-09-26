@@ -180,7 +180,7 @@ public static class AppLogger
     private static StreamWriter logWriter = null;
     private static readonly object logLock = new object();
     public static string currentScene { get; private set; } = "";
-    public static string currentMechanism { get; private set; } = "";
+    public static string currentMovement { get; private set; } = "";
     public static string currentGame { get; private set; } = "";
     public static bool DEBUG = true;
     public static string InBraces(string text) => $"[{text}]";
@@ -210,7 +210,7 @@ public static class AppLogger
         // Create the log file and write the header.
         logWriter = new StreamWriter(logFilePath, true, Encoding.UTF8);
         currentScene = scene;
-        LogInfo("Created MARS log file.");
+        LogInfo("Created MARS application log file.");
         return _dtstr;
     }
 
@@ -223,13 +223,12 @@ public static class AppLogger
         }
     }
 
-    public static void SetCurrentMovement(string mechanism)
+    public static void SetCurrentMovement(string movement)
     {
-        Debug.Log(mechanism);
         if (isLogging)
         {
-            currentMechanism = mechanism;
-            LogInfo($"Mars movement set to '{currentMechanism}'.");
+            currentMovement = movement;
+            LogInfo($"Mars movement set to '{currentMovement}'.");
         }
     }
 
@@ -238,7 +237,7 @@ public static class AppLogger
         if (isLogging)
         {
             currentGame = game;
-            LogInfo($"PLUTO game set to '{currentGame}'.");
+            LogInfo($"MARS game set to '{currentGame}'.");
         }
     }
 
@@ -246,7 +245,7 @@ public static class AppLogger
     {
         if (logWriter != null)
         {
-            LogInfo("Closing log file.");
+            LogInfo("Closing application log file.");
             logWriter.Close();
             logWriter = null;
             logFilePath = null;
@@ -261,7 +260,7 @@ public static class AppLogger
             if (logWriter != null)
             {
                 string _user = AppData.Instance.userData != null ? AppData.Instance.userData.hospNumber : "";
-                string _msg = $"{DateTime.Now:dd-MM-yyyy HH:mm:ss} {logMsgType,-7} {InBraces(_user),-10} {InBraces(currentScene),-12} {InBraces(currentMechanism),-8} {InBraces(currentGame),-8} >> {message}";
+                string _msg = $"{DateTime.Now:dd-MM-yyyy HH:mm:ss} {logMsgType,-7} {InBraces(_user),-10} {InBraces(currentScene),-12} {InBraces(currentMovement),-8} {InBraces(currentGame),-8} >> {message}";
                 logWriter.WriteLine(_msg);
                 logWriter.Flush();
                 if (DEBUG) Debug.Log(_msg);

@@ -16,6 +16,7 @@ public class RobotCalibrationSceneHandler : MonoBehaviour
     public readonly string choosePlaneScene = "CHOOSEPLANE";
     public readonly string chooseMoveScene = "CHOOSEMOVE";
     private bool attachMarsButtonEvent = true;
+    private bool setLimbFlag = true;
     private string _limb;
     private bool buttonPressed;
 
@@ -49,23 +50,39 @@ public class RobotCalibrationSceneHandler : MonoBehaviour
         // Wait for a second before doing anything.
         if (Time.timeSinceLevelLoad < 0.25) return;
 
-        // Attach MARS event listeners.
-        if (attachMarsButtonEvent)
+        // Set the limb.
+        if (setLimbFlag)
         {
-            attachMarsButtonEvent = false;
-            // Set limb
-            MarsComm.setLimb(_limb);
-            MarsComm.OnMarsButtonReleased += onMarsButtonReleased;
+            // Check if the limb is set correctly.
+            if (MarsComm.LIMBTYPE[MarsComm.limb] == _limb)
+            {
+                setLimbFlag = false;
+                AppLogger.LogInfo($"Limb set to {_limb}");
+            }
+            else
+            {
+                // Set limb
+                MarsComm.setLimb(_limb);
+            }
         }
 
         // Update status text.
-        string _status = $"User Limb: {_limb} | {MarsComm.CALIBRATION[MarsComm.calibration]}\n{MarsComm.imuAngle1}deg, {MarsComm.imuAngle2}deg, {MarsComm.imuAngle3}deg, {MarsComm.imuAngle4}deg";
-        statusText.text = _status;
+        string _status = string.Join(" | ", new string[] {
+            MarsComm.imuAngle1.ToString("+00;-00"),
+            MarsComm.imuAngle2.ToString("+00;-00"),
+            MarsComm.imuAngle3.ToString("+00;-00"),
+            MarsComm.imuAngle4.ToString("+00;-00")
+        });
+        statusText.text = $"[ {_status} ] deg\n" + $"Angles must be less than {MarsComm.CALIB_ANGLE_LIMIT} deg." ;
+
+        // If limb is not set, there is nothing more to do.
+        if (setLimbFlag) return;
 
         // Check if scene is to be changed.
         if (MarsComm.CALIBRATION[MarsComm.calibration] == "YESCALIB")
         {
             instructionText.text = "MARS calibration successful.";
+            AppLogger.LogInfo($"MARS calibration successfully completed.");
             // Check of the training plane angle is set.
             if (AppData.Instance.userData.trainingPlaneAngle == 0f)
             {
@@ -82,14 +99,26 @@ public class RobotCalibrationSceneHandler : MonoBehaviour
         }
         else
         {
-            // Check if all angles are within 20deg.
-            if (Mathf.Abs(MarsComm.imuAngle1) > 20 || Mathf.Abs(MarsComm.imuAngle2) > 20 || Mathf.Abs(MarsComm.imuAngle3) > 20 || Mathf.Abs(MarsComm.imuAngle4) > 20)
+            // Check if all angles are within CALIB_ANGLE_LIMIT.
+            if (Mathf.Abs(MarsComm.imuAngle1) > MarsComm.CALIB_ANGLE_LIMIT || Mathf.Abs(MarsComm.imuAngle2) > MarsComm.CALIB_ANGLE_LIMIT || Mathf.Abs(MarsComm.imuAngle3) > MarsComm.CALIB_ANGLE_LIMIT || Mathf.Abs(MarsComm.imuAngle4) > MarsComm.CALIB_ANGLE_LIMIT)
             {
-                instructionText.text = "Make sure all angles are within 20 degrees.";
+                if (!attachMarsButtonEvent)
+                {
+                    attachMarsButtonEvent = true;
+                    MarsComm.OnMarsButtonReleased -= onMarsButtonReleased;
+                    AppLogger.LogInfo($"MARS angle outside the limit of {MarsComm.CALIB_ANGLE_LIMIT} | {MarsComm.imuAngle1:F2}, {MarsComm.imuAngle2:F2}, {MarsComm.imuAngle3:F2}, {MarsComm.imuAngle4:F2}.");
+                }
+                instructionText.text = $"Make sure all angles are within {MarsComm.CALIB_ANGLE_LIMIT} degrees.";
                 instructionText.color = new Color32(202, 0, 0, 255);
             }
             else
             {
+                if (attachMarsButtonEvent)
+                {
+                    attachMarsButtonEvent = false;
+                    MarsComm.OnMarsButtonReleased += onMarsButtonReleased;
+                    AppLogger.LogInfo($"MARS angle inside the limit of {MarsComm.CALIB_ANGLE_LIMIT} | {MarsComm.imuAngle1:F2}, {MarsComm.imuAngle2:F2}, {MarsComm.imuAngle3:F2}, {MarsComm.imuAngle4:F2}.");
+                }
                 instructionText.text = "Press the MARS Button when ready.";
                 instructionText.color = new Color32(202, 108, 0, 255);
             }
@@ -107,7 +136,6 @@ public class RobotCalibrationSceneHandler : MonoBehaviour
     }
     private void OnApplicationQuit()
     {
-
         Application.Quit();
         JediComm.Disconnect();
     }

@@ -12,7 +12,6 @@ public class calibrationSceneHandler : MonoBehaviour
     public TMP_Text messageBox;
     public readonly string nextScene = "CHOOSEMOVEMENT";
     public GameObject panel;
-   
   
     public Image calibTick;
     public Text calibTxt;

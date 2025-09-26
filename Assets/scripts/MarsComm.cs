@@ -74,6 +74,7 @@ public static class MarsComm
         "COMBINED"
     };
     public static readonly int INVALID_TARGET = 999;
+    public static readonly int CALIB_ANGLE_LIMIT = 50;
     static public byte currentButtonState, previousButtonState;
     static int sensorDataLength;
 
@@ -806,7 +807,7 @@ public static class MarsCommLogger
             if (logWriter != null)
             {
                 string _user = AppData.Instance.userData != null ? AppData.Instance.userData.hospNumber : "";
-                string _msg = $"{DateTime.Now:dd-MM-yyyy HH:mm:ss} {logMsgType,-7} {InBraces(_user),-10} {InBraces(AppLogger.currentScene),-12} {InBraces(AppLogger.currentMechanism),-8} {InBraces(AppLogger.currentGame),-8} >> {message}";
+                string _msg = $"{DateTime.Now:dd-MM-yyyy HH:mm:ss} {logMsgType,-7} {InBraces(_user),-10} {InBraces(AppLogger.currentScene),-12} {InBraces(AppLogger.currentMovement),-8} {InBraces(AppLogger.currentGame),-8} >> {message}";
                 logWriter.WriteLine(_msg);
                 logWriter.Flush();
                 if (DEBUG) Debug.Log(_msg);
