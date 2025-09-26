@@ -51,7 +51,7 @@ public class PongPlayerController : MonoBehaviour
 
         if (Mathf.Abs(MarsComm.angle1) > (Mathf.Abs(MovementSceneHandler.initialAngle) - 20))
         {
-            unityValY = Angle2ScreenZ(MarsComm.planeEndPoints.y,
+            unityValY = Angle2ScreenZ(MarsComm.epPosInThePlane.y,
                                        yMin, 
                                        yMax);
             this.transform.position = new Vector2(this.transform.position.x,unityValY );

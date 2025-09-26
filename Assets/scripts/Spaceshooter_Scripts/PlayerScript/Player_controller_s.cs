@@ -68,7 +68,7 @@ public class Player_controller_s : MonoBehaviour
 
     public void FixedUpdate()
     {
-        endPoint = MarsComm.planeEndPoints;
+        endPoint = MarsComm.epPosInThePlane;
         zEndPoing = endPoint.z;
         xPoint = OFFSET * (
             (xMin + xMax) / 2.0f +

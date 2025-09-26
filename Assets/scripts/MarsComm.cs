@@ -42,9 +42,9 @@ public static class MarsComm
 
     public static readonly int[] SENSORNUMBER = new int[] {
         0,   // Dummy
-        11,  // SENSORSTREAM 
+        12,  // SENSORSTREAM 
         0,   // CONTROLPARAM
-        16,  // DIAGNOSTICS
+        17,  // DIAGNOSTICS
     };
     public static readonly double MAXTORQUE = 1.0; // Nm
     public static readonly int[] INDATATYPECODES = new int[] { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x80 };
@@ -61,16 +61,17 @@ public static class MarsComm
         "HEARTBEAT",
     };
     public static readonly string[] ERRORTYPES = new string[] {
-        "ANGSENSERR",
-        "MCURRSENSERR",
-        "NOHEARTBEAT"
+        "NOHEARTBEAT",
+        "ANG1MISMATCHERR",
+        "ANG234MISMATCHERR",
+        "ANG1JUMPERR",
+        "ANG234JUMPERR"
     };
     public static readonly string[] MOVETYPE = new string[]
     {
         "MEDIAL-LATERAL",
         "ANTERIOR-POSTERIOR",
-        "COMBINE[ML-AP]"
-
+        "COMBINED"
     };
     public static readonly int INVALID_TARGET = 999;
     static public byte currentButtonState, previousButtonState;
@@ -91,32 +92,7 @@ public static class MarsComm
     // MARS Robot Parameters
     private const float L1 = 475.0f;
     private const float L2 = 291.0f;
-    // static public float shF, shA, elF;
-
-    // static public float theta1, theta2, theta3, theta4;
-    // public static float[] shPos = new float[3];
-    // static public float[] endPt = new float[3];
-    // static public float[] zvec = new float[3];
-    // static public float[] elPt = new float[3];
-    // static public float[] fA = new float[3];
-    // static public float[] uA = new float[3];
-    // public static int[] CONTROL_STATUS_CODE = new int[] { 1001,  //hold
-    //                                                          0   //release
-    //                                                     };
-    // public static float SUPPORT;
-    // public static float[] SUPPORT_CODE = new float[] {
-    //                                                      0.0f,//NoSupport
-    //                                                      1.0f,//FullWeightSupport
-    //                                                      0.5f //HalfweightSupport
-    //                                                   };
-    // public static float[] OFFSET = new float[] { 0,
-    //                                             -0.01745f,//LEFT-HAND 
-    //                                              0.01745f //RIGHT-HAND
-    //                                             };
-
-    // public static int controlStatus;
-    // public static float thetades1;
-
+    
     // Private variables
     static private byte[] rawBytes = new byte[256];
     // For the following arrays, the first element represents the number of elements in the array.
@@ -186,10 +162,6 @@ public static class MarsComm
     {
         get => (currentStateData[3] >> 4) & 0x01;
     }
-    static public int calibButton
-    {
-        get => (currentStateData[3] >> 5) & 0x01;
-    }
     static public int recentCommandStatus
     {
         get => currentStateData[3] >> 6;
@@ -200,7 +172,7 @@ public static class MarsComm
     }
     static public float angularVelocity1
     {
-        get => currentSensorData[19];
+        get => currentSensorData[17];
     }
     static public float angle2
     {
@@ -214,69 +186,53 @@ public static class MarsComm
     {
         get => currentSensorData[4];
     }
-    static public float force
+    static public float imuAngle1
     {
         get => currentSensorData[5];
     }
-    static public float torque
-    {
-        get => force * Mathf.Sqrt(Mathf.Pow(xEndpoint, 2) + Mathf.Pow(yEndpoint, 2));
-    }
-    static public float xEndpoint
+    static public float imuAngle2
     {
         get => currentSensorData[6];
     }
-    static public float yEndpoint
+    static public float imuAngle3
     {
         get => currentSensorData[7];
     }
-    static public float zEndpoint
+    static public float imuAngle4
     {
         get => currentSensorData[8];
     }
-    static public float target
+    static public float force
     {
         get => currentSensorData[9];
     }
-    static public float desired
+    static public float target
     {
         get => currentSensorData[10];
     }
-    static public float control
+    static public float desired
     {
         get => currentSensorData[11];
     }
+    static public float control
+    {
+        get => currentSensorData[12];
+    }
     static public float errP
     {
-        get => currentSensorData[15];
+        get => currentSensorData[13];
     }
     static public float errD
     {
-        get => currentSensorData[16];
+        get => currentSensorData[14];
     }
     static public float errI
     {
-        get => currentSensorData[17];
+        get => currentSensorData[15];
     }
     static public float gravityCompensationTorque
     {
-        get => currentSensorData[18];
-    }
-    static public short imu1Angle
-    {
-        get => (sbyte)currentStateData[4];
-    }
-    static public short imu2Angle
-    {
-        get => (sbyte)currentStateData[5];
-    }
-    static public short imu3Angle
-    {
-        get => (sbyte)currentStateData[6];
-    }
-    static public short imu4Angle
-    {
-        get => (sbyte)currentStateData[7];
+        get => currentSensorData[16];
     }
     static public byte buttonState
     {
@@ -285,7 +241,11 @@ public static class MarsComm
             return currentButtonState;
         }
     }
-    static public Vector3 planeEndPoints
+    static public Vector3 epPos
+    { 
+        get => MarsKinDynamics.ForwardKinematics(angle1, angle2, angle3); 
+    }
+    static public Vector3 epPosInThePlane
     { 
         get => MarsKinDynamics.ForwardKinematicsInThePlane(angle2, angle3); 
     }
@@ -336,14 +296,22 @@ public static class MarsComm
         {
             // Print when error changes. If error is the same, then flip a coin to decide if we print or not.
             // This is to avoid flooding the log with the same error message. 
-            // if (prevErrorStatus != errorStatus || GetRandomNumber() <= 5) MarsCommLogger.LogError($"Error: {errorString} ({errorStatus}) | Time: {runTime:F2}");
+            if (prevErrorStatus != errorStatus || GetRandomNumber() <= 5)
+            {
+                MarsCommLogger.LogError($"Error: {errorString} ({errorStatus}) | Time: {runTime:F2}");
+                // Debug.Log($"Error: {errorString} ({errorStatus}) | Time: {runTime:F2}");
+            }
         }
         else
         {
             // Print if the error is resolved.
-            // if (prevErrorStatus != errorStatus) MarsCommLogger.LogInfo($"Error Resolved: {errorString} | Previous Error: {getErrorString(prevErrorStatus)}({prevErrorStatus}) | Time: {runTime:F2}");
+            if (prevErrorStatus != errorStatus)
+            {
+                MarsCommLogger.LogInfo($"Error Resolved: {errorString} | Previous Error: {getErrorString(prevErrorStatus)}({prevErrorStatus}) | Time: {runTime:F2}");
+                // Debug.Log($"Error Resolved: {errorString} | Previous Error: {getErrorString(prevErrorStatus)}({prevErrorStatus}) | Time: {runTime:F2}");
+            }
         }
-        // Limb type
+        // Additional information
         currentStateData[3] = rawBytes[4];
 
         // Handle data based on what type of data it is.
@@ -375,11 +343,8 @@ public static class MarsComm
                     );
                 }
 
-                // IMU angles
-                currentStateData[4] = rawBytes[offset + nSensors * 4 + 1];
-                currentStateData[5] = rawBytes[offset + nSensors * 4 + 2];
-                currentStateData[6] = rawBytes[offset + nSensors * 4 + 3];
-                currentStateData[7] = rawBytes[offset + nSensors * 4 + 4];
+                // Compute the endpoint position
+
 
                 // Number of current state data
                 currentStateData[0] = 3;
@@ -390,15 +355,8 @@ public static class MarsComm
                 // Check if the MARS button has been released.
                 if ((((previousStateData[3] >> 4) & 0x01) == 0) && (((currentStateData[3] >> 4) & 0x01) == 1))
                 {
-                    MarsCommLogger.LogInfo($"MARS Button Released | Button: {currentStateData[6]} | Time: {runTime:F2}");
+                    MarsCommLogger.LogInfo($"MARS Button Released | Time: {runTime:F2}");
                     OnMarsButtonReleased?.Invoke();
-                }
-
-                // Check if the Calib button has been released.
-                if ((((previousStateData[3] >> 5) & 0x01) == 0) && (((currentStateData[3] >> 5) & 0x01) == 1))
-                {
-                    MarsCommLogger.LogInfo($"Calibration Button Released | Button: {currentStateData[6]} | Time: {runTime:F2}");
-                    OnCalibButtonReleased?.Invoke();
                 }
 
                 // Check if the control mode has been changed.
@@ -474,10 +432,6 @@ public static class MarsComm
         if (CONTROLTYPE[controlType] == "POSITION")
         {
             tgt0Bytes = (target == INVALID_TARGET) ? BitConverter.GetBytes(angle1) : BitConverter.GetBytes(target);
-        }
-        else if (CONTROLTYPE[controlType] == "TORQUE")
-        {
-            tgt0Bytes = (target == INVALID_TARGET) ? BitConverter.GetBytes(torque) : BitConverter.GetBytes(target);
         }
         else
         {
@@ -562,6 +516,7 @@ public static class MarsKinDynamics
         z = -l1 * Mathf.Sin(theta2) - l2 * Mathf.Sin(theta2 + theta3);
         return new UnityEngine.Vector3(x, y, z);
     }
+    
     public static UnityEngine.Vector3 ForwardKinematicsInThePlane(float theta2, float theta3)
     {
         float x, y, z;
@@ -570,7 +525,7 @@ public static class MarsKinDynamics
 
         float _temp = l1 * Mathf.Cos(theta2) + l2 * Mathf.Cos(theta2 + theta3);
         x = 0;
-        y = _temp; 
+        y = _temp;
         z = -l1 * Mathf.Sin(theta2) - l2 * Mathf.Sin(theta2 + theta3);
         return new UnityEngine.Vector3(x, y, z);
     }
@@ -809,7 +764,7 @@ public static class MarsCommLogger
     private static StreamWriter logWriter = null;
     private static readonly object logLock = new object();
 
-    public static bool DEBUG = false;
+    public static bool DEBUG = true;
     public static string InBraces(string text) => $"[{text}]";
 
     public static bool isLogging

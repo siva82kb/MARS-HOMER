@@ -127,7 +127,7 @@ public partial class AppData
         }
     }
 
-    //CHANGE FOR MARS
+    // CHANGE FOR MARS
     public void StartRawAndAanExecDataLogging()
     {
         //// Set the file name.
@@ -178,16 +178,13 @@ public partial class AppData
             rawDataString.Append($"{MarsComm.angle1},");
             rawDataString.Append($"{MarsComm.angle2},");
             rawDataString.Append($"{MarsComm.angle3},");
-            rawDataString.Append($"{MarsComm.imu1Angle},");
-            rawDataString.Append($"{MarsComm.imu2Angle},");
-            rawDataString.Append($"{MarsComm.imu3Angle},");
+            rawDataString.Append($"{MarsComm.imuAngle1},");
+            rawDataString.Append($"{MarsComm.imuAngle2},");
+            rawDataString.Append($"{MarsComm.imuAngle3},");
+            rawDataString.Append($"{MarsComm.imuAngle4},");
             rawDataString.Append($"{MarsComm.force},");
-            rawDataString.Append($"{MarsComm.torque},");
-            rawDataString.Append($"{MarsComm.xEndpoint},");
-            rawDataString.Append($"{MarsComm.yEndpoint},");
-            rawDataString.Append($"{MarsComm.zEndpoint},");
-            rawDataString.Append($"{MarsComm.planeEndPoints.y}");
-            rawDataString.Append($"{MarsComm.planeEndPoints.z}");
+            rawDataString.Append($"{MarsComm.epPosInThePlane.y}");
+            rawDataString.Append($"{MarsComm.epPosInThePlane.z}");
             rawDataString.Append($"{GetGamePlayerPosition()},");
             rawDataString.Append($"{GetGameTargetPosition()},");
             rawDataString.Append($"{GetGameState()}");

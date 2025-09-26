@@ -59,7 +59,7 @@ public class RobotCalibrationSceneHandler : MonoBehaviour
         }
 
         // Update status text.
-        string _status = $"User Limb: {_limb} | {MarsComm.CALIBRATION[MarsComm.calibration]}\n{MarsComm.imu1Angle}deg, {MarsComm.imu2Angle}deg, {MarsComm.imu3Angle}deg, {MarsComm.imu4Angle}deg";
+        string _status = $"User Limb: {_limb} | {MarsComm.CALIBRATION[MarsComm.calibration]}\n{MarsComm.imuAngle1}deg, {MarsComm.imuAngle2}deg, {MarsComm.imuAngle3}deg, {MarsComm.imuAngle4}deg";
         statusText.text = _status;
 
         // Check if scene is to be changed.
@@ -83,7 +83,7 @@ public class RobotCalibrationSceneHandler : MonoBehaviour
         else
         {
             // Check if all angles are within 20deg.
-            if (Mathf.Abs(MarsComm.imu1Angle) > 20 || Mathf.Abs(MarsComm.imu2Angle) > 20 || Mathf.Abs(MarsComm.imu3Angle) > 20 || Mathf.Abs(MarsComm.imu4Angle) > 20)
+            if (Mathf.Abs(MarsComm.imuAngle1) > 20 || Mathf.Abs(MarsComm.imuAngle2) > 20 || Mathf.Abs(MarsComm.imuAngle3) > 20 || Mathf.Abs(MarsComm.imuAngle4) > 20)
             {
                 instructionText.text = "Make sure all angles are within 20 degrees.";
                 instructionText.color = new Color32(202, 0, 0, 255);

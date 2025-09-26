@@ -240,7 +240,8 @@ public class DiagnosticSceneHandler : MonoBehaviour
         // Write row to the file if logging is enabled.
         if (fileWriter != null)
         {
-            fileWriter.WriteLine($"{MarsComm.runTime},{MarsComm.packetNumber},{MarsComm.status},{MarsComm.errorString},{MarsComm.limb},{MarsComm.calibration},,,{MarsComm.angle1},{MarsComm.angle2},{MarsComm.angle3},{MarsComm.angle4},{MarsComm.force},{MarsComm.torque},{MarsComm.xEndpoint},{MarsComm.yEndpoint},{MarsComm.zEndpoint},,,,{MarsComm.imu1Angle},{MarsComm.imu2Angle},{MarsComm.imu3Angle},{MarsComm.marButton},{MarsComm.calibButton},{MarsComm.target},{MarsComm.desired},{MarsComm.control}");
+            // fileWriter.WriteLine($"{MarsComm.runTime},{MarsComm.packetNumber},{MarsComm.status},{MarsComm.errorString},{MarsComm.limb},{MarsComm.calibration},,,{MarsComm.angle1},{MarsComm.angle2},{MarsComm.angle3},{MarsComm.angle4},{MarsComm.force},{MarsComm.torque},{MarsComm.xEndpoint},{MarsComm.yEndpoint},{MarsComm.zEndpoint},,,,{MarsComm.imu1Angle},{MarsComm.imu2Angle},{MarsComm.imu3Angle},{MarsComm.marButton},{MarsComm.calibButton},{MarsComm.target},{MarsComm.desired},{MarsComm.control}");
+            fileWriter.WriteLine($"{MarsComm.runTime},{MarsComm.packetNumber},{MarsComm.status},{MarsComm.errorString},{MarsComm.limb},{MarsComm.calibration},,,{MarsComm.angle1},{MarsComm.angle2},{MarsComm.angle3},{MarsComm.angle4},{MarsComm.force},,,,,,,,{MarsComm.imuAngle1},{MarsComm.imuAngle2},{MarsComm.imuAngle3},{MarsComm.marButton},,{MarsComm.target},{MarsComm.desired},{MarsComm.control}");
             fileWriter.Flush();
         }
     }
@@ -350,13 +351,6 @@ public class DiagnosticSceneHandler : MonoBehaviour
                 sldrTarget.value = MarsComm.angle1;
                 targetValueText.text = sldrTarget.value.ToString(FLOAT_FORMAT) + " deg";
             }
-            else if (MarsComm.CONTROLTYPE[MarsComm.controlType] == "TORQUE")
-            {
-                sldrTarget.minValue = -10f;
-                sldrTarget.maxValue = 10f;
-                sldrTarget.value = MarsComm.torque;
-                targetValueText.text = sldrTarget.value.ToString(FLOAT_FORMAT) + " Nm";
-            }
             else
             {
                 sldrTarget.minValue = 0f;
@@ -366,8 +360,8 @@ public class DiagnosticSceneHandler : MonoBehaviour
             }
             updateControlControls = false;
         }
-        ePosP.text = $"EndPointPos P :{MarsComm.planeEndPoints.ToString(FLOAT_FORMAT)}\n"+
-                    $"EndPointPos   :{MarsKinDynamics.ForwardKinematics(MarsComm.angle1,MarsComm.angle2,MarsComm.angle3).ToString(FLOAT_FORMAT)}";
+        ePosP.text = $"EndPointPos (Plane) :{MarsComm.epPosInThePlane.ToString(FLOAT_FORMAT)}\n"+
+                     $"EndPointPos         :{MarsComm.epPos.ToString(FLOAT_FORMAT)}";
         
     }
 
@@ -397,28 +391,23 @@ public class DiagnosticSceneHandler : MonoBehaviour
             MarsComm.angle3.ToString(FLOAT_FORMAT).PadRight(8),
             MarsComm.angle4.ToString(FLOAT_FORMAT).PadRight(8),
         });
-        string epPos = string.Join(" ", new string[] {
-            MarsComm.xEndpoint.ToString(FLOAT_FORMAT).PadRight(8),
-            MarsComm.yEndpoint.ToString(FLOAT_FORMAT).PadRight(8),
-            MarsComm.zEndpoint.ToString(FLOAT_FORMAT).PadRight(8),
-        });
+        string epPos = "";
         string imuAngles = string.Join(" ", new string[] {
-            MarsComm.imu1Angle.ToString(FLOAT_FORMAT).PadRight(8),
-            MarsComm.imu2Angle.ToString(FLOAT_FORMAT).PadRight(8),
-            MarsComm.imu3Angle.ToString(FLOAT_FORMAT).PadRight(8),
-            MarsComm.imu4Angle.ToString(FLOAT_FORMAT).PadRight(8),
+            MarsComm.imuAngle1.ToString(FLOAT_FORMAT).PadRight(8),
+            MarsComm.imuAngle2.ToString(FLOAT_FORMAT).PadRight(8),
+            MarsComm.imuAngle3.ToString(FLOAT_FORMAT).PadRight(8),
+            MarsComm.imuAngle4.ToString(FLOAT_FORMAT).PadRight(8),
         });
-       
        
         string sensorText = String.Join("\n", new string[] {
             $"Robot Angles  : {robotAngles}",
             $"IMU Angles    : {imuAngles}",
             $"Endpoint Pos  : {epPos}",
             //$"Endpoing Pos P: {epsInPlaneDebug}",
-            $"Force         : {MarsComm.force.ToString(FLOAT_FORMAT), -15} | Torque : {MarsComm.torque.ToString(FLOAT_FORMAT)}",
+            $"Force         : {MarsComm.force.ToString(FLOAT_FORMAT), -15}",
             $"Target        : {MarsComm.target.ToString(FLOAT_FORMAT), -15} | Desired : {MarsComm.desired.ToString(FLOAT_FORMAT)}",
             $"Control       : {MarsComm.control.ToString(FLOAT_FORMAT)}",
-            $"MARS Button   : {MarsComm.marButton, -15} | Calib Button : {MarsComm.calibButton}"
+            $"MARS Button   : {MarsComm.marButton, -15}"
         });
         // If DIAGNOSTICS is enabled, append diagnostics data
         if (MarsComm.OUTDATATYPE[MarsComm.dataType] == "DIAGNOSTICS")

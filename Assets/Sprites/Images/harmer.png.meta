@@ -167,7 +167,9 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      harmer_0: -971718617498131441
+      harmer_1: -4987976475033043943
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

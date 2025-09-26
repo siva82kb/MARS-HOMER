@@ -35,7 +35,7 @@ public class PointerController : MonoBehaviour
     private void FixedUpdate()
     {
         MarsComm.sendHeartbeat();
-        endPoint = MarsComm.planeEndPoints;
+        endPoint = MarsComm.epPosInThePlane;
         yEndPoint = endPoint.y;
         zEndPoing = endPoint.z;
         xPoint = OFFSET * ((xMin + xMax) / 2.0f + (xMax - xMin) / (zMaxendPnt - zMinendPnt) * (zEndPoing - ((zMinendPnt + zMaxendPnt) / 2.0f)));

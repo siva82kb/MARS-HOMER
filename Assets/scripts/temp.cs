@@ -146,38 +146,9 @@ public class calibrationSceneHandler : MonoBehaviour
                 }
                 calibState = CALIBSTATES.SETLIMBKINPARA;
                 break;
-            case CALIBSTATES.SETLIMBKINPARA:
-                if (MarsComm.CALIBRATION[MarsComm.calibration] == "NOCALIB")
-                    calibState = CALIBSTATES.CALIBRATE;
-                Debug.Log(MarsKinDynamics.ForwardKinematicsExtended(MarsComm.angle1, MarsComm.angle2, MarsComm.angle3, MarsComm.angle4));
-                messageTxt.text = "Perform the procedure as illustrated, then press the calibration button in the MARS device.";
-                if (endpointCount < MAX_ENDPOINTS && MarsComm.calibButton == 0)
-                {
-                    endpointPositions[endpointCount] = MarsKinDynamics.ForwardKinematicsExtended(MarsComm.angle1, MarsComm.angle2, MarsComm.angle3, MarsComm.angle4);
-                    endpointCount++;
-                }
-                else
-                {
-                    endpointCount = 0;
-                }
-                break;
             case CALIBSTATES.ALLDONE:
                 messageTxt.text = "You can redo the parameter setup, or press the MARS button to move to the next step.";
                 kinTick.enabled = true;
-                break;
-            case CALIBSTATES.CHANGESCENE:
-
-                //check need to calibrater or not
-                // if (AppData.Instance.transitionControl.isDynLimbParamExist)
-                // {
-                //     SceneManager.LoadScene("CHOOSEMOVEMENT");
-                // }
-                // else
-                // {
-                //     SceneManager.LoadScene("WEIGHTEST");
-
-                // }
-
                 break;
         }
 

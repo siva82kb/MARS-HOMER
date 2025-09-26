@@ -27,7 +27,7 @@ public class Drawlines : MonoBehaviour
     void FixedUpdate()
     {
 
-        Vector3 endPointPosition = MarsComm.planeEndPoints;
+        Vector3 endPointPosition = MarsComm.epPosInThePlane;
 
         zEndPoint = endPointPosition.z;
         yEndPoint = endPointPosition.y;
