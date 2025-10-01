@@ -10,13 +10,11 @@ public class WAMGameController : MonoBehaviour
     public static WAMGameController Instance;
     public GameObject gameOverPanel;
     public GameObject NextLevelPanel;
-  
-    public MoleController[] moles;
+    public MoleContollerN[] moles;
+    public MoleContollerN currnetMole;
     public TextMeshProUGUI TimerText;
-    private List<int> recentHoles = new List<int>();
-    public HoleSelector hs;
-    public GameObject targetObject;
-    private MoleController currentMole;
+  
+   public GameObject targetObject;
     public Text messTxt;
     public Text gameSpeedTxt;
     public GameObject startImage;
@@ -43,7 +41,7 @@ public class WAMGameController : MonoBehaviour
     public bool isGamePaused { get; private set; } = false;
     public bool isSuccess { get; private set; } = false;
     public bool isFailure { get; private set; } = false;
-
+    public AudioSource moleHitSound;
     public enum GameStates
     {
         WAITING = 0,
@@ -82,7 +80,7 @@ public class WAMGameController : MonoBehaviour
         isGameStarted = false;
         gameSpeed = 5f;//default slow speed
         MarsComm.OnMarsButtonReleased += onMarsButtonReleased;
-        Debug.Log(AppData.Instance.selectedMovement.trialNumberDay + "," + AppData.Instance.userData.moveTimePrsc[AppData.Instance.selectedMovement.name]+"reminder");
+        Debug.Log(AppData.Instance.selectedMovement.trialNumberDay + "," + AppData.Instance.userData.moveTimePrsc[AppData.Instance.selectedMovement.name] + "reminder");
         if (AppData.Instance.selectedMovement.trialNumberDay >= AppData.Instance.userData.moveTimePrsc[AppData.Instance.selectedMovement.name])
         {
             reminderPanel.SetActive(true);
@@ -93,6 +91,7 @@ public class WAMGameController : MonoBehaviour
             reminderPanel.SetActive(false);
 
         }
+        //gameState = GameStates.START;
 
     }
     void Update()
@@ -119,8 +118,8 @@ public class WAMGameController : MonoBehaviour
     {
         RunStateMachine();
         playerPosition = GameObject.FindGameObjectWithTag("Player").transform.position;
-        if (currentMole == null) return;
-        targetObject = currentMole.gameObject;
+        if (currnetMole == null) return;
+        targetObject = currnetMole.gameObject;
         targetPosition = targetObject != null ? targetObject.transform.position : null;
 
     }
@@ -138,10 +137,13 @@ public class WAMGameController : MonoBehaviour
                 gameState = GameStates.POPUPMOLE;
                 break;
             case GameStates.POPUPMOLE:
-               
+                
                 if (eventDelayTimer <= 0f && !runOnce)
                 {
-                    spawnMole();
+                    currnetMole = moles[Random.Range(0, moles.Length)];
+                  
+                    currnetMole.PlayPopup();
+                    //spawnMole();
                     nTargets++;
                     eventDelayTimer = 0.05f;
                     runOnce = true;
@@ -159,14 +161,15 @@ public class WAMGameController : MonoBehaviour
                 break;
             case GameStates.WAITFORHIT:
                 waitTime -= Time.deltaTime;
-                if (waitTime <= 0f)
+                
+                if (isSuccess) gameState = GameStates.SUCCESS;
+                if (waitTime <= 0f && !isSuccess)
                 {
                     gameState = GameStates.FAILURE;
+                    currnetMole.PlayDown();
                     nFailure++;
                 }
-                if (currentMole.HasBeenHit()) gameState = GameStates.SUCCESS;
-                
-               
+
                 break;
             case GameStates.PAUSED:
                 Debug.Log(isGamePaused);
@@ -182,7 +185,7 @@ public class WAMGameController : MonoBehaviour
                     eventDelayTimer -= Time.deltaTime;
                     if (eventDelayTimer <= 0f)
                     {
-                        if(gameState == GameStates.FAILURE) hideMole();
+                        
                         // Wait for the gamestate to be logged.
                         isFailure = false;
                         isSuccess = false;
@@ -201,6 +204,7 @@ public class WAMGameController : MonoBehaviour
                 break;
 
         }
+        //Debug.Log(gameState);
 
     }
     public void initUI()
@@ -210,24 +214,7 @@ public class WAMGameController : MonoBehaviour
         startImage.SetActive(true);
         PauseImage.SetActive(false);
     }
-    public void spawnMole()
-    {
-        int randomIndex;
-        do
-        {
-            randomIndex = Random.Range(0, moles.Length);
-        } while (recentHoles.Contains(randomIndex) && moles.Length > 2);
-
-        recentHoles.Add(randomIndex);
-        if (recentHoles.Count > 2) recentHoles.RemoveAt(0);
-        currentMole = moles[randomIndex];
-        currentMole.PopUPMole(true);
-    }
-    public void hideMole()
-    {
-        if (currentMole != null)
-            currentMole.failDownMole();
-    }
+ 
     public bool IsGamePlaying()
     {
         return gameState != GameStates.WAITING
@@ -235,7 +222,12 @@ public class WAMGameController : MonoBehaviour
             && gameState != GameStates.STOP;
     }
    
-  
+   public void setSuccess()
+    {
+        isSuccess = true;
+        moleHitSound.Play();
+
+    }
 
     public void onMarsButtonReleased()
     {
@@ -281,7 +273,7 @@ public class WAMGameController : MonoBehaviour
             AppData.Instance.gameSpeed = gameSpeed;
             //stop trail
             AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
-            
+
         }
         isGameFinished = true; // Set game over state 
     }

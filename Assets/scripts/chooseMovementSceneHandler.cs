@@ -6,40 +6,31 @@ using System.Collections;
 using System.IO;
 using System;
 using UnityEngine.Rendering.Universal;
+using static SetUpMars;
+using System.Web;
 
 
 public class MovementSceneHandler : MonoBehaviour
 {
     //ui related variables
     public GameObject movementSelectGroup;
-    public GameObject marsActivation;
-    public GameObject shortCutKeys;
-    public Button exit;
+    public Text message;
+
     public static float initialAngle;
     private string nextScene;
-    private string exitScene = "SUMMARY";
-    private string assessmentScene = "ASSESSROM";
-    private string chooseTPscene = "CHOOSEPLANE";
-    public static float shAng;
     //flags
     private static bool changeScene = false;
     private bool toggleSelected = false;
-    public Text message;
-    public Text instructionTxt;
-    public GameObject marsActivationGIF;
-    //public GameObject AttachArmGIF;
-    //public GameObject setTrainigPlaneGIF;
+   
+    //OTHER SCENES
+    public readonly string marsSetupScene = "MARSSETUP";
     public readonly string robotCalibScene = "ROBOTCALIB";
+    private string exitScene = "SUMMARY";
+    private string assessmentScene = "ASSESSROM";
+    private string chooseTPscene = "CHOOSEPLANE";
+    private string marsSetUp = "MARSSETUP";
 
-    public enum SETUPMARS
-    {
-        IDLE,
-        ACTIVATE,
-        ATTACHARM,
-        SETTRAININGPLANEANGLE,
-        DONE,
-    }
-    public SETUPMARS currentState = SETUPMARS.IDLE;
+
     //Game names
     public static string[] selectGame = { "space_shooter_home", "pong_game", "Whack_WelcomeScene" };
     void Start()
@@ -64,19 +55,12 @@ public class MovementSceneHandler : MonoBehaviour
         {
             SceneManager.LoadScene(robotCalibScene);
         }
-        //if Already TrainingPlane was set no need to setupMars again
-        if (MarsComm.CONTROLTYPE[MarsComm.controlType] != "POSITION" || MarsComm.angle1 < MarsComm.target)
-        {
-            currentState = SETUPMARS.IDLE;
-        }
-        else
-        {
-            currentState = SETUPMARS.DONE;
-        }
+        if (MarsComm.CONTROLTYPE[MarsComm.controlType] != "POSITION")
+            SceneManager.LoadScene(marsSetUp);
 
         // Attach the MARSComm callbacks.
-        AttachCallbacks();
-
+        MarsComm.OnMarsButtonReleased += OnMarsButtonReleased;
+     
         // Update Session Detials
         AppData.Instance.updateSessionDetials();
 
@@ -84,44 +68,36 @@ public class MovementSceneHandler : MonoBehaviour
         StartCoroutine(DelayedAttachListeners());
 
         // Clear the message text.
-        message.text = "";
+        message.text = "Please Select the Movement !!..";
     }
 
     void Update()
     {
         MarsComm.sendHeartbeat();
-        updateGUI();
-       
-
+      
 
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.A))
         {
             if (AppData.Instance.selectedMovement == null)
             {
-                if (currentState == SETUPMARS.DONE)
-                {
-                    message.text = "Please Select the Movement !!..";
-                    return;
-
-                }
+                message.text = "Please Select the Movement !!..";
+                return;
             }
-            if (currentState == SETUPMARS.DONE && AppData.Instance.selectedMovement != null) SceneManager.LoadScene(assessmentScene);
+            AppLogger.LogInfo($"Switching scene to '{assessmentScene}'.");
+            SceneManager.LoadScene(assessmentScene);
 
         }
         if(Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.R))
         {
-            if (currentState == SETUPMARS.DONE) SceneManager.LoadScene(chooseTPscene);
+            AppLogger.LogInfo($"Switching scene to '{chooseTPscene}'.");
+            SceneManager.LoadScene(chooseTPscene);
         }
         //Check if a scene change is needed.
         if (changeScene == true)
         {
-            shAng = MarsComm.angle1;
             LoadNextScene();
             changeScene = false;
         }
-
-        runStateMachine();
-      
 
     }
     public class idle
@@ -147,82 +123,7 @@ public class MovementSceneHandler : MonoBehaviour
         }
     }
    
-    public void runStateMachine()
-    {
-        if (currentState == SETUPMARS.DONE) return;
  
-        switch (currentState)
-        {
-            case SETUPMARS.IDLE:
-        
-                instructionTxt.text = "Press Mars Button To Activate Mars";
-                if(MarsComm.CONTROLTYPE[MarsComm.controlType] != "POSITION")
-                    MarsComm.setControlType("POSITION");
-            break;
-            case SETUPMARS.ACTIVATE:
-
-                instructionTxt.text = "Mars getting Ready...";
-                if (MarsComm.CONTROLTYPE[MarsComm.controlType] == "POSITION")
-                {
-                    if (MarsComm.target == -90)
-                    {
-                        // Check if the target has been reached.
-                        if (Mathf.Abs(MarsComm.angle1 - MarsComm.target) < 10)
-                        {
-                            currentState = SETUPMARS.ATTACHARM;
-                        }
-                    }
-                    else
-                    {
-                        MarsComm.setControlTarget(-90);
-                    }
-
-                }
-            break;
-                
-            case SETUPMARS.ATTACHARM:
-                if (MarsComm.force > 10)
-                {
-                    instructionTxt.text = "Press Mars Button To Set TrainigPlane Angle";
-                }
-                else
-                {
-                    instructionTxt.text = "Please Attach your Limb with Mars";
-                }
-               break;
-               
-            case SETUPMARS.SETTRAININGPLANEANGLE:
-
-                if (MarsComm.target != AppData.Instance.userData.trainingPlaneAngle)
-                    MarsComm.setControlTarget(AppData.Instance.userData.trainingPlaneAngle);
-                if (MarsComm.target == AppData.Instance.userData.trainingPlaneAngle)
-                {
-                    // Check if the target has been reached.
-                    if (Mathf.Abs(MarsComm.angle1 - MarsComm.target) < 2)
-                    {
-                        currentState = SETUPMARS.DONE;
-                        instructionTxt.text = "";
-                        message.text = "Please Select the Movement !!..";
-                    }
-                }
-                break;
-        }
-    }
-    public void updateGUI()
-    {
-        movementSelectGroup.SetActive(currentState == SETUPMARS.DONE);
-        instructionTxt.gameObject.SetActive(currentState != SETUPMARS.DONE);
-        marsActivation.SetActive(currentState == SETUPMARS.ATTACHARM || currentState == SETUPMARS.SETTRAININGPLANEANGLE || currentState == SETUPMARS.DONE);
-        marsActivationGIF.SetActive(currentState == SETUPMARS.IDLE|| currentState == SETUPMARS.ACTIVATE);
-        shortCutKeys.SetActive(currentState == SETUPMARS.DONE);
-    }
-    public void AttachCallbacks()
-    {
-        // Attach PLUTO button event
-        MarsComm.OnMarsButtonReleased += OnMarsButtonReleased;
-        //exit.onClick.AddListener(OnExitButtonClicked);
-       
-    }
     private void UpdateMovementToggleButtons()
     {
         foreach (Transform child in movementSelectGroup.transform)
@@ -295,33 +196,6 @@ public class MovementSceneHandler : MonoBehaviour
     
     public void OnMarsButtonReleased()
     {
-        switch (currentState)
-        {
-            case SETUPMARS.IDLE:
-                currentState = SETUPMARS.ACTIVATE;
-                break;
-
-            case SETUPMARS.ATTACHARM:
-                if (MarsComm.force > 10)
-                {
-                    currentState = SETUPMARS.SETTRAININGPLANEANGLE;
-                }
-                break;
-
-            case SETUPMARS.DONE:
-                HandleSetupComplete();
-                break;
-
-            default:
-                // Other states don't need handling on button release
-                return;
-        }
-    }
-
-
-    /// Handles actions once setup is marked as DONE
-    private void HandleSetupComplete()
-    {
         if (toggleSelected && MarsComm.CONTROLTYPE[MarsComm.controlType] == "POSITION")
         {
             changeScene = true;
@@ -331,7 +205,9 @@ public class MovementSceneHandler : MonoBehaviour
         {
             Debug.LogWarning("Select at least one toggle to proceed.");
         }
+
     }
+
 
 
     void LoadNextScene()

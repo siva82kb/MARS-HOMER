@@ -102,7 +102,7 @@ public class welcomeSceneHandler : MonoBehaviour
             prevDays[i].text = daySummaries[i].Day;
             prevDates[i].text = daySummaries[i].Date;
             pies[i].fillAmount = daySummaries[i].MoveTime / AppData.Instance.userData.totalMoveTimePrsc;
-            pies[i].color = new Color32(148, 234, 107, 255);
+            //pies[i].color = new Color32(148, 234, 107, 255);
         }
         piChartUpdated = true;
     }

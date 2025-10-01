@@ -20,7 +20,7 @@ public class Drawlines : MonoBehaviour
         unityDrawValues = new List<Vector3>();
         endPntPos = new List<Vector3>();
         lr = GetComponent<LineRenderer>();
-        lr.SetWidth(0.1f, 0.1f);
+        lr.SetWidth(0.05f, 0.05f);
 
     }
 
@@ -52,7 +52,9 @@ public class Drawlines : MonoBehaviour
                 lr.SetPositions(unityDrawValues.ToArray());
                 lr.useWorldSpace = true;
                 break;
+
             case AssessROM.ASSESSSTATE.WAITTOREACH:
+            case AssessROM.ASSESSSTATE.TEST:
                
                 if (AssessROM.instance.currentCircle != null)
                 {

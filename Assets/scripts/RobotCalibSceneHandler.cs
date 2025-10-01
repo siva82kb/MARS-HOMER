@@ -14,7 +14,7 @@ public class RobotCalibrationSceneHandler : MonoBehaviour
     public TMP_Text instructionText;
     public TMP_Text statusText;
     public readonly string choosePlaneScene = "CHOOSEPLANE";
-    public readonly string chooseMoveScene = "CHOOSEMOVE";
+    public readonly string marsSetupScene = "MARSSETUP";
     private bool attachMarsButtonEvent = true;
     private bool setLimbFlag = true;
     private string _limb;
@@ -84,7 +84,7 @@ public class RobotCalibrationSceneHandler : MonoBehaviour
             instructionText.text = "MARS calibration successful.";
             AppLogger.LogInfo($"MARS calibration successfully completed.");
             // Check of the training plane angle is set.
-            if (AppData.Instance.userData.trainingPlaneAngle == 0f)
+            if (AppData.Instance.userData.trainingPlaneAngle == 0f || AppData.Instance.userData.trainingPlaneAngle == 999)
             {
                 AppLogger.LogInfo("Training Plane Angle is not set. Going to Choose Plane scene.");
                 SceneManager.LoadScene(choosePlaneScene);
@@ -93,7 +93,7 @@ public class RobotCalibrationSceneHandler : MonoBehaviour
             else
             {
                 AppLogger.LogInfo("Training Plane Angle is set. Going to Choose Move scene.");
-                SceneManager.LoadScene(chooseMoveScene);
+                SceneManager.LoadScene(marsSetupScene);
                 return;
             }
         }
