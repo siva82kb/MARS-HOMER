@@ -1,0 +1,162 @@
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+
+
+public class SetUpMars : MonoBehaviour
+{
+    //ui related variables
+    public Text instructionTxt;
+    public GameObject marsActivationGIF;
+    public GameObject AttachArmGIF;
+   
+    public readonly string robotCalibScene = "ROBOTCALIB";
+    public string nextScene = "CHOOSEMOVE";
+
+    public enum SETUPMARS
+    {
+        IDLE,
+        ACTIVATE,
+        ATTACHARM,
+        SETTRAININGPLANEANGLE,
+        DONE,
+    }
+    public SETUPMARS currentState = SETUPMARS.IDLE;
+    // Start is called before the first frame update
+    void Start()
+    {
+        MarsComm.sendHeartbeat();
+        MarsComm.OnMarsButtonReleased += OnMarsButtonReleased;
+        // Initialize AppData if needed
+        if (AppData.Instance.userData == null)
+        {
+            AppData.Instance.Initialize(SceneManager.GetActiveScene().name);
+        }
+        // Check if the directory exists
+        if (!Directory.Exists(DataManager.basePath)) Directory.CreateDirectory(DataManager.basePath);
+        if (!File.Exists(DataManager.configFile)) SceneManager.LoadScene("CONFIG");
+
+        AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);
+        AppLogger.LogInfo($"{SceneManager.GetActiveScene().name} scene started.");
+
+        // IF the robot is not calibrated go to the robot calib scene.
+        if (MarsComm.CALIBRATION[MarsComm.calibration] == "NOCALIB")
+        {
+            SceneManager.LoadScene(robotCalibScene);
+        }
+     
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        MarsComm.sendHeartbeat();
+        updateGUI();
+        runStateMachine();
+    }
+    public void runStateMachine()
+    {
+        if (currentState == SETUPMARS.DONE) return;
+
+        switch (currentState)
+        {
+            case SETUPMARS.IDLE:
+
+                instructionTxt.text = "Press Mars Button To Activate Mars";
+                if (MarsComm.CONTROLTYPE[MarsComm.controlType] != "POSITION")
+                    MarsComm.setControlType("POSITION");
+
+                break;
+            case SETUPMARS.ACTIVATE:
+
+                instructionTxt.text = "Mars getting Ready...";
+                if (MarsComm.CONTROLTYPE[MarsComm.controlType] == "POSITION")
+                {
+                    if (MarsComm.target == -90)
+                    {
+                        // Check if the target has been reached.
+                        if (Mathf.Abs(MarsComm.angle1 - MarsComm.target) < 10)
+                        {
+                            currentState = SETUPMARS.ATTACHARM;
+                        }
+                    }
+                    else
+                    {
+                        MarsComm.setControlTarget(-90);
+                    }
+
+                }
+                break;
+
+            case SETUPMARS.ATTACHARM:
+                if (MarsComm.force > 10)
+                {
+                    instructionTxt.text = "Press Mars Button To Set TrainigPlane Angle";
+                }
+                else
+                {
+                    instructionTxt.text = "Please Attach your Limb with Mars";
+                }
+                break;
+
+            case SETUPMARS.SETTRAININGPLANEANGLE:
+                instructionTxt.text = "Setting TrainingPlaneAngle";
+                if (MarsComm.target != AppData.Instance.userData.trainingPlaneAngle)
+                    MarsComm.setControlTarget(AppData.Instance.userData.trainingPlaneAngle);
+                if (MarsComm.target == AppData.Instance.userData.trainingPlaneAngle)
+                {
+                    // Check if the target has been reached.
+                    if (Mathf.Abs(MarsComm.angle1 - MarsComm.target) < 2)
+                    {
+                        AppLogger.LogInfo($"Setting Mars Position @ TrainingAngle : {MarsComm.angle1}");
+                        currentState = SETUPMARS.DONE;
+                        instructionTxt.text = "";
+                        AppLogger.LogInfo($"switching  Scene to {nextScene}");
+                        SceneManager.LoadScene(nextScene);
+                        //message.text = "Please Select the Movement !!..";
+                    }
+                }
+                break;
+        }
+    }
+    public void updateGUI()
+    {
+        instructionTxt.gameObject.SetActive(currentState != SETUPMARS.DONE);
+        marsActivationGIF.SetActive(currentState == SETUPMARS.IDLE || currentState == SETUPMARS.ACTIVATE);
+        AttachArmGIF.SetActive(currentState == SETUPMARS.ATTACHARM && MarsComm.force < 10);
+    }
+    public void OnMarsButtonReleased()
+    {
+        switch (currentState)
+        {
+            case SETUPMARS.IDLE:
+                AppLogger.LogInfo("Setting Mars Position @ -90");
+                currentState = SETUPMARS.ACTIVATE;
+                break;
+
+            case SETUPMARS.ATTACHARM:
+                if (MarsComm.force > 10)
+                {
+                    AppLogger.LogInfo($"Limb is not Attached with Mars  FORCE - {MarsComm.force}");
+                    currentState = SETUPMARS.SETTRAININGPLANEANGLE;
+                }
+                else
+                {
+                    AppLogger.LogInfo($"Set Mars Position @ TrainingAngle - {AppData.Instance.userData.trainingPlaneAngle}");
+                }
+                break;
+
+           
+        }
+    }
+    private void OnDestroy()
+    {
+
+        MarsComm.OnMarsButtonReleased -= OnMarsButtonReleased;
+
+    }
+
+}

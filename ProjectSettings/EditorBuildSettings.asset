@@ -47,37 +47,37 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/SpaceShooter/SpaceShooter_Level1.unity
     guid: a70930fea6d6a3545a90d56ef1b83657
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/SpaceShooter/space_shooter_level.unity
     guid: 073820709d85d6f45864cf169eb7e622
   - enabled: 1
     path: Assets/Scenes/SpaceShooter/space_shooter_home.unity
     guid: 72173926127dcd74f9f6e72c45d376f2
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/SpaceShooter/SpaceShooter_Level2.unity
     guid: b114eaad053f0cd469be247b6dc09864
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/SpaceShooter/SpaceShooter_Level3.unity
     guid: 2b8c8bc19d313d349a99c54d628803f6
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/SpaceShooter/SpaceShooter_Level4.unity
     guid: 8d4e74d11eed952458e353af9a1519db
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/SpaceShooter/SpaceShooter_Level5.unity
     guid: 20e6fb7a7a356ca41850fd0423d9ba13
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/SpaceShooter/SpaceShooter_Level6.unity
     guid: 59102c65c7e840b4cab6af64ceac37b6
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/SpaceShooter/SpaceShooter_Level7.unity
     guid: eefd659d2afae854a8d24853a44faee9
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/SpaceShooter/SpaceShooter_Level8.unity
     guid: 9c44d561a140d0040a0a59728f45a1ae
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/SpaceShooter/SpaceShooter_Level9.unity
     guid: 338aab20868555c40b35e229e8b0346f
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/SpaceShooter/SpaceShooter_Level10.unity
     guid: 6b039c561ae238a4d83acb9da5b28c91
   - enabled: 1
@@ -98,34 +98,34 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/ping_pong/pong_game.unity
     guid: 35f526e95398d814a9fd87da4b01a9e8
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Whack-a-mole/Whack_levels.unity
     guid: 06cb92e26030be94a9abe1fd42fc28c3
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/BrickBreaker/BB_Welcome.unity
     guid: f603d78cb3c16404083ca56935176117
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/BrickBreaker/Main_1.unity
     guid: ea464295a76d33e4aa18bba5ce1b46ca
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/BrickBreaker/Main_2.unity
     guid: d1fd65ef6fb99be4cb657b2c7963ecad
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/BrickBreaker/Main_3.unity
     guid: 5d7162733c2be2646803e7905b7d0d53
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/BrickBreaker/Main_4.unity
     guid: 1b9311208ade3fe4e80c875b9d4b13c4
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/BrickBreaker/Main_5.unity
     guid: 14aa4694c2397964cbfbf2704b6a5ece
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Whack-a-mole/Whack_Lvl1.unity
     guid: 71f42c18966fc5f4da0f3d090a8e7e85
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Whack-a-mole/Whack_Lvl2.unity
     guid: 1e03f761c5eb5ff46a7073c4988251de
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Whack-a-mole/Whack_Lvl3.unity
     guid: ee1c6db8f4398914b8f8261d8725e2f7
   - enabled: 1
@@ -152,5 +152,8 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/SCALEUP.unity
     guid: c577b11924e5d874389caaa4788fa694
+  - enabled: 1
+    path: Assets/Scenes/MARSSETUP.unity
+    guid: e43b0494aaa43444b9cefd98f1b34a44
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0

@@ -246,15 +246,15 @@ public class MarsMovement
 
     public void ResetRomValues()
     {
-        newRom.setRom(0, 0, 0, 0);
+        newRom.setRom(0, 0, 0, 0, 0, 0, 0, 0);
         aromCompleted = false;
     }
 
   
 
-    public void SetNewRomValues(float minx, float maxx, float miny, float maxy)
+    public void SetNewRomValues(float minx, float maxx, float miny, float maxy, float origMinx, float origMaxx, float origMiny, float origMaxy)
     {
-        newRom.setRom(minx, maxx, miny, maxy);
+        newRom.setRom(minx, maxx, miny, maxy,origMinx,origMaxx,origMiny,origMaxy);
         if (minx != 0 || maxx != 0 || miny != 0 || maxy != 0) aromCompleted = true;
 
         if (newRom.movement == null)
@@ -313,13 +313,17 @@ public class MarsMovement
 
 public class ROM
 {
-    public static string[] FILEHEADER = new string[] { "DateTime", "MinX", "MaxX", "MinY", "MaxY"};
+    public static string[] FILEHEADER = new string[] { "DateTime", "MinX", "MaxX", "MinY", "MaxY","OriginalMinX", "OriginalMaxX", "OriginalMinY", "OriginalMaxY" };
     // Class attributes to store data read from the file
     public string datetime;
     public float aromMinX { get; private set; }
     public float aromMaxX { get; private set; }
     public float aromMinY { get; private set; }
     public float aromMaxY { get; private set; }
+    public float aromOriginalMinX { get; private set; }
+    public float aromOriginalMaxX { get; private set; }
+    public float aromOriginalMinY { get; private set; }
+    public float aromOriginalMaxY { get; private set; }
     public string mode { get; private set; }
     public bool isAromRomXSet { get => aromMinX != 0 || aromMaxX != 0; }
     public bool isaromRomYSet { get => aromMinY != 0 || aromMaxY != 0; }
@@ -357,12 +361,16 @@ public class ROM
 
     public void SetMovement(string mov) => movement = (movement == null) ? mov : movement;
    
-    public void setRom(float Minx, float Maxx, float Miny, float Maxy)
+    public void setRom(float Minx, float Maxx, float Miny, float Maxy, float origMinx, float origMaxx, float origMiny, float origMaxy)
     {
         aromMinX = Minx;
         aromMaxX = Maxx;
         aromMinY = Miny;
         aromMaxY = Maxy;
+        aromOriginalMinX = origMinx;
+        aromOriginalMaxX = origMaxx;
+        aromOriginalMinY = origMiny;
+        aromOriginalMaxY = origMaxy;
         datetime = DateTime.Now.ToString();
     }
     public void WriteToAssessmentFile()
@@ -379,7 +387,8 @@ public class ROM
         }
         using (StreamWriter file = new StreamWriter(fileName, true))
         {
-            file.WriteLine(string.Join(",", new string[] { datetime, aromMinX.ToString(), aromMaxX.ToString(), aromMinY.ToString(), aromMaxY.ToString() }));
+            file.WriteLine(string.Join(",", new string[] { datetime, aromMinX.ToString(), aromMaxX.ToString(), aromMinY.ToString(), aromMaxY.ToString(),
+                                                                     aromOriginalMinX.ToString(),aromOriginalMaxX.ToString(),aromOriginalMinY.ToString(),aromOriginalMaxY.ToString() }));
         }
     }
     private void ReadFromFile(string movementName)

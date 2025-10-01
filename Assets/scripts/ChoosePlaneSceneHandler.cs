@@ -274,7 +274,11 @@ public class ChoosePlaneSceneHandler : MonoBehaviour
         }
         else if (currentState == ChooseTrainingPlaneStates.WAIT_FOR_LIMB_ATTACHMENT)
         {
-            marsButtonReleased = true;
+            if (MarsComm.force > 10)
+            {
+                marsButtonReleased = true;
+            }
+           
         }
         else if (currentState == ChooseTrainingPlaneStates.TEST_TRAINING_PLANES)
         {

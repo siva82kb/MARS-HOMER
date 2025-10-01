@@ -16,9 +16,8 @@ public class summarySceneHandler : MonoBehaviour
 
     public void Start()
     {
-        if (MarsComm.CONTROLTYPE[MarsComm.controlType] != "NONE")
-            MarsComm.setControlType("NONE");
-
+        MarsComm.sendHeartbeat();
+       
         MarsComm.OnMarsButtonReleased += onMarsButtonReleased;
         // Inialize the logger
         AppLogger.StartLogging(SceneManager.GetActiveScene().name);
@@ -31,6 +30,10 @@ public class summarySceneHandler : MonoBehaviour
     void Update()
     {
         MarsComm.sendHeartbeat();
+        if (!ConnectToRobot.isMARS)
+        {
+            quit();
+        }
         while (_actionQueue.TryDequeue(out var action))
         {
             action.Invoke(); // Execute the action
@@ -47,14 +50,13 @@ public class summarySceneHandler : MonoBehaviour
         UpdateChartData();
        
     }
-    //To disconnect the Robot 
-    public void onMarsButtonReleased()
+    public void quit()
     {
         AppLogger.LogInfo("Mars button released.");
         // Enqueue the disconnect and quit actions
         _actionQueue.Enqueue(() =>
         {
-           
+
             AppLogger.LogInfo("Disconnected form Mars And Application closed succesfully");
             JediComm.Disconnect();
             Application.Quit();
@@ -62,6 +64,12 @@ public class summarySceneHandler : MonoBehaviour
                         UnityEditor.EditorApplication.isPlaying = false; // Stop play mode if in editor
             #endif
         });
+
+    }
+    //To disconnect the Robot 
+    public void onMarsButtonReleased()
+    {
+      
     }
 
     //To initialize the barchart with whole data of moveTime per day

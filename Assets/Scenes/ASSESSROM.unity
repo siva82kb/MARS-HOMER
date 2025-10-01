@@ -168,12 +168,13 @@ MonoBehaviour:
   messageTxt: {fileID: 579919064}
   thersholdText: {fileID: 1734212937}
   thersholdTextY: {fileID: 1048648530}
-  test: {fileID: 486613451}
+  scaleupRule: {fileID: 486613451}
   boxLR: {fileID: 1281857893}
   scaleUpBox: {fileID: 242489760}
   circlePrefab: {fileID: 8497918920587488907, guid: 82edad4ed0279be44ae335628fdb8b53, type: 3}
   currentCircle: {fileID: 0}
   moveTxt: {fileID: 430293686}
+  SCALEUPState: 0
   currState: 0
 --- !u!120 &61262645
 LineRenderer:
@@ -242,7 +243,7 @@ LineRenderer:
       m_RotationOrder: 4
     colorGradient:
       serializedVersion: 2
-      key0: {r: 1, g: 1, b: 1, a: 1}
+      key0: {r: 0.53742254, g: 0.6856794, b: 0.9924528, a: 1}
       key1: {r: 1, g: 1, b: 1, a: 1}
       key2: {r: 0, g: 0, b: 0, a: 0}
       key3: {r: 0, g: 0, b: 0, a: 0}
@@ -250,7 +251,7 @@ LineRenderer:
       key5: {r: 0, g: 0, b: 0, a: 0}
       key6: {r: 0, g: 0, b: 0, a: 0}
       key7: {r: 0, g: 0, b: 0, a: 0}
-      ctime0: 0
+      ctime0: 65458
       ctime1: 65535
       ctime2: 0
       ctime3: 0
@@ -266,8 +267,8 @@ LineRenderer:
       atime5: 0
       atime6: 0
       atime7: 0
-      m_Mode: 0
-      m_ColorSpace: -1
+      m_Mode: 1
+      m_ColorSpace: 0
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
     numCornerVertices: 0
@@ -593,7 +594,7 @@ GameObject:
   - component: {fileID: 486613452}
   - component: {fileID: 486613451}
   m_Layer: 0
-  m_Name: test
+  m_Name: ScaleupRule
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -615,8 +616,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -674.61, y: -463.66348}
-  m_SizeDelta: {x: 426.85, y: 176.407}
+  m_AnchoredPosition: {x: -758, y: -333}
+  m_SizeDelta: {x: 276.0252, y: 561.8076}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &486613451
 MonoBehaviour:
@@ -651,9 +652,8 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'LEFT ARROW  <-- SHRINK
-
-    RIGHT ARROW --> GROW'
+  m_Text: "Press \"T\" Top\nPress \"B\" Bottom\nUp and Down\nArrow \n[Grow, Shrink]\n\nPress
+    \"L\" Left\nPress \"R\" Right\nLeft and Right \nArrow\n[Grow, Shrink]\n\n\n"
 --- !u!222 &486613452
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1267,6 +1267,8 @@ GameObject:
   - component: {fileID: 1369876833}
   - component: {fileID: 1369876832}
   - component: {fileID: 1369876831}
+  - component: {fileID: 1369876835}
+  - component: {fileID: 1369876834}
   m_Layer: 0
   m_Name: lineRender
   m_TagString: Untagged
@@ -1359,8 +1361,8 @@ LineRenderer:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
-        time: 0
-        value: 1
+        time: 0.01013023
+        value: 0.7333336
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -1372,8 +1374,8 @@ LineRenderer:
       m_RotationOrder: 4
     colorGradient:
       serializedVersion: 2
-      key0: {r: 0.04150939, g: 0.03970804, b: 0.03970804, a: 1}
-      key1: {r: 0.04150939, g: 0.03970804, b: 0.03970804, a: 1}
+      key0: {r: 0.3830188, g: 0.7553101, b: 1, a: 1}
+      key1: {r: 0.3830188, g: 0.7553101, b: 1, a: 1}
       key2: {r: 0, g: 0, b: 0, a: 0}
       key3: {r: 0, g: 0, b: 0, a: 0}
       key4: {r: 0, g: 0, b: 0, a: 0}
@@ -1396,7 +1398,7 @@ LineRenderer:
       atime5: 0
       atime6: 0
       atime7: 0
-      m_Mode: 0
+      m_Mode: 1
       m_ColorSpace: 0
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
@@ -1438,6 +1440,44 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &1369876834
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1369876829}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &1369876835
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1369876829}
+  m_CullTransparentMesh: 1
 --- !u!1 &1492941510
 GameObject:
   m_ObjectHideFlags: 0
