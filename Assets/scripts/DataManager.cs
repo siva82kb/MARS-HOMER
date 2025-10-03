@@ -39,7 +39,7 @@ public class DataManager : MonoBehaviour
     public static string[] SESSIONFILEHEADER = new string[] {
         "SessionNumber", "DateTime",
         "TrialNumberDay", "TrialNumberSession", "TrialStartTime", "TrialStopTime", "TrialRawDataFile",
-        "Movement",
+        "Movement", "TrainingPlaneAngle",
         "GameName", "GameParameter", "GameSpeed",
         "SuccessRate", "MoveTime"
     };
@@ -55,12 +55,12 @@ public class DataManager : MonoBehaviour
         "Force", "Torque",
         "HumanAngle1", "HumanAngle2", "HumanAngle3",
         "GamePlayerX", "GamePlayerY", "GameTargetX", "GameTargetY", "GameState"
-
     };
     public static string DATETIMEFORMAT = "yyyy-MM-dd HH:mm:ss";
 
     // Functions to generate file names.
     public static string GetRomFileName(string movement) => FixPath(Path.Combine(romPath, $"{movement}-rom.csv"));
+    public static string GetRomRawFileName(string movement) => FixPath(Path.Combine(romPath, $"romraw-{movement}.csv"));
     public static string GetTrialRawDataFileName(int sessNo, int trialNo, string game, string movement) => FixPath(Path.Combine(rawPath, $"raw-sess{sessNo:D2}-trial{trialNo:D3}-{game}-{movement}.csv"));
 
     public static void CreateFileStructure(string userID)

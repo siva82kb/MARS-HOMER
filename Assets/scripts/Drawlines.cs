@@ -36,8 +36,8 @@ public class Drawlines : MonoBehaviour
         Vector3 sceneCenter = Vector3.zero;  // adjust if needed
       
 
-        unityValX = AssessROM.instance.OFFSET * ((zEndPoint - AssessROM.instance.centerValX) / (AssessROM.endPointMaxZ - AssessROM.endPointMinZ)) * AssessROM.SCALEX;
-        unityValY = ((yEndPoint - AssessROM.instance.centerValY) / (AssessROM.endPointMaxY - AssessROM.endPointMinY)) * AssessROM.SCALEY;
+        unityValX = AssessROM.instance.OFFSET * ((zEndPoint - AssessROM.instance.centerValX) / (AssessROM.endPointMaxZ - AssessROM.endPointMinZ)) * AssessROMML.SCALEX;
+        unityValY = ((yEndPoint - AssessROM.instance.centerValY) / (AssessROM.endPointMaxY - AssessROM.endPointMinY)) * AssessROMML.SCALEY;
         Vector3 toDrawValues = new Vector3((float)unityValX, (float)unityValY, 0.0f) + sceneCenter;
         Vector3 endPointValues = new Vector3((float)zEndPoint, (float)yEndPoint, 0.0f);
 

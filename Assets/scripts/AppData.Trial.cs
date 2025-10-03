@@ -17,8 +17,6 @@ public partial class AppData
     // Start a new trial.
     public void StartNewTrial()
     {
-         
-        
         trialStartTime = DateTime.Now;
         trialStopTime = null;
         selectedMovement.NextTrail();

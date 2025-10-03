@@ -79,6 +79,8 @@ public static class MarsComm
     static int sensorDataLength;
 
     // Button released event.
+    public delegate void ArmWeigthInOutofRangeEvent();
+    public static event ArmWeigthInOutofRangeEvent OnArmWeightInOutofRange;
     public delegate void MarsButtonReleasedEvent();
     public static event MarsButtonReleasedEvent OnMarsButtonReleased;
     public delegate void CalibButtonReleasedEvent();
@@ -89,6 +91,23 @@ public static class MarsComm
     // Control change event.
     public delegate void MarsControlModeChangeEvent();
     public static event MarsControlModeChangeEvent OnControlModeChange;
+
+    // Arm weight parameter that needs to set when the arm weight has been 
+    // estimated.
+    public static readonly float ARM_WEIGHT_THRESHOLD = 10f;
+    private static readonly float LOW_HIGH_ARM_WEIGHT_ERROR_THRESHOLD = 0.5f;
+    public static float armWeightLow { get; private set; }
+    public static float armWeightHigh { get; private set; }
+    public static bool isArmWeightSet
+    {
+        get
+        {
+            return armWeightLow > ARM_WEIGHT_THRESHOLD
+                && armWeightHigh > ARM_WEIGHT_THRESHOLD
+                && (armWeightHigh - armWeightLow) > 0;
+        }
+    }
+    public static bool isArmWeightOutOfRange { get; private set; } = false;
 
     // MARS Robot Parameters
     private const float L1 = 475.0f;
@@ -270,6 +289,20 @@ public static class MarsComm
         }
         return _str;
     }
+
+    public static void internalSetArmWeightRange(float low, float high)
+    {
+        if (armWeightLow > ARM_WEIGHT_THRESHOLD && armWeightHigh > ARM_WEIGHT_THRESHOLD && (high - low) > 0)
+        {
+            armWeightLow = low;
+            armWeightHigh = high;
+            MarsCommLogger.LogInfo($"(Internal) Arm weight range set to [{armWeightLow:F2}, {armWeightHigh:F2}] kg");
+        }
+        else
+        {
+            MarsCommLogger.LogWarning($"(Internal) Invalid arm weight range [{low:F2}, {high:F2}] kg");
+        }
+    }
     
     public static void parseByteArray(byte[] payloadBytes, int payloadCount, DateTime payloadTime)
     {
@@ -367,6 +400,35 @@ public static class MarsComm
                     OnControlModeChange?.Invoke();
                 }
 
+                // Check if arm weight is set and is out of range.
+                if (isArmWeightSet)
+                {
+                    float _band = LOW_HIGH_ARM_WEIGHT_ERROR_THRESHOLD * (armWeightHigh - armWeightLow);
+                    if (force < armWeightLow - _band || force > armWeightHigh + _band)
+                    {
+                        if (!isArmWeightOutOfRange)
+                        {
+                            MarsCommLogger.LogWarning($"Arm Weight Out of Range | Force: {force:F2} kg | Arm Weight Range: [{armWeightLow:F2}, {armWeightHigh:F2}] kg | Time: {runTime:F2}");
+                            OnArmWeightInOutofRange?.Invoke();
+                        }
+                        isArmWeightOutOfRange = true;
+                    }
+                    else
+                    {
+                        if (isArmWeightOutOfRange)
+                        {
+                            MarsCommLogger.LogInfo($"Arm Weight Back in Range | Force: {force:F2} kg | Arm Weight Range: [{armWeightLow:F2}, {armWeightHigh:F2}] kg | Time: {runTime:F2}");
+                            OnArmWeightInOutofRange?.Invoke();
+                        }
+                        isArmWeightOutOfRange = false;
+                    }
+                }
+                else
+                {
+                    if (isArmWeightOutOfRange) MarsCommLogger.LogInfo($"Arm Weight not set.");
+                    isArmWeightOutOfRange = false;
+                }
+
                 // Invoke the new data event only for SENSORSTREAM or DIAGNOSTICS data.
                 OnNewMarsData?.Invoke();
 
@@ -379,7 +441,6 @@ public static class MarsComm
                 MarsCommLogger.LogInfo($"Received Version | Version: {version} | Compile Date: {compileDate} | Device ID: {deviceId}");
                 break;
         }
-
     }
    
     

@@ -9,12 +9,12 @@ using UnityEditor;
 using System.IO;
 using JetBrains.Annotations;
 
-public class AssessROM : MonoBehaviour
+public class AssessROMML : MonoBehaviour
 {
     float epmaxX, epmaxY, epminX, epminY;
     List<Vector3> endPoints;
     List<Vector3> unityPoints;
-    public static AssessROM instance;
+    public static AssessROMML instance;
     private bool changeScene = false;
     public Text messageTxt;
     public Text thersholdText;
@@ -269,7 +269,7 @@ public class AssessROM : MonoBehaviour
                 UpdateOutline(minX, maxX, minY, maxY, lineRenderer, new Color(0f / 255f, 100f / 255f, 0f / 255f));// 
                 messageTxt.text = "Press Mars Button To Fix ROM";
                 break;
-            case AROM_RAW_ASSESS_STATES.INTIIATECIRCLE:
+            case AROM_RAW_ASSESS_STATES.INITIATECIRCLE:
                 if (currentCircle == null)
                 {
                     GameObject circle = Instantiate(circlePrefab, circlePrefab.transform.position, Quaternion.identity);
@@ -502,7 +502,7 @@ public class AssessROM : MonoBehaviour
                 endPoints.Clear();
                 Drawlines.unityDrawValues.Clear();
                 Drawlines.endPntPos.Clear();
-                aromRawAssessState = AROM_RAW_ASSESS_STATES.INTIIATECIRCLE;
+                aromRawAssessState = AROM_RAW_ASSESS_STATES.INITIATECIRCLE;
                 break;
             case AROM_RAW_ASSESS_STATES.WAITTOREACH:
                 AppData.Instance.selectedMovement.SaveAssessmentData();

@@ -7,13 +7,10 @@ using System.IO;
 
 public partial class AppData
 {
-
     private static readonly Lazy<AppData> _instance = new Lazy<AppData>(() => new AppData());
-
     public static AppData Instance => _instance.Value;
 
-
-    static public readonly string COMPort = "COM50"; //1-35//2-30//3-32//4-50
+    static public readonly string COMPort = "COM4"; //1-35//2-30//3-32//4-50
 
     /*
    * SESSION DETAILS
@@ -37,7 +34,10 @@ public partial class AppData
 
     /* DO OBJECT CREATION HERE */
     public string selectedGame { get; private set; } = null;
-    public MarsMovement selectedMovement { get; private set; }
+    public string selectedMovement { get; private set; } = null;
+    public MarsArom1D currentMLArom { get; private set; } = null;
+    public MarsArom1D currentAPArom { get; private set; } = null;
+    public MarsArom1D currentMLAPArom { get; private set; } = null;
     public MarsUserData userData;
     public string trainingSide => userData?.limb != null ? MarsComm.LIMBTYPE[userData.limb] : MarsComm.LIMBTYPE[0];
 
@@ -122,10 +122,10 @@ public partial class AppData
             return;
         }
         // Set the mechanism name.
-        selectedMovement = new MarsMovement(name: name, side: trainingSide, sessno: currentSessionNumber);
-        AppLogger.LogInfo($"Selected movement '{selectedMovement.name}'.");
-        AppLogger.SetCurrentMovement(selectedMovement.name);
-        AppLogger.LogInfo($"Trial numbers for ' {selectedMovement.name}' updated. Day: {selectedMovement.trialNumberDay}, Session: {selectedMovement.trialNumberSession}.");
+        selectedMovement = name.ToUpper();  // new MarsMovement(name: name, side: trainingSide, sessno: currentSessionNumber);
+        AppLogger.LogInfo($"Selected movement '{selectedMovement}'.");
+        AppLogger.SetCurrentMovement(selectedMovement);
+        AppLogger.LogInfo($"Trial numbers for ' {selectedMovement}' updated. Day: {selectedMovement.trialNumberDay}, Session: {selectedMovement.trialNumberSession}.");
     }
 
     public void SetGame(string game)
