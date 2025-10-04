@@ -108,7 +108,7 @@ public class spaceShooterGameContoller : MonoBehaviour
         initUI();
         isGameStarted = false;
         MarsComm.OnMarsButtonReleased += onMarsButtonReleased;
-        AppData.Instance.updateSessionDetials();
+        AppData.Instance.updateSessionDetails();
         if (AppData.Instance.selectedMovement.trialNumberDay >= AppData.Instance.userData.moveTimePrsc[AppData.Instance.selectedMovement.name])
         {
             reminderPanel.SetActive(true);

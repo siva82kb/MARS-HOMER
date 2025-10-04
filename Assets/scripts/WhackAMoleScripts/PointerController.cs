@@ -14,7 +14,7 @@ public class PointerController : MonoBehaviour
     float xPoint, yPoint;
     private Vector3 endPoint;
     public int OFFSET;
-    public float[] currRom;
+    public MarsArom currRom;
 
     //default values
     public static float yMinendPnt;
@@ -33,11 +33,11 @@ public class PointerController : MonoBehaviour
         idle();
         MarsComm.sendHeartbeat();
         //GET ROM DATA
-        currRom = AppData.Instance.selectedMovement.CurrentArom;
-        zMinendPnt = currRom[0];
-        zMaxendPnt = currRom[1];
-        yMinendPnt = currRom[2];
-        yMaxendPnt = currRom[3];
+        currRom = AppData.Instance.selectedMovement.currentArom;
+        zMinendPnt = currRom.leftAdjusted.x;
+        zMaxendPnt = currRom.rightAdjusted.x;
+        yMinendPnt = currRom.bottomAdjusted.y;
+        yMaxendPnt = currRom.topAdjusted.y;
 
         OFFSET = AppData.Instance.userData.rightArm ? -1 : 1;
     }

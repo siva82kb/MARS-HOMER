@@ -11,20 +11,19 @@ public class PongPlayerController : MonoBehaviour
     public static float playSize;
    
     public static int[] DEPENDENT = new int[] {0,-1,1};
-    public float[] currRom;
+    public MarsArom currRom;
     public GameObject player;
 
     public float yMax, yMin,unityValY;
 
 
-    void Start () {
-
-        playSize = topBound - bottomBound;
-       
+    void Start ()
+    {
+        playSize = topBound - bottomBound;  
         //THIS SHOULD FETCH BASED ON THE MARSMODE
-        currRom = AppData.Instance.selectedMovement.CurrentArom;
-        yMin = currRom[2];
-        yMax = currRom[3];
+        currRom = AppData.Instance.selectedMovement.currentArom;
+        yMin = currRom.bottomAdjusted.y;
+        yMax = currRom.topAdjusted.y;
     }
 
 

@@ -10,7 +10,16 @@ using System.Text;
 
 public static class MarsDefs
 {
-    public static readonly string[] Movements = new string[] { "ML", "AP", "ML-AP" };
+    // Values to Draw the line [ROBOT endPoints (Meters)]
+    public static readonly float EPMAXZ = 0.490f;
+    public static readonly float EPMINZ = 0.010f;
+    public static readonly float EPMAXY = 0.765f;
+    public static readonly float EPMINY = 0.145f;
+    // Centre position
+    public static readonly float EPCENTERZ = (EPMAXZ + EPMINZ) / 2;
+    public static readonly float EPCENTERY = (EPMAXY + EPMINY) / 2;
+    
+    public static readonly string[] Movements = new string[] { "ML", "AP", "MLAP" };
    
     public static int getMovementIndex(string Movement)
     {
@@ -100,6 +109,7 @@ public class MarsUserData
         if (!File.Exists(DataManager.trainingPlaneFile)) DataManager.CreateTrainingPlaneFile(this.userID, "MARS", GetDeviceLocation());
         readParseTrainingPlaneData(DataManager.trainingPlaneFile);
     }
+
     public void parsemoveTimePrev()
     {
         moveTimePrev = createMoveTimeDictionary();
@@ -141,7 +151,6 @@ public class MarsUserData
         {
             moveTimePrsc[MarsDefs.Movements[i]] = float.Parse(lastRow.Field<string>(MarsDefs.Movements[i]));
         }
-    
     }
 
     public void readParseSessionData(string sessionFile)
@@ -210,24 +219,31 @@ public class MarsUserData
     
 }
 
-public class MarsMovement1D
+// Class representing movements trained by MARS
+public class MarsMovement
 {
     public string name { get; private set; }
     public string side { get; private set; }
 
-    public MarsArom1D oldArom { get; private set; } = null;
-    public MarsArom1D newArom { get; private set; } = null;
-    public MarsArom1D currentRom { get => newArom != null ? newArom : (oldArom != null ? oldArom : null); }
+    public MarsArom oldArom { get; private set; } = null;
+    public MarsArom newArom { get; private set; } = null;
+    public MarsArom currentArom { get => newArom != null ? newArom : (oldArom != null ? oldArom : null); }
 
     // Trial details for the mechanism.
     public int trialNumberDay { get; private set; }
     public int trialNumberSession { get; private set; }
 
-    public MarsMovement1D(string name, string side, int sessno)
+    public MarsMovement(string name, string side, int sessno)
     {
         this.name = name?.ToUpper() ?? string.Empty;
         this.side = side;
-        oldArom = new MarsArom1D(this.name, readFromFile: true);
+        // Check if AROM file exists.
+        if (MarsArom.AromFileExists(name)) oldArom = new MarsArom(this.name, readFromFile: true);
+        else
+        {
+            oldArom = null;
+            AppLogger.LogInfo($"No existing AROM file found for movement '{this.name}'. A new assessment is required.");
+        }
         newArom = null;
         this.side = side;
         UpdateTrialNumbers(sessno);
@@ -248,7 +264,7 @@ public class MarsMovement1D
     //     {
     //         newRom.SetMovement(this.name);
     //     }
-       
+
     // }
     // public void SaveAssessmentData()
     // {
@@ -256,7 +272,7 @@ public class MarsMovement1D
     //     {
     //         // Save the new ROM values.
     //         newRom.WriteToAssessmentFile();
-          
+
     //     }
     // }
 
@@ -321,11 +337,14 @@ public class MarsArom
     public Vector2 bottomRaw { get; private set; }
     public Vector2 leftRaw { get; private set; }
     public Vector2 rightRaw { get; private set; }
+
     // Locations of the adjusted AROM quadrilateral
     public Vector2 topAdjusted { get; private set; }
     public Vector2 bottomAdjusted { get; private set; }
     public Vector2 leftAdjusted { get; private set; }
     public Vector2 rightAdjusted { get; private set; }
+
+    public static bool AromFileExists(string movementName) => File.Exists(DataManager.GetRomFileName(movementName));
 
     // Constructor that reads the file and initializes values based on the mechanism
     public MarsArom(string movementName, bool readFromFile = true)
@@ -361,25 +380,51 @@ public class MarsArom
 
     public void startAromAssessment()
     {
-        if (rawData == null) rawData = new List<float>();
+        if (rawData == null) rawData = new List<float[]>();
+    }
+
+    public void addAromDataPoint(float x, float y)
+    {
+        if (rawData != null)
+        {
+            rawData.Add(new float[] { x, y });
+        }
     }
 
     public void stopAromAssessment()
     {
         if (rawData != null && rawData.Count > 0)
         {
-            // Calculate the min and max from the raw data.
-            minRaw = rawData.Min();
-            maxRaw = rawData.Max();
-            minAdjusted = minRaw;
-            maxAdjusted = maxRaw;
+            // Calculate the four points of the quarilateral.
+            // Create two lists from the rawData, where one list ordered by 
+            // the x value and the other by y value.
+            List<float[]> orderedByX = rawData.OrderBy(point => point[0]).ToList();
+            List<float[]> orderedByY = rawData.OrderBy(point => point[1]).ToList();
+            // Now we can easily find the four corners of the quadrilateral.
+            // Top point is the average of the bottom 10% of the points.
+            topRaw = AverageofExtremeEnds(orderedByY, 0.1f, false);
+            // Bottom point is the average of the top 10% of the points.
+            bottomRaw = AverageofExtremeEnds(orderedByY, 0.1f, true);
+            // Left point is the average of the top 10% of the points.
+            leftRaw = AverageofExtremeEnds(orderedByX, 0.1f, true);
+            // Right point is the average of the bottom 10% of the points.
+            rightRaw = AverageofExtremeEnds(orderedByX, 0.1f, false);
+            // Adjusted points are same as raw points initially.
+            topAdjusted = new Vector2(topRaw.x, topRaw.y);
+            bottomAdjusted = new Vector2(bottomRaw.x, bottomRaw.y);
+            leftAdjusted = new Vector2(leftRaw.x, leftRaw.y);
+            rightAdjusted = new Vector2(rightRaw.x, rightRaw.y);
         }
         rawData = null;
     }
 
-    public void setAdjustedAromMin(float min) => minAdjusted = min;
+    public void setAdjustedAromTop(float x, float y) => topAdjusted = new Vector2(x, y);
 
-    public void setAdjustedAromMax(float max) => maxAdjusted = max;
+    public void setAdjustedAromBottom(float x, float y) => bottomAdjusted = new Vector2(x, y);
+
+    public void setAdjustedAromLeft(float x, float y) => leftAdjusted = new Vector2(x, y);
+
+    public void setAdjustedAromRight(float x, float y) => rightAdjusted = new Vector2(x, y);
 
     public void WriteToAssessmentFile()
     {
@@ -390,7 +435,7 @@ public class MarsArom
             using (var file = new StreamWriter(fileName, false, Encoding.UTF8))
             {
                 // Write the pre-header to the file.
-                StringBuilder rawDataString = new StringBuilder(); 
+                StringBuilder rawDataString = new StringBuilder();
                 // Write pre-header and header information
                 // rawDataString.AppendLine($":Device: MARS");
                 // rawDataString.AppendLine($":Location: {AppData.Instance.userData.GetDeviceLocation()}");
@@ -401,8 +446,19 @@ public class MarsArom
         }
         using (StreamWriter file = new StreamWriter(fileName, true))
         {
+            // "DateTime", "AssessNo", "TrainingPlaneAngle",
+            // "TopRawX", "TopRawY", "BottomRawX", "BottomRawY", "LeftRawX", "LeftRawY", "RightRawX", "RightRawY",
+            // "TopAdjustedX", "TopAdjustedY", "BottomAdjustedX", "BottomAdjustedY", "LeftAdjustedX", "LeftAdjustedY", "RightAdjustedX", "RightAdjustedY",
+            // "filename"
             // Write the actual data
-            file.WriteLine(string.Join(",", new string[] { datetime, minRaw.ToString(), maxRaw.ToString(), minAdjusted.ToString(), maxAdjusted.ToString() }));
+            file.WriteLine(string.Join(",", new string[] {
+                datetime, assessno.ToString(), trainingPlaneAngle.ToString("F2"),
+                topRaw.x.ToString(), topRaw.y.ToString(), bottomRaw.x.ToString(), bottomRaw.y.ToString(),
+                leftRaw.x.ToString(), leftRaw.y.ToString(), rightRaw.x.ToString(), rightRaw.y.ToString(),
+                topAdjusted.x.ToString(), topAdjusted.y.ToString(), bottomAdjusted.x.ToString(), bottomAdjusted.y.ToString(),
+                leftAdjusted.x.ToString(), leftAdjusted.y.ToString(), rightAdjusted.x.ToString(), rightAdjusted.y.ToString(),
+                fileName
+            }));
         }
     }
 
@@ -411,6 +467,7 @@ public class MarsArom
         string fileName = DataManager.GetRomFileName(movementName);
         if (!File.Exists(fileName))
         {
+            AppLogger.LogWarning($"No AROM file found for movement '{movementName}'. Starting new assessment.");
             return false;
         }
 
@@ -447,6 +504,21 @@ public class MarsArom
                                     float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("RightAdjustedY")));
         trainingPlaneAngle = float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("TrainingPlaneAngle"));
         return true;
+    }
+    
+    private Vector2 AverageofExtremeEnds(List<float[]> orderList, float percentage = 0.1f, bool fromStart = true)
+    {
+        int count = (int)(orderList.Count * percentage);
+        float avgX = 0f;
+        float avgY = 0f;
+        for (int i = 0; i < count; i++)
+        {
+            avgX += fromStart ? orderList[i][0] : orderList[orderList.Count - 1 - i][0];
+            avgY += fromStart ? orderList[i][1] : orderList[orderList.Count - 1 - i][1];
+        }
+        avgX /= count;
+        avgY /= count;
+        return new Vector2(avgX, avgY);
     }
 }
 

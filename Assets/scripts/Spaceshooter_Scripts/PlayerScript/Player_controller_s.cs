@@ -32,7 +32,7 @@ public class Player_controller_s : MonoBehaviour
     float  yEndPoint, zEndPoing;
     float xPoint, yPoint;
     public float tilt;
-    public float[] currRom;
+    public MarsArom currRom;
 
     //default values
     public static float yMinendPnt;
@@ -56,10 +56,9 @@ public class Player_controller_s : MonoBehaviour
         audioSource = GetComponent<AudioSource>();
 
         //GET ROM DATA
-        currRom = AppData.Instance.selectedMovement.CurrentArom;
-        zMinendPnt = currRom[0];
-        zMaxendPnt = currRom[1];
-      
+        currRom = AppData.Instance.selectedMovement.currentArom;
+        zMinendPnt = currRom.leftAdjusted.x;
+        zMaxendPnt = currRom.rightAdjusted.x;
 
         OFFSET = AppData.Instance.userData.rightArm ? -1 : 1;
     }

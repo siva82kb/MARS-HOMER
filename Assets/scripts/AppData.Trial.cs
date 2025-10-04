@@ -145,7 +145,7 @@ public partial class AppData
         rawDataString.AppendLine($":TrialType: ");
         rawDataString.AppendLine($":TrialStartTime: {trialStartTime:yyyy-MM-ddTHH:mm:ss}");
         rawDataString.AppendLine($":TrialNumberDay: {selectedMovement.trialNumberDay}");
-        rawDataString.AppendLine($":FWS-ROM: X-[{selectedMovement.CurrentArom[0]:F3},{selectedMovement.CurrentArom[1]:F3}],Y-[{selectedMovement.CurrentArom[2]:F3},{selectedMovement.CurrentArom[3]:F3}]");
+        // rawDataString.AppendLine($":FWS-ROM: X-[{selectedMovement.CurrentArom[0]:F3},{selectedMovement.CurrentArom[1]:F3}],Y-[{selectedMovement.CurrentArom[2]:F3},{selectedMovement.CurrentArom[3]:F3}]");
         rawDataString.AppendLine($":DesiredSuccessRate: ");
         rawDataString.AppendLine($":ControlBound: ");
         rawDataString.AppendLine(string.Join(",", DataManager.RAWFILEHEADER));
@@ -276,7 +276,7 @@ public partial class AppData
         }
             return "";
     }
-    public void updateSessionDetials()
+    public void updateSessionDetails()
     {
         AppData.Instance.userData.readParseSessionData(DataManager.sessionFile);
        

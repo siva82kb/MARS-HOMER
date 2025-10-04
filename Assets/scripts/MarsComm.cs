@@ -9,6 +9,7 @@ using System.Data;
 using System.Drawing.Drawing2D;
 
 
+
 public static class MarsComm
 {
     // For error logging
@@ -112,7 +113,7 @@ public static class MarsComm
     // MARS Robot Parameters
     private const float L1 = 475.0f;
     private const float L2 = 291.0f;
-    
+
     // Private variables
     static private byte[] rawBytes = new byte[256];
     // For the following arrays, the first element represents the number of elements in the array.
@@ -130,7 +131,7 @@ public static class MarsComm
     static public ushort packetNumber { get; private set; }
     static public float runTime { get; private set; }
     static public float prevRunTime { get; private set; }
-   
+
 
     public static int GetMarsCodeFromLabel(string[] array, string value)
     {
@@ -262,12 +263,12 @@ public static class MarsComm
         }
     }
     static public Vector3 epPos
-    { 
-        get => MarsKinDynamics.ForwardKinematics(angle1, angle2, angle3); 
+    {
+        get => MarsKinDynamics.ForwardKinematics(angle1, angle2, angle3);
     }
     static public Vector3 epPosInThePlane
-    { 
-        get => MarsKinDynamics.ForwardKinematicsInThePlane(angle2, angle3); 
+    {
+        get => MarsKinDynamics.ForwardKinematicsInThePlane(angle2, angle3);
     }
 
     private static int getControlType(int statusByte)
@@ -303,7 +304,7 @@ public static class MarsComm
             MarsCommLogger.LogWarning($"(Internal) Invalid arm weight range [{low:F2}, {high:F2}] kg");
         }
     }
-    
+
     public static void parseByteArray(byte[] payloadBytes, int payloadCount, DateTime payloadTime)
     {
         int offset;
@@ -442,8 +443,8 @@ public static class MarsComm
                 break;
         }
     }
-   
-    
+
+
     public static void startSensorStream()
     {
         MarsCommLogger.LogInfo("Starting Sensor Stream");

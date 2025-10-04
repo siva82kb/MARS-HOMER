@@ -31,18 +31,6 @@ public class AssessROMML : MonoBehaviour
     private GameObject rightCircle;
     private GameObject testCircle;
 
-    //Values to Draw the line [ROBOT endPoints (Meters)]
-    public const float endPointMaxZ = 0.490f;
-    public const float endPointMinZ = 0.010f;
-    public const float endPointMaxY = 0.765f;
-    public const float endPointMinY = 0.145f;
-
-    // UNITY HIGHT AND WIDTH
-    private const float SCALEX = 12f;
-    private const float SCALEY = 5.5f;
-    public float centerValX { get; private set; }
-    public float centerValY { get; private set; }
-    public int OFFSET {  get; private set; }
     public Text moveTxt;
 
     // Scenes to change to.
@@ -104,9 +92,9 @@ public class AssessROMML : MonoBehaviour
     {
         // Initialize AppData if needed
         if (AppData.Instance.userData == null)
-            {
-                AppData.Instance.Initialize(SceneManager.GetActiveScene().name);
-            }
+        {
+            AppData.Instance.Initialize(SceneManager.GetActiveScene().name);
+        }
 
         // Check if the directory exists
         if (!Directory.Exists(DataManager.basePath)) Directory.CreateDirectory(DataManager.basePath);
@@ -126,13 +114,11 @@ public class AssessROMML : MonoBehaviour
         MarsComm.OnMarsButtonReleased += OnMarsButtonReleased;
         // moveTxt.text = MarsComm.MOVETYPE[MarsDefs.getMovementIndex(AppData.Instance.selectedMovement.name)];
 
-        //Dependent on Limb
-        OFFSET = AppData.Instance.userData.limb == 1 ? -1 : 1;
+        // Dependent on Limb
+        // OFFSET = AppData.Instance.userData.limb == 1 ? -1 : 1;
 
-        centerValX = (endPointMaxZ + endPointMinZ) / 2;
-        centerValY = (endPointMaxY + endPointMinY) / 2;
-
-        createWorkSpace();
+        // Create workspace for display.
+        // createWorkSpace();
     }
     void Update()
     { 
@@ -152,44 +138,43 @@ public class AssessROMML : MonoBehaviour
            
         //    getRandomTargt();
         //}
-      
     }
     
-    public void createWorkSpace()
-    {
-        // Compute corners (centered)
-        Vector3 topLeft = new Vector3((float)((endPointMinZ - centerValX) / (endPointMaxZ - endPointMinZ)) * SCALEX,
-                                      (float)((endPointMaxY - centerValY) / (endPointMaxY - endPointMinY)) * SCALEY,
-                                      0);
-        Vector3 topRight = new Vector3((float)((endPointMaxZ - centerValX) / (endPointMaxZ - endPointMinZ)) * SCALEX,
-                                       (float)((endPointMaxY - centerValY) / (endPointMaxY - endPointMinY)) * SCALEY,
-                                       0);
-        Vector3 bottomRight = new Vector3((float)((endPointMaxZ - centerValX) / (endPointMaxZ - endPointMinZ)) * SCALEX,
-                                          (float)((endPointMinY - centerValY) / (endPointMaxY - endPointMinY)) * SCALEY,
-                                          0);
-        Vector3 bottomLeft = new Vector3((float)((endPointMinZ - centerValX) / (endPointMaxZ - endPointMinZ)) * SCALEX,
-                                         (float)((endPointMinY - centerValY) / (endPointMaxY - endPointMinY)) * SCALEY,
-                                         0);
+    // public void createWorkSpace()
+    // {
+    //     // Compute corners (centered)
+    //     Vector3 topLeft = new Vector3((float)((MarsDefs.EPMINZ - MarsDefs.EPCENTERZ)DrawTrajectory. / (MarsDefs.EPMAXZ - MarsDefs.EPMINZ)) * SCALEX,
+    //                                   (float)((endPointMaxY - MarsDefs.EPCENTERY) / (endPointMaxY - endPointMinY)) * SCALEY,
+    //                                   0);
+    //     Vector3 topRight = new Vector3((float)((MarsDefs.EPMAXZ - MarsDefs.EPCENTERZ)DrawTrajectory. / (MarsDefs.EPMAXZ - MarsDefs.EPMINZ)) * SCALEX,
+    //                                    (float)((endPointMaxY - MarsDefs.EPCENTERY) / (endPointMaxY - endPointMinY)) * SCALEY,
+    //                                    0);
+    //     Vector3 bottomRight = new Vector3((float)((MarsDefs.EPMAXZ - MarsDefs.EPCENTERZ) / (MarsDefs.EPMAXZ DrawTrajectory.- MarsDefs.EPMINZ)) * SCALEX,
+    //                                       (float)((endPointMinY - MarsDefs.EPCENTERY) / (endPointMaxY - endPointMinY)) * SCALEY,
+    //                                       0);
+    //     Vector3 bottomLeft = new Vector3((float)((MarsDefs.EPMINZ - MarsDefs.EPCENTERZ) / DrawTrajectory.(MarsDefs.EPMAXZ DrawTrajectory.- MarsDefs.EPMINZ)) * SCALEX,
+    //                                      (float)((endPointMinY - MarsDefs.EPCENTERY) / (endPointMaxY - endPointMinY)) * SCALEY,
+    //                                      0);
 
-        // Draw box — close loop by adding the first point at the end
-        Vector3[] corners = new Vector3[]
-        {
-        topLeft, topRight, bottomRight, bottomLeft, topLeft
-        };
-        minxBound = corners.Min(c => c.x);
-        maxxBound = corners.Max(c => c.x);
-        minyBound = corners.Min(c => c.y);
-        maxyBound = corners.Max(c => c.y);
-        createFrame(boxLR, corners, Color.red);
-    }
+    //     // Draw box — close loop by adding the first point at the end
+    //     Vector3[] corners = new Vector3[]
+    //     {
+    //     topLeft, topRight, bottomRight, bottomLeft, topLeft
+    //     };
+    //     minxBound = corners.Min(c => c.x);
+    //     maxxBound = corners.Max(c => c.x);
+    //     minyBound = corners.Min(c => c.y);
+    //     maxyBound = corners.Max(c => c.y);
+    //     createFrame(boxLR, corners, Color.red);
+    // }
 
 
     public void updateUI()
     {
         //get latest points
-        unityPoints = Drawlines.unityDrawValues;
-        endPoints = Drawlines.endPntPos;
-       
+        unityPoints = DrawTrajectory.unityPoints;
+        endPoints = DrawTrajectory.actualPoints;
+
         messageTxt.text = "Press Mars Button to Finish";
         scaleupRule.gameObject.SetActive(aromRawAssessState == AROM_RAW_ASSESS_STATES.WAITTOREACH);
 
@@ -303,11 +288,11 @@ public class AssessROMML : MonoBehaviour
                 DrawQuad(minxpres, maxxpres, minypres, maxypres, meanZpre,meanYpre,scaleUpBox, new Color(137/255f,175/255f,253/255f));
 
                 //reverse unity value to RobotEnpoint values in meter
-                float scaleZmin = (minxpres / (OFFSET * SCALEX)) * (endPointMaxZ - endPointMinZ) + centerValX;
-                float scaleZMax = (maxxpres / (OFFSET * SCALEX)) * (endPointMaxZ - endPointMinZ) + centerValX;
-                float scaleYmin= (minypres / SCALEY) * (endPointMaxY - endPointMinY) + centerValY;
-                float scaleYmax = (maxypres / SCALEY) * (endPointMaxY - endPointMinY) + centerValY;
-                AppData.Instance.selectedMovement.SetNewRomValues(scaleZmin, scaleZMax, scaleYmin,scaleYmax,epminX,epmaxX,epminY,epmaxY);
+                float scaleZmin = (MarsDefs.EPMAXZ - MarsDefs.EPMINZ) * minxpres / (DrawParams.OFFSET * DrawParams.SCALEX) + MarsDefs.EPCENTERZ;
+                float scaleZMax = (MarsDefs.EPMAXZ - MarsDefs.EPMINZ) * maxxpres / (DrawParams.OFFSET * DrawParams.SCALEX) + MarsDefs.EPCENTERZ;
+                float scaleYmin= (MarsDefs.EPMAXY - MarsDefs.EPMINY) * minypres / DrawParams.SCALEY + MarsDefs.EPCENTERY;
+                float scaleYmax = (MarsDefs.EPMAXY - MarsDefs.EPMINY) * maxypres / DrawParams.SCALEY + MarsDefs.EPCENTERY;
+                // AppData.Instance.selectedMovement.SetNewRomValues(scaleZmin, scaleZMax, scaleYmin,scaleYmax,epminX,epmaxX,epminY,epmaxY);
                
                 break;
             case AROM_RAW_ASSESS_STATES.TEST:
@@ -336,8 +321,8 @@ public class AssessROMML : MonoBehaviour
     void scaleupStateMachine()
     {
         // scale value 0.5 cm on both side
-        float stepX = 0.5f / ((endPointMaxZ - endPointMinZ) * 100f / SCALEX);
-        float stepY = 0.5f / ((endPointMaxY - endPointMinY) * 100f / SCALEY);
+        float stepX = 0.5f / ((MarsDefs.EPMAXZ - MarsDefs.EPMINZ) * 100f / DrawParams.SCALEX);
+        float stepY = 0.5f / ((MarsDefs.EPMAXY - MarsDefs.EPMINY) * 100f / DrawParams.SCALEY);
 
         switch (aromAdjustState)
         {
@@ -500,17 +485,17 @@ public class AssessROMML : MonoBehaviour
                 //clear the unity values to remote line after the get orignial ROM
                 unityPoints.Clear();
                 endPoints.Clear();
-                Drawlines.unityDrawValues.Clear();
-                Drawlines.endPntPos.Clear();
+                DrawTrajectory.unityPoints.Clear();
+                DrawTrajectory.actualPoints.Clear();
                 aromRawAssessState = AROM_RAW_ASSESS_STATES.INITIATECIRCLE;
                 break;
             case AROM_RAW_ASSESS_STATES.WAITTOREACH:
-                AppData.Instance.selectedMovement.SaveAssessmentData();
+                // AppData.Instance.selectedMovement.SaveAssessmentData();
                 aromRawAssessState = AROM_RAW_ASSESS_STATES.DONE;
                 break;
              //Test Targets inside the Quad
             case AROM_RAW_ASSESS_STATES.TEST:
-                AppData.Instance.selectedMovement.SaveAssessmentData();
+                // AppData.Instance.selectedMovement.SaveAssessmentData();
                 aromRawAssessState = AROM_RAW_ASSESS_STATES.DONE;
                 break;
 
