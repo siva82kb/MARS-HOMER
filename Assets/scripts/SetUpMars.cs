@@ -117,12 +117,14 @@ public class SetUpMars : MonoBehaviour
                 break;
         }
     }
+    
     public void updateGUI()
     {
         instructionTxt.gameObject.SetActive(currentState != SETUPMARS.DONE);
         marsActivationGIF.SetActive(currentState == SETUPMARS.IDLE || currentState == SETUPMARS.ACTIVATE);
         AttachArmGIF.SetActive(currentState == SETUPMARS.ATTACHARM && MarsComm.force < 10);
     }
+
     public void OnMarsButtonReleased()
     {
         switch (currentState)
@@ -144,6 +146,7 @@ public class SetUpMars : MonoBehaviour
                 break;
         }
     }
+
     private void OnDestroy()
     {
 

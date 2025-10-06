@@ -343,6 +343,7 @@ public class MarsArom
     public Vector2 bottomAdjusted { get; private set; }
     public Vector2 leftAdjusted { get; private set; }
     public Vector2 rightAdjusted { get; private set; }
+    public bool isAssessing => rawData != null;
 
     public static bool AromFileExists(string movementName) => File.Exists(DataManager.GetRomFileName(movementName));
 
@@ -401,14 +402,14 @@ public class MarsArom
             List<float[]> orderedByX = rawData.OrderBy(point => point[0]).ToList();
             List<float[]> orderedByY = rawData.OrderBy(point => point[1]).ToList();
             // Now we can easily find the four corners of the quadrilateral.
-            // Top point is the average of the bottom 10% of the points.
-            topRaw = AverageofExtremeEnds(orderedByY, 0.1f, false);
-            // Bottom point is the average of the top 10% of the points.
-            bottomRaw = AverageofExtremeEnds(orderedByY, 0.1f, true);
-            // Left point is the average of the top 10% of the points.
-            leftRaw = AverageofExtremeEnds(orderedByX, 0.1f, true);
-            // Right point is the average of the bottom 10% of the points.
-            rightRaw = AverageofExtremeEnds(orderedByX, 0.1f, false);
+            // Top point is the average of the bottom 5% of the points.
+            topRaw = AverageofExtremeEnds(orderedByY, 0.05f, false);
+            // Bottom point is the average of the top 5% of the points.
+            bottomRaw = AverageofExtremeEnds(orderedByY, 0.05f, true);
+            // Left point is the average of the top 5% of the points.
+            leftRaw = AverageofExtremeEnds(orderedByX, 0.05f, true);
+            // Right point is the average of the bottom 5% of the points.
+            rightRaw = AverageofExtremeEnds(orderedByX, 0.05f, false);
             // Adjusted points are same as raw points initially.
             topAdjusted = new Vector2(topRaw.x, topRaw.y);
             bottomAdjusted = new Vector2(bottomRaw.x, bottomRaw.y);

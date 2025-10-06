@@ -8,88 +8,48 @@ using System;
 using UnityEditor;
 using System.IO;
 using JetBrains.Annotations;
+using System.Runtime.Remoting.Messaging;
 
-public class AssessROMML : MonoBehaviour
+public class AssessROMML : MarsAssessAROM
 {
-    float epmaxX, epmaxY, epminX, epminY;
-    List<Vector3> endPoints;
-    List<Vector3> unityPoints;
-    public static AssessROMML instance;
-    private bool changeScene = false;
-    public Text messageTxt;
-    public Text thersholdText;
-    public Text thersholdTextY;
-    public Text scaleupRule;
-    private LineRenderer lineRenderer;
-    public LineRenderer boxLR;
-    public LineRenderer scaleUpBox;
-    public GameObject circlePrefab;
-    public GameObject currentCircle;
-    private GameObject topCircle;
-    private GameObject bottomCircle;
-    private GameObject leftCircle;
-    private GameObject rightCircle;
-    private GameObject testCircle;
-
-    public Text moveTxt;
-
     // Scenes to change to.
+    private bool changeScene = false;
     private readonly string preScene = "CHOOSEMOVE";
     private readonly string robotCalibScene = "ROBOTCALIB";
     private string marsSetUp = "MARSSETUP";
 
     // Points of the quadrilateral
-    private Vector2 top;
-    private Vector2 bottom;
-    private Vector2 left;
-    private Vector2 right;
-    public Vector2 x1;
-    public Vector2 x2;
-    public Vector2 y1;
-    public Vector2 y2;
+    // private Vector2 top;
+    // private Vector2 bottom;
+    // private Vector2 left;
+    // private Vector2 right;
+    // private Vector2 x1;
+    // private Vector2 x2;
+    // private Vector2 y1;
+    // private Vector2 y2;
 
-    // AROM raw assessment states
-    private enum AROM_RAW_ASSESS_STATES
+    // // Dynamic
+    // float minX , maxX , minY , maxY ;
+    // // ROM
+    // float minxpre, minypre,maxxpre,maxypre,meanZpre,meanYpre;
+    // // BOUND
+    // float minxBound, minyBound, maxxBound,maxyBound;
+
+    // float minxpres;
+    // float minypres;
+    // float maxxpres;
+    // float maxypres;
+
+    protected override void Awake()
     {
-        ASSESSROM,
-        INITIATECIRCLE,
-        WAITTOREACH,
-        TEST,
-        DONE,
-    }
-    // AROM adjustment states 
-    private enum AROM_ADJUST_STATES
-    {
-        NONE,
-        TOP,
-        BOTTOM,
-        LEFT,
-        RIGHT,
-    }
-    private AROM_ADJUST_STATES aromAdjustState = AROM_ADJUST_STATES.NONE;
-    private AROM_RAW_ASSESS_STATES aromRawAssessState = AROM_RAW_ASSESS_STATES.ASSESSROM;
-
-    // Dynamic
-    float minX , maxX , minY , maxY ;
-    // ROM
-    float minxpre, minypre,maxxpre,maxypre,meanZpre,meanYpre;
-    // BOUND
-    float minxBound, minyBound, maxxBound,maxyBound;
-
-    float minxpres;
-    float minypres;
-    float maxxpres;
-    float maxypres;
-
-    void Awake()
-    {
-        instance = this;
+        base.Awake();
         MarsComm.sendHeartbeat();
-        lineRenderer = GetComponent<LineRenderer>();
+        MarsComm.setControlType("POSITION");
     }
-    
-    void Start()
+
+    protected override void Start()
     {
+        base.Start();
         // Initialize AppData if needed
         if (AppData.Instance.userData == null)
         {
@@ -106,24 +66,31 @@ public class AssessROMML : MonoBehaviour
 
         // If the robot is not calibrated go to the robot calib scene.
         if (MarsComm.CALIBRATION[MarsComm.calibration] == "NOCALIB") SceneManager.LoadScene(robotCalibScene);
-        
+
         // If the robot is not in position control go to the mars setup scene.
         if (MarsComm.CONTROLTYPE[MarsComm.controlType] != "POSITION") SceneManager.LoadScene(marsSetUp);
 
-        // AppData.Instance.selectedMovement.ResetRomValues();
-        MarsComm.OnMarsButtonReleased += OnMarsButtonReleased;
-        // moveTxt.text = MarsComm.MOVETYPE[MarsDefs.getMovementIndex(AppData.Instance.selectedMovement.name)];
+        // Set the movement.
+        movement = "ML";
+        oldMarsArom = AppData.Instance.selectedMovement?.currentArom;
+
+        // Attach callbacks.
+        // MarsComm.OnMarsButtonReleased += OnMarsButtonReleased; 
 
         // Dependent on Limb
         // OFFSET = AppData.Instance.userData.limb == 1 ? -1 : 1;
 
         // Create workspace for display.
         // createWorkSpace();
+
+        // Initialize draw trajectory
+        // DrawParams.Initialize(lineRenderer);
     }
-    void Update()
-    { 
+    protected override void Update()
+    {
         MarsComm.sendHeartbeat();
-        updateUI();
+        base.Update();
+        
         //Test Targets insdide the quad
         //if (Input.GetKeyDown(KeyCode.G))
         //{
@@ -135,7 +102,7 @@ public class AssessROMML : MonoBehaviour
         //}
         //if (Input.GetKeyDown(KeyCode.Y))
         //{
-           
+
         //    getRandomTargt();
         //}
     }
@@ -171,264 +138,267 @@ public class AssessROMML : MonoBehaviour
 
     public void updateUI()
     {
-        //get latest points
-        unityPoints = DrawTrajectory.unityPoints;
-        endPoints = DrawTrajectory.actualPoints;
+        // Get latest points
+        // unityPoints = DrawTrajectory.unityPoints;
+        // endPoints = DrawTrajectory.actualPoints;
 
-        messageTxt.text = "Press Mars Button to Finish";
-        scaleupRule.gameObject.SetActive(aromRawAssessState == AROM_RAW_ASSESS_STATES.WAITTOREACH);
+        // messageTxt.text = "Press Mars Button to Finish";
+        // scaleupRule.gameObject.SetActive(aromRawAssessState == AROM_RAW_ASSESS_STATES.WAITTOREACH);
 
-        //update min and max value of endpoints
-        if ((unityPoints != null && unityPoints.Count > 0) && (endPoints != null && endPoints.Count > 0))
-        {
-            //get Robot endPoints
-            epmaxX = endPoints.Max(v => v.x);
-            epminX = endPoints.Min(v => v.x);
-            epmaxY = endPoints.Max(v => v.y);
-            epminY = endPoints.Min(v => v.y);
-            runStateMachine();
-            thersholdTextY.text = $"{(Math.Abs(epmaxY - epminY) * 100).ToString("F0")}cm";
-            thersholdText.text = $"{(Math.Abs(epmaxX - epminX) * 100).ToString("F0")}cm";
-        }
+        // //update min and max value of endpoints
+        // if ((unityPoints != null && unityPoints.Count > 0) && (endPoints != null && endPoints.Count > 0))
+        // {
+        //     //get Robot endPoints
+        //     epmaxX = endPoints.Max(v => v.x);
+        //     epminX = endPoints.Min(v => v.x);
+        //     epmaxY = endPoints.Max(v => v.y);
+        //     epminY = endPoints.Min(v => v.y);
+        //     thresholdText.text = $"{(Math.Abs(epmaxX - epminX) * 100).ToString("F0")}cm";
+        // }
         
-        //scaleup each side seperately
-        //TOP
-        if (Input.GetKeyDown(KeyCode.T))
-        {
-            aromAdjustState = AROM_ADJUST_STATES.TOP;
-        }
-        //LEFT
-        if (Input.GetKeyDown(KeyCode.L))
-        {
-            aromAdjustState = AROM_ADJUST_STATES.LEFT;
-        }
-        //BOTTOM
-        if (Input.GetKeyDown(KeyCode.B))
-        {
-            aromAdjustState = AROM_ADJUST_STATES.BOTTOM;
-        }
-        //RIGHT
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            aromAdjustState = AROM_ADJUST_STATES.RIGHT;
-        }
+        // //scaleup each side seperately
+        // //TOP
+        // if (Input.GetKeyDown(KeyCode.T))
+        // {
+        //     aromAdjustState = AROM_ADJUST_STATES.TOP;
+        // }
+        // //LEFT
+        // if (Input.GetKeyDown(KeyCode.L))
+        // {
+        //     aromAdjustState = AROM_ADJUST_STATES.LEFT;
+        // }
+        // //BOTTOM
+        // if (Input.GetKeyDown(KeyCode.B))
+        // {
+        //     aromAdjustState = AROM_ADJUST_STATES.BOTTOM;
+        // }
+        // //RIGHT
+        // if (Input.GetKeyDown(KeyCode.R))
+        // {
+        //     aromAdjustState = AROM_ADJUST_STATES.RIGHT;
+        // }
        
-        if(aromRawAssessState == AROM_RAW_ASSESS_STATES.WAITTOREACH)
-        {
-            topCircle.GetComponent<SpriteRenderer>().color = Color.grey;
-            bottomCircle.GetComponent<SpriteRenderer>().color = Color.grey;
-            leftCircle.GetComponent<SpriteRenderer>().color = Color.grey;
-            rightCircle.GetComponent<SpriteRenderer>().color = Color.grey;
-        }
+        // if(aromRawAssessState == AROM_RAW_ASSESS_STATES.WAITTOREACH)
+        // {
+        //     topCircle.GetComponent<SpriteRenderer>().color = Color.grey;
+        //     bottomCircle.GetComponent<SpriteRenderer>().color = Color.grey;
+        //     leftCircle.GetComponent<SpriteRenderer>().color = Color.grey;
+        //     rightCircle.GetComponent<SpriteRenderer>().color = Color.grey;
+        // }
         
-        switch (aromAdjustState)
-        {
-            case AROM_ADJUST_STATES.TOP:
-                topCircle.GetComponent<SpriteRenderer>().color = Color.red;
+        // switch (aromAdjustState)
+        // {
+        //     case AROM_ADJUST_STATES.TOP:
+        //         topCircle.GetComponent<SpriteRenderer>().color = Color.red;
               
-                break;
-            case AROM_ADJUST_STATES.BOTTOM:
-                bottomCircle.GetComponent<SpriteRenderer>().color = Color.red;
+        //         break;
+        //     case AROM_ADJUST_STATES.BOTTOM:
+        //         bottomCircle.GetComponent<SpriteRenderer>().color = Color.red;
                 
-                break;
-            case AROM_ADJUST_STATES.LEFT:
-                leftCircle.GetComponent<SpriteRenderer>().color = Color.red;
+        //         break;
+        //     case AROM_ADJUST_STATES.LEFT:
+        //         leftCircle.GetComponent<SpriteRenderer>().color = Color.red;
                
-                break;
-            case AROM_ADJUST_STATES.RIGHT:
-                rightCircle.GetComponent<SpriteRenderer>().color = Color.red;
-                break;
-        }
+        //         break;
+        //     case AROM_ADJUST_STATES.RIGHT:
+        //         rightCircle.GetComponent<SpriteRenderer>().color = Color.red;
+        //         break;
+        // }
       
     }
 
+    // Assessment statemachine
     public void runStateMachine()
     {
-        switch (aromRawAssessState)
-        {
-            case AROM_RAW_ASSESS_STATES.ASSESSROM:
-                 minX = unityPoints.Min(v => v.x);
-                 maxX = unityPoints.Max(v => v.x);
-                 minY = unityPoints.Min(v => v.y);
-                 maxY = unityPoints.Max(v => v.y);
-                UpdateOutline(minX, maxX, minY, maxY, lineRenderer, new Color(0f / 255f, 100f / 255f, 0f / 255f));// 
-                messageTxt.text = "Press Mars Button To Fix ROM";
-                break;
-            case AROM_RAW_ASSESS_STATES.INITIATECIRCLE:
-                if (currentCircle == null)
-                {
-                    GameObject circle = Instantiate(circlePrefab, circlePrefab.transform.position, Quaternion.identity);
-                    GameObject circle1 = Instantiate(circlePrefab, new Vector3(meanZpre, minY, 0), Quaternion.identity);
-                    GameObject circle2 = Instantiate(circlePrefab, new Vector3(maxX, meanYpre, 0), Quaternion.identity);
-                    GameObject circle3 = Instantiate(circlePrefab, new Vector3(meanZpre, maxY, 0), Quaternion.identity);
-                    GameObject circle4 = Instantiate(circlePrefab, new Vector3(minX, meanYpre, 0), Quaternion.identity);
-                    currentCircle = circle;
-                    currentCircle.GetComponent<SpriteRenderer>().color = Color.green;
-                    bottomCircle = circle1;
-                    rightCircle = circle2;
-                    topCircle = circle3;
-                    leftCircle = circle4;
-                }
-                if (currentCircle != null)
-                {
-                    aromRawAssessState = AROM_RAW_ASSESS_STATES.WAITTOREACH;
-                }
-                minxpres = minxpre;//scaleup value = previous value
-                minypres = minypre;
-                maxxpres = maxxpre;
-                maxypres = maxypre;
-                break;
-            case AROM_RAW_ASSESS_STATES.WAITTOREACH:
-             
-                messageTxt.text = "Press Mars Button To Finish";
-                //To Modify the Range of Motion
-                scaleupStateMachine();
-                
-                //Draw quad for the Modifyed Range of Motion
-                DrawQuad(minxpres, maxxpres, minypres, maxypres, meanZpre,meanYpre,scaleUpBox, new Color(137/255f,175/255f,253/255f));
+        // switch (aromRawAssessState)
+        // {
+        //     case AROM_RAW_ASSESS_STATES.INIT:
+        //         // Do nothing. Just wait for the button to be pressed0
+        //         messageTxt.text = "Press MARS button to start assessment.";
+        //         break;
+        //     case AROM_RAW_ASSESS_STATES.ASSESSROM:
+        //         minX = unityPoints.Min(v => v.x);
+        //         maxX = unityPoints.Max(v => v.x);
+        //         minY = unityPoints.Min(v => v.y);
+        //         maxY = unityPoints.Max(v => v.y);
+        //         UpdateOutline(minX, maxX, minY, maxY, lineRenderer, new Color(0f / 255f, 100f / 255f, 0f / 255f));// 
+        //         messageTxt.text = "Press Mars Button To Fix ROM";
+        //         break;
+        //     case AROM_RAW_ASSESS_STATES.INITIATECIRCLE:
+        //         if (currentCircle == null)
+        //         {
+        //             GameObject circle = Instantiate(circlePrefab, circlePrefab.transform.position, Quaternion.identity);
+        //             GameObject circle1 = Instantiate(circlePrefab, new Vector3(meanZpre, minY, 0), Quaternion.identity);
+        //             GameObject circle2 = Instantiate(circlePrefab, new Vector3(maxX, meanYpre, 0), Quaternion.identity);
+        //             GameObject circle3 = Instantiate(circlePrefab, new Vector3(meanZpre, maxY, 0), Quaternion.identity);
+        //             GameObject circle4 = Instantiate(circlePrefab, new Vector3(minX, meanYpre, 0), Quaternion.identity);
+        //             currentCircle = circle;
+        //             currentCircle.GetComponent<SpriteRenderer>().color = Color.green;
+        //             bottomCircle = circle1;
+        //             rightCircle = circle2;
+        //             topCircle = circle3;
+        //             leftCircle = circle4;
+        //         }
+        //         if (currentCircle != null)
+        //         {
+        //             aromRawAssessState = AROM_RAW_ASSESS_STATES.WAITTOREACH;
+        //         }
+        //         minxpres = minxpre;//scaleup value = previous value
+        //         minypres = minypre;
+        //         maxxpres = maxxpre;
+        //         maxypres = maxypre;
+        //         break;
+        //     case AROM_RAW_ASSESS_STATES.WAITTOREACH:
 
-                //reverse unity value to RobotEnpoint values in meter
-                float scaleZmin = (MarsDefs.EPMAXZ - MarsDefs.EPMINZ) * minxpres / (DrawParams.OFFSET * DrawParams.SCALEX) + MarsDefs.EPCENTERZ;
-                float scaleZMax = (MarsDefs.EPMAXZ - MarsDefs.EPMINZ) * maxxpres / (DrawParams.OFFSET * DrawParams.SCALEX) + MarsDefs.EPCENTERZ;
-                float scaleYmin= (MarsDefs.EPMAXY - MarsDefs.EPMINY) * minypres / DrawParams.SCALEY + MarsDefs.EPCENTERY;
-                float scaleYmax = (MarsDefs.EPMAXY - MarsDefs.EPMINY) * maxypres / DrawParams.SCALEY + MarsDefs.EPCENTERY;
-                // AppData.Instance.selectedMovement.SetNewRomValues(scaleZmin, scaleZMax, scaleYmin,scaleYmax,epminX,epmaxX,epminY,epmaxY);
-               
-                break;
-            case AROM_RAW_ASSESS_STATES.TEST:
-                //Test Targets inside the Range Of Motion
-                //Assign the Cornor points of the quad
-                top = new Vector2(meanZpre, maxypres);
-                bottom = new Vector2(meanZpre, minypres);
-                left = new Vector2(minxpres, meanYpre);
-                right = new Vector2(maxxpres, meanYpre);
+        //         messageTxt.text = "Press Mars Button To Finish";
+        //         //To Modify the Range of Motion
+        //         scaleupStateMachine();
 
-                //genrate vector
-                x1 = bottom - left;
-                y1 = top - left;
-                x2 = bottom - right;
-                y2 = top - right;
-                
-                break;
-            case AROM_RAW_ASSESS_STATES.DONE:
-                SceneManager.LoadScene(preScene);
-                break;
+        //         //Draw quad for the Modifyed Range of Motion
+        //         DrawQuad(minxpres, maxxpres, minypres, maxypres, meanZpre, meanYpre, scaleUpBox, new Color(137 / 255f, 175 / 255f, 253 / 255f));
 
-        }
+        //         //reverse unity value to RobotEnpoint values in meter
+        //         float scaleZmin = (MarsDefs.EPMAXZ - MarsDefs.EPMINZ) * minxpres / (DrawParams.OFFSET * DrawParams.SCALEX) + MarsDefs.EPCENTERZ;
+        //         float scaleZMax = (MarsDefs.EPMAXZ - MarsDefs.EPMINZ) * maxxpres / (DrawParams.OFFSET * DrawParams.SCALEX) + MarsDefs.EPCENTERZ;
+        //         float scaleYmin = (MarsDefs.EPMAXY - MarsDefs.EPMINY) * minypres / DrawParams.SCALEY + MarsDefs.EPCENTERY;
+        //         float scaleYmax = (MarsDefs.EPMAXY - MarsDefs.EPMINY) * maxypres / DrawParams.SCALEY + MarsDefs.EPCENTERY;
+        //         // AppData.Instance.selectedMovement.SetNewRomValues(scaleZmin, scaleZMax, scaleYmin,scaleYmax,epminX,epmaxX,epminY,epmaxY);
+
+        //         break;
+        //     case AROM_RAW_ASSESS_STATES.TEST:
+        //         //Test Targets inside the Range Of Motion
+        //         //Assign the Cornor points of the quad
+        //         top = new Vector2(meanZpre, maxypres);
+        //         bottom = new Vector2(meanZpre, minypres);
+        //         left = new Vector2(minxpres, meanYpre);
+        //         right = new Vector2(maxxpres, meanYpre);
+
+        //         //genrate vector
+        //         x1 = bottom - left;
+        //         y1 = top - left;
+        //         x2 = bottom - right;
+        //         y2 = top - right;
+
+        //         break;
+        //     case AROM_RAW_ASSESS_STATES.DONE:
+        //         SceneManager.LoadScene(preScene);
+        //         break;
+
+        // }
         //Debug.Log(aromRawAssessState);
     }
    
     void scaleupStateMachine()
     {
-        // scale value 0.5 cm on both side
-        float stepX = 0.5f / ((MarsDefs.EPMAXZ - MarsDefs.EPMINZ) * 100f / DrawParams.SCALEX);
-        float stepY = 0.5f / ((MarsDefs.EPMAXY - MarsDefs.EPMINY) * 100f / DrawParams.SCALEY);
+        // // scale value 0.5 cm on both side
+        // float stepX = 0.5f / ((MarsDefs.EPMAXZ - MarsDefs.EPMINZ) * 100f / DrawParams.SCALEX);
+        // float stepY = 0.5f / ((MarsDefs.EPMAXY - MarsDefs.EPMINY) * 100f / DrawParams.SCALEY);
 
-        switch (aromAdjustState)
-        {
-            case AROM_ADJUST_STATES.TOP:
+        // switch (aromAdjustState)
+        // {
+        //     case AROM_ADJUST_STATES.TOP:
 
-                topCircle.transform.position = new Vector3(meanZpre, maxypres, 0);
-                if (Input.GetKeyDown(KeyCode.UpArrow))
-                {
-                    // Grow outward (+0.5 cm each side)
-                    maxypres = Mathf.Min(maxypres + stepY);
-                }
+        //         topCircle.transform.position = new Vector3(meanZpre, maxypres, 0);
+        //         if (Input.GetKeyDown(KeyCode.UpArrow))
+        //         {
+        //             // Grow outward (+0.5 cm each side)
+        //             maxypres = Mathf.Min(maxypres + stepY);
+        //         }
 
-                if (Input.GetKeyDown(KeyCode.DownArrow))
-                {
-                    // Shrink inward (-0.5 cm each side)
-                    maxypres = Mathf.Max(maxypres - stepY);
-                }
-                top = new Vector2(meanZpre, maxxpres);
+        //         if (Input.GetKeyDown(KeyCode.DownArrow))
+        //         {
+        //             // Shrink inward (-0.5 cm each side)
+        //             maxypres = Mathf.Max(maxypres - stepY);
+        //         }
+        //         top = new Vector2(meanZpre, maxxpres);
 
-                break;
-            case AROM_ADJUST_STATES.BOTTOM:
+        //         break;
+        //     case AROM_ADJUST_STATES.BOTTOM:
 
-                bottomCircle.transform.position = new Vector3(meanZpre, minypres, 0);
-                if (Input.GetKeyDown(KeyCode.UpArrow))
-                {
-                    // Shrink inward (-0.5 cm each side)
-                    minypres = Mathf.Min(minypres + stepY);
+        //         bottomCircle.transform.position = new Vector3(meanZpre, minypres, 0);
+        //         if (Input.GetKeyDown(KeyCode.UpArrow))
+        //         {
+        //             // Shrink inward (-0.5 cm each side)
+        //             minypres = Mathf.Min(minypres + stepY);
 
-                }
+        //         }
 
-                if (Input.GetKeyDown(KeyCode.DownArrow))
-                {
-                    // Grow outward (+0.5 cm each side)
-                    minypres = Mathf.Max(minypres - stepY);
+        //         if (Input.GetKeyDown(KeyCode.DownArrow))
+        //         {
+        //             // Grow outward (+0.5 cm each side)
+        //             minypres = Mathf.Max(minypres - stepY);
 
-                }
-                bottom = new Vector2(meanZpre, minypres);
-                break;
-            case AROM_ADJUST_STATES.LEFT:
-                leftCircle.transform.position = new Vector3(minxpres, meanYpre, 0);
-                if (Input.GetKeyDown(KeyCode.RightArrow))
-                {
-                    // Grow outward (+0.5 cm each side)
-                    minxpres = Mathf.Min(minxpres + stepX);
+        //         }
+        //         bottom = new Vector2(meanZpre, minypres);
+        //         break;
+        //     case AROM_ADJUST_STATES.LEFT:
+        //         leftCircle.transform.position = new Vector3(minxpres, meanYpre, 0);
+        //         if (Input.GetKeyDown(KeyCode.RightArrow))
+        //         {
+        //             // Grow outward (+0.5 cm each side)
+        //             minxpres = Mathf.Min(minxpres + stepX);
 
-                }
+        //         }
 
-                if (Input.GetKeyDown(KeyCode.LeftArrow))
-                {
-                    // Shrink inward (-0.5 cm each side)
-                    minxpres = Mathf.Max(minxpres - stepX);
-                }
-                left = new Vector2(minxpres, meanYpre);
-                break;
-            case AROM_ADJUST_STATES.RIGHT:
-                rightCircle.transform.position = new Vector3(maxxpres, meanYpre, 0);
-                if (Input.GetKeyDown(KeyCode.RightArrow))
-                {
-                    //Shrink (+0.5 cm each side)  
-                    maxxpres = Mathf.Max(maxxpres + stepX); // don’t cross min
+        //         if (Input.GetKeyDown(KeyCode.LeftArrow))
+        //         {
+        //             // Shrink inward (-0.5 cm each side)
+        //             minxpres = Mathf.Max(minxpres - stepX);
+        //         }
+        //         left = new Vector2(minxpres, meanYpre);
+        //         break;
+        //     case AROM_ADJUST_STATES.RIGHT:
+        //         rightCircle.transform.position = new Vector3(maxxpres, meanYpre, 0);
+        //         if (Input.GetKeyDown(KeyCode.RightArrow))
+        //         {
+        //             //Shrink (+0.5 cm each side)  
+        //             maxxpres = Mathf.Max(maxxpres + stepX); // don’t cross min
 
-                }
+        //         }
 
-                if (Input.GetKeyDown(KeyCode.LeftArrow))
-                {
-                    //Grow (-0.5 cm each side)
-                    maxxpres = Mathf.Min(maxxpres - stepX);
+        //         if (Input.GetKeyDown(KeyCode.LeftArrow))
+        //         {
+        //             //Grow (-0.5 cm each side)
+        //             maxxpres = Mathf.Min(maxxpres - stepX);
 
-                }
-                right = new Vector2(maxxpres, meanYpre);
+        //         }
+        //         right = new Vector2(maxxpres, meanYpre);
 
-                break;
-        }
+        //         break;
+        // }
 
     }
 
     void getRandomTargt()
     {
-        Vector2 t;
-        Vector2 target;
+        // Vector2 t;
+        // Vector2 target;
       
-        //rx+ry<=1
-        float rx = UnityEngine.Random.Range(0, 1f);
-        float ry = UnityEngine.Random.Range(0, (1f - rx));
+        // //rx+ry<=1
+        // float rx = UnityEngine.Random.Range(0, 1f);
+        // float ry = UnityEngine.Random.Range(0, (1f - rx));
 
-        //find left or right
-        int random = UnityEngine.Random.value < 0.5f ? -1 : 1;
+        // //find left or right
+        // int random = UnityEngine.Random.value < 0.5f ? -1 : 1;
      
-        if (random == 1)
-        {
+        // if (random == 1)
+        // {
            
-            t = (rx * x1) + (ry * y1);
-            target = t + left;
+        //     t = (rx * x1) + (ry * y1);
+        //     target = t + left;
             
-        }
-        else
-        {
-            t = (rx * x2) +( ry * y2);
-            target = t + right;
-        }
+        // }
+        // else
+        // {
+        //     t = (rx * x2) +( ry * y2);
+        //     target = t + right;
+        // }
 
-        GameObject circle6 = Instantiate(circlePrefab, target, Quaternion.identity);
+        // GameObject circle6 = Instantiate(circlePrefab, target, Quaternion.identity);
         //testCircle = circle6;
-        if (testCircle != null)
-            Destroy(testCircle);
-        testCircle = circle6;
+        // if (testCircle != null)
+        //     Destroy(testCircle);
+        // testCircle = circle6;
 
     }
     void UpdateOutline(float minX, float maxX, float minY, float maxY, LineRenderer lr, Color color)
@@ -468,48 +438,60 @@ public class AssessROMML : MonoBehaviour
         lr.loop = false;
         lr.useWorldSpace = true;
     }
-    public void OnMarsButtonReleased()
+    
+    public void onMarsNewData()
     {
-
-        switch (aromRawAssessState)
-        {
-            case AROM_RAW_ASSESS_STATES.ASSESSROM:
-                //get unity UI points
-                minxpre = minX;
-                minypre = minY;
-                maxxpre = maxX;
-                maxypre = maxY;
-                meanYpre = (minypre + maxypre) / 2;
-                meanZpre = (minxpre + maxxpre) / 2;
-
-                //clear the unity values to remote line after the get orignial ROM
-                unityPoints.Clear();
-                endPoints.Clear();
-                DrawTrajectory.unityPoints.Clear();
-                DrawTrajectory.actualPoints.Clear();
-                aromRawAssessState = AROM_RAW_ASSESS_STATES.INITIATECIRCLE;
-                break;
-            case AROM_RAW_ASSESS_STATES.WAITTOREACH:
-                // AppData.Instance.selectedMovement.SaveAssessmentData();
-                aromRawAssessState = AROM_RAW_ASSESS_STATES.DONE;
-                break;
-             //Test Targets inside the Quad
-            case AROM_RAW_ASSESS_STATES.TEST:
-                // AppData.Instance.selectedMovement.SaveAssessmentData();
-                aromRawAssessState = AROM_RAW_ASSESS_STATES.DONE;
-                break;
-
-        }
-
+        // This function is called whenever new data is received from the robot.
+        // You can process the data here if needed.
+        // For example, you might want to update the UI or log the data.
     }
+
+    // public void OnMarsButtonReleased()
+    // {
+    //     // React differently based on the current assessment state
+    //     // switch (aromRawAssessState)
+    //     // {
+    //     //     case AROM_RAW_ASSESS_STATES.INIT:
+    //     //         aromRawAssessState = AROM_RAW_ASSESS_STATES.ASSESSROM;
+    //     //         break;
+    //     //     case AROM_RAW_ASSESS_STATES.ASSESSROM:
+    //     //         //get unity UI points
+    //     //         // minxpre = minX;
+    //     //         // minypre = minY;
+    //     //         // maxxpre = maxX;
+    //     //         // maxypre = maxY;
+    //     //         // meanYpre = (minypre + maxypre) / 2;
+    //     //         // meanZpre = (minxpre + maxxpre) / 2;
+
+    //     //         //clear the unity values to remote line after the get orignial ROM
+    //     //         unityPoints.Clear();
+    //     //         endPoints.Clear();
+    //     //         // DrawTrajectory.unityPoints.Clear();
+    //     //         // DrawTrajectory.actualPoints.Clear();
+    //     //         // aromRawAssessState = AROM_RAW_ASSESS_STATES.INITIATECIRCLE;
+    //     //         break;
+    //     //     // case AROM_RAW_ASSESS_STATES.WAITTOREACH:
+    //     //     //     // AppData.Instance.selectedMovement.SaveAssessmentData();
+    //     //     //     aromRawAssessState = AROM_RAW_ASSESS_STATES.DONE;
+    //     //     //     break;
+    //     //     //Test Targets inside the Quad
+    //     //     // case AROM_RAW_ASSESS_STATES.TEST:
+    //     //     //     // AppData.Instance.selectedMovement.SaveAssessmentData();
+    //     //     //     aromRawAssessState = AROM_RAW_ASSESS_STATES.DONE;
+    //     //     //     break;
+
+    //     // }
+
+    // }
     //Assigned to REDO Button
-    public void onclick_recalibrate()
-    {
-        SceneManager.LoadScene("ASSESSROM");
+    // public void onclick_recalibrate()
+    // {
+    //     SceneManager.LoadScene("ASSESSROM");
 
-    }
-    public void OnDestroy()
+    // }
+    protected override void OnDestroy()
     {
-        MarsComm.OnMarsButtonReleased -= OnMarsButtonReleased;
+        base.OnDestroy();
+        // MarsComm.OnMarsButtonReleased -= OnMarsButtonReleased;
     }
 }
