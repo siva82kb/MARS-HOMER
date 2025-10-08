@@ -174,8 +174,22 @@ MonoBehaviour:
   circlePrefab: {fileID: 8497918920587488907, guid: 82edad4ed0279be44ae335628fdb8b53, type: 3}
   currentCircle: {fileID: 0}
   moveTxt: {fileID: 430293686}
+  top: {x: 0, y: 0}
+  bottom: {x: 0, y: 0}
+  left: {x: 0, y: 0}
+  right: {x: 0, y: 0}
+  x1: {x: 0, y: 0}
+  x2: {x: 0, y: 0}
+  y1: {x: 0, y: 0}
+  y2: {x: 0, y: 0}
   SCALEUPState: 0
   currState: 0
+  minxpres: 0
+  minypres: 0
+  maxxpres: 0
+  maxypres: 0
+  meanZpre: 0
+  meanYpre: 0
 --- !u!120 &61262645
 LineRenderer:
   serializedVersion: 2
@@ -1068,7 +1082,7 @@ Camera:
     height: 1
   near clip plane: 0.01
   far clip plane: 1000
-  field of view: 53.773647
+  field of view: 54
   orthographic: 0
   orthographic size: 5
   m_Depth: 10
@@ -1307,6 +1321,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31db7802397398940896d2e9ed251d9e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  assessForce: {fileID: 0}
 --- !u!120 &1369876832
 LineRenderer:
   serializedVersion: 2

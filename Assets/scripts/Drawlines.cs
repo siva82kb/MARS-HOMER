@@ -9,6 +9,7 @@ public class Drawlines : MonoBehaviour
     public static List<Vector3> unityDrawValues;
     public static List<Vector3> endPntPos;
 
+    public AssessForce assessForce;
     public readonly string robotCalibScene = "ROBOTCALIB";
     //public static Drawlines Instance;
 
@@ -21,6 +22,7 @@ public class Drawlines : MonoBehaviour
         endPntPos = new List<Vector3>();
         lr = GetComponent<LineRenderer>();
         lr.SetWidth(0.05f, 0.05f);
+       assessForce = GetComponent<AssessForce>();
 
     }
 
@@ -36,34 +38,36 @@ public class Drawlines : MonoBehaviour
         Vector3 sceneCenter = Vector3.zero;  // adjust if needed
       
 
-        unityValX = AssessROM.instance.OFFSET * ((zEndPoint - AssessROM.instance.centerValX) / (AssessROM.endPointMaxZ - AssessROM.endPointMinZ)) * AssessROM.SCALEX;
-        unityValY = ((yEndPoint - AssessROM.instance.centerValY) / (AssessROM.endPointMaxY - AssessROM.endPointMinY)) * AssessROM.SCALEY;
+        unityValX = AssessROM1.instance.OFFSET*((zEndPoint - AssessROM1.instance.centerValX) / (AssessROM1.endPointMaxZ - AssessROM1.endPointMinZ)) * AssessROM1.SCALEX;
+        unityValY = ((yEndPoint - AssessROM1.instance.centerValY) / (AssessROM1.endPointMaxY - AssessROM1.endPointMinY)) * AssessROM1.SCALEY;
         Vector3 toDrawValues = new Vector3((float)unityValX, (float)unityValY, 0.0f) + sceneCenter;
         Vector3 endPointValues = new Vector3((float)zEndPoint, (float)yEndPoint, 0.0f);
 
         unityDrawValues.Add(toDrawValues);
         endPntPos.Add(endPointValues);
-        
-        switch (AssessROM.instance.currState)
+        Debug.Log(endPointPosition);
+        switch (AssessROM1.instance.currState)
         {
-            case AssessROM.ASSESSSTATE.ASSESSROM:
-            case AssessROM.ASSESSSTATE.INTIIATECIRCLE:
+            case AssessROM1.ASSESSSTATE.ASSESSROM:
+            case AssessROM1.ASSESSSTATE.INTIIATECIRCLE:
                 lr.positionCount = unityDrawValues.Count;
                 lr.SetPositions(unityDrawValues.ToArray());
                 lr.useWorldSpace = true;
                 break;
 
-            case AssessROM.ASSESSSTATE.WAITTOREACH:
-            case AssessROM.ASSESSSTATE.TEST:
+            case AssessROM1.ASSESSSTATE.WAITTOREACH:
+            case AssessROM1.ASSESSSTATE.TEST:
                
-                if (AssessROM.instance.currentCircle != null)
+                
+                if (AssessROM1.instance.currentCircle != null)
                 {
-                    AssessROM.instance.currentCircle.transform.position = toDrawValues;
+                    AssessROM1.instance.currentCircle.transform.position = toDrawValues;
                  
                 }
                 break;
         }
-      
+       
+
     }
 
 

@@ -2,10 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
-using static MoleContollerN;
+using static MoleControllerN;
 using static UnityEngine.RuleTile.TilingRuleOutput;
 
-public class MoleContollerN : MonoBehaviour
+public class MoleControllerN : MonoBehaviour
 {
     Animator anim;
     public GameObject floatingTextPrefab;

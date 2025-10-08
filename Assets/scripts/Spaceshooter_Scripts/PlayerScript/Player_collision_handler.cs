@@ -10,7 +10,7 @@ public class Player_collision_handler : MonoBehaviour
 
     public AudioClip ExplosionSound;
     private AudioSource audioSource;
-    private PlayerScore ps;
+   
     public float blinkDuration = 2f; // Duration for blinking effect
     public float blinkInterval = 0.1f; // Time between blinks
     private bool isBlinking = false;
@@ -22,10 +22,9 @@ public class Player_collision_handler : MonoBehaviour
     {
         audioSource = GetComponent<AudioSource>();
         animator = GetComponent<Animator>();
-        ps=FindObjectOfType<PlayerScore>();
+       
         playerRenderer = GetComponent<Renderer>();
-        
-        
+
     }
 
     void OnTriggerEnter2D(Collider2D other)
@@ -34,24 +33,15 @@ public class Player_collision_handler : MonoBehaviour
         //if ((other.CompareTag("Asteroid") && !isDestroyed) || (other.CompareTag("Enemy") && !isDestroyed) || (other.CompareTag("EnemyLaser") && !isDestroyed))
         if ((other.CompareTag("Asteroid") && !isDestroyed))//check if any asteroid or enemy hit the player 
         {
-          
-            StartCoroutine(Blink());
-            ps.DeductScore();
+
+            //StartCoroutine(Blink());
+
             spaceShooterGameContoller.Instance.nFailure++;
             spaceShooterGameContoller.Instance.setisFailure();
                        
             Destroy(other.gameObject); //  destroy  the asteroid
 
 
-            // Trigger the explosion animation,NEED TO IMPLEMENT TO LIFE COUNT PLAYER
-            //animator.SetTrigger("TriggerExplosion");
-            // if (audioSource != null && ExplosionSound != null)
-            // {
-            //     audioSource.PlayOneShot(ExplosionSound);
-            // }
-            // destroy the player GameObject after the animation 
-            // isDestroyed = true;
-            // gameManager.GameOver(); // Trigger game over
         }
 
     }

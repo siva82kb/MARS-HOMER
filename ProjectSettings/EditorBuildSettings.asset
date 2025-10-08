@@ -155,5 +155,14 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/MARSSETUP.unity
     guid: e43b0494aaa43444b9cefd98f1b34a44
+  - enabled: 1
+    path: Assets/Scenes/ASSESSFORCE.unity
+    guid: 9aaca62212a8e214c84fa5aa4ccd4afd
+  - enabled: 1
+    path: Assets/Scenes/ASSESSROM 1.unity
+    guid: eccc449c83fcb5843b33b541b32c6432
+  - enabled: 1
+    path: Assets/Scenes/FlyingSheep/FLYINGSHEEP.unity
+    guid: 08a4ffded4d8eff42b16b5ea32e76f76
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0

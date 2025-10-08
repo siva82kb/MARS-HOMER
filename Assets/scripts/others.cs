@@ -134,7 +134,7 @@ public class MarsUserData
         dTableConfig = DataManager.loadCSV(configFile);
         DataRow lastRow = dTableConfig.Rows[dTableConfig.Rows.Count - 1];
         hospNumber = lastRow.Field<string>(HOSPITALNUMBER);
-        rightArm = lastRow.Field<string>(TRAININGSIDE).ToLower() == "RIGHT";
+        rightArm = lastRow.Field<string>(TRAININGSIDE).ToUpper() == "RIGHT";
         startDate = DateTime.ParseExact(lastRow.Field<string>(STARTEDATEH), "dd-MM-yyyy", CultureInfo.InvariantCulture);
         moveTimePrsc = createMoveTimeDictionary();
         for (int i = 0; i < MarsDefs.Movements.Length; i++)
@@ -214,7 +214,7 @@ public class MarsMovement
 {
     public string name { get; private set; }
     public string side { get; private set; }
-  
+
     public ROM oldRom { get; private set; }
     public ROM newRom { get; private set; }
     public ROM currRom { get => newRom.isaromRomSet ? newRom : (oldRom.isaromRomSet ? oldRom : null); }
@@ -242,7 +242,7 @@ public class MarsMovement
     }
 
     public float[] CurrentArom => currRom == null ? null : new float[] { currRom.aromMinX, currRom.aromMaxX, currRom.aromMinY, currRom.aromMaxY };
-  
+
 
     public void ResetRomValues()
     {
@@ -250,18 +250,18 @@ public class MarsMovement
         aromCompleted = false;
     }
 
-  
+
 
     public void SetNewRomValues(float minx, float maxx, float miny, float maxy, float origMinx, float origMaxx, float origMiny, float origMaxy)
     {
-        newRom.setRom(minx, maxx, miny, maxy,origMinx,origMaxx,origMiny,origMaxy);
+        newRom.setRom(minx, maxx, miny, maxy, origMinx, origMaxx, origMiny, origMaxy);
         if (minx != 0 || maxx != 0 || miny != 0 || maxy != 0) aromCompleted = true;
 
         if (newRom.movement == null)
         {
             newRom.SetMovement(this.name);
         }
-       
+
     }
     public void SaveAssessmentData()
     {
@@ -269,7 +269,7 @@ public class MarsMovement
         {
             // Save the new ROM values.
             newRom.WriteToAssessmentFile();
-          
+
         }
     }
 
@@ -313,7 +313,7 @@ public class MarsMovement
 
 public class ROM
 {
-    public static string[] FILEHEADER = new string[] { "DateTime", "MinX", "MaxX", "MinY", "MaxY","OriginalMinX", "OriginalMaxX", "OriginalMinY", "OriginalMaxY" };
+    public static string[] FILEHEADER = new string[] { "DateTime", "MinX", "MaxX", "MinY", "MaxY", "OriginalMinX", "OriginalMaxX", "OriginalMinY", "OriginalMaxY" };
     // Class attributes to store data read from the file
     public string datetime;
     public float aromMinX { get; private set; }
@@ -335,7 +335,7 @@ public class ROM
     // Constructor that reads the file and initializes values based on the mechanism
     public ROM(string movementName, bool readFromFile = true)
     {
-        
+
         if (readFromFile) ReadFromFile(movementName);
         else
         {
@@ -360,7 +360,7 @@ public class ROM
     }
 
     public void SetMovement(string mov) => movement = (movement == null) ? mov : movement;
-   
+
     public void setRom(float Minx, float Maxx, float Miny, float Maxy, float origMinx, float origMaxx, float origMiny, float origMaxy)
     {
         aromMinX = Minx;

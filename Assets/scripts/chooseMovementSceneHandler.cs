@@ -26,13 +26,13 @@ public class MovementSceneHandler : MonoBehaviour
     public readonly string marsSetupScene = "MARSSETUP";
     public readonly string robotCalibScene = "ROBOTCALIB";
     private string exitScene = "SUMMARY";
-    private string assessmentScene = "ASSESSROM";
+    private string assessmentScene = "ASSESSROM 1";
     private string chooseTPscene = "CHOOSEPLANE";
     private string marsSetUp = "MARSSETUP";
 
 
     //Game names
-    public static string[] selectGame = { "space_shooter_home", "pong_game", "Whack_WelcomeScene" };
+    public static string[] selectGame = { "space_shooter_home", "pong_game", "FLYINGSHEEP" };
     void Start()
     {
         MarsComm.sendHeartbeat();

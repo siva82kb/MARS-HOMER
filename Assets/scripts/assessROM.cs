@@ -48,6 +48,7 @@ public class AssessROM : MonoBehaviour
     public readonly string preScene = "CHOOSEMOVE";
     public readonly string robotCalibScene = "ROBOTCALIB";
     private string marsSetUp = "MARSSETUP";
+    private string assessForce = "ASSESSFORCE";
 
     public Vector2 top;
     public Vector2 bottom;
@@ -79,14 +80,15 @@ public class AssessROM : MonoBehaviour
     //Dynamic
     float minX , maxX , minY , maxY ;
     //ROM
-    float minxpre, minypre,maxxpre,maxypre,meanZpre,meanYpre;
+    float minxpre, minypre, maxxpre, maxypre;
     //BOUND
     float minxBound, minyBound, maxxBound,maxyBound;
-
-    float minxpres;
-    float minypres;
-    float maxxpres;
-    float maxypres ;
+    //scaleValue
+    public float minxpres;
+    public float minypres;
+    public float maxxpres;
+    public float maxypres ;
+    public float meanZpre, meanYpre;
     void Awake()
     {
         instance = this;
@@ -304,6 +306,7 @@ public class AssessROM : MonoBehaviour
                 float scaleZMax = (maxxpres / (OFFSET * SCALEX)) * (endPointMaxZ - endPointMinZ) + centerValX;
                 float scaleYmin= (minypres / SCALEY) * (endPointMaxY - endPointMinY) + centerValY;
                 float scaleYmax = (maxypres / SCALEY) * (endPointMaxY - endPointMinY) + centerValY;
+                //scaleupRule.text = $"{scaleZmin}\n, {scaleZMax}\n, {scaleYmin}\n,{scaleYmax}\n";
                 AppData.Instance.selectedMovement.SetNewRomValues(scaleZmin, scaleZMax, scaleYmin,scaleYmax,epminX,epmaxX,epminY,epmaxY);
                
                 break;
@@ -320,10 +323,10 @@ public class AssessROM : MonoBehaviour
                 y1 = top - left;
                 x2 = bottom - right;
                 y2 = top - right;
-                
+
                 break;
             case ASSESSSTATE.DONE:
-                SceneManager.LoadScene(preScene);
+                SceneManager.LoadScene(assessForce);
                 break;
 
         }
@@ -456,7 +459,7 @@ public class AssessROM : MonoBehaviour
         };
         createFrame(lr, corners, color);
     }
-    void DrawQuad(float minX, float maxX, float minY, float maxY, float meanz, float meany,LineRenderer lr, Color color)
+    public void DrawQuad(float minX, float maxX, float minY, float maxY, float meanz, float meany,LineRenderer lr, Color color)
     {
 
         Vector3[] corners = new Vector3[5]

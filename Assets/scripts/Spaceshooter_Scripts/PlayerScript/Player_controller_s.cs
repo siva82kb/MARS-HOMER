@@ -1,14 +1,10 @@
 
-using System.Collections;
-using System.Collections.Generic;
-using System.Data;
 using UnityEngine;
-using UnityEngine.Rendering;
-using static AppData;
 
 public class Player_controller_s : MonoBehaviour
 {
     public static Player_controller_s instance;
+
     // Start is called before the first frame update
     Camera mainCamera;
     private Vector2 screenBounds;
@@ -26,7 +22,7 @@ public class Player_controller_s : MonoBehaviour
 
     public static float xMin, yMin, xMax, yMax;
 
-    public float ShootInterval = 1.5f;
+    public float ShootInterval = 1f;
     private float timeSinceLastShot = 0f;  // Timer to track intervals between shots
   
     float  yEndPoint, zEndPoing;
@@ -131,7 +127,7 @@ public class Player_controller_s : MonoBehaviour
         {
             audioSource.PlayOneShot(laserSound);
         }
-        Destroy(Laser, 1.0f);
+        Destroy(Laser, 1.5f);
     }
  
     public void DestroyPlayer()
