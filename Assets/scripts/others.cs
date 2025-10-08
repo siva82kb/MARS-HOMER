@@ -315,7 +315,7 @@ public class MarsArom
     public static string[] FILEHEADER = new string[] { "DateTime", "AssessNo", "TrainingPlaneAngle",
         "TopRawX", "TopRawY", "BottomRawX", "BottomRawY", "LeftRawX", "LeftRawY", "RightRawX", "RightRawY",
         "TopAdjustedX", "TopAdjustedY", "BottomAdjustedX", "BottomAdjustedY", "LeftAdjustedX", "LeftAdjustedY", "RightAdjustedX", "RightAdjustedY",
-        "filename" };
+        "RawDataFileName" };
 
     // Class attributes to store data read from the file
     public string datetime;
@@ -375,9 +375,7 @@ public class MarsArom
         leftAdjusted = Vector2.zero;
         rightAdjusted = Vector2.zero;
         trainingPlaneAngle = 0f;
-
     }
-
 
     public void setMovement(string movName) => movement = (movement == null) ? movName : movement;
 
@@ -451,15 +449,9 @@ public class MarsArom
         }
         // First write the raw data file.
         string _rawfilename = DataManager.GetRomRawFileName(movement, datetime);
-        
-
         // Write the assessment data to the file.
         using (StreamWriter file = new StreamWriter(fileName, true))
         {
-            // "DateTime", "AssessNo", "TrainingPlaneAngle",
-            // "TopRawX", "TopRawY", "BottomRawX", "BottomRawY", "LeftRawX", "LeftRawY", "RightRawX", "RightRawY",
-            // "TopAdjustedX", "TopAdjustedY", "BottomAdjustedX", "BottomAdjustedY", "LeftAdjustedX", "LeftAdjustedY", "RightAdjustedX", "RightAdjustedY",
-            // "filename"
             // Write the actual data
             file.WriteLine(string.Join(",", new string[] {
                 datetime, assessno.ToString(), trainingPlaneAngle.ToString("F2"),
@@ -467,7 +459,7 @@ public class MarsArom
                 leftRaw.x.ToString(), leftRaw.y.ToString(), rightRaw.x.ToString(), rightRaw.y.ToString(),
                 topAdjusted.x.ToString(), topAdjusted.y.ToString(), bottomAdjusted.x.ToString(), bottomAdjusted.y.ToString(),
                 leftAdjusted.x.ToString(), leftAdjusted.y.ToString(), rightAdjusted.x.ToString(), rightAdjusted.y.ToString(),
-                fileName
+                _rawfilename
             }));
         }
     }

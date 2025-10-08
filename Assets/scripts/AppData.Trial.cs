@@ -4,6 +4,7 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
+using UnityEngine;
 
 /*
  * HOMER MARS Application Data Class.
@@ -157,30 +158,43 @@ public partial class AppData
         {
             if (rawDataString == null)
             {
-                UnityEngine.Debug.LogWarning("rawDataString is null, skipping logging.");
+                Debug.LogWarning("rawDataString is null, skipping logging.");
                 return;
             }
+            Vector3 _playerPos = GetGamePlayerPosition();
+            Vector3 _targetPos = GetGamePlayerPosition();
             rawDataString.Append($"{MarsComm.runTime},");
             rawDataString.Append($"{MarsComm.packetNumber},");
             rawDataString.Append($"{MarsComm.status},");
-            rawDataString.Append($"{MarsComm.errorString},");
+            rawDataString.Append($"{MarsComm.controlType},");
+            rawDataString.Append($"{MarsComm.errorStatus},");
             rawDataString.Append($"{MarsComm.limb},");
             rawDataString.Append($"{MarsComm.calibration},");
-            rawDataString.Append($"{MarsComm.target},");
-            rawDataString.Append($"{MarsComm.desired},");
-            rawDataString.Append($"{MarsComm.control},");
             rawDataString.Append($"{MarsComm.angle1},");
             rawDataString.Append($"{MarsComm.angle2},");
             rawDataString.Append($"{MarsComm.angle3},");
+            rawDataString.Append($"{MarsComm.angle4},");
             rawDataString.Append($"{MarsComm.imuAngle1},");
             rawDataString.Append($"{MarsComm.imuAngle2},");
             rawDataString.Append($"{MarsComm.imuAngle3},");
             rawDataString.Append($"{MarsComm.imuAngle4},");
             rawDataString.Append($"{MarsComm.force},");
-            rawDataString.Append($"{MarsComm.epPosInThePlane.y}");
-            rawDataString.Append($"{MarsComm.epPosInThePlane.z}");
-            rawDataString.Append($"{GetGamePlayerPosition()},");
-            rawDataString.Append($"{GetGameTargetPosition()},");
+            rawDataString.Append($"{MarsComm.target},");
+            rawDataString.Append($"{MarsComm.desired},");
+            rawDataString.Append($"{MarsComm.control},");
+            rawDataString.Append($"{MarsComm.buttonState},");
+            rawDataString.Append($"{MarsComm.epPos.x},");
+            rawDataString.Append($"{MarsComm.epPos.y},");
+            rawDataString.Append($"{MarsComm.epPos.z},");
+            rawDataString.Append($"{MarsComm.epPosInThePlane.y},");
+            rawDataString.Append($"{MarsComm.epPosInThePlane.z},");
+            rawDataString.Append($"{MarsComm.errP},");
+            rawDataString.Append($"{MarsComm.errD},");
+            rawDataString.Append($"{MarsComm.errI},");
+            rawDataString.Append($"{_playerPos.x},");
+            rawDataString.Append($"{_playerPos.y},");
+            rawDataString.Append($"{_targetPos.x},");
+            rawDataString.Append($"{_targetPos.y},");
             rawDataString.Append($"{GetGameState()}");
             rawDataString.Append("\n");
         }
@@ -211,6 +225,7 @@ public partial class AppData
     {
         // Set the file name.
         trialAromDataFile = DataManager.GetRomRawFileName(movement, datetime);
+        Debug.Log(trialAromDataFile);
 
         // Initialize the string builders.
         rawDataString = new StringBuilder();
@@ -226,10 +241,13 @@ public partial class AppData
 
     public void StopRawDataAromDataLogging()
     {
-        AppLogger.LogInfo($"Writing to: {trialAromDataFile}");
+        AppLogger.LogInfo($"Writing AROM raw data to {trialAromDataFile}");
         string _dir = Path.GetDirectoryName(trialAromDataFile);
+
+        // Create directory if it doesn't exist.
         if (!Directory.Exists(_dir)) Directory.CreateDirectory(_dir);
 
+        // Write the raw data to file.
         lock (rawDataLock)  // locking
         {
             using (StreamWriter sw = new StreamWriter(trialAromDataFile, false, Encoding.UTF8))
@@ -239,32 +257,30 @@ public partial class AppData
             rawDataString.Clear();
             rawDataString = null;
         }
-        AppLogger.LogInfo($"File exists before write? {File.Exists(trialAromDataFile)}");
-
         MarsComm.OnNewMarsData -= OnNewMarsDataDataLogging;
         trialAromDataFile = null;
     }
 
     //CHECK FOR MARS
-    private string GetGamePlayerPosition()
+    private Vector3 GetGamePlayerPosition()
     {
         // Get the game target X position.
         if (selectedGame == "space_shooter_home")
         {
-            return $"{spaceShooterGameContoller.Instance.playerPosition.x:F3},{spaceShooterGameContoller.Instance.playerPosition.y:F3}";
+            return spaceShooterGameContoller.Instance.playerPosition;
         }
         else if (selectedGame == "pong_game")
         {
-            return $"{pongGameController.Instance.playerPosition.x:F3},{pongGameController.Instance.playerPosition.y:F3}";
+            return pongGameController.Instance.playerPosition;
         }
 
         else if (selectedGame == "Whack_WelcomeScene")
         {
 
-            return $"{WAMGameController.Instance.playerPosition.x:F3},{WAMGameController.Instance.playerPosition.y:F3}";
+            return WAMGameController.Instance.playerPosition;
 
         }
-        return ",";
+        return Vector3.zero;
     }
 
     private string GetGameTargetPosition()

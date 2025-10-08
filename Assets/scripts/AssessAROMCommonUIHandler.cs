@@ -23,6 +23,8 @@ public class CommonUI : MonoBehaviour
     public LineRenderer adjustedAromLine2Renderer;
     public LineRenderer adjustedAromLine1RendererOld;
     public LineRenderer adjustedAromLine2RendererOld;
+    public GameObject aromAreaBox;
+    public GameObject aromAreaBoxOld;
     public Text instructionText;
     public Text marsEPPosText;
     public Text xRangeValueText;
@@ -31,8 +33,8 @@ public class CommonUI : MonoBehaviour
     public GameObject circlePrefab;
     public static readonly Color LIGHT_GRAY = new Color(0.83f, 0.83f, 0.83f);
     public static readonly Color LIGHTER_GRAY = new Color(0.93f, 0.93f, 0.93f);
-    public static readonly Color LIGHT_RED = new Color(1f, 0.5f, 0.5f);
-    public static readonly Color LIGHTER_RED = new Color(1f, 0.75f, 0.75f);
+    public static readonly Color DARK_RED = new Color(0.8f, 0f, 0f);
+    public static readonly Color DARKER_RED = new Color(0.6f, 0.75f, 0.75f);
     public static readonly Color LIGHT_GREEN = new Color(0.5f, 1f, 0.5f);
     public static readonly Color LIGHTER_GREEN = new Color(0.75f, 1f, 0.75f);
     public static readonly Color LIGHT_BLUE = new Color(0.5f, 0.5f, 1f);
@@ -67,30 +69,30 @@ public class CommonUI : MonoBehaviour
         // AROM Box
         rawAromBoxLineRenderer.startWidth = 0.05f;
         rawAromBoxLineRenderer.endWidth = 0.05f;
-        rawAromBoxLineRenderer.startColor = LIGHTER_RED;
-        rawAromBoxLineRenderer.endColor = LIGHTER_RED;
+        rawAromBoxLineRenderer.startColor = DARKER_RED;
+        rawAromBoxLineRenderer.endColor = DARKER_RED;
         adjustedAromBoxLineRenderer.startWidth = 0.1f;
         adjustedAromBoxLineRenderer.endWidth = 0.1f;
-        adjustedAromBoxLineRenderer.startColor = LIGHT_RED;
-        adjustedAromBoxLineRenderer.endColor = LIGHT_RED;
+        adjustedAromBoxLineRenderer.startColor = DARK_RED;
+        adjustedAromBoxLineRenderer.endColor = DARK_RED;
 
         // AROM Lines
         rawAromLine1Renderer.startWidth = 0.05f;
         rawAromLine1Renderer.endWidth = 0.05f;
-        rawAromLine1Renderer.startColor = LIGHTER_RED;
-        rawAromLine1Renderer.endColor = LIGHTER_RED;
+        rawAromLine1Renderer.startColor = DARKER_RED;
+        rawAromLine1Renderer.endColor = DARKER_RED;
         adjustedAromLine1Renderer.startWidth = 0.1f;
         adjustedAromLine1Renderer.endWidth = 0.1f;
-        adjustedAromLine1Renderer.startColor = LIGHT_RED;
-        adjustedAromLine1Renderer.endColor = LIGHT_RED;
+        adjustedAromLine1Renderer.startColor = DARK_RED;
+        adjustedAromLine1Renderer.endColor = DARK_RED;
         rawAromLine2Renderer.startWidth = 0.05f;
         rawAromLine2Renderer.endWidth = 0.05f;
-        rawAromLine2Renderer.startColor = LIGHTER_RED;
-        rawAromLine2Renderer.endColor = LIGHTER_RED;
+        rawAromLine2Renderer.startColor = DARKER_RED;
+        rawAromLine2Renderer.endColor = DARKER_RED;
         adjustedAromLine2Renderer.startWidth = 0.1f;
         adjustedAromLine2Renderer.endWidth = 0.1f;
-        adjustedAromLine2Renderer.startColor = LIGHT_RED;
-        adjustedAromLine2Renderer.endColor = LIGHT_RED;
+        adjustedAromLine2Renderer.startColor = DARK_RED;
+        adjustedAromLine2Renderer.endColor = DARK_RED;
 
         // AROM Box (Old)
         rawAromBoxLineRendererOld.startWidth = 0.01f;

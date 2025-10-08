@@ -8,6 +8,7 @@ using System;
 using UnityEditor;
 using System.IO;
 using Unity.Burst.Intrinsics;
+using System.Collections;
 
 public abstract class MarsAssessAROM : MonoBehaviour
 {
@@ -48,6 +49,9 @@ public abstract class MarsAssessAROM : MonoBehaviour
     protected MarsArom oldMarsArom = null;
     protected MarsArom newMarsArom = null;
 
+    // Other private variables
+    private float elapsedTime = 0f;
+
     // Other private constants
     private const float leftRightY = 2.5f;
 
@@ -84,19 +88,19 @@ public abstract class MarsAssessAROM : MonoBehaviour
         unityPoints = null;
         endPoints = null;
 
-        // Attach callbacks.
-        MarsComm.OnMarsButtonReleased += OnMarsButtonReleased;
+        // Attach Mars events after a delay.
+        StartCoroutine(AttachCallbacksAfterDelay(1f));
     }
 
     protected virtual void Update()
     {
         MarsComm.sendHeartbeat();
         // Make sure name is not null.
-        if (movement == null)
-        {
-            Debug.LogError("Movement in MarsAssessAROM is null, cannot proceed.");
-            return;
-        }
+            if (movement == null)
+            {
+                Debug.LogError("Movement in MarsAssessAROM is null, cannot proceed.");
+                return;
+            }
 
         // Update the UI elements
         updateUI();
@@ -169,14 +173,12 @@ public abstract class MarsAssessAROM : MonoBehaviour
             {
                 // Show the parallel vertical lines
                 float leftX = OFFSET * SCALEX * ((oldMarsArom.leftRaw.x - MarsDefs.EPCENTERZ) / (MarsDefs.EPMAXZ - MarsDefs.EPMINZ));
-                float leftY = -1f;
                 float rightX = OFFSET * SCALEX * ((oldMarsArom.rightRaw.x - MarsDefs.EPCENTERZ) / (MarsDefs.EPMAXZ - MarsDefs.EPMINZ));
-                float rightY = 1f;
                 commonUI.rawAromLine1RendererOld.positionCount = 2;
                 commonUI.rawAromLine1RendererOld.SetPositions(new Vector3[]
                 {
-                    new Vector3(leftX, leftY, 0),
-                    new Vector3(leftX, rightY, 0)
+                    new Vector3(leftX, leftRightY, 0),
+                    new Vector3(leftX, -leftRightY, 0)
                 });
             }
         }
@@ -280,6 +282,15 @@ public abstract class MarsAssessAROM : MonoBehaviour
                     new Vector3(rightX, leftRightY, 0),
                     new Vector3(rightX, -leftRightY, 0)
                 });
+                // Fill the area between the adjusted lines with a semi-transparent box.
+                Vector3 boxCenter = new Vector3((leftX + rightX) / 2, 0, 0);
+                Vector3 boxSize = new Vector3(Mathf.Abs(rightX - leftX), leftRightY * 2, 0.1f);
+                commonUI.aromAreaBox.transform.position = boxCenter;
+                commonUI.aromAreaBox.transform.localScale = boxSize;
+                commonUI.aromAreaBox.SetActive(true);
+                // Transparent red color
+                Color boxColor = new Color(1f, 0f, 0f, 0.3f);
+                commonUI.aromAreaBox.GetComponent<Renderer>().material.color = boxColor;
                 break;
             case "AP":
                 break;
@@ -381,6 +392,12 @@ public abstract class MarsAssessAROM : MonoBehaviour
             newMarsArom.setAdjustedAromBottom(_newx, newMarsArom.rightRaw.y);
         }
         return AROM_ADJUST_STATES.NONE;
+    }
+
+    private IEnumerator AttachCallbacksAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        MarsComm.OnMarsButtonReleased += OnMarsButtonReleased;
     }
     
     public void OnMarsButtonReleased()

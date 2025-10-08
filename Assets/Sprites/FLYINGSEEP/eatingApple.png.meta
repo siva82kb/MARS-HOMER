@@ -215,7 +215,11 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      eatingApple_0: 7339013195166654230
+      eatingApple_1: 2290973821946377180
+      eatingApple_2: -5811966440019745512
+      eatingApple_3: -7417287772701307362
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
