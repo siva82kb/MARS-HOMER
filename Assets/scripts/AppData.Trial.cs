@@ -19,7 +19,7 @@ public partial class AppData
     {
         trialStartTime = DateTime.Now;
         trialStopTime = null;
-        selectedMovement.NextTrail();
+        selectedMovement.NextTrial();
         
         // Set the trial data files.
         StartRawAndAanExecDataLogging();
@@ -51,8 +51,6 @@ public partial class AppData
 
     public void StopTrial(int nTargets, int nSuccess, int nFailure)
     {
-        
-
         trialStopTime = DateTime.Now;
         nTargets = (nTargets == 0) ? 1 : nTargets;
         successRate = 100 * nSuccess / nTargets;
@@ -125,7 +123,6 @@ public partial class AppData
         }
     }
 
-    // CHANGE FOR MARS
     public void StartRawAndAanExecDataLogging()
     {
         //// Set the file name.
@@ -161,7 +158,6 @@ public partial class AppData
             if (rawDataString == null)
             {
                 UnityEngine.Debug.LogWarning("rawDataString is null, skipping logging.");
-
                 return;
             }
             rawDataString.Append($"{MarsComm.runTime},");
@@ -208,7 +204,45 @@ public partial class AppData
             rawDataString = null;
         }
         AppLogger.LogInfo($"File exists before write? {File.Exists(trialRawDataFile)}");
+    }
 
+    // AROM assessment raw data logging function.
+    public void StartRawDataAromDataLogging(string movement, string datetime)
+    {
+        // Set the file name.
+        trialAromDataFile = DataManager.GetRomRawFileName(movement, datetime);
+
+        // Initialize the string builders.
+        rawDataString = new StringBuilder();
+        // Write pre-header and header information
+        rawDataString.AppendLine($":Device: MARS");
+        rawDataString.AppendLine($":Location: {userData.GetDeviceLocation()}");
+        rawDataString.AppendLine($":Movement: {selectedMovement.name}");
+        rawDataString.AppendLine(string.Join(",", DataManager.RAWFILEHEADER));
+
+        // Attach the event handler for data logging.
+        MarsComm.OnNewMarsData += OnNewMarsDataDataLogging;
+    }
+
+    public void StopRawDataAromDataLogging()
+    {
+        AppLogger.LogInfo($"Writing to: {trialAromDataFile}");
+        string _dir = Path.GetDirectoryName(trialAromDataFile);
+        if (!Directory.Exists(_dir)) Directory.CreateDirectory(_dir);
+
+        lock (rawDataLock)  // locking
+        {
+            using (StreamWriter sw = new StreamWriter(trialAromDataFile, false, Encoding.UTF8))
+            {
+                sw.Write(rawDataString.ToString());
+            }
+            rawDataString.Clear();
+            rawDataString = null;
+        }
+        AppLogger.LogInfo($"File exists before write? {File.Exists(trialAromDataFile)}");
+
+        MarsComm.OnNewMarsData -= OnNewMarsDataDataLogging;
+        trialAromDataFile = null;
     }
 
     //CHECK FOR MARS

@@ -37,6 +37,7 @@ public abstract class MarsAssessAROM : MonoBehaviour
     }
     protected AROM_ADJUST_STATES aromAdjustState = AROM_ADJUST_STATES.NONE;
     protected AROM_RAW_ASSESS_STATES aromRawAssessState = AROM_RAW_ASSESS_STATES.INIT;
+    protected bool newAdjustedValue = false;
 
     protected CommonUI commonUI;
     protected string movement = null;
@@ -46,6 +47,9 @@ public abstract class MarsAssessAROM : MonoBehaviour
 
     protected MarsArom oldMarsArom = null;
     protected MarsArom newMarsArom = null;
+
+    // Other private constants
+    private const float leftRightY = 2.5f;
 
     protected virtual void Awake()
     {
@@ -86,6 +90,7 @@ public abstract class MarsAssessAROM : MonoBehaviour
 
     protected virtual void Update()
     {
+        MarsComm.sendHeartbeat();
         // Make sure name is not null.
         if (movement == null)
         {
@@ -97,7 +102,10 @@ public abstract class MarsAssessAROM : MonoBehaviour
         updateUI();
 
         // Check if adjustment keys are pressed.
-        
+        aromAdjustState = getAromAdjustState(aromAdjustState);
+
+        // Mouse left keydown in the appropriate adjust state.
+        newAdjustedValue = aromAdjustState != AROM_ADJUST_STATES.NONE && Input.GetMouseButtonUp(0);
 
         // Run the raw assessment statemachine
         runAROMRawAssessStateMachine();
@@ -220,9 +228,13 @@ public abstract class MarsAssessAROM : MonoBehaviour
                 commonUI.instructionText.text = "Adjust AROM if needed. Press the REDO button to redo assessment.";
                 // Show the raw AROM box
                 showRawAromBoxLines();
+                // Update AROM box/lines depending on the adjustment state
+                adjustAromBoxLines();
                 break;
             case AROM_RAW_ASSESS_STATES.DONE:
                 // Completion logic
+                // Move to the next scene, which will be the game scene.
+
                 break;
             default:
                 Debug.LogError("Unknown state in AROM raw assessment state machine.");
@@ -254,6 +266,8 @@ public abstract class MarsAssessAROM : MonoBehaviour
                     new Vector3(rightX, -leftRightY, 0)
                 });
                 // Update the adjusted AROM line renderers
+                leftX = OFFSET * SCALEX * ((newMarsArom.leftAdjusted.x - MarsDefs.EPCENTERZ) / (MarsDefs.EPMAXZ - MarsDefs.EPMINZ));
+                rightX = OFFSET * SCALEX * ((newMarsArom.rightAdjusted.x - MarsDefs.EPCENTERZ) / (MarsDefs.EPMAXZ - MarsDefs.EPMINZ));
                 commonUI.adjustedAromLine1Renderer.positionCount = 2;
                 commonUI.adjustedAromLine1Renderer.SetPositions(new Vector3[]
                 {
@@ -273,6 +287,101 @@ public abstract class MarsAssessAROM : MonoBehaviour
                 break;
         }
     }
+
+    private void adjustAromBoxLines()
+    {
+        // What we show depends on the movement.
+        // Convert screen coordinates to world coordinates
+        Vector3 mouseScreenPos = Input.mousePosition;
+        mouseScreenPos.z = 10f;
+        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(mouseScreenPos);
+        switch (aromAdjustState)
+        {
+            case AROM_ADJUST_STATES.LEFT:
+                // Connect the left line to the position of the mouse in the scene.
+                commonUI.adjustedAromLine1Renderer.SetPositions(new Vector3[]
+                {
+                    new Vector3(mouseWorldPos.x, leftRightY, 0),
+                    new Vector3(mouseWorldPos.x, -leftRightY, 0)
+                });
+                if (movement == "ML")
+                {
+                    aromAdjustState = setNewAdjustedAromForML(mouseWorldPos, aromAdjustState);
+                }
+                newAdjustedValue = aromAdjustState == AROM_ADJUST_STATES.NONE ? false : newAdjustedValue;
+                break;
+            case AROM_ADJUST_STATES.RIGHT:
+                // Connect the right line to the position of the mouse in the scene.
+                commonUI.adjustedAromLine2Renderer.SetPositions(new Vector3[]
+                {
+                    new Vector3(mouseWorldPos.x, leftRightY, 0),
+                    new Vector3(mouseWorldPos.x, -leftRightY, 0)
+                });
+                if (movement == "ML")
+                {
+                    aromAdjustState = setNewAdjustedAromForML(mouseWorldPos, aromAdjustState);
+                }
+                newAdjustedValue = aromAdjustState == AROM_ADJUST_STATES.NONE ? false : newAdjustedValue;
+                break;
+            case AROM_ADJUST_STATES.TOP:
+                // newMarsArom.adjustTopAdjusted(0.01f);
+                break;
+            case AROM_ADJUST_STATES.BOTTOM:
+                // newMarsArom.adjustBottomAdjusted(-0.01f);
+                break;
+            case AROM_ADJUST_STATES.NONE:
+                // No adjustment
+                break;
+        }
+    }
+
+    private AROM_ADJUST_STATES getAromAdjustState(AROM_ADJUST_STATES currState)
+    {
+        // This returns a valid code only if in ADJUST state
+        if (aromRawAssessState != AROM_RAW_ASSESS_STATES.ADJUST) return AROM_ADJUST_STATES.NONE;
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            return (movement == "ML" || movement == "MLAP") ? AROM_ADJUST_STATES.LEFT : AROM_ADJUST_STATES.NONE;
+        }
+        else if (Input.GetKeyDown(KeyCode.R))
+        {
+            return (movement == "ML" || movement == "MLAP") ? AROM_ADJUST_STATES.RIGHT : AROM_ADJUST_STATES.NONE;
+        }
+        else if (Input.GetKeyDown(KeyCode.T))
+        {
+            return (movement == "AP" || movement == "MLAP") ? AROM_ADJUST_STATES.TOP : AROM_ADJUST_STATES.NONE;
+        }
+        else if (Input.GetKeyDown(KeyCode.B))
+        {
+            return (movement == "AP" || movement == "MLAP") ? AROM_ADJUST_STATES.BOTTOM : AROM_ADJUST_STATES.NONE;
+        }
+        return currState;
+    }
+
+    private AROM_ADJUST_STATES setNewAdjustedAromForML(Vector3 mouseWorldPos, AROM_ADJUST_STATES state)
+    {
+        float _newx = MarsDefs.EPCENTERZ + mouseWorldPos.x * (MarsDefs.EPMAXZ - MarsDefs.EPMINZ) / (OFFSET * SCALEX);
+        // Set the new adjusted value.
+        if (!newAdjustedValue) return state;
+
+        // Convert from world coordinates to robot coordinates.
+        if (state == AROM_ADJUST_STATES.LEFT)
+        {
+            newMarsArom.setAdjustedAromLeft(_newx, newMarsArom.leftRaw.y);
+            newMarsArom.setAdjustedAromTop(_newx, newMarsArom.leftRaw.y);
+        }
+        else if (state == AROM_ADJUST_STATES.RIGHT)
+        {
+            commonUI.adjustedAromLine2Renderer.SetPositions(new Vector3[]
+            {
+                new Vector3(mouseWorldPos.x, leftRightY, 0),
+                new Vector3(mouseWorldPos.x, -leftRightY, 0)
+            });
+            newMarsArom.setAdjustedAromRight(_newx, newMarsArom.rightRaw.y);
+            newMarsArom.setAdjustedAromBottom(_newx, newMarsArom.rightRaw.y);
+        }
+        return AROM_ADJUST_STATES.NONE;
+    }
     
     public void OnMarsButtonReleased()
     {
@@ -284,11 +393,24 @@ public abstract class MarsAssessAROM : MonoBehaviour
                 // Initialize lists
                 unityPoints = new List<Vector3>();
                 endPoints = new List<Vector3>();
+                // Start AROM assessment raw data logging.
+                AppData.Instance.StartRawDataAromDataLogging(newMarsArom.movement, newMarsArom.datetime);
                 break;
             case AROM_RAW_ASSESS_STATES.ASSESSROM:
                 aromRawAssessState = AROM_RAW_ASSESS_STATES.ADJUST;
                 // Assessment data collection done. Do the computations.
                 newMarsArom.stopAromAssessment();
+                break;
+            case AROM_RAW_ASSESS_STATES.ADJUST:
+                aromRawAssessState = AROM_RAW_ASSESS_STATES.DONE;
+                // Stop AROM assessment raw data logging.
+                AppData.Instance.StopRawDataAromDataLogging();
+                // Update AROM for the current movement.
+                AppData.Instance.selectedMovement.newArom = newMarsArom;
+                // Save the AROM to file.
+                AppData.Instance.selectedMovement.newArom.WriteToAssessmentFile();
+                // Reload movement data.
+                AppData.Instance.selectedMovement.ReloadMovementData();
                 break;
         }
 

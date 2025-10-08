@@ -31,6 +31,7 @@ public partial class AppData
     * Logging file names.
     */
     public string trialRawDataFile { get; private set; } = null;
+    public string trialAromDataFile { get; private set; } = null;
     static public string trialDataFileLocation;
     private StringBuilder rawDataString = null;
     private readonly object rawDataLock = new object();
