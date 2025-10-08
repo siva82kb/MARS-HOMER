@@ -85,7 +85,7 @@ public class GameController : MonoBehaviour
         }
         MarsComm.sendHeartbeat();
         initUI();
-        AppData.Instance.updateSessionDetials();
+        //AppData.Instance.updateSessionDetials();
         isGameStarted = false;
         gameSpeed = 5f;//default slow speed
         MarsComm.OnMarsButtonReleased += onMarsButtonReleased;

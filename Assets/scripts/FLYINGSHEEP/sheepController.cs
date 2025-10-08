@@ -41,11 +41,11 @@ public class sheepController : MonoBehaviour
         
         MarsComm.sendHeartbeat();
         //GET ROM DATA
-        currRom = AppData.Instance.selectedMovement.CurrentArom;
-        zMinendPnt = currRom[0];
-        zMaxendPnt = currRom[1];
-        yMinendPnt = currRom[2];
-        yMaxendPnt = currRom[3];
+        //currRom = AppData.Instance.selectedMovement.CurrentArom;
+        //zMinendPnt = currRom[0];
+        //zMaxendPnt = currRom[1];
+        //yMinendPnt = currRom[2];
+        //yMaxendPnt = currRom[3];
 
         OFFSET = AppData.Instance.userData.limb == 1 ? -1 : 1;
     }

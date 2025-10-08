@@ -56,26 +56,26 @@ public class AssessForce : MonoBehaviour
       
         MarsComm.OnMarsButtonReleased += OnMarsButtonReleased;
         float minx, maxx, miny, maxy, meanx, meany;
-        minx = AssessROM.instance.minxpres;
-        miny = AssessROM.instance.minypres;
-        maxy = AssessROM.instance.maxypres;
-        maxx = AssessROM.instance.maxxpres;
-        meanx = AssessROM.instance.meanZpre;
-        meany = AssessROM.instance.meanYpre;
-        AssessROM.instance.DrawQuad(minx, maxx, miny, maxy, meanx, meany, romQuad, new Color(137 / 255f, 175 / 255f, 253 / 255f));
+        //minx = AssessROM.instance.minxpres;
+        //miny = AssessROM.instance.minypres;
+        //maxy = AssessROM.instance.maxypres;
+        //maxx = AssessROM.instance.maxxpres;
+        //meanx = AssessROM.instance.meanZpre;
+        //meany = AssessROM.instance.meanYpre;
+        //AssessROM.instance.DrawQuad(minx, maxx, miny, maxy, meanx, meany, romQuad, new Color(137 / 255f, 175 / 255f, 253 / 255f));
         if (currentCircle == null)
         {
             GameObject circle = Instantiate(circlePrefab, circlePrefab.transform.position, Quaternion.identity);
-            GameObject circle1 = Instantiate(circlePrefab, new Vector3(meanx, miny, 0), Quaternion.identity);
-            GameObject circle2 = Instantiate(circlePrefab, new Vector3(maxx, meany, 0), Quaternion.identity);
-            GameObject circle3 = Instantiate(circlePrefab, new Vector3(meanx, maxy, 0), Quaternion.identity);
-            GameObject circle4 = Instantiate(circlePrefab, new Vector3(minx, meany, 0), Quaternion.identity);
+            //GameObject circle1 = Instantiate(circlePrefab, new Vector3(meanx, miny, 0), Quaternion.identity);
+            //GameObject circle2 = Instantiate(circlePrefab, new Vector3(maxx, meany, 0), Quaternion.identity);
+            //GameObject circle3 = Instantiate(circlePrefab, new Vector3(meanx, maxy, 0), Quaternion.identity);
+            //GameObject circle4 = Instantiate(circlePrefab, new Vector3(minx, meany, 0), Quaternion.identity);
             currentCircle = circle;
             currentCircle.GetComponent<SpriteRenderer>().color = Color.green;
-            bottomCircle = circle1;
-            rightCircle = circle2;
-            topCircle = circle3;
-            leftCircle = circle4;
+            //bottomCircle = circle1;
+            //rightCircle = circle2;
+            //topCircle = circle3;
+            //leftCircle = circle4;
         }
     }
 

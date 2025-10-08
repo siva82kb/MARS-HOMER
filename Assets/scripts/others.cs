@@ -10,7 +10,16 @@ using System.Text;
 
 public static class MarsDefs
 {
-    public static readonly string[] Movements = new string[] { "ML", "AP", "ML-AP" };
+    // Values to Draw the line [ROBOT endPoints (Meters)]
+    public static readonly float EPMAXZ = 0.490f;
+    public static readonly float EPMINZ = 0.010f;
+    public static readonly float EPMAXY = 0.765f;
+    public static readonly float EPMINY = 0.145f;
+    // Centre position
+    public static readonly float EPCENTERZ = (EPMAXZ + EPMINZ) / 2;
+    public static readonly float EPCENTERY = (EPMAXY + EPMINY) / 2;
+    
+    public static readonly string[] Movements = new string[] { "ML", "AP", "MLAP" };
    
     public static int getMovementIndex(string Movement)
     {
@@ -100,6 +109,7 @@ public class MarsUserData
         if (!File.Exists(DataManager.trainingPlaneFile)) DataManager.CreateTrainingPlaneFile(this.userID, "MARS", GetDeviceLocation());
         readParseTrainingPlaneData(DataManager.trainingPlaneFile);
     }
+
     public void parsemoveTimePrev()
     {
         moveTimePrev = createMoveTimeDictionary();
@@ -141,7 +151,6 @@ public class MarsUserData
         {
             moveTimePrsc[MarsDefs.Movements[i]] = float.Parse(lastRow.Field<string>(MarsDefs.Movements[i]));
         }
-    
     }
 
     public void readParseSessionData(string sessionFile)
@@ -210,15 +219,16 @@ public class MarsUserData
     
 }
 
+// Class representing movements trained by MARS
 public class MarsMovement
 {
     public string name { get; private set; }
     public string side { get; private set; }
 
-    public ROM oldRom { get; private set; }
-    public ROM newRom { get; private set; }
-    public ROM currRom { get => newRom.isaromRomSet ? newRom : (oldRom.isaromRomSet ? oldRom : null); }
-    public bool aromCompleted { get; private set; }
+    public MarsArom oldArom { get; private set; } = null;
+    public MarsArom newArom { get; private set; } = null;
+    public MarsArom currentArom { get => newArom != null ? newArom : (oldArom != null ? oldArom : null); }
+
 
     // Trial details for the mechanism.
     public int trialNumberDay { get; private set; }
@@ -228,9 +238,14 @@ public class MarsMovement
     {
         this.name = name?.ToUpper() ?? string.Empty;
         this.side = side;
-        oldRom = new ROM(this.name);
-        newRom = new ROM();
-        aromCompleted = false;
+        // Check if AROM file exists.
+        if (MarsArom.AromFileExists(name)) oldArom = new MarsArom(this.name, readFromFile: true);
+        else
+        {
+            oldArom = null;
+            AppLogger.LogInfo($"No existing AROM file found for movement '{this.name}'. A new assessment is required.");
+        }
+        newArom = null;
         this.side = side;
         UpdateTrialNumbers(sessno);
     }
@@ -241,37 +256,32 @@ public class MarsMovement
         trialNumberSession += 1;
     }
 
-    public float[] CurrentArom => currRom == null ? null : new float[] { currRom.aromMinX, currRom.aromMaxX, currRom.aromMinY, currRom.aromMaxY };
+//<<<<<<< HEAD
+//    public float[] CurrentArom => currRom == null ? null : new float[] { currRom.aromMinX, currRom.aromMaxX, currRom.aromMinY, currRom.aromMaxY };
+
+//=======
+    // public void SetNewRomValues(float minx, float maxx, float miny, float maxy, float origMinx, float origMaxx, float origMiny, float origMaxy)
+    // {
+    //     newRom.setRom(minx, maxx, miny, maxy,origMinx,origMaxx,origMiny,origMaxy);
+    //     if (minx != 0 || maxx != 0 || miny != 0 || maxy != 0) aromCompleted = true;
+
+    //     if (newRom.movement == null)
+    //     {
+    //         newRom.SetMovement(this.name);
+    //     }
 
 
-    public void ResetRomValues()
-    {
-        newRom.setRom(0, 0, 0, 0, 0, 0, 0, 0);
-        aromCompleted = false;
-    }
+    // }
+    // public void SaveAssessmentData()
+    // {
+    //     if (aromCompleted)
+    //     {
+    //         // Save the new ROM values.
+    //         newRom.WriteToAssessmentFile();
 
+    //     }
+    // }
 
-
-    public void SetNewRomValues(float minx, float maxx, float miny, float maxy, float origMinx, float origMaxx, float origMiny, float origMaxy)
-    {
-        newRom.setRom(minx, maxx, miny, maxy, origMinx, origMaxx, origMiny, origMaxy);
-        if (minx != 0 || maxx != 0 || miny != 0 || maxy != 0) aromCompleted = true;
-
-        if (newRom.movement == null)
-        {
-            newRom.SetMovement(this.name);
-        }
-
-    }
-    public void SaveAssessmentData()
-    {
-        if (aromCompleted)
-        {
-            // Save the new ROM values.
-            newRom.WriteToAssessmentFile();
-
-        }
-    }
 
     /*
      * Function to update the trial numbers for the day and session for the movement for today.
@@ -306,117 +316,222 @@ public class MarsMovement
             return;
         }
         // Get the maximum trial number for the session.
-        UnityEngine.Debug.Log(selRows.Count());
         trialNumberSession = selRows.Max(row => Convert.ToInt32(row.Field<string>("TrialNumberSession")));
     }
 }
 
-public class ROM
+// MARS Active Range of Motion (AROM) class.
+public class MarsArom
 {
-    public static string[] FILEHEADER = new string[] { "DateTime", "MinX", "MaxX", "MinY", "MaxY", "OriginalMinX", "OriginalMaxX", "OriginalMinY", "OriginalMaxY" };
+
+    public static string[] FILEHEADER = new string[] { "DateTime", "AssessNo", "TrainingPlaneAngle",
+        "TopRawX", "TopRawY", "BottomRawX", "BottomRawY", "LeftRawX", "LeftRawY", "RightRawX", "RightRawY",
+        "TopAdjustedX", "TopAdjustedY", "BottomAdjustedX", "BottomAdjustedY", "LeftAdjustedX", "LeftAdjustedY", "RightAdjustedX", "RightAdjustedY",
+        "filename" };
+
     // Class attributes to store data read from the file
     public string datetime;
-    public float aromMinX { get; private set; }
-    public float aromMaxX { get; private set; }
-    public float aromMinY { get; private set; }
-    public float aromMaxY { get; private set; }
-    public float aromOriginalMinX { get; private set; }
-    public float aromOriginalMaxX { get; private set; }
-    public float aromOriginalMinY { get; private set; }
-    public float aromOriginalMaxY { get; private set; }
-    public string mode { get; private set; }
-    public bool isAromRomXSet { get => aromMinX != 0 || aromMaxX != 0; }
-    public bool isaromRomYSet { get => aromMinY != 0 || aromMaxY != 0; }
-
-    public bool isaromRomSet { get => isAromRomXSet && isaromRomYSet; }
-
+    public int assessno { get; private set; }
     public string movement { get; private set; }
+    public bool isReadOnly { get; private set; } = false;
+
+    // Plane in which the AROM assessment is done.
+    public float trainingPlaneAngle { get; private set; }
+
+    // Raw data recorded during the assessment of AROM.
+    private List<float[]> rawData;
+
+    // Locations of the raw AROM quadrilateral
+    public Vector2 topRaw { get; private set; }
+    public Vector2 bottomRaw { get; private set; }
+    public Vector2 leftRaw { get; private set; }
+    public Vector2 rightRaw { get; private set; }
+
+    // Locations of the adjusted AROM quadrilateral
+    public Vector2 topAdjusted { get; private set; }
+    public Vector2 bottomAdjusted { get; private set; }
+    public Vector2 leftAdjusted { get; private set; }
+    public Vector2 rightAdjusted { get; private set; }
+    public bool isAssessing => rawData != null;
+
+    public static bool AromFileExists(string movementName) => File.Exists(DataManager.GetRomFileName(movementName));
 
     // Constructor that reads the file and initializes values based on the mechanism
-    public ROM(string movementName, bool readFromFile = true)
+    public MarsArom(string movementName, bool readFromFile = true)
     {
 
-        if (readFromFile) ReadFromFile(movementName);
+        isReadOnly = false;
+        if (movementName == null) return;
+        if (readFromFile) isReadOnly = ReadFromFile(movementName);
+
         else
         {
             // Handle case when no matching movement is found
-            datetime = null;
-            movement = movementName;
-            aromMinX = 0;
-            aromMaxX = 0;
-            aromMinY = 0;
-            aromMaxY = 0;
+            initializeNewAssessment(movementName);
         }
     }
 
-    public ROM()
+    private void initializeNewAssessment(string movementName)
     {
-        aromMinX = 0;
-        aromMaxX = 0;
-        aromMinY = 0;
-        aromMaxY = 0;
-        movement = null;
-        datetime = null;
-    }
-
-    public void SetMovement(string mov) => movement = (movement == null) ? mov : movement;
-
-    public void setRom(float Minx, float Maxx, float Miny, float Maxy, float origMinx, float origMaxx, float origMiny, float origMaxy)
-    {
-        aromMinX = Minx;
-        aromMaxX = Maxx;
-        aromMinY = Miny;
-        aromMaxY = Maxy;
-        aromOriginalMinX = origMinx;
-        aromOriginalMaxX = origMaxx;
-        aromOriginalMinY = origMiny;
-        aromOriginalMaxY = origMaxy;
         datetime = DateTime.Now.ToString();
+        movement = movementName;
+        assessno = 1;
+        rawData = null;
+        topRaw = Vector2.zero;
+        bottomRaw = Vector2.zero;
+        leftRaw = Vector2.zero;
+        rightRaw = Vector2.zero;
+        topAdjusted = Vector2.zero;
+        bottomAdjusted = Vector2.zero;
+        leftAdjusted = Vector2.zero;
+        rightAdjusted = Vector2.zero;
+        trainingPlaneAngle = 0f;
     }
+
+
+    public void setMovement(string movName) => movement = (movement == null) ? movName : movement;
+
+    public void startAromAssessment()
+    {
+        if (rawData == null) rawData = new List<float[]>();
+    }
+
+    public void addAromDataPoint(float x, float y)
+    {
+        if (rawData != null)
+        {
+            rawData.Add(new float[] { x, y });
+        }
+    }
+
+    public void stopAromAssessment()
+    {
+        if (rawData != null && rawData.Count > 0)
+        {
+            // Calculate the four points of the quarilateral.
+            // Create two lists from the rawData, where one list ordered by 
+            // the x value and the other by y value.
+            List<float[]> orderedByX = rawData.OrderBy(point => point[0]).ToList();
+            List<float[]> orderedByY = rawData.OrderBy(point => point[1]).ToList();
+            // Now we can easily find the four corners of the quadrilateral.
+            // Top point is the average of the bottom 5% of the points.
+            topRaw = AverageofExtremeEnds(orderedByY, 0.05f, false);
+            // Bottom point is the average of the top 5% of the points.
+            bottomRaw = AverageofExtremeEnds(orderedByY, 0.05f, true);
+            // Left point is the average of the top 5% of the points.
+            leftRaw = AverageofExtremeEnds(orderedByX, 0.05f, true);
+            // Right point is the average of the bottom 5% of the points.
+            rightRaw = AverageofExtremeEnds(orderedByX, 0.05f, false);
+            // Adjusted points are same as raw points initially.
+            topAdjusted = new Vector2(topRaw.x, topRaw.y);
+            bottomAdjusted = new Vector2(bottomRaw.x, bottomRaw.y);
+            leftAdjusted = new Vector2(leftRaw.x, leftRaw.y);
+            rightAdjusted = new Vector2(rightRaw.x, rightRaw.y);
+        }
+        rawData = null;
+    }
+
+    public void setAdjustedAromTop(float x, float y) => topAdjusted = new Vector2(x, y);
+
+    public void setAdjustedAromBottom(float x, float y) => bottomAdjusted = new Vector2(x, y);
+
+    public void setAdjustedAromLeft(float x, float y) => leftAdjusted = new Vector2(x, y);
+
+    public void setAdjustedAromRight(float x, float y) => rightAdjusted = new Vector2(x, y);
+
     public void WriteToAssessmentFile()
     {
         string fileName = DataManager.GetRomFileName(movement);
-
         // Create the file if it doesn't exist
         if (!File.Exists(fileName))
         {
-            using (var writer = new StreamWriter(fileName, false, Encoding.UTF8))
+            using (var file = new StreamWriter(fileName, false, Encoding.UTF8))
             {
-                writer.WriteLine(string.Join(",", FILEHEADER));
+                // Write the pre-header to the file.
+                StringBuilder rawDataString = new StringBuilder();
+                // Write pre-header and header information
+                // rawDataString.AppendLine($":Device: MARS");
+                // rawDataString.AppendLine($":Location: {AppData.Instance.userData.GetDeviceLocation()}");
+                // rawDataString.AppendLine($":Movement: {movement}");
+                rawDataString.AppendLine(string.Join(",", FILEHEADER));
+                file.Write(rawDataString.ToString());
             }
         }
         using (StreamWriter file = new StreamWriter(fileName, true))
         {
-            file.WriteLine(string.Join(",", new string[] { datetime, aromMinX.ToString(), aromMaxX.ToString(), aromMinY.ToString(), aromMaxY.ToString(),
-                                                                     aromOriginalMinX.ToString(),aromOriginalMaxX.ToString(),aromOriginalMinY.ToString(),aromOriginalMaxY.ToString() }));
+            // "DateTime", "AssessNo", "TrainingPlaneAngle",
+            // "TopRawX", "TopRawY", "BottomRawX", "BottomRawY", "LeftRawX", "LeftRawY", "RightRawX", "RightRawY",
+            // "TopAdjustedX", "TopAdjustedY", "BottomAdjustedX", "BottomAdjustedY", "LeftAdjustedX", "LeftAdjustedY", "RightAdjustedX", "RightAdjustedY",
+            // "filename"
+            // Write the actual data
+            file.WriteLine(string.Join(",", new string[] {
+                datetime, assessno.ToString(), trainingPlaneAngle.ToString("F2"),
+                topRaw.x.ToString(), topRaw.y.ToString(), bottomRaw.x.ToString(), bottomRaw.y.ToString(),
+                leftRaw.x.ToString(), leftRaw.y.ToString(), rightRaw.x.ToString(), rightRaw.y.ToString(),
+                topAdjusted.x.ToString(), topAdjusted.y.ToString(), bottomAdjusted.x.ToString(), bottomAdjusted.y.ToString(),
+                leftAdjusted.x.ToString(), leftAdjusted.y.ToString(), rightAdjusted.x.ToString(), rightAdjusted.y.ToString(),
+                fileName
+            }));
         }
     }
-    private void ReadFromFile(string movementName)
+
+    private bool ReadFromFile(string movementName)
     {
         string fileName = DataManager.GetRomFileName(movementName);
         if (!File.Exists(fileName))
-            return;
+        {
+            AppLogger.LogWarning($"No AROM file found for movement '{movementName}'. Starting new assessment.");
+            return false;
+        }
+
+        // Load the data from the file
         DataTable romData = DataManager.loadCSV(fileName);
+
         // Check the number of rows.
         if (romData.Rows.Count == 0)
         {
-            // Set default values for the mechanism.
-            datetime = null;
-            movement = movementName;
-            aromMinX = 0;
-            aromMaxX = 0;
-            aromMinY = 0;
-            aromMaxY = 0;
-            return;
+            initializeNewAssessment(movementName);
+            return false;
         }
         // Assign ROM from the last row.
         datetime = romData.Rows[romData.Rows.Count - 1].Field<string>("DateTime");
         movement = movementName;
-        aromMinX = float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("MinX"));
-        aromMaxX = float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("MaxX"));
-        aromMinY = float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("MinY"));
-        aromMaxY = float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("MaxY"));
-
+        assessno = int.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("assessno"));
+        // Assign the raw locations
+        topRaw = new Vector2(float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("TopRawX")),
+                             float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("TopRawY")));
+        bottomRaw = new Vector2(float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("BottomRawX")),
+                                float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("BottomRawY")));
+        leftRaw = new Vector2(float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("LeftRawX")),
+                              float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("LeftRawY")));
+        rightRaw = new Vector2(float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("RightRawX")),
+                               float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("RightRawY")));
+        // Assign the adjusted locations
+        topAdjusted = new Vector2(float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("TopAdjustedX")),
+                                  float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("TopAdjustedY")));
+        bottomAdjusted = new Vector2(float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("BottomAdjustedX")),
+                                     float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("BottomAdjustedY")));
+        leftAdjusted = new Vector2(float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("LeftAdjustedX")),
+                                   float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("LeftAdjustedY")));
+        rightAdjusted = new Vector2(float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("RightAdjustedX")),
+                                    float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("RightAdjustedY")));
+        trainingPlaneAngle = float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("TrainingPlaneAngle"));
+        return true;
+    }
+    
+    private Vector2 AverageofExtremeEnds(List<float[]> orderList, float percentage = 0.1f, bool fromStart = true)
+    {
+        int count = (int)(orderList.Count * percentage);
+        float avgX = 0f;
+        float avgY = 0f;
+        for (int i = 0; i < count; i++)
+        {
+            avgX += fromStart ? orderList[i][0] : orderList[orderList.Count - 1 - i][0];
+            avgY += fromStart ? orderList[i][1] : orderList[orderList.Count - 1 - i][1];
+        }
+        avgX /= count;
+        avgY /= count;
+        return new Vector2(avgX, avgY);
     }
 }
 

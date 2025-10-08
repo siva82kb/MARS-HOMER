@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -10,6 +11,7 @@ public class SetUpMars : MonoBehaviour
 {
     //ui related variables
     public Text instructionTxt;
+    public TMP_Text statusTxt;
     public GameObject marsActivationGIF;
     public GameObject AttachArmGIF;
    
@@ -25,6 +27,7 @@ public class SetUpMars : MonoBehaviour
         DONE,
     }
     public SETUPMARS currentState = SETUPMARS.IDLE;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -47,7 +50,6 @@ public class SetUpMars : MonoBehaviour
         {
             SceneManager.LoadScene(robotCalibScene);
         }
-     
     }
 
     // Update is called once per frame
@@ -60,25 +62,22 @@ public class SetUpMars : MonoBehaviour
     public void runStateMachine()
     {
         if (currentState == SETUPMARS.DONE) return;
-
+        statusTxt.text = $"{MarsComm.angle1:F2} deg | {MarsComm.force:F2} N";
         switch (currentState)
         {
             case SETUPMARS.IDLE:
-
                 instructionTxt.text = "Press Mars Button To Activate Mars";
                 if (MarsComm.CONTROLTYPE[MarsComm.controlType] != "POSITION")
                     MarsComm.setControlType("POSITION");
-
                 break;
             case SETUPMARS.ACTIVATE:
-
                 instructionTxt.text = "Mars getting Ready...";
                 if (MarsComm.CONTROLTYPE[MarsComm.controlType] == "POSITION")
                 {
                     if (MarsComm.target == -90)
                     {
                         // Check if the target has been reached.
-                        if (Mathf.Abs(MarsComm.angle1 - MarsComm.target) < 10)
+                        if (Mathf.Abs(MarsComm.angle1 - MarsComm.target) < MarsComm.ARM_WEIGHT_THRESHOLD)
                         {
                             currentState = SETUPMARS.ATTACHARM;
                         }
@@ -87,12 +86,10 @@ public class SetUpMars : MonoBehaviour
                     {
                         MarsComm.setControlTarget(-90);
                     }
-
                 }
                 break;
-
             case SETUPMARS.ATTACHARM:
-                if (MarsComm.force > 10)
+                if (MarsComm.force > MarsComm.ARM_WEIGHT_THRESHOLD)
                 {
                     instructionTxt.text = "Press Mars Button To Set TrainigPlane Angle";
                 }
@@ -101,7 +98,6 @@ public class SetUpMars : MonoBehaviour
                     instructionTxt.text = "Please Attach your Limb with Mars";
                 }
                 break;
-
             case SETUPMARS.SETTRAININGPLANEANGLE:
                 instructionTxt.text = "Setting TrainingPlaneAngle";
                 if (MarsComm.target != AppData.Instance.userData.trainingPlaneAngle)
@@ -114,20 +110,21 @@ public class SetUpMars : MonoBehaviour
                         AppLogger.LogInfo($"Setting Mars Position @ TrainingAngle : {MarsComm.angle1}");
                         currentState = SETUPMARS.DONE;
                         instructionTxt.text = "";
-                        AppLogger.LogInfo($"switching  Scene to {nextScene}");
+                        AppLogger.LogInfo($"Switching  Scene to {nextScene}");
                         SceneManager.LoadScene(nextScene);
-                        //message.text = "Please Select the Movement !!..";
                     }
                 }
                 break;
         }
     }
+    
     public void updateGUI()
     {
         instructionTxt.gameObject.SetActive(currentState != SETUPMARS.DONE);
         marsActivationGIF.SetActive(currentState == SETUPMARS.IDLE || currentState == SETUPMARS.ACTIVATE);
         AttachArmGIF.SetActive(currentState == SETUPMARS.ATTACHARM && MarsComm.force < 10);
     }
+
     public void OnMarsButtonReleased()
     {
         switch (currentState)
@@ -136,7 +133,6 @@ public class SetUpMars : MonoBehaviour
                 AppLogger.LogInfo("Setting Mars Position @ -90");
                 currentState = SETUPMARS.ACTIVATE;
                 break;
-
             case SETUPMARS.ATTACHARM:
                 if (MarsComm.force > 10)
                 {
@@ -148,10 +144,9 @@ public class SetUpMars : MonoBehaviour
                     AppLogger.LogInfo($"Set Mars Position @ TrainingAngle - {AppData.Instance.userData.trainingPlaneAngle}");
                 }
                 break;
-
-           
         }
     }
+
     private void OnDestroy()
     {
 

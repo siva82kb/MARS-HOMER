@@ -8,6 +8,7 @@ using System;
 using UnityEngine.Rendering.Universal;
 using static SetUpMars;
 using System.Web;
+using System.Runtime.CompilerServices;
 
 
 public class MovementSceneHandler : MonoBehaviour
@@ -26,13 +27,14 @@ public class MovementSceneHandler : MonoBehaviour
     public readonly string marsSetupScene = "MARSSETUP";
     public readonly string robotCalibScene = "ROBOTCALIB";
     private string exitScene = "SUMMARY";
-    private string assessmentScene = "ASSESSROM 1";
-    private string chooseTPscene = "CHOOSEPLANE";
+
+    private string assessmentSceneML = "AROMML";
+    private string assessmentSceneAP = "AROMAP";
+    private string assessmentSceneMLAP = "AROMMLAP";
+    private string trainingPlaneScene = "CHOOSEPLANE";
     private string marsSetUp = "MARSSETUP";
+    
 
-
-    //Game names
-    public static string[] selectGame = { "space_shooter_home", "pong_game", "FLYINGSHEEP" };
     void Start()
     {
         MarsComm.sendHeartbeat();
@@ -50,55 +52,58 @@ public class MovementSceneHandler : MonoBehaviour
         AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);
         AppLogger.LogInfo($"{SceneManager.GetActiveScene().name} scene started.");
 
-        // IF the robot is not calibrated go to the robot calib scene.
+        // If the robot is not calibrated go to the robot calib scene.
         if (MarsComm.CALIBRATION[MarsComm.calibration] == "NOCALIB")
         {
             SceneManager.LoadScene(robotCalibScene);
         }
+        // If the robot is not in position control go to the mars setup scene.
         if (MarsComm.CONTROLTYPE[MarsComm.controlType] != "POSITION")
             SceneManager.LoadScene(marsSetUp);
 
         // Attach the MARSComm callbacks.
         MarsComm.OnMarsButtonReleased += OnMarsButtonReleased;
-     
-        // Update Session Detials
-        AppData.Instance.updateSessionDetials();
 
+        // Update Session Details
+        AppData.Instance.updateSessionDetails();
+
+        // Initialize GUI
         UpdateMovementToggleButtons();
         StartCoroutine(DelayedAttachListeners());
 
         // Clear the message text.
-        message.text = "Please Select the Movement !!..";
+        message.text = "Please select the movement";
     }
 
     void Update()
     {
         MarsComm.sendHeartbeat();
-      
-
+        // Check if the magic key combination is pressed for AROM assessment 
+        // or training plane selection.
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.A))
         {
-            if (AppData.Instance.selectedMovement == null)
+            if (nextScene == "")
             {
-                message.text = "Please Select the Movement !!..";
-                return;
+                message.text = "Please select the movement";
+                changeScene = false;
             }
-            AppLogger.LogInfo($"Switching scene to '{assessmentScene}'.");
-            SceneManager.LoadScene(assessmentScene);
-
+            else
+            {
+                changeScene = true;
+            }
         }
-        if(Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.R))
+        else if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.R))
         {
-            AppLogger.LogInfo($"Switching scene to '{chooseTPscene}'.");
-            SceneManager.LoadScene(chooseTPscene);
+            // Switch to the training plane scene.
+            nextScene = trainingPlaneScene;
+            changeScene = true;
         }
         //Check if a scene change is needed.
-        if (changeScene == true)
+        if (changeScene == true && nextScene != "")
         {
             LoadNextScene();
             changeScene = false;
         }
-
     }
     public class idle
     {
@@ -122,8 +127,7 @@ public class MovementSceneHandler : MonoBehaviour
             timer = 500;
         }
     }
-   
- 
+
     private void UpdateMovementToggleButtons()
     {
         foreach (Transform child in movementSelectGroup.transform)
@@ -181,14 +185,27 @@ public class MovementSceneHandler : MonoBehaviour
             Toggle toggleComponent = child.GetComponent<Toggle>();
             if (toggleComponent != null && toggleComponent.isOn)
             {
+                // One of the toggle buttons is selected.
                 toggleSelected = true;
+                // Selected movement and game name.
                 AppData.Instance.SetMovement(child.name);
-                nextScene = selectGame[MarsDefs.getMovementIndex(AppData.Instance.selectedMovement.name)];
-                AppData.Instance.SetGame(nextScene);
-                if (AppData.Instance.selectedMovement.CurrentArom == null)nextScene = assessmentScene;
-                message.text = "Press Mars Button to move Next Scene";
-                Debug.Log(nextScene);
-                AppLogger.LogInfo($"Selected '{AppData.Instance.selectedMovement.name}'.");
+                AppData.Instance.SetGame(AppData.MARS_GAMES[MarsDefs.getMovementIndex(child.name)]);
+                // Check if assessment is done, else the next scene will be the corresponding assessment scene.
+                if (AppData.Instance.selectedMovement.currentArom == null)
+                {
+                    // Next is an assessment scene;
+                    nextScene = AppData.Instance.selectedMovement.name == "ML" ? assessmentSceneML :
+                                AppData.Instance.selectedMovement.name == "AP" ? assessmentSceneAP :
+                                AppData.Instance.selectedMovement.name == "MLAP" ? assessmentSceneMLAP : "";
+                    message.text = "Press Mars Button to start assessment";
+                }
+                else
+                {
+                    // Next is the game scene.
+                    nextScene = AppData.MARS_GAMES_SCENES[MarsDefs.getMovementIndex(child.name)];
+                    message.text = "Press Mars Button to start game";
+                }
+                AppLogger.LogInfo($"Selected movement ({AppData.Instance.selectedMovement.name}) and game ({AppData.Instance.selectedGame})");
                 break;
             }
         }
@@ -205,22 +222,17 @@ public class MovementSceneHandler : MonoBehaviour
         {
             Debug.LogWarning("Select at least one toggle to proceed.");
         }
-
     }
-
-
 
     void LoadNextScene()
     {
         AppLogger.LogInfo($"Switching scene to '{nextScene}'.");
         SceneManager.LoadScene(nextScene);
-
     }
-
+    
     IEnumerator LoadSummaryScene()
     {
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(exitScene);
-
         while (!asyncLoad.isDone)
         {
             yield return null;
@@ -235,10 +247,9 @@ public class MovementSceneHandler : MonoBehaviour
 
     private void OnDestroy()
     {
-      
-            MarsComm.OnMarsButtonReleased -= OnMarsButtonReleased;
-        
+        MarsComm.OnMarsButtonReleased -= OnMarsButtonReleased;
     }
+
     private void OnApplicationQuit()
     {
         MarsComm.OnMarsButtonReleased -= OnMarsButtonReleased;

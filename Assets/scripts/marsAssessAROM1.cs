@@ -1,4 +1,4 @@
-﻿
+
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -9,17 +9,16 @@ using UnityEditor;
 using System.IO;
 using JetBrains.Annotations;
 
-public class AssessROM1 : MonoBehaviour
+public class MarsAssessAROM1 : MonoBehaviour
 {
     float epmaxX, epmaxY, epminX, epminY;
     List<Vector3> endPoints;
     List<Vector3> unityPoints;
-    public static AssessROM1 instance;
-
-    public bool changeScene = false;
+    public static MarsAssessAROM1 instance;
+    private bool changeScene = false;
     public Text messageTxt;
-    public Text thersholdText;
-    public Text thersholdTextY;
+    public Text thresholdText;
+    public Text epPosText;
     public Text scaleupRule;
     private LineRenderer lineRenderer;
     public LineRenderer boxLR;
@@ -32,42 +31,35 @@ public class AssessROM1 : MonoBehaviour
     private GameObject rightCircle;
     private GameObject testCircle;
 
-    //Values to Draw the line [ROBOT endPoints (Meters)]
-    public const float endPointMaxZ = 0.490f;
-    public const float endPointMinZ = 0.010f;
-    public const float endPointMaxY = 0.765f;
-    public const float endPointMinY = 0.145f;
-    //UNITY HIGHT AND WIDTH
-    public const float SCALEX = 12f;
-    public const float SCALEY = 5.5f;
-    public float centerValX { get; private set; }
-    public float centerValY {  get; private set; }
-
-    public int OFFSET {  get; private set; }
     public Text moveTxt;
-    public readonly string preScene = "CHOOSEMOVE";
-    public readonly string robotCalibScene = "ROBOTCALIB";
-    private string marsSetUp = "MARSSETUP";
-    private string assessForce = "ASSESSFORCE";
 
-    public Vector2 top;
-    public Vector2 bottom;
-    public Vector2 left;
-    public Vector2 right;
+    // Scenes to change to.
+    private readonly string preScene = "CHOOSEMOVE";
+    private readonly string robotCalibScene = "ROBOTCALIB";
+    private string marsSetUp = "MARSSETUP";
+
+    // Points of the quadrilateral
+    private Vector2 top;
+    private Vector2 bottom;
+    private Vector2 left;
+    private Vector2 right;
     public Vector2 x1;
     public Vector2 x2;
     public Vector2 y1;
     public Vector2 y2;
-    public enum ASSESSSTATE
+
+    // AROM raw assessment states
+    public enum AROM_RAW_ASSESS_STATES
     {
+        INIT,
         ASSESSROM,
-        INTIIATECIRCLE,
+        INITIATECIRCLE,
         WAITTOREACH,
         TEST,
         DONE,
-       
     }
-    public enum SCALEUPSTATE
+    // AROM adjustment states 
+    public enum AROM_ADJUST_STATES
     {
         NONE,
         TOP,
@@ -75,76 +67,80 @@ public class AssessROM1 : MonoBehaviour
         LEFT,
         RIGHT,
     }
-    public SCALEUPSTATE SCALEUPState = SCALEUPSTATE.NONE;
-    public ASSESSSTATE currState = ASSESSSTATE.ASSESSROM;
-    //Dynamic
+    private AROM_ADJUST_STATES aromAdjustState = AROM_ADJUST_STATES.NONE;
+    private AROM_RAW_ASSESS_STATES aromRawAssessState = AROM_RAW_ASSESS_STATES.INIT;
+
+    // Dynamic
     float minX , maxX , minY , maxY ;
-    //ROM
-    float minxpre, minypre, maxxpre, maxypre;
-    //BOUND
+    // ROM
+    float minxpre, minypre,maxxpre,maxypre,meanZpre,meanYpre;
+    // BOUND
     float minxBound, minyBound, maxxBound,maxyBound;
-    //scaleValue
-    public float minxpres;
-    public float minypres;
-    public float maxxpres;
-    public float maxypres ;
-    public float meanZpre, meanYpre;
+
+    float minxpres;
+    float minypres;
+    float maxxpres;
+    float maxypres;
+
     void Awake()
     {
         instance = this;
         MarsComm.sendHeartbeat();
         lineRenderer = GetComponent<LineRenderer>();
     }
-    
+
     void Start()
     {
         // Initialize AppData if needed
         if (AppData.Instance.userData == null)
-            {
-                AppData.Instance.Initialize(SceneManager.GetActiveScene().name);
-            }
+        {
+            AppData.Instance.Initialize(SceneManager.GetActiveScene().name);
+        }
 
         // Check if the directory exists
         if (!Directory.Exists(DataManager.basePath)) Directory.CreateDirectory(DataManager.basePath);
         if (!File.Exists(DataManager.configFile)) SceneManager.LoadScene("CONFIG");
 
-        //logging about the scene
+        // Logging the scene
         AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);
         AppLogger.LogInfo($"{SceneManager.GetActiveScene().name} scene started.");
 
-        // IF the robot is not calibrated go to the robot calib scene.
-        if (MarsComm.CALIBRATION[MarsComm.calibration] == "NOCALIB")
-        {
-            SceneManager.LoadScene(robotCalibScene);
-        }
-        if (MarsComm.CONTROLTYPE[MarsComm.controlType] != "POSITION")
-            SceneManager.LoadScene(marsSetUp);
+        // If the robot is not calibrated go to the robot calib scene.
+        if (MarsComm.CALIBRATION[MarsComm.calibration] == "NOCALIB") SceneManager.LoadScene(robotCalibScene);
 
-        //AppData.Instance.selectedMovement.ResetRomValues();
+        // If the robot is not in position control go to the mars setup scene.
+        if (MarsComm.CONTROLTYPE[MarsComm.controlType] != "POSITION") SceneManager.LoadScene(marsSetUp);
+
+        // AppData.Instance.selectedMovement.ResetRomValues();
+        MarsComm.OnNewMarsData += onMarsNewData;
         MarsComm.OnMarsButtonReleased += OnMarsButtonReleased;
-        moveTxt.text = MarsComm.MOVETYPE[MarsDefs.getMovementIndex(AppData.Instance.selectedMovement.name)];
+        // moveTxt.text = MarsComm.MOVETYPE[MarsDefs.getMovementIndex(AppData.Instance.selectedMovement.name)];
 
-        //Dependent on Limb
-        OFFSET = AppData.Instance.userData.limb == 1 ? -1 : 1;
-        Debug.Log("offset" + OFFSET);
-        Debug.Log(AppData.Instance.userData.limb+"limb");
-        centerValX = (endPointMaxZ + endPointMinZ) / 2;
-        centerValY = (endPointMaxY + endPointMinY) / 2;
+        // Dependent on Limb
+        // OFFSET = AppData.Instance.userData.limb == 1 ? -1 : 1;
 
-        createWorkSpace();
-       
+        // Create workspace for display.
+        // createWorkSpace();
+
+        // Initialize draw trajectory
+        // DrawParams.Initialize(lineRenderer);
     }
     void Update()
     { 
         MarsComm.sendHeartbeat();
+        
+        // Run the assessment state machine
+        runStateMachine();
+
+        // Update the UI.
         updateUI();
         //Test Targets insdide the quad
         //if (Input.GetKeyDown(KeyCode.G))
         //{
-        //    if (currState == ASSESSSTATE.WAITTOREACH)
+        //    if (aromRawAssessState == AROM_RAW_ASSESS_STATES.WAITTOREACH)
         //    {
-        //        currState = ASSESSSTATE.TEST;
-        //        Debug.Log(currState);
+        //        aromRawAssessState = AROM_RAW_ASSESS_STATES.TEST;
+        //        Debug.Log(aromRawAssessState);
         //    }
         //}
         //if (Input.GetKeyDown(KeyCode.Y))
@@ -152,46 +148,45 @@ public class AssessROM1 : MonoBehaviour
            
         //    getRandomTargt();
         //}
-      
     }
     
-    public void createWorkSpace()
-    {
-        // Compute corners (centered)
-        Vector3 topLeft = new Vector3((float)((endPointMinZ - centerValX) / (endPointMaxZ - endPointMinZ)) * SCALEX,
-                                      (float)((endPointMaxY - centerValY) / (endPointMaxY - endPointMinY)) * SCALEY,
-                                      0);
-        Vector3 topRight = new Vector3((float)((endPointMaxZ - centerValX) / (endPointMaxZ - endPointMinZ)) * SCALEX,
-                                       (float)((endPointMaxY - centerValY) / (endPointMaxY - endPointMinY)) * SCALEY,
-                                       0);
-        Vector3 bottomRight = new Vector3((float)((endPointMaxZ - centerValX) / (endPointMaxZ - endPointMinZ)) * SCALEX,
-                                          (float)((endPointMinY - centerValY) / (endPointMaxY - endPointMinY)) * SCALEY,
-                                          0);
-        Vector3 bottomLeft = new Vector3((float)((endPointMinZ - centerValX) / (endPointMaxZ - endPointMinZ)) * SCALEX,
-                                         (float)((endPointMinY - centerValY) / (endPointMaxY - endPointMinY)) * SCALEY,
-                                         0);
+    // public void createWorkSpace()
+    // {
+    //     // Compute corners (centered)
+    //     Vector3 topLeft = new Vector3((float)((MarsDefs.EPMINZ - MarsDefs.EPCENTERZ)DrawTrajectory. / (MarsDefs.EPMAXZ - MarsDefs.EPMINZ)) * SCALEX,
+    //                                   (float)((endPointMaxY - MarsDefs.EPCENTERY) / (endPointMaxY - endPointMinY)) * SCALEY,
+    //                                   0);
+    //     Vector3 topRight = new Vector3((float)((MarsDefs.EPMAXZ - MarsDefs.EPCENTERZ)DrawTrajectory. / (MarsDefs.EPMAXZ - MarsDefs.EPMINZ)) * SCALEX,
+    //                                    (float)((endPointMaxY - MarsDefs.EPCENTERY) / (endPointMaxY - endPointMinY)) * SCALEY,
+    //                                    0);
+    //     Vector3 bottomRight = new Vector3((float)((MarsDefs.EPMAXZ - MarsDefs.EPCENTERZ) / (MarsDefs.EPMAXZ DrawTrajectory.- MarsDefs.EPMINZ)) * SCALEX,
+    //                                       (float)((endPointMinY - MarsDefs.EPCENTERY) / (endPointMaxY - endPointMinY)) * SCALEY,
+    //                                       0);
+    //     Vector3 bottomLeft = new Vector3((float)((MarsDefs.EPMINZ - MarsDefs.EPCENTERZ) / DrawTrajectory.(MarsDefs.EPMAXZ DrawTrajectory.- MarsDefs.EPMINZ)) * SCALEX,
+    //                                      (float)((endPointMinY - MarsDefs.EPCENTERY) / (endPointMaxY - endPointMinY)) * SCALEY,
+    //                                      0);
 
-        // Draw box — close loop by adding the first point at the end
-        Vector3[] corners = new Vector3[]
-        {
-        topLeft, topRight, bottomRight, bottomLeft, topLeft
-        };
-        minxBound = corners.Min(c => c.x);
-        maxxBound = corners.Max(c => c.x);
-        minyBound = corners.Min(c => c.y);
-        maxyBound = corners.Max(c => c.y);
-        createFrame(boxLR, corners, Color.red);
-    }
+    //     // Draw box — close loop by adding the first point at the end
+    //     Vector3[] corners = new Vector3[]
+    //     {
+    //     topLeft, topRight, bottomRight, bottomLeft, topLeft
+    //     };
+    //     minxBound = corners.Min(c => c.x);
+    //     maxxBound = corners.Max(c => c.x);
+    //     minyBound = corners.Min(c => c.y);
+    //     maxyBound = corners.Max(c => c.y);
+    //     createFrame(boxLR, corners, Color.red);
+    // }
 
 
     public void updateUI()
     {
-        //get latest points
-        unityPoints = Drawlines.unityDrawValues;
-        endPoints = Drawlines.endPntPos;
-       
+        // Get latest points
+        // unityPoints = DrawTrajectory.unityPoints;
+        // endPoints = DrawTrajectory.actualPoints;
+
         messageTxt.text = "Press Mars Button to Finish";
-        scaleupRule.gameObject.SetActive(currState == ASSESSSTATE.WAITTOREACH);
+        scaleupRule.gameObject.SetActive(aromRawAssessState == AROM_RAW_ASSESS_STATES.WAITTOREACH);
 
         //update min and max value of endpoints
         if ((unityPoints != null && unityPoints.Count > 0) && (endPoints != null && endPoints.Count > 0))
@@ -201,34 +196,32 @@ public class AssessROM1 : MonoBehaviour
             epminX = endPoints.Min(v => v.x);
             epmaxY = endPoints.Max(v => v.y);
             epminY = endPoints.Min(v => v.y);
-            runStateMachine();
-            thersholdTextY.text = $"{(Math.Abs(epmaxY - epminY) * 100).ToString("F0")}cm";
-            thersholdText.text = $"{(Math.Abs(epmaxX - epminX) * 100).ToString("F0")}cm";
+            thresholdText.text = $"{(Math.Abs(epmaxX - epminX) * 100).ToString("F0")}cm";
         }
         
         //scaleup each side seperately
         //TOP
         if (Input.GetKeyDown(KeyCode.T))
         {
-            SCALEUPState = SCALEUPSTATE.TOP;
+            aromAdjustState = AROM_ADJUST_STATES.TOP;
         }
         //LEFT
         if (Input.GetKeyDown(KeyCode.L))
         {
-            SCALEUPState = SCALEUPSTATE.LEFT;
+            aromAdjustState = AROM_ADJUST_STATES.LEFT;
         }
         //BOTTOM
         if (Input.GetKeyDown(KeyCode.B))
         {
-            SCALEUPState = SCALEUPSTATE.BOTTOM;
+            aromAdjustState = AROM_ADJUST_STATES.BOTTOM;
         }
         //RIGHT
         if (Input.GetKeyDown(KeyCode.R))
         {
-            SCALEUPState = SCALEUPSTATE.RIGHT;
+            aromAdjustState = AROM_ADJUST_STATES.RIGHT;
         }
        
-        if(currState == ASSESSSTATE.WAITTOREACH)
+        if(aromRawAssessState == AROM_RAW_ASSESS_STATES.WAITTOREACH)
         {
             topCircle.GetComponent<SpriteRenderer>().color = Color.grey;
             bottomCircle.GetComponent<SpriteRenderer>().color = Color.grey;
@@ -236,40 +229,45 @@ public class AssessROM1 : MonoBehaviour
             rightCircle.GetComponent<SpriteRenderer>().color = Color.grey;
         }
         
-        switch (SCALEUPState)
+        switch (aromAdjustState)
         {
-            case SCALEUPSTATE.TOP:
+            case AROM_ADJUST_STATES.TOP:
                 topCircle.GetComponent<SpriteRenderer>().color = Color.red;
               
                 break;
-            case SCALEUPSTATE.BOTTOM:
+            case AROM_ADJUST_STATES.BOTTOM:
                 bottomCircle.GetComponent<SpriteRenderer>().color = Color.red;
                 
                 break;
-            case SCALEUPSTATE.LEFT:
+            case AROM_ADJUST_STATES.LEFT:
                 leftCircle.GetComponent<SpriteRenderer>().color = Color.red;
                
                 break;
-            case SCALEUPSTATE.RIGHT:
+            case AROM_ADJUST_STATES.RIGHT:
                 rightCircle.GetComponent<SpriteRenderer>().color = Color.red;
                 break;
         }
       
     }
 
+    // Assessment statemachine
     public void runStateMachine()
     {
-        switch (currState)
+        switch (aromRawAssessState)
         {
-            case ASSESSSTATE.ASSESSROM:
-                 minX = unityPoints.Min(v => v.x);
-                 maxX = unityPoints.Max(v => v.x);
-                 minY = unityPoints.Min(v => v.y);
-                 maxY = unityPoints.Max(v => v.y);
-                UpdateOutline(minX, maxX, minY, maxY, lineRenderer, new Color(0f / 255f, 100f / 255f, 0f / 255f));
+            case AROM_RAW_ASSESS_STATES.INIT:
+                // Do nothing. Just wait for the button to be pressed0
+                messageTxt.text = "Press MARS button to start assessment.";
+                break;
+            case AROM_RAW_ASSESS_STATES.ASSESSROM:
+                minX = unityPoints.Min(v => v.x);
+                maxX = unityPoints.Max(v => v.x);
+                minY = unityPoints.Min(v => v.y);
+                maxY = unityPoints.Max(v => v.y);
+                UpdateOutline(minX, maxX, minY, maxY, lineRenderer, new Color(0f / 255f, 100f / 255f, 0f / 255f));// 
                 messageTxt.text = "Press Mars Button To Fix ROM";
                 break;
-            case ASSESSSTATE.INTIIATECIRCLE:
+            case AROM_RAW_ASSESS_STATES.INITIATECIRCLE:
                 if (currentCircle == null)
                 {
                     GameObject circle = Instantiate(circlePrefab, circlePrefab.transform.position, Quaternion.identity);
@@ -286,32 +284,31 @@ public class AssessROM1 : MonoBehaviour
                 }
                 if (currentCircle != null)
                 {
-                    currState = ASSESSSTATE.WAITTOREACH;
+                    aromRawAssessState = AROM_RAW_ASSESS_STATES.WAITTOREACH;
                 }
                 minxpres = minxpre;//scaleup value = previous value
                 minypres = minypre;
                 maxxpres = maxxpre;
                 maxypres = maxypre;
                 break;
-            case ASSESSSTATE.WAITTOREACH:
-             
+            case AROM_RAW_ASSESS_STATES.WAITTOREACH:
+
                 messageTxt.text = "Press Mars Button To Finish";
                 //To Modify the Range of Motion
                 scaleupStateMachine();
-                
+
                 //Draw quad for the Modifyed Range of Motion
-                DrawQuad(minxpres, maxxpres, minypres, maxypres, meanZpre,meanYpre,scaleUpBox, new Color(137/255f,175/255f,253/255f));
+                DrawQuad(minxpres, maxxpres, minypres, maxypres, meanZpre, meanYpre, scaleUpBox, new Color(137 / 255f, 175 / 255f, 253 / 255f));
 
                 //reverse unity value to RobotEnpoint values in meter
-                float scaleZmin = (minxpres / (OFFSET * SCALEX)) * (endPointMaxZ - endPointMinZ) + centerValX;
-                float scaleZMax = (maxxpres / (OFFSET * SCALEX)) * (endPointMaxZ - endPointMinZ) + centerValX;
-                float scaleYmin= (minypres / SCALEY) * (endPointMaxY - endPointMinY) + centerValY;
-                float scaleYmax = (maxypres / SCALEY) * (endPointMaxY - endPointMinY) + centerValY;
-                //scaleupRule.text = $"{scaleZmin}\n, {scaleZMax}\n, {scaleYmin}\n,{scaleYmax}\n";
-                //AppData.Instance.selectedMovement.SetNewRomValues(scaleZmin, scaleZMax, scaleYmin,scaleYmax,epminX,epmaxX,epminY,epmaxY);
-               
+                float scaleZmin = (MarsDefs.EPMAXZ - MarsDefs.EPMINZ) * minxpres / (DrawParams.OFFSET * DrawParams.SCALEX) + MarsDefs.EPCENTERZ;
+                float scaleZMax = (MarsDefs.EPMAXZ - MarsDefs.EPMINZ) * maxxpres / (DrawParams.OFFSET * DrawParams.SCALEX) + MarsDefs.EPCENTERZ;
+                float scaleYmin = (MarsDefs.EPMAXY - MarsDefs.EPMINY) * minypres / DrawParams.SCALEY + MarsDefs.EPCENTERY;
+                float scaleYmax = (MarsDefs.EPMAXY - MarsDefs.EPMINY) * maxypres / DrawParams.SCALEY + MarsDefs.EPCENTERY;
+                // AppData.Instance.selectedMovement.SetNewRomValues(scaleZmin, scaleZMax, scaleYmin,scaleYmax,epminX,epmaxX,epminY,epmaxY);
+
                 break;
-            case ASSESSSTATE.TEST:
+            case AROM_RAW_ASSESS_STATES.TEST:
                 //Test Targets inside the Range Of Motion
                 //Assign the Cornor points of the quad
                 top = new Vector2(meanZpre, maxypres);
@@ -326,25 +323,23 @@ public class AssessROM1 : MonoBehaviour
                 y2 = top - right;
 
                 break;
-            case ASSESSSTATE.DONE:
+            case AROM_RAW_ASSESS_STATES.DONE:
                 SceneManager.LoadScene(preScene);
                 break;
 
         }
-        //Debug.Log(currState);
+        //Debug.Log(aromRawAssessState);
     }
    
     void scaleupStateMachine()
     {
         // scale value 0.5 cm on both side
-        float stepX = 0.5f / ((endPointMaxZ - endPointMinZ) * 100f / SCALEX);
-        float stepY = 0.5f / ((endPointMaxY - endPointMinY) * 100f / SCALEY);
-        // Mouse movement (frame to frame)
-        float moveX = Input.GetAxis("Mouse X");
-        float moveY = Input.GetAxis("Mouse Y");
-        switch (SCALEUPState)
+        float stepX = 0.5f / ((MarsDefs.EPMAXZ - MarsDefs.EPMINZ) * 100f / DrawParams.SCALEX);
+        float stepY = 0.5f / ((MarsDefs.EPMAXY - MarsDefs.EPMINY) * 100f / DrawParams.SCALEY);
+
+        switch (aromAdjustState)
         {
-            case SCALEUPSTATE.TOP:
+            case AROM_ADJUST_STATES.TOP:
 
                 topCircle.transform.position = new Vector3(meanZpre, maxypres, 0);
                 if (Input.GetKeyDown(KeyCode.UpArrow))
@@ -358,22 +353,10 @@ public class AssessROM1 : MonoBehaviour
                     // Shrink inward (-0.5 cm each side)
                     maxypres = Mathf.Max(maxypres - stepY);
                 }
-                if (Input.GetMouseButton(0))
-                {
-                    if (Mathf.Abs(moveY) > 0.01f)
-                    {
-                        maxypres += moveY * stepY * 10f; 
-                    }
-                    if (Mathf.Abs(moveX) > 0.01f)
-                    {
-                        meanZpre += moveX * stepY * 10f; 
-                    }
-                }
-              
                 top = new Vector2(meanZpre, maxxpres);
 
                 break;
-            case SCALEUPSTATE.BOTTOM:
+            case AROM_ADJUST_STATES.BOTTOM:
 
                 bottomCircle.transform.position = new Vector3(meanZpre, minypres, 0);
                 if (Input.GetKeyDown(KeyCode.UpArrow))
@@ -389,20 +372,9 @@ public class AssessROM1 : MonoBehaviour
                     minypres = Mathf.Max(minypres - stepY);
 
                 }
-                if (Input.GetMouseButton(0))
-                {
-                    if (Mathf.Abs(moveY) > 0.01f)
-                    {
-                        minypres += moveY * stepY * 10f;
-                    }
-                    if (Mathf.Abs(moveX) > 0.01f)
-                    {
-                        meanZpre += moveX * stepY * 10f; 
-                    }
-                }
                 bottom = new Vector2(meanZpre, minypres);
                 break;
-            case SCALEUPSTATE.LEFT:
+            case AROM_ADJUST_STATES.LEFT:
                 leftCircle.transform.position = new Vector3(minxpres, meanYpre, 0);
                 if (Input.GetKeyDown(KeyCode.RightArrow))
                 {
@@ -418,7 +390,7 @@ public class AssessROM1 : MonoBehaviour
                 }
                 left = new Vector2(minxpres, meanYpre);
                 break;
-            case SCALEUPSTATE.RIGHT:
+            case AROM_ADJUST_STATES.RIGHT:
                 rightCircle.transform.position = new Vector3(maxxpres, meanYpre, 0);
                 if (Input.GetKeyDown(KeyCode.RightArrow))
                 {
@@ -485,7 +457,7 @@ public class AssessROM1 : MonoBehaviour
         };
         createFrame(lr, corners, color);
     }
-    public void DrawQuad(float minX, float maxX, float minY, float maxY, float meanz, float meany,LineRenderer lr, Color color)
+    void DrawQuad(float minX, float maxX, float minY, float maxY, float meanz, float meany,LineRenderer lr, Color color)
     {
 
         Vector3[] corners = new Vector3[5]
@@ -509,48 +481,46 @@ public class AssessROM1 : MonoBehaviour
         lr.loop = false;
         lr.useWorldSpace = true;
     }
+    
+    public void onMarsNewData()
+    {
+        // This function is called whenever new data is received from the robot.
+        // You can process the data here if needed.
+        // For example, you might want to update the UI or log the data.
+    }
+
     public void OnMarsButtonReleased()
     {
-
-        switch (currState)
+        // React differently based on the current assessment state
+        switch (aromRawAssessState)
         {
-            case ASSESSSTATE.ASSESSROM:
+            case AROM_RAW_ASSESS_STATES.INIT:
+                aromRawAssessState = AROM_RAW_ASSESS_STATES.ASSESSROM;
+                break;
+            case AROM_RAW_ASSESS_STATES.ASSESSROM:
                 //get unity UI points
                 minxpre = minX;
                 minypre = minY;
                 maxxpre = maxX;
                 maxypre = maxY;
-                
-                //NEED TO CHECK
-                //int count = Mathf.Max(1, (int)(unityPoints.Count * 0.1f)); // at least 1 point
-                //var lowest10Percentx = unityPoints.OrderBy(p => p.x).Take(count).ToList();
-                //var lowest10Percenty = unityPoints.OrderBy(p => p.y).Take(count).ToList();
-                //var highest10Percentx = unityPoints.OrderByDescending(p => p.x).Take(count).ToList();
-                //var highest10Percenty = unityPoints.OrderByDescending(p => p.y).Take(count).ToList();
-              
-                //minxpres = lowest10Percentx.Average(p => p.x);
-                //minypres = lowest10Percenty.Average(p => p.y);
-                //maxxpres = highest10Percentx.Average(p => p.x);
-                //maxypres= highest10Percenty.Average(p => p.y);
-
                 meanYpre = (minypre + maxypre) / 2;
                 meanZpre = (minxpre + maxxpre) / 2;
 
                 //clear the unity values to remote line after the get orignial ROM
                 unityPoints.Clear();
                 endPoints.Clear();
-                Drawlines.unityDrawValues.Clear();
-                Drawlines.endPntPos.Clear();
-                currState = ASSESSSTATE.INTIIATECIRCLE;
+                // DrawTrajectory.unityPoints.Clear();
+                // DrawTrajectory.actualPoints.Clear();
+                aromRawAssessState = AROM_RAW_ASSESS_STATES.INITIATECIRCLE;
                 break;
-            case ASSESSSTATE.WAITTOREACH:
-                //AppData.Instance.selectedMovement.SaveAssessmentData();
-                currState = ASSESSSTATE.DONE;
+            case AROM_RAW_ASSESS_STATES.WAITTOREACH:
+                // AppData.Instance.selectedMovement.SaveAssessmentData();
+                aromRawAssessState = AROM_RAW_ASSESS_STATES.DONE;
                 break;
-             //Test Targets inside the Quad
-            case ASSESSSTATE.TEST:
-                //AppData.Instance.selectedMovement.SaveAssessmentData();
-                currState = ASSESSSTATE.DONE;
+            //Test Targets inside the Quad
+            case AROM_RAW_ASSESS_STATES.TEST:
+                // AppData.Instance.selectedMovement.SaveAssessmentData();
+                aromRawAssessState = AROM_RAW_ASSESS_STATES.DONE;
                 break;
 
         }
@@ -559,7 +529,7 @@ public class AssessROM1 : MonoBehaviour
     //Assigned to REDO Button
     public void onclick_recalibrate()
     {
-        SceneManager.LoadScene("ASSESSROM 1");
+        SceneManager.LoadScene("ASSESSROM");
 
     }
     public void OnDestroy()
