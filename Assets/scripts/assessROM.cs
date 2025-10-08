@@ -49,6 +49,7 @@ public class AssessROM : MonoBehaviour
     private readonly string preScene = "CHOOSEMOVE";
     private readonly string robotCalibScene = "ROBOTCALIB";
     private string marsSetUp = "MARSSETUP";
+    private string assessForce = "ASSESSFORCE";
 
     // Points of the quadrilateral
     private Vector2 top;
@@ -78,6 +79,7 @@ public class AssessROM : MonoBehaviour
         LEFT,
         RIGHT,
     }
+
     private AROM_ADJUST_STATES aromAdjustState = AROM_ADJUST_STATES.NONE;
     public AROM_RAW_ASSESS_STATES aromRawAssessState = AROM_RAW_ASSESS_STATES.ASSESSROM;
 
@@ -92,6 +94,7 @@ public class AssessROM : MonoBehaviour
     float minypres;
     float maxxpres;
     float maxypres;
+
 
     void Awake()
     {
@@ -307,7 +310,9 @@ public class AssessROM : MonoBehaviour
                 float scaleZMax = (maxxpres / (OFFSET * SCALEX)) * (endPointMaxZ - endPointMinZ) + centerValX;
                 float scaleYmin = (minypres / SCALEY) * (endPointMaxY - endPointMinY) + centerValY;
                 float scaleYmax = (maxypres / SCALEY) * (endPointMaxY - endPointMinY) + centerValY;
+
                 // AppData.Instance.selectedMovement.SetNewRomValues(scaleZmin, scaleZMax, scaleYmin,scaleYmax,epminX,epmaxX,epminY,epmaxY);
+
 
                 break;
             case AROM_RAW_ASSESS_STATES.TEST:
@@ -325,6 +330,7 @@ public class AssessROM : MonoBehaviour
                 y2 = top - right;
 
                 break;
+
             case AROM_RAW_ASSESS_STATES.DONE:
                 SceneManager.LoadScene(preScene);
                 break;
@@ -459,7 +465,9 @@ public class AssessROM : MonoBehaviour
         };
         createFrame(lr, corners, color);
     }
+
     void DrawQuad(float minX, float maxX, float minY, float maxY, float meanz, float meany, LineRenderer lr, Color color)
+
     {
 
         Vector3[] corners = new Vector3[5]

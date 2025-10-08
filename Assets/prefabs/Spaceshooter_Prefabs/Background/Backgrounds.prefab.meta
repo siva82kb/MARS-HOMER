@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: fa2b401381d3acf419b74369d4845fc6
+timeCreated: 1509785979
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 107260
+  packageName: Space Shooter FREE
+  packageVersion: 1.0
+  assetPath: Assets/Space Shooter Template FREE/Prefabs/Background/Backgrounds.prefab
+  uploadId: 218651

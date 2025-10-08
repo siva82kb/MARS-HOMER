@@ -10,17 +10,18 @@ public class WAMGameController : MonoBehaviour
     public static WAMGameController Instance;
     public GameObject gameOverPanel;
     public GameObject NextLevelPanel;
-    public MoleContollerN[] moles;
-    public MoleContollerN currnetMole;
+    public MoleControllerN[] moles;
+    public MoleControllerN currnetMole;
     public TextMeshProUGUI TimerText;
-  
+    public TextMeshProUGUI scoreText;
    public GameObject targetObject;
-    public Text messTxt;
+    
     public Text gameSpeedTxt;
     public GameObject startImage;
     public GameObject PauseImage;
     public GameObject GameControl;
     public GameObject reminderPanel;
+    private MoleControllerN lastMole = null;
 
     public const float gameDuration = 60f;
     private float timer;
@@ -67,7 +68,7 @@ public class WAMGameController : MonoBehaviour
     public Vector3 playerPosition { get; private set; }
     public Vector3? targetPosition { get; private set; }
 
-
+    public bool isProcessingHit = false;
     private void Awake()
     {
         Instance = this;
@@ -103,6 +104,7 @@ public class WAMGameController : MonoBehaviour
         if (TimerText != null)
         {
             TimerText.text = "Timer:" + Mathf.CeilToInt(timer) + "s";
+            scoreText.text = "Score:" + nSuccess;
         }
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.G))
         {
@@ -137,15 +139,20 @@ public class WAMGameController : MonoBehaviour
                 gameState = GameStates.POPUPMOLE;
                 break;
             case GameStates.POPUPMOLE:
-                
+
                 if (eventDelayTimer <= 0f && !runOnce)
                 {
-                    currnetMole = moles[Random.Range(0, moles.Length)];
-                  
+                    MoleControllerN nextMole;
+                    do
+                    {
+                        nextMole = moles[Random.Range(0, moles.Length)];
+                    }
+                    while (nextMole == lastMole && moles.Length > 1); // reroll if same and more than 1 mole
+                    currnetMole = nextMole;
+                    lastMole = currnetMole; // remember last picked
                     currnetMole.PlayPopup();
-                    //spawnMole();
                     nTargets++;
-                    eventDelayTimer = 0.05f;
+                    eventDelayTimer = 0.5f;
                     runOnce = true;
                 }
                 else
@@ -159,18 +166,22 @@ public class WAMGameController : MonoBehaviour
                     }
                 }
                 break;
+
             case GameStates.WAITFORHIT:
-                waitTime -= Time.deltaTime;
-                
-                if (isSuccess) gameState = GameStates.SUCCESS;
-                if (waitTime <= 0f && !isSuccess)
+                if (!isProcessingHit) // Only countdown if not processing a hit
                 {
-                    gameState = GameStates.FAILURE;
+                    waitTime -= Time.deltaTime;
+                }
+                //waitTime -= Time.deltaTime;
+    
+                if (isSuccess) gameState = GameStates.SUCCESS;
+                if (waitTime <= 0f && !isSuccess && !isProcessingHit) // Add check
+                {
                     currnetMole.PlayDown();
                     nFailure++;
+                    gameState = GameStates.FAILURE;
                 }
-
-                break;
+            break;
             case GameStates.PAUSED:
                 Debug.Log(isGamePaused);
                 break;
@@ -178,19 +189,18 @@ public class WAMGameController : MonoBehaviour
             case GameStates.FAILURE:
                 if (eventDelayTimer <= 0f)
                 {
-                    eventDelayTimer = 0.05f;
+                    eventDelayTimer = 0.5f;
                 }
                 else
                 {
                     eventDelayTimer -= Time.deltaTime;
-                    if (eventDelayTimer <= 0f)
+                    if (eventDelayTimer <= 0f && !isProcessingHit)
                     {
-                        
+
                         // Wait for the gamestate to be logged.
                         isFailure = false;
                         isSuccess = false;
                         gameState = isTimeUp ? GameStates.STOP : GameStates.POPUPMOLE;
-                      
                         runOnce = false;
                     }
                 }
@@ -210,7 +220,7 @@ public class WAMGameController : MonoBehaviour
     public void initUI()
     {
         gameOverPanel.SetActive(false);
-        messTxt.enabled = true;
+        //messTxt.enabled = true;
         startImage.SetActive(true);
         PauseImage.SetActive(false);
     }
@@ -225,7 +235,8 @@ public class WAMGameController : MonoBehaviour
    public void setSuccess()
     {
         isSuccess = true;
-        moleHitSound.Play();
+       
+        nSuccess++;
 
     }
 
@@ -288,7 +299,7 @@ public class WAMGameController : MonoBehaviour
         isFailure = false;
         isSuccess = false;
         startImage.SetActive(false);
-        messTxt.enabled = false;
+      
         timer = gameDuration; // Initialize timer 
         gameSpeed = AppData.Instance.gameSpeed <= 0 ? gameSpeed : AppData.Instance.gameSpeed;
         targetSpeed = gameSpeed;
@@ -297,12 +308,12 @@ public class WAMGameController : MonoBehaviour
     //used on ui button
     public void IncreaseSpeed()
     {
-        targetSpeed = Mathf.Clamp(targetSpeed - 0.2f, 1f, 5f); // step change in target
+        targetSpeed = Mathf.Clamp(targetSpeed - 0.2f, 1.5f, 5f); // step change in target
     }
 
     public void DecreaseSpeed()
     {
-        targetSpeed = Mathf.Clamp(targetSpeed + 0.2f, 1f, 5f);
+        targetSpeed = Mathf.Clamp(targetSpeed + 0.2f, 1.5f, 5f);
     }
 
     public void onClickExit()

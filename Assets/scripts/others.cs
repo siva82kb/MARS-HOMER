@@ -144,7 +144,7 @@ public class MarsUserData
         dTableConfig = DataManager.loadCSV(configFile);
         DataRow lastRow = dTableConfig.Rows[dTableConfig.Rows.Count - 1];
         hospNumber = lastRow.Field<string>(HOSPITALNUMBER);
-        rightArm = lastRow.Field<string>(TRAININGSIDE).ToLower() == "RIGHT";
+        rightArm = lastRow.Field<string>(TRAININGSIDE).ToUpper() == "RIGHT";
         startDate = DateTime.ParseExact(lastRow.Field<string>(STARTEDATEH), "dd-MM-yyyy", CultureInfo.InvariantCulture);
         moveTimePrsc = createMoveTimeDictionary();
         for (int i = 0; i < MarsDefs.Movements.Length; i++)
@@ -230,6 +230,7 @@ public class MarsMovement
     public MarsArom newArom { get; set; } = null;
     public MarsArom currentArom { get => newArom != null ? newArom : (oldArom != null ? oldArom : null); }
 
+
     // Trial details for the mechanism.
     public int trialNumberDay { get; private set; }
     public int trialNumberSession { get; private set; }
@@ -268,6 +269,7 @@ public class MarsMovement
         newArom = null;
         UpdateTrialNumbers(this.sessno);
     }
+
 
     /*
      * Function to update the trial numbers for the day and session for the movement for today.
@@ -309,10 +311,12 @@ public class MarsMovement
 // MARS Active Range of Motion (AROM) class.
 public class MarsArom
 {
+
     public static string[] FILEHEADER = new string[] { "DateTime", "AssessNo", "TrainingPlaneAngle",
         "TopRawX", "TopRawY", "BottomRawX", "BottomRawY", "LeftRawX", "LeftRawY", "RightRawX", "RightRawY",
         "TopAdjustedX", "TopAdjustedY", "BottomAdjustedX", "BottomAdjustedY", "LeftAdjustedX", "LeftAdjustedY", "RightAdjustedX", "RightAdjustedY",
         "filename" };
+
     // Class attributes to store data read from the file
     public string datetime;
     public int assessno { get; private set; }
@@ -344,9 +348,11 @@ public class MarsArom
     // Constructor that reads the file and initializes values based on the mechanism
     public MarsArom(string movementName, bool readFromFile = true)
     {
+
         isReadOnly = false;
         if (movementName == null) return;
         if (readFromFile) isReadOnly = ReadFromFile(movementName);
+
         else
         {
             // Handle case when no matching movement is found
@@ -371,6 +377,7 @@ public class MarsArom
         trainingPlaneAngle = 0f;
 
     }
+
 
     public void setMovement(string movName) => movement = (movement == null) ? movName : movement;
 

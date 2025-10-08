@@ -30,6 +30,8 @@ public class DataManager : MonoBehaviour
     private static readonly string configFileName = "configdata.csv";
     public static string trainingPlaneFile;
     private static readonly string trainingPlaneFileName = "trainingplane.csv";
+    public static string romFile;
+    private static readonly string romFileName = "rom.csv";
     public static string[] TRAININGPLANEFILEHEADER = new string[] {
         "DateTime", "TrainingPlaneAngle"
     };
@@ -59,8 +61,10 @@ public class DataManager : MonoBehaviour
     public static string DATETIMEFORMAT = "yyyy-MM-dd HH:mm:ss";
 
     // Functions to generate file names.
+
     public static string GetRomFileName(string movement) => FixPath(Path.Combine(romPath, $"{movement}-rom.csv"));
     public static string GetRomRawFileName(string movement, string datetime) => FixPath(Path.Combine(romPath, $"romraw-{movement}-{datetime}.csv"));
+    
     public static string GetTrialRawDataFileName(int sessNo, int trialNo, string game, string movement) => FixPath(Path.Combine(rawPath, $"raw-sess{sessNo:D2}-trial{trialNo:D3}-{game}-{movement}.csv"));
 
     public static void CreateFileStructure(string userID)
@@ -76,6 +80,7 @@ public class DataManager : MonoBehaviour
         rawPath = userpath + "/rawdata";
         gamepath = userpath + "/game";
         logPath = userpath + "/applog";
+        romFile = romPath+$"/{romFileName}";
         sessionFile = FixPath(Path.Combine(sessionPath, sessionFileName));
         Directory.CreateDirectory(sessionPath);
         Directory.CreateDirectory(romPath);

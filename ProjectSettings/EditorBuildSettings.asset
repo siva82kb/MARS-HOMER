@@ -140,12 +140,12 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/GETCONFIG.unity
     guid: 96c617e643758dd43bc7511e43abb0df
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/ASSESSROM.unity
-    guid: 761cc96161e79cc4daad69f01492b1e4
-  - enabled: 0
+    guid: 39136515ba527ee47be39a423a1d8bf9
+  - enabled: 1
     path: Assets/Scenes/ASSESSROM.unity
-    guid: 761cc96161e79cc4daad69f01492b1e4
+    guid: 39136515ba527ee47be39a423a1d8bf9
   - enabled: 1
     path: Assets/Scenes/CHOOSEPLANE.unity
     guid: 07071288b99b4954f90bc8ec537a3a0b
@@ -156,7 +156,13 @@ EditorBuildSettings:
     path: Assets/Scenes/MARSSETUP.unity
     guid: e43b0494aaa43444b9cefd98f1b34a44
   - enabled: 1
-    path: Assets/Scenes/AROMML.unity
-    guid: 96b190ff055be264abfe55b6d9ff575a
+    path: Assets/Scenes/ASSESSFORCE.unity
+    guid: 9aaca62212a8e214c84fa5aa4ccd4afd
+  - enabled: 1
+    path: Assets/Scenes/ASSESSROM 1.unity
+    guid: eccc449c83fcb5843b33b541b32c6432
+  - enabled: 1
+    path: Assets/Scenes/FlyingSheep/FLYINGSHEEP.unity
+    guid: 08a4ffded4d8eff42b16b5ea32e76f76
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0

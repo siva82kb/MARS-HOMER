@@ -74,7 +74,7 @@ public partial class AppData
         // Selected movement and game.
         selectedMovement = null;
         selectedGame = null;
-
+       
         // Get current session number.
         currentSessionNumber = userData.dTableSession.Rows.Count > 0 ?
             Convert.ToInt32(userData.dTableSession.Rows[userData.dTableSession.Rows.Count - 1]["SessionNumber"]) + 1 : 1;
@@ -116,7 +116,7 @@ public partial class AppData
         userID = user;
         AppLogger.LogInfo($"User ID set to {userID}.");
     }
-
+    
     public void SetMovement(string name)
     {
         if (string.IsNullOrEmpty(name))

@@ -17,10 +17,9 @@ public class spaceShooterGameContoller : MonoBehaviour
     public static spaceShooterGameContoller Instance { get; private set; }
    
     public GameObject GameOverPanel;
-    public Image SupportSlider;
-    public TextMeshProUGUI support;
+
     public TextMeshProUGUI timerText;
-    public TextMeshProUGUI angletext;
+    public TextMeshProUGUI scoreText;
     public Text messTxt;
     public Text gameSpeedTxt;
     public GameObject startImage;
@@ -57,6 +56,7 @@ public class spaceShooterGameContoller : MonoBehaviour
     public void setisSuccess()
     {
         isSuccess = true;
+        nSuccess++;
     }
     public void setisFailure()
     {
@@ -130,7 +130,7 @@ public class spaceShooterGameContoller : MonoBehaviour
 
         if (timerText != null)
         {
-            timerText.text = "Time:" + Mathf.CeilToInt(timer).ToString() + "s"; // Show remaining time
+            timerText.text = "TIMER:" + Mathf.CeilToInt(timer).ToString() + "s"; // Show remaining time
         }
 
         //Track Restart
@@ -151,6 +151,7 @@ public class spaceShooterGameContoller : MonoBehaviour
         //Game Speed - for GameObject Smooth Transition
         gameSpeed = Mathf.Lerp(gameSpeed, targetSpeed, Time.deltaTime * smoothFactor);
         gameSpeedTxt.text = gameSpeed.ToString();
+        scoreText.text = "SCORE:" + nSuccess.ToString();
     }
 
     private void FixedUpdate()

@@ -34,7 +34,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.018, y: -4.025, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.45, z: 1}
+  m_LocalScale: {x: 0.2, y: 0.18, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 35151095714680836}
@@ -57,6 +57,8 @@ SpriteRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -80,8 +82,8 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 1
-  m_Sprite: {fileID: 21300000, guid: 83b625830244a4c4cb683004cf1487fe, type: 3}
+  m_SortingOrder: 19
+  m_Sprite: {fileID: -2023126844081633735, guid: 2c0486efec2fe17418c97c0b1c310dd8, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -100,6 +102,7 @@ BoxCollider2D:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7859415558445711664}
   m_Enabled: 1
+  serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -123,18 +126,18 @@ BoxCollider2D:
     m_Bits: 4294967295
   m_IsTrigger: 1
   m_UsedByEffector: 0
-  m_UsedByComposite: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
   m_Offset: {x: 0, y: -0.26}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 3.43, y: 3.83}
+    oldSize: {x: 10.24, y: 8.97}
     newSize: {x: 3.43, y: 3.83}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  serializedVersion: 2
   m_Size: {x: 2.79, y: 2.9}
   m_EdgeRadius: 0
 --- !u!50 &1817309964501581319
@@ -176,18 +179,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f9d780a0d6d76d749bd4dcf592f417da, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 4
-  min_x: -8.15
-  max_x: 8.1
-  min_y: -4.1
-  max_y: 2.25
   Player_bullet: {fileID: 824938076384672501, guid: c02036779358e004583c013a0e44caaa, type: 3}
   laserSound: {fileID: 8300000, guid: b9e69952ae159584fa28eecbbc7c7250, type: 3}
   Spawn_point: {fileID: 35151095714680836}
+  DEPENDENT: 00000000ffffffff01000000
   ShootInterval: 2
+  tilt: 0
+  currRom: []
+  OFFSET: 0
 --- !u!95 &8582745084961247787
 Animator:
-  serializedVersion: 5
+  serializedVersion: 7
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -201,6 +203,7 @@ Animator:
   m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
@@ -219,6 +222,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ExplosionSound: {fileID: 8300000, guid: afe5d62b64c59d646ba3a14a89cf7bd0, type: 3}
+  blinkDuration: 2
+  blinkInterval: 0.1
 --- !u!82 &3834682533048506897
 AudioSource:
   m_ObjectHideFlags: 0
@@ -230,6 +235,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: b9e69952ae159584fa28eecbbc7c7250, type: 3}
+  m_Resource: {fileID: 8300000, guid: b9e69952ae159584fa28eecbbc7c7250, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
@@ -326,6 +332,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: afe5d62b64c59d646ba3a14a89cf7bd0, type: 3}
+  m_Resource: {fileID: 8300000, guid: afe5d62b64c59d646ba3a14a89cf7bd0, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
