@@ -905,6 +905,18 @@ PrefabInstance:
       propertyPath: m_LocalPosition.y
       value: 20.2
       objectReference: {fileID: 0}
+    - target: {fileID: 4790873233145827238, guid: 44ace5b3edbeea84e8687574bb5fae65, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4790873233145827238, guid: 44ace5b3edbeea84e8687574bb5fae65, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4790873233145827238, guid: 44ace5b3edbeea84e8687574bb5fae65, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8813887483632769281, guid: 44ace5b3edbeea84e8687574bb5fae65, type: 3}
       propertyPath: m_Name
       value: CommonUI

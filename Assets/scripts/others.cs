@@ -224,9 +224,10 @@ public class MarsMovement
 {
     public string name { get; private set; }
     public string side { get; private set; }
+    private int sessno;
 
     public MarsArom oldArom { get; private set; } = null;
-    public MarsArom newArom { get; private set; } = null;
+    public MarsArom newArom { get; set; } = null;
     public MarsArom currentArom { get => newArom != null ? newArom : (oldArom != null ? oldArom : null); }
 
 
@@ -238,6 +239,7 @@ public class MarsMovement
     {
         this.name = name?.ToUpper() ?? string.Empty;
         this.side = side;
+        this.sessno = sessno;
         // Check if AROM file exists.
         if (MarsArom.AromFileExists(name)) oldArom = new MarsArom(this.name, readFromFile: true);
         else
@@ -246,41 +248,27 @@ public class MarsMovement
             AppLogger.LogInfo($"No existing AROM file found for movement '{this.name}'. A new assessment is required.");
         }
         newArom = null;
-        this.side = side;
-        UpdateTrialNumbers(sessno);
+        UpdateTrialNumbers(this.sessno);
     }
 
-    public void NextTrail()
+    public void NextTrial()
     {
         trialNumberDay += 1;
         trialNumberSession += 1;
     }
 
-//<<<<<<< HEAD
-//    public float[] CurrentArom => currRom == null ? null : new float[] { currRom.aromMinX, currRom.aromMaxX, currRom.aromMinY, currRom.aromMaxY };
-
-//=======
-    // public void SetNewRomValues(float minx, float maxx, float miny, float maxy, float origMinx, float origMaxx, float origMiny, float origMaxy)
-    // {
-    //     newRom.setRom(minx, maxx, miny, maxy,origMinx,origMaxx,origMiny,origMaxy);
-    //     if (minx != 0 || maxx != 0 || miny != 0 || maxy != 0) aromCompleted = true;
-
-    //     if (newRom.movement == null)
-    //     {
-    //         newRom.SetMovement(this.name);
-    //     }
-
-
-    // }
-    // public void SaveAssessmentData()
-    // {
-    //     if (aromCompleted)
-    //     {
-    //         // Save the new ROM values.
-    //         newRom.WriteToAssessmentFile();
-
-    //     }
-    // }
+    public void ReloadMovementData()
+    {
+        // Check if AROM file exists.
+        if (MarsArom.AromFileExists(name)) oldArom = new MarsArom(this.name, readFromFile: true);
+        else
+        {
+            oldArom = null;
+            AppLogger.LogInfo($"No existing AROM file found for movement '{this.name}'. A new assessment is required.");
+        }
+        newArom = null;
+        UpdateTrialNumbers(this.sessno);
+    }
 
 
     /*
@@ -327,7 +315,7 @@ public class MarsArom
     public static string[] FILEHEADER = new string[] { "DateTime", "AssessNo", "TrainingPlaneAngle",
         "TopRawX", "TopRawY", "BottomRawX", "BottomRawY", "LeftRawX", "LeftRawY", "RightRawX", "RightRawY",
         "TopAdjustedX", "TopAdjustedY", "BottomAdjustedX", "BottomAdjustedY", "LeftAdjustedX", "LeftAdjustedY", "RightAdjustedX", "RightAdjustedY",
-        "filename" };
+        "RawDataFileName" };
 
     // Class attributes to store data read from the file
     public string datetime;
@@ -352,6 +340,7 @@ public class MarsArom
     public Vector2 bottomAdjusted { get; private set; }
     public Vector2 leftAdjusted { get; private set; }
     public Vector2 rightAdjusted { get; private set; }
+    private string rawDataFilename;
     public bool isAssessing => rawData != null;
 
     public static bool AromFileExists(string movementName) => File.Exists(DataManager.GetRomFileName(movementName));
@@ -387,7 +376,6 @@ public class MarsArom
         rightAdjusted = Vector2.zero;
         trainingPlaneAngle = 0f;
     }
-
 
     public void setMovement(string movName) => movement = (movement == null) ? movName : movement;
 
@@ -427,6 +415,8 @@ public class MarsArom
             bottomAdjusted = new Vector2(bottomRaw.x, bottomRaw.y);
             leftAdjusted = new Vector2(leftRaw.x, leftRaw.y);
             rightAdjusted = new Vector2(rightRaw.x, rightRaw.y);
+            // Write raw data to file.
+
         }
         rawData = null;
     }
@@ -457,12 +447,11 @@ public class MarsArom
                 file.Write(rawDataString.ToString());
             }
         }
+        // First write the raw data file.
+        string _rawfilename = DataManager.GetRomRawFileName(movement, datetime);
+        // Write the assessment data to the file.
         using (StreamWriter file = new StreamWriter(fileName, true))
         {
-            // "DateTime", "AssessNo", "TrainingPlaneAngle",
-            // "TopRawX", "TopRawY", "BottomRawX", "BottomRawY", "LeftRawX", "LeftRawY", "RightRawX", "RightRawY",
-            // "TopAdjustedX", "TopAdjustedY", "BottomAdjustedX", "BottomAdjustedY", "LeftAdjustedX", "LeftAdjustedY", "RightAdjustedX", "RightAdjustedY",
-            // "filename"
             // Write the actual data
             file.WriteLine(string.Join(",", new string[] {
                 datetime, assessno.ToString(), trainingPlaneAngle.ToString("F2"),
@@ -470,7 +459,7 @@ public class MarsArom
                 leftRaw.x.ToString(), leftRaw.y.ToString(), rightRaw.x.ToString(), rightRaw.y.ToString(),
                 topAdjusted.x.ToString(), topAdjusted.y.ToString(), bottomAdjusted.x.ToString(), bottomAdjusted.y.ToString(),
                 leftAdjusted.x.ToString(), leftAdjusted.y.ToString(), rightAdjusted.x.ToString(), rightAdjusted.y.ToString(),
-                fileName
+                _rawfilename
             }));
         }
     }
