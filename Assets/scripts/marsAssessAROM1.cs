@@ -301,10 +301,10 @@ public class MarsAssessAROM1 : MonoBehaviour
                 DrawQuad(minxpres, maxxpres, minypres, maxypres, meanZpre, meanYpre, scaleUpBox, new Color(137 / 255f, 175 / 255f, 253 / 255f));
 
                 //reverse unity value to RobotEnpoint values in meter
-                float scaleZmin = (MarsDefs.EPMAXZ - MarsDefs.EPMINZ) * minxpres / (DrawParams.OFFSET * DrawParams.SCALEX) + MarsDefs.EPCENTERZ;
-                float scaleZMax = (MarsDefs.EPMAXZ - MarsDefs.EPMINZ) * maxxpres / (DrawParams.OFFSET * DrawParams.SCALEX) + MarsDefs.EPCENTERZ;
-                float scaleYmin = (MarsDefs.EPMAXY - MarsDefs.EPMINY) * minypres / DrawParams.SCALEY + MarsDefs.EPCENTERY;
-                float scaleYmax = (MarsDefs.EPMAXY - MarsDefs.EPMINY) * maxypres / DrawParams.SCALEY + MarsDefs.EPCENTERY;
+                // float scaleZmin = (MarsDefs.EPMAXZ - MarsDefs.EPMINZ) * minxpres / (DrawParams.OFFSET * DrawParams.SCALEX) + MarsDefs.EPCENTERZ;
+                // float scaleZMax = (MarsDefs.EPMAXZ - MarsDefs.EPMINZ) * maxxpres / (DrawParams.OFFSET * DrawParams.SCALEX) + MarsDefs.EPCENTERZ;
+                // float scaleYmin = (MarsDefs.EPMAXY - MarsDefs.EPMINY) * minypres / DrawParams.SCALEY + MarsDefs.EPCENTERY;
+                // float scaleYmax = (MarsDefs.EPMAXY - MarsDefs.EPMINY) * maxypres / DrawParams.SCALEY + MarsDefs.EPCENTERY;
                 // AppData.Instance.selectedMovement.SetNewRomValues(scaleZmin, scaleZMax, scaleYmin,scaleYmax,epminX,epmaxX,epminY,epmaxY);
 
                 break;
@@ -334,8 +334,8 @@ public class MarsAssessAROM1 : MonoBehaviour
     void scaleupStateMachine()
     {
         // scale value 0.5 cm on both side
-        float stepX = 0.5f / ((MarsDefs.EPMAXZ - MarsDefs.EPMINZ) * 100f / DrawParams.SCALEX);
-        float stepY = 0.5f / ((MarsDefs.EPMAXY - MarsDefs.EPMINY) * 100f / DrawParams.SCALEY);
+        float stepX = 0.5f;/// ((MarsDefs.EPMAXZ - MarsDefs.EPMINZ) * 100f / DrawParams.SCALEX);
+        float stepY = 0.5f;/// ((MarsDefs.EPMAXY - MarsDefs.EPMINY) * 100f / DrawParams.SCALEY);
 
         switch (aromAdjustState)
         {

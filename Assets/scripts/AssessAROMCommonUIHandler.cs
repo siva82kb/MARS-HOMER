@@ -34,7 +34,7 @@ public class CommonUI : MonoBehaviour
     public static readonly Color LIGHT_GRAY = new Color(0.83f, 0.83f, 0.83f);
     public static readonly Color LIGHTER_GRAY = new Color(0.93f, 0.93f, 0.93f);
     public static readonly Color DARK_RED = new Color(0.8f, 0f, 0f);
-    public static readonly Color DARKER_RED = new Color(0.6f, 0.75f, 0.75f);
+    public static readonly Color DARKER_RED = new Color(0.6f, 0f, 0f);
     public static readonly Color LIGHT_GREEN = new Color(0.5f, 1f, 0.5f);
     public static readonly Color LIGHTER_GREEN = new Color(0.75f, 1f, 0.75f);
     public static readonly Color LIGHT_BLUE = new Color(0.5f, 0.5f, 1f);
@@ -45,19 +45,7 @@ public class CommonUI : MonoBehaviour
     void Start()
     {
         // Initialize line renderers
-        trajectoryLineRenderer.positionCount = 0;
-        rawAromBoxLineRenderer.positionCount = 0;
-        adjustedAromBoxLineRenderer.positionCount = 0;
-        rawAromBoxLineRendererOld.positionCount = 0;
-        adjustedAromBoxLineRendererOld.positionCount = 0;
-        rawAromLine1Renderer.positionCount = 0;
-        rawAromLine2Renderer.positionCount = 0;
-        adjustedAromLine1Renderer.positionCount = 0;
-        adjustedAromLine2Renderer.positionCount = 0;
-        rawAromLine1RendererOld.positionCount = 0;
-        rawAromLine2RendererOld.positionCount = 0;
-        adjustedAromLine1RendererOld.positionCount = 0;
-        adjustedAromLine2RendererOld.positionCount = 0;
+        ClearLineRenderers();
 
         // Trajectory linerenderer settings
         trajectoryLineRenderer.startWidth = 0.05f;
@@ -124,5 +112,39 @@ public class CommonUI : MonoBehaviour
 
         // Hide recalibrate button initially
         recalibrateButton.gameObject.SetActive(false);
+    }
+
+    public void ClearLineRenderers()
+    {
+        // Set counts to 0.
+        trajectoryLineRenderer.positionCount = 0;
+        rawAromBoxLineRenderer.positionCount = 0;
+        adjustedAromBoxLineRenderer.positionCount = 0;
+        rawAromBoxLineRendererOld.positionCount = 0;
+        adjustedAromBoxLineRendererOld.positionCount = 0;
+        rawAromLine1Renderer.positionCount = 0;
+        rawAromLine2Renderer.positionCount = 0;
+        adjustedAromLine1Renderer.positionCount = 0;
+        adjustedAromLine2Renderer.positionCount = 0;
+        rawAromLine1RendererOld.positionCount = 0;
+        rawAromLine2RendererOld.positionCount = 0;
+        adjustedAromLine1RendererOld.positionCount = 0;
+        adjustedAromLine2RendererOld.positionCount = 0;
+        // Clearn the area boxes
+        aromAreaBox.transform.position = Vector3.zero;
+        aromAreaBox.transform.localScale = Vector3.zero;
+        aromAreaBox.SetActive(false);
+        Color boxColor = new Color(0f, 0f, 0f, 1.0f);
+        aromAreaBox.GetComponent<Renderer>().material.color = boxColor;
+        aromAreaBoxOld.transform.position = Vector3.zero;
+        aromAreaBoxOld.transform.localScale = Vector3.zero;
+        aromAreaBoxOld.SetActive(false);
+        aromAreaBoxOld.GetComponent<Renderer>().material.color = boxColor;
+    }
+
+    public void EnableRecalibrateButton()
+    {
+        recalibrateButton.interactable = true;
+        recalibrateButton.gameObject.SetActive(true);
     }
 }

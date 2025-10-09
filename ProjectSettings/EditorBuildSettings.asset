@@ -164,5 +164,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/FlyingSheep/FLYINGSHEEP.unity
     guid: 08a4ffded4d8eff42b16b5ea32e76f76
+  - enabled: 1
+    path: Assets/Scenes/AROMML.unity
+    guid: 96b190ff055be264abfe55b6d9ff575a
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0
