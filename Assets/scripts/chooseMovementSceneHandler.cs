@@ -26,14 +26,14 @@ public class MovementSceneHandler : MonoBehaviour
     //OTHER SCENES
     public readonly string marsSetupScene = "MARSSETUP";
     public readonly string robotCalibScene = "ROBOTCALIB";
-    private string exitScene = "SUMMARY";
+    private readonly string trainingPlaneScene = "CHOOSEPLANE";
+    private readonly string marsSetUp = "MARSSETUP";
+    private readonly string exitScene = "SUMMARY";
 
-    private string assessmentSceneML = "AROMML";
-    private string assessmentSceneAP = "AROMAP";
-    private string assessmentSceneMLAP = "AROMMLAP";
-    private string trainingPlaneScene = "CHOOSEPLANE";
-    private string marsSetUp = "MARSSETUP";
-    
+    private readonly string assessmentSceneML = "AROMML";
+    private readonly string assessmentSceneAP = "AROMAP";
+    private readonly string assessmentSceneMLAP = "AROMMLAP";
+    private string aromAssessmentScene = "";
 
     void Start()
     {
@@ -59,7 +59,9 @@ public class MovementSceneHandler : MonoBehaviour
         }
         // If the robot is not in position control go to the mars setup scene.
         if (MarsComm.CONTROLTYPE[MarsComm.controlType] != "POSITION")
+        {
             SceneManager.LoadScene(marsSetUp);
+        }
 
         // Attach the MARSComm callbacks.
         MarsComm.OnMarsButtonReleased += OnMarsButtonReleased;
@@ -78,17 +80,20 @@ public class MovementSceneHandler : MonoBehaviour
     void Update()
     {
         MarsComm.sendHeartbeat();
+        
         // Check if the magic key combination is pressed for AROM assessment 
         // or training plane selection.
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.A))
         {
             if (nextScene == "")
             {
-                message.text = "Please select the movement";
+                message.text = "Please select the movement first.";
                 changeScene = false;
             }
             else
             {
+                // Go the next assessment scene based on the selected movement.
+                nextScene = aromAssessmentScene;
                 changeScene = true;
             }
         }
@@ -98,6 +103,7 @@ public class MovementSceneHandler : MonoBehaviour
             nextScene = trainingPlaneScene;
             changeScene = true;
         }
+
         //Check if a scene change is needed.
         if (changeScene == true && nextScene != "")
         {
@@ -105,6 +111,7 @@ public class MovementSceneHandler : MonoBehaviour
             changeScene = false;
         }
     }
+
     public class idle
     {
         float previosAngle;
@@ -201,6 +208,10 @@ public class MovementSceneHandler : MonoBehaviour
                 }
                 else
                 {
+                    // Set the AROM assessment scene.
+                    aromAssessmentScene = AppData.Instance.selectedMovement.name == "ML" ? assessmentSceneML :
+                                          AppData.Instance.selectedMovement.name == "AP" ? assessmentSceneAP :
+                                          AppData.Instance.selectedMovement.name == "MLAP" ? assessmentSceneMLAP : "";
                     // Next is the game scene.
                     nextScene = AppData.MARS_GAMES_SCENES[MarsDefs.getMovementIndex(child.name)];
                     message.text = "Press Mars Button to start game";

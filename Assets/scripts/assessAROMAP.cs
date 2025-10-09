@@ -10,7 +10,7 @@ using System.IO;
 using JetBrains.Annotations;
 using System.Runtime.Remoting.Messaging;
 
-public class AssessROMML : MarsAssessAROM
+public class AssessROMAP : MarsAssessAROM
 {
     // Scenes to change to.
     private readonly string preScene = "CHOOSEMOVE";
@@ -47,7 +47,7 @@ public class AssessROMML : MarsAssessAROM
         if (MarsComm.CONTROLTYPE[MarsComm.controlType] != "POSITION") SceneManager.LoadScene(marsSetUp);
 
         // Set the movement.
-        movement = "ML";
+        movement = "AP";
         oldMarsArom = AppData.Instance.selectedMovement?.currentArom;
         base.Start();
     }

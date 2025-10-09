@@ -48,15 +48,19 @@ public abstract class MarsAssessAROM : MonoBehaviour
 
     protected MarsArom oldMarsArom = null;
     protected MarsArom newMarsArom = null;
+    protected bool changeScene = false;
 
     // Other private variables
     private Vector3 tempLeftPos;
     private Vector3 tempRightPos;
     private Vector3 tempTopPos;
     private Vector3 tempBottomPos;
+    private bool enableRecalibButton = false;
+    private bool showOldArom = true;
 
     // Other private constants
-    private const float leftRightY = 2.5f;
+    private const float leftRightY = 2.5f; 
+    private const float topBottomX = 2.5f; 
 
     protected virtual void Awake()
     {
@@ -74,6 +78,9 @@ public abstract class MarsAssessAROM : MonoBehaviour
         // Initialize the assessment state machine
         aromRawAssessState = AROM_RAW_ASSESS_STATES.INIT;
         aromAdjustState = AROM_ADJUST_STATES.NONE;
+        enableRecalibButton = false;
+        changeScene = false;
+        AppLogger.LogInfo($"AROM assessment state machine initialized | AROM State: {aromRawAssessState}, Adjust State: {aromAdjustState}");
 
         // Initialize the original message.
         commonUI.instructionText.text = "";
@@ -93,17 +100,25 @@ public abstract class MarsAssessAROM : MonoBehaviour
 
         // Attach Mars events after a delay.
         StartCoroutine(AttachCallbacksAfterDelay(1f));
+
+        // Reset text.
+        commonUI.xRangeValueText.text = "";
+        commonUI.yRangeValueText.text = "";
+
+        // Show old AROM if available
+        showOldArom = oldMarsArom != null;
     }
 
     protected virtual void Update()
     {
         MarsComm.sendHeartbeat();
         // Make sure name is not null.
-            if (movement == null)
-            {
-                Debug.LogError("Movement in MarsAssessAROM is null, cannot proceed.");
-                return;
-            }
+        if (movement == null)
+        {
+            Debug.LogError("Movement in MarsAssessAROM is null, cannot proceed.");
+            AppLogger.LogError("No movement set. The programm cannot proceed.");
+            return;
+        }
 
         // Update the UI elements
         updateUI();
@@ -112,52 +127,13 @@ public abstract class MarsAssessAROM : MonoBehaviour
         aromAdjustState = getAromAdjustState(aromAdjustState);
 
         // Mouse left keydown in the appropriate adjust state.
-        // newAdjustedValue = aromAdjustState != AROM_ADJUST_STATES.NONE && Input.GetMouseButtonUp(0);
+        if (aromAdjustState != AROM_ADJUST_STATES.NONE && Input.GetMouseButtonUp(0))
+        {
+            aromAdjustState = AROM_ADJUST_STATES.NONE;
+        }
 
         // Run the raw assessment statemachine
         runAROMRawAssessStateMachine();
-    }
-
-    protected virtual void FixedUpdate()
-    {
-        //     zEndPoint = MarsComm.epPosInThePlane.z;
-        //     yEndPoint = MarsComm.epPosInThePlane.y;
-
-        //     // Scaling + centering
-        //     Vector3 sceneCenter = Vector3.zero;  // adjust if needed
-
-        //     // Compute unity coordinates.
-        //     unityValX = DrawParams.OFFSET * ((zEndPoint - MarsDefs.EPCENTERZ) / (MarsDefs.EPMAXZ - MarsDefs.EPMINZ)) * DrawParams.SCALEX;
-        //     unityValY = ((yEndPoint - MarsDefs.EPCENTERY) / (MarsDefs.EPMAXY - MarsDefs.EPMINY)) * DrawParams.SCALEY;
-        //     Vector3 toDrawValues = new Vector3((float)unityValX, (float)unityValY, 0.0f) + sceneCenter;
-        //     Vector3 endPointValues = new Vector3((float)zEndPoint, (float)yEndPoint, 0.0f);
-        //     // Get the last endpoint position that was added.
-        //     Vector3 lastEndPoint = actualPoints.Count > 0 ? actualPoints[actualPoints.Count - 1] : Vector3.zero;
-
-        //     // If the distance between the current and last endpoint is less than a threshold, skip adding this point.
-        //     if (Vector3.Distance(endPointValues, lastEndPoint) < DrawParams.DIST_THRESHOLD) return;
-
-        //     // Add the point and update the lists and the plot.
-        //     unityPoints.Add(toDrawValues);
-        //     actualPoints.Add(endPointValues);
-
-        //     // Redraw based on the current state.
-        //     switch (AssessROM.instance.aromRawAssessState)
-        //     {
-        //         case AssessROM.AROM_RAW_ASSESS_STATES.ASSESSROM:
-        //         case AssessROM.AROM_RAW_ASSESS_STATES.INITIATECIRCLE:
-        //             lineRenderer.positionCount = unityPoints.Count;
-        //             lineRenderer.SetPositions(unityPoints.ToArray());
-        //             lineRenderer.useWorldSpace = true;
-        //             break;
-        //         case AssessROM.AROM_RAW_ASSESS_STATES.WAITTOREACH:
-        //         case AssessROM.AROM_RAW_ASSESS_STATES.TEST:
-        //             if (AssessROM.instance.currentCircle != null)
-        //             {
-        //                 AssessROM.instance.currentCircle.transform.position = toDrawValues;
-        //             }
-        //             break;
-        //     }
     }
 
     private void updateUI()
@@ -169,22 +145,69 @@ public abstract class MarsAssessAROM : MonoBehaviour
         updateCurrentPositionCircle();
 
         // Draw the old AROM lines in light blue.
-        if (oldMarsArom != null)
+        if (showOldArom)
         {
             // Check the movement name
-            if (oldMarsArom.movement == "ML")
+            switch(oldMarsArom.movement)
             {
-                // Show the parallel vertical lines
-                float leftX = OFFSET * SCALEX * ((oldMarsArom.leftRaw.x - MarsDefs.EPCENTERZ) / (MarsDefs.EPMAXZ - MarsDefs.EPMINZ));
-                float rightX = OFFSET * SCALEX * ((oldMarsArom.rightRaw.x - MarsDefs.EPCENTERZ) / (MarsDefs.EPMAXZ - MarsDefs.EPMINZ));
-                commonUI.rawAromLine1RendererOld.positionCount = 2;
-                commonUI.rawAromLine1RendererOld.SetPositions(new Vector3[]
-                {
-                    new Vector3(leftX, leftRightY, 0),
-                    new Vector3(leftX, -leftRightY, 0)
-                });
+                case "ML":
+                    showOldAdjustAromForML();
+                    break;
+                case "AP":
+                    showOldAdjustAromForAP();
+                    break;
+                case "MLAP":
+                    showOldAdjustAromForMLAP();
+                    break;
             }
         }
+
+        // Enable the recalibrate button if needed.
+        if (enableRecalibButton)
+        {
+            commonUI.EnableRecalibrateButton();
+            enableRecalibButton = false;
+            // Attach the onclick event
+            commonUI.recalibrateButton.onClick.RemoveAllListeners();
+            commonUI.recalibrateButton.onClick.AddListener(() =>
+            {
+                resetAssessment();
+            });
+        }
+    }
+
+    private void resetAssessment()
+    {
+        // Reset the state machine
+        aromRawAssessState = AROM_RAW_ASSESS_STATES.INIT;
+        aromAdjustState = AROM_ADJUST_STATES.NONE;
+        newAdjustedValue = false;
+        changeScene = false;
+
+        // Clear the trajectory line
+        commonUI.ClearLineRenderers();
+
+        // Clear the range text
+        commonUI.xRangeValueText.text = "";
+        commonUI.yRangeValueText.text = "";
+
+        // Clear lists
+        unityPoints = null;
+        endPoints = null;
+
+        // Reset temporary positions
+        tempLeftPos = Vector3.zero;
+        tempRightPos = Vector3.zero;
+        tempTopPos = Vector3.zero;
+        tempBottomPos = Vector3.zero;
+
+        // Reset newMarsArom
+        newMarsArom = new MarsArom(movement, readFromFile: false);
+
+        // Show old AROM again.
+        showOldArom = oldMarsArom != null;
+
+        AppLogger.LogInfo($"Resetting AROM assessment. | AROM State: {aromRawAssessState}, Adjust State: {aromAdjustState}");
     }
 
     private void updateCurrentPositionCircle()
@@ -232,16 +255,15 @@ public abstract class MarsAssessAROM : MonoBehaviour
                 // Logic for waiting to reach position
                 commonUI.instructionText.text = "Adjust AROM if needed. Press the REDO button to redo assessment.";
                 // Show the raw AROM box
-                showRawAromBoxLines();
+                // showRawAromBoxLines();
                 // Show adjusted AROM box
                 showAdjustedAromBoxLines();
-                // Update AROM box/lines depending on the adjustment state
-                adjustAromBoxLines();
+                // Updat range text.
+                updateAromRangeText();
                 break;
             case AROM_RAW_ASSESS_STATES.DONE:
                 // Completion logic
                 // Move to the next scene, which will be the game scene.
-
                 break;
             default:
                 Debug.LogError("Unknown state in AROM raw assessment state machine.");
@@ -249,59 +271,69 @@ public abstract class MarsAssessAROM : MonoBehaviour
         }
     }
 
+    // Some useful conversion functions.
+    private float robotToUnityX(float robotX) => OFFSET * SCALEX * ((robotX - MarsDefs.EPCENTERZ) / (MarsDefs.EPMAXZ - MarsDefs.EPMINZ));
+    private float robotToUnityY(float robotY) => SCALEY * ((robotY - MarsDefs.EPCENTERY) / (MarsDefs.EPMAXY - MarsDefs.EPMINY));
+
     private void showRawAromBoxLines()
     {
-        // What we show depends on the movement.
-        switch (movement)
-        {
-            case "ML":
-                // Show the raw AROM lines
-                float leftX = OFFSET * SCALEX * ((newMarsArom.leftRaw.x - MarsDefs.EPCENTERZ) / (MarsDefs.EPMAXZ - MarsDefs.EPMINZ));
-                float rightX = OFFSET * SCALEX * ((newMarsArom.rightRaw.x - MarsDefs.EPCENTERZ) / (MarsDefs.EPMAXZ - MarsDefs.EPMINZ));
-                float leftRightY = 2.5f;
-                // Update the raw AROM line renderers
-                commonUI.rawAromLine1Renderer.positionCount = 2;
-                commonUI.rawAromLine1Renderer.SetPositions(new Vector3[]
-                {
-                    new Vector3(leftX, leftRightY, 0),
-                    new Vector3(leftX, -leftRightY, 0)
-                });
-                commonUI.rawAromLine2Renderer.positionCount = 2;
-                commonUI.rawAromLine2Renderer.SetPositions(new Vector3[]
-                {
-                    new Vector3(rightX, leftRightY, 0),
-                    new Vector3(rightX, -leftRightY, 0)
-                });
-                // // Update the adjusted AROM line renderers
-                // leftX = OFFSET * SCALEX * ((newMarsArom.leftAdjusted.x - MarsDefs.EPCENTERZ) / (MarsDefs.EPMAXZ - MarsDefs.EPMINZ));
-                // rightX = OFFSET * SCALEX * ((newMarsArom.rightAdjusted.x - MarsDefs.EPCENTERZ) / (MarsDefs.EPMAXZ - MarsDefs.EPMINZ));
-                // commonUI.adjustedAromLine1Renderer.positionCount = 2;
-                // commonUI.adjustedAromLine1Renderer.SetPositions(new Vector3[]
-                // {
-                //     new Vector3(leftX, leftRightY, 0),
-                //     new Vector3(leftX, -leftRightY, 0)
-                // });
-                // commonUI.adjustedAromLine2Renderer.positionCount = 2;
-                // commonUI.adjustedAromLine2Renderer.SetPositions(new Vector3[]
-                // {
-                //     new Vector3(rightX, leftRightY, 0),
-                //     new Vector3(rightX, -leftRightY, 0)
-                // });
-                // // Fill the area between the adjusted lines with a semi-transparent box.
-                // Vector3 boxCenter = new Vector3((leftX + rightX) / 2, 0, 0);
-                // Vector3 boxSize = new Vector3(Mathf.Abs(rightX - leftX), leftRightY * 2, 0.1f);
-                // commonUI.aromAreaBox.transform.position = boxCenter;
-                // commonUI.aromAreaBox.transform.localScale = boxSize;
-                // commonUI.aromAreaBox.SetActive(true);
-                // // Transparent red color
-                // Color boxColor = new Color(1f, 0f, 0f, 0.3f);
-                // commonUI.aromAreaBox.GetComponent<Renderer>().material.color = boxColor;
-                break;
-            case "AP":
-                break;
-            case "MLAP":
-                break;
-        }
+        // // What we show depends on the movement.
+        // switch (movement)
+        // {
+        //     case "ML":
+        //         // Show the raw AROM lines
+        //         float leftX = robotToUnityX(newMarsArom.leftRaw.x);
+        //         float rightX = robotToUnityX(newMarsArom.rightRaw.x);
+        //         // Update the raw AROM line renderers
+        //         commonUI.rawAromLine1Renderer.positionCount = 2;
+        //         commonUI.rawAromLine1Renderer.SetPositions(new Vector3[]
+        //         {
+        //             new Vector3(leftX, leftRightY, 0),
+        //             new Vector3(leftX, -leftRightY, 0)
+        //         });
+        //         commonUI.rawAromLine2Renderer.positionCount = 2;
+        //         commonUI.rawAromLine2Renderer.SetPositions(new Vector3[]
+        //         {
+        //             new Vector3(rightX, leftRightY, 0),
+        //             new Vector3(rightX, -leftRightY, 0)
+        //         });
+        //         break;
+        //     case "AP":
+        //         // Show the raw AROM lines
+        //         float topY = robotToUnityY(newMarsArom.topRaw.y);
+        //         float bottomY = robotToUnityY(newMarsArom.bottomRaw.y);
+        //         // Update the raw AROM line renderers
+        //         commonUI.rawAromLine1Renderer.positionCount = 2;
+        //         commonUI.rawAromLine1Renderer.SetPositions(new Vector3[]
+        //         {
+        //             new Vector3(topBottomX, topY, 0),
+        //             new Vector3(-topBottomX, topY, 0)
+        //         });
+        //         commonUI.rawAromLine2Renderer.positionCount = 2;
+        //         commonUI.rawAromLine2Renderer.SetPositions(new Vector3[]
+        //         {
+        //             new Vector3(topBottomX, bottomY, 0),
+        //             new Vector3(-topBottomX, bottomY, 0)
+        //         });
+        //         break;
+        //     case "MLAP":
+        //         // Show the raw AROM Box.
+        //         commonUI.rawAromBoxLineRenderer.positionCount = 5;
+        //         commonUI.rawAromBoxLineRenderer.SetPositions(new Vector3[]
+        //         {
+        //             // Left point
+        //             new Vector3(robotToUnityX(newMarsArom.leftRaw.x), robotToUnityY(newMarsArom.leftRaw.y), 0),
+        //             // Bottom point
+        //             new Vector3(robotToUnityX(newMarsArom.bottomRaw.x), robotToUnityY(newMarsArom.bottomRaw.y), 0),
+        //             // Right point
+        //             new Vector3(robotToUnityX(newMarsArom.rightRaw.x), robotToUnityY(newMarsArom.rightRaw.y), 0),
+        //             // Top point
+        //             new Vector3(robotToUnityX(newMarsArom.topRaw.x), robotToUnityY(newMarsArom.topRaw.y), 0),
+        //             // Closing the box (back to Left point)
+        //             new Vector3(robotToUnityX(newMarsArom.leftRaw.x), robotToUnityY(newMarsArom.leftRaw.y), 0)
+        //         });
+        //         break;
+        // }
     }
 
     private void showAdjustedAromBoxLines()
@@ -318,14 +350,18 @@ public abstract class MarsAssessAROM : MonoBehaviour
         {
             case AROM_ADJUST_STATES.LEFT:
                 tempLeftPos.x = _adjustedX;
+                tempLeftPos.y = _adjustedY;
                 break;
             case AROM_ADJUST_STATES.RIGHT:
                 tempRightPos.x = _adjustedX;
+                tempRightPos.y = _adjustedY;
                 break;
             case AROM_ADJUST_STATES.TOP:
+                tempTopPos.x = _adjustedX;
                 tempTopPos.y = _adjustedY;
                 break;
             case AROM_ADJUST_STATES.BOTTOM:
+                tempBottomPos.x = _adjustedX;
                 tempBottomPos.y = _adjustedY;
                 break;
             default:
@@ -340,26 +376,54 @@ public abstract class MarsAssessAROM : MonoBehaviour
                 showAdjustAromForML();
                 break;
             case "AP":
+                showAdjustAromForAP();
                 break;
             case "MLAP":
+                showAdjustAromForMLAP();
                 break;
         }
     }
 
+    private void updateAromRangeText()
+    {
+        // Update the AROM range text based on movement
+        switch (movement)
+        {
+            case "ML":
+                float mlRange = tempRightPos.x - tempLeftPos.x;
+                commonUI.xRangeValueText.text = $"{100 * mlRange:F2}cm";
+                commonUI.yRangeValueText.text = "";
+                break;
+            case "AP":
+                float apRange = tempTopPos.y - tempBottomPos.y;
+                commonUI.xRangeValueText.text = "";
+                commonUI.yRangeValueText.text = $"{100 * apRange:F2}cm";
+                break;
+            case "MLAP":
+                float mlapRangeX = tempRightPos.x - tempLeftPos.x;
+                float mlapRangeY = tempTopPos.y - tempBottomPos.y;
+                commonUI.xRangeValueText.text = $"{100 * mlapRangeX:F2}cm (ML)";
+                commonUI.yRangeValueText.text = $"{100 * mlapRangeY:F2}cm (AP)";
+                break;
+            default:
+                break;
+        }
+    }
+    
     private void showAdjustAromForML()
     {
         // Convert screen coordinates to world coordinates
         // Update the adjusted AROM line renderers
         float leftX = OFFSET * SCALEX * ((tempLeftPos.x - MarsDefs.EPCENTERZ) / (MarsDefs.EPMAXZ - MarsDefs.EPMINZ));
         float rightX = OFFSET * SCALEX * ((tempRightPos.x - MarsDefs.EPCENTERZ) / (MarsDefs.EPMAXZ - MarsDefs.EPMINZ));
-        commonUI.adjustedAromLine1Renderer.positionCount = 2;
-        commonUI.adjustedAromLine1Renderer.SetPositions(new Vector3[]
+        commonUI.aromLine1Renderer.positionCount = 2;
+        commonUI.aromLine1Renderer.SetPositions(new Vector3[]
         {
             new Vector3(leftX, leftRightY, 0),
             new Vector3(leftX, -leftRightY, 0)
         });
-        commonUI.adjustedAromLine2Renderer.positionCount = 2;
-        commonUI.adjustedAromLine2Renderer.SetPositions(new Vector3[]
+        commonUI.aromLine2Renderer.positionCount = 2;
+        commonUI.aromLine2Renderer.SetPositions(new Vector3[]
         {
             new Vector3(rightX, leftRightY, 0),
             new Vector3(rightX, -leftRightY, 0)
@@ -371,87 +435,225 @@ public abstract class MarsAssessAROM : MonoBehaviour
         commonUI.aromAreaBox.transform.localScale = boxSize;
         commonUI.aromAreaBox.SetActive(true);
         // Transparent red color
-        Color boxColor = new Color(1f, 0f, 0f, 0.3f);
+        Color boxColor = new Color(1f, 0f, 0f, 0.5f);
         commonUI.aromAreaBox.GetComponent<Renderer>().material.color = boxColor;
-        Debug.Log("Adjusting for ML");
+    }
+    
+    private void showAdjustAromForAP()
+    {
+        // Convert screen coordinates to world coordinates
+        // Update the adjusted AROM line renderers
+        float topY = SCALEY * ((tempTopPos.y - MarsDefs.EPCENTERY) / (MarsDefs.EPMAXY - MarsDefs.EPMINY));
+        float bottomY = SCALEY * ((tempBottomPos.y - MarsDefs.EPCENTERY) / (MarsDefs.EPMAXY - MarsDefs.EPMINY));
+        commonUI.aromLine1Renderer.positionCount = 2;
+        commonUI.aromLine1Renderer.SetPositions(new Vector3[]
+        {
+            new Vector3(topBottomX, topY, 0),
+            new Vector3(-topBottomX, topY, 0)
+        });
+        commonUI.aromLine2Renderer.positionCount = 2;
+        commonUI.aromLine2Renderer.SetPositions(new Vector3[]
+        {
+            new Vector3(topBottomX, bottomY, 0),
+            new Vector3(-topBottomX, bottomY, 0)
+        });
+        // Fill the area between the adjusted lines with a semi-transparent box.
+        Vector3 boxCenter = new Vector3(0, (topY + bottomY) / 2, 0);
+        Vector3 boxSize = new Vector3(2 * topBottomX, Mathf.Abs(bottomY - topY), 0.1f);
+        commonUI.aromAreaBox.transform.position = boxCenter;
+        commonUI.aromAreaBox.transform.localScale = boxSize;
+        commonUI.aromAreaBox.SetActive(true);
+        // Transparent red color
+        Color boxColor = new Color(1f, 0f, 0f, 0.5f);
+        commonUI.aromAreaBox.GetComponent<Renderer>().material.color = boxColor;
+    }
+    
+    private void showAdjustAromForMLAP()
+    {
+        // Verticex.
+        Vector3[] vertices = new Vector3[]
+        {
+            // Left point
+            new Vector3(robotToUnityX(tempLeftPos.x), robotToUnityY(tempLeftPos.y), 0),
+            // Bottom point
+            new Vector3(robotToUnityX(tempBottomPos.x), robotToUnityY(tempBottomPos.y), 0),
+            // Right point
+            new Vector3(robotToUnityX(tempRightPos.x), robotToUnityY(tempRightPos.y), 0),
+            // Top point
+            new Vector3(robotToUnityX(tempTopPos.x), robotToUnityY(tempTopPos.y), 0)
+        };
+        // Show the adjusted AROM Box.
+        commonUI.aromBoxLineRenderer.positionCount = 5;
+        commonUI.aromBoxLineRenderer.SetPositions(new Vector3[]
+        {
+            // Left point
+            vertices[0],
+            // Bottom point
+            vertices[1],
+            // Right point
+            vertices[2],
+            // Top point
+            vertices[3],
+            // Closing the box (back to Left point)
+            vertices[0]
+        });
     }
 
-    private void adjustAromBoxLines()
+    private void showOldAdjustAromForML()
     {
-        // What we show depends on the movement.
-        // Convert screen coordinates to world coordinates
-        Vector3 mouseScreenPos = Input.mousePosition;
-        mouseScreenPos.z = 10f;
-        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(mouseScreenPos);
-        switch (aromAdjustState)
+        // Show the parallel vertical lines
+        float leftX = OFFSET * SCALEX * ((oldMarsArom.leftAdjusted.x - MarsDefs.EPCENTERZ) / (MarsDefs.EPMAXZ - MarsDefs.EPMINZ));
+        float rightX = OFFSET * SCALEX * ((oldMarsArom.rightAdjusted.x - MarsDefs.EPCENTERZ) / (MarsDefs.EPMAXZ - MarsDefs.EPMINZ));
+        commonUI.aromLine1RendererOld.positionCount = 2;
+        commonUI.aromLine1RendererOld.SetPositions(new Vector3[]
         {
-            case AROM_ADJUST_STATES.LEFT:
-                // Connect the left line to the position of the mouse in the scene.
-                commonUI.adjustedAromLine1Renderer.SetPositions(new Vector3[]
-                {
-                    new Vector3(mouseWorldPos.x, leftRightY, 0),
-                    new Vector3(mouseWorldPos.x, -leftRightY, 0)
-                });
-                if (movement == "ML")
-                {
-                    aromAdjustState = setNewAdjustedAromForML(mouseWorldPos, aromAdjustState);
-                }
-                newAdjustedValue = aromAdjustState == AROM_ADJUST_STATES.NONE ? false : newAdjustedValue;
-                break;
-            case AROM_ADJUST_STATES.RIGHT:
-                // Connect the right line to the position of the mouse in the scene.
-                commonUI.adjustedAromLine2Renderer.SetPositions(new Vector3[]
-                {
-                    new Vector3(mouseWorldPos.x, leftRightY, 0),
-                    new Vector3(mouseWorldPos.x, -leftRightY, 0)
-                });
-                if (movement == "ML")
-                {
-                    aromAdjustState = setNewAdjustedAromForML(mouseWorldPos, aromAdjustState);
-                }
-                newAdjustedValue = aromAdjustState == AROM_ADJUST_STATES.NONE ? false : newAdjustedValue;
-                break;
-            case AROM_ADJUST_STATES.TOP:
-                // newMarsArom.adjustTopAdjusted(0.01f);
-                break;
-            case AROM_ADJUST_STATES.BOTTOM:
-                // newMarsArom.adjustBottomAdjusted(-0.01f);
-                break;
-            case AROM_ADJUST_STATES.NONE:
-                // No adjustment
-                break;
-        }
+            new Vector3(leftX, leftRightY, 0),
+            new Vector3(leftX, -leftRightY, 0)
+        });
+        commonUI.aromLine2RendererOld.positionCount = 2;
+        commonUI.aromLine2RendererOld.SetPositions(new Vector3[]
+        {
+            new Vector3(rightX, leftRightY, 0),
+            new Vector3(rightX, -leftRightY, 0)
+        });
+        // Display old area
+        // Fill the area between the adjusted lines with a semi-transparent box.
+        Vector3 boxCenter = new Vector3((leftX + rightX) / 2, 0, 0);
+        Vector3 boxSize = new Vector3(Mathf.Abs(rightX - leftX), leftRightY * 2, 0.1f);
+        commonUI.aromAreaBoxOld.transform.position = boxCenter;
+        commonUI.aromAreaBoxOld.transform.localScale = boxSize;
+        commonUI.aromAreaBoxOld.SetActive(true);
+        // Transparent blue color
+        Color boxColor = new Color(0f, 0f, 1f, 0.3f);
+        commonUI.aromAreaBoxOld.GetComponent<Renderer>().material.color = boxColor;
+        showOldArom = false; // Show only once
+    }
+
+    private void showOldAdjustAromForAP()
+    {
+        // Show the parallel vertical lines
+        float topY = SCALEY * ((oldMarsArom.topAdjusted.y - MarsDefs.EPCENTERY) / (MarsDefs.EPMAXY - MarsDefs.EPMINY));
+        float bottomY = SCALEY * ((oldMarsArom.bottomAdjusted.y - MarsDefs.EPCENTERY) / (MarsDefs.EPMAXY - MarsDefs.EPMINY));
+        commonUI.aromLine1RendererOld.positionCount = 2;
+        commonUI.aromLine1RendererOld.SetPositions(new Vector3[]
+        {
+            new Vector3(topBottomX, topY, 0),
+            new Vector3(-topBottomX, topY, 0)
+        });
+        commonUI.aromLine2RendererOld.positionCount = 2;
+        commonUI.aromLine2RendererOld.SetPositions(new Vector3[]
+        {
+            new Vector3(topBottomX, bottomY, 0),
+            new Vector3(-topBottomX, bottomY, 0)
+        });
+        // Display old area
+        // Fill the area between the adjusted lines with a semi-transparent box.
+        Vector3 boxCenter = new Vector3(0, (topY + bottomY) / 2, 0);
+        Vector3 boxSize = new Vector3(2 * topBottomX, Mathf.Abs(bottomY - topY), 0.1f);
+        commonUI.aromAreaBoxOld.transform.position = boxCenter;
+        commonUI.aromAreaBoxOld.transform.localScale = boxSize;
+        commonUI.aromAreaBoxOld.SetActive(true);
+        // Transparent blue color
+        Color boxColor = new Color(0f, 0f, 1f, 0.3f);
+        commonUI.aromAreaBoxOld.GetComponent<Renderer>().material.color = boxColor;
+        showOldArom = false; // Show only once
+    }
+
+    private void showOldAdjustAromForMLAP()
+    {
+        // Vertices
+        Vector3[] vertices = new Vector3[]
+        {
+            // Left point
+            new Vector3(robotToUnityX(oldMarsArom.leftAdjusted.x), robotToUnityY(oldMarsArom.leftAdjusted.y), 0),
+            // Bottom point
+            new Vector3(robotToUnityX(oldMarsArom.bottomAdjusted.x), robotToUnityY(oldMarsArom.bottomAdjusted.y), 0),
+            // Right point
+            new Vector3(robotToUnityX(oldMarsArom.rightAdjusted.x), robotToUnityY(oldMarsArom.rightAdjusted.y), 0),
+            // Top point
+            new Vector3(robotToUnityX(oldMarsArom.topAdjusted.x), robotToUnityY(oldMarsArom.topAdjusted.y), 0)
+        };
+        commonUI.aromBoxLineRendererOld.positionCount = 5;
+        commonUI.aromBoxLineRendererOld.SetPositions(new Vector3[]
+        {
+            // Left point
+            vertices[0],
+            // Bottom point
+            vertices[1],
+            // Right point
+            vertices[2],
+            // Top point
+            vertices[3],
+            // Closing the box (back to Left point)
+            vertices[0]
+        });
+        showOldArom = false; // Show only once
     }
 
     private AROM_ADJUST_STATES getAromAdjustState(AROM_ADJUST_STATES currState)
     {
+        AROM_ADJUST_STATES _newAdujustState = currState;
         // This returns a valid code only if in ADJUST state
-        if (aromRawAssessState != AROM_RAW_ASSESS_STATES.ADJUST) return AROM_ADJUST_STATES.NONE;
-        if (Input.GetKeyDown(KeyCode.L))
+        if (aromRawAssessState != AROM_RAW_ASSESS_STATES.ADJUST)
         {
-            tempLeftPos = newMarsArom.leftAdjusted;
-            return AROM_ADJUST_STATES.LEFT;
+            _newAdujustState = AROM_ADJUST_STATES.NONE;
         }
-        else if (Input.GetKeyDown(KeyCode.R))
+        else
         {
-            tempRightPos = newMarsArom.rightAdjusted;
-            return AROM_ADJUST_STATES.RIGHT;
+            if (Input.GetKeyDown(KeyCode.L))
+            {
+                tempLeftPos = newMarsArom.leftAdjusted;
+                _newAdujustState = AROM_ADJUST_STATES.LEFT;
+            }
+            else if (Input.GetKeyDown(KeyCode.R))
+            {
+                tempRightPos = newMarsArom.rightAdjusted;
+                _newAdujustState = AROM_ADJUST_STATES.RIGHT;
+            }
+            else if (Input.GetKeyDown(KeyCode.T))
+            {
+                tempTopPos = newMarsArom.topAdjusted;
+                _newAdujustState = AROM_ADJUST_STATES.TOP;
+            }
+            else if (Input.GetKeyDown(KeyCode.B))
+            {
+                tempBottomPos = newMarsArom.bottomAdjusted;
+                _newAdujustState = AROM_ADJUST_STATES.BOTTOM;
+            }
+            else if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                switch (aromAdjustState)
+                {
+                    case AROM_ADJUST_STATES.LEFT:
+                        tempLeftPos = newMarsArom.leftAdjusted;
+                        break;
+                    case AROM_ADJUST_STATES.RIGHT:
+                        tempRightPos = newMarsArom.rightAdjusted;
+                        break;
+                    case AROM_ADJUST_STATES.TOP:
+                        tempTopPos = newMarsArom.topAdjusted;
+                        break;
+                    case AROM_ADJUST_STATES.BOTTOM:
+                        tempBottomPos = newMarsArom.bottomAdjusted;
+                        break;
+                }
+                _newAdujustState = AROM_ADJUST_STATES.NONE;
+            }
+            else if (Input.GetMouseButtonUp(0))
+            {
+                // Assign the new adjusted value and return to NONE state.
+                newMarsArom.setAdjustedAromLeft(tempLeftPos.x, tempLeftPos.y);
+                newMarsArom.setAdjustedAromRight(tempRightPos.x, tempRightPos.y);
+                newMarsArom.setAdjustedAromTop(tempTopPos.x, tempTopPos.y);
+                newMarsArom.setAdjustedAromBottom(tempBottomPos.x, tempBottomPos.y);
+                _newAdujustState = AROM_ADJUST_STATES.NONE;
+            }
         }
-        else if (Input.GetKeyDown(KeyCode.T))
+        if (currState != _newAdujustState)
         {
-            tempTopPos = newMarsArom.topAdjusted;
-            return AROM_ADJUST_STATES.TOP;
+            AppLogger.LogInfo($"Changing adjust state from {currState} to {_newAdujustState}.");
         }
-        else if (Input.GetKeyDown(KeyCode.B))
-        {
-            tempBottomPos = newMarsArom.bottomAdjusted;
-            return AROM_ADJUST_STATES.BOTTOM;
-        }
-        else if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            return AROM_ADJUST_STATES.NONE;
-        }
-        return currState;
+        return _newAdujustState;
     }
 
     private AROM_ADJUST_STATES setNewAdjustedAromForML(Vector3 mouseWorldPos, AROM_ADJUST_STATES state)
@@ -468,7 +670,7 @@ public abstract class MarsAssessAROM : MonoBehaviour
         }
         else if (state == AROM_ADJUST_STATES.RIGHT)
         {
-            commonUI.adjustedAromLine2Renderer.SetPositions(new Vector3[]
+            commonUI.aromLine2Renderer.SetPositions(new Vector3[]
             {
                 new Vector3(mouseWorldPos.x, leftRightY, 0),
                 new Vector3(mouseWorldPos.x, -leftRightY, 0)
@@ -484,7 +686,7 @@ public abstract class MarsAssessAROM : MonoBehaviour
         yield return new WaitForSeconds(delay);
         MarsComm.OnMarsButtonReleased += OnMarsButtonReleased;
     }
-    
+
     public void OnMarsButtonReleased()
     {
         // React differently based on the current assessment state
@@ -497,6 +699,7 @@ public abstract class MarsAssessAROM : MonoBehaviour
                 endPoints = new List<Vector3>();
                 // Start AROM assessment raw data logging.
                 AppData.Instance.StartRawDataAromDataLogging(newMarsArom.movement, newMarsArom.datetime);
+                AppLogger.LogInfo($"Chaning Asessment State | AROM State: {aromRawAssessState}, Adjust State: {aromAdjustState}");
                 break;
             case AROM_RAW_ASSESS_STATES.ASSESSROM:
                 aromRawAssessState = AROM_RAW_ASSESS_STATES.ADJUST;
@@ -507,6 +710,12 @@ public abstract class MarsAssessAROM : MonoBehaviour
                 tempRightPos = newMarsArom.rightAdjusted;
                 tempTopPos = newMarsArom.topAdjusted;
                 tempBottomPos = newMarsArom.bottomAdjusted;
+                Debug.Log("RAW:" + newMarsArom.leftRaw + " " + newMarsArom.rightRaw + " " + newMarsArom.topRaw + " " + newMarsArom.bottomRaw);
+                Debug.Log("Adjusted:" + newMarsArom.leftAdjusted + " " + newMarsArom.rightAdjusted + " " + newMarsArom.topAdjusted + " " + newMarsArom.bottomAdjusted);
+                Debug.Log("Temp:" + tempLeftPos + " " + tempRightPos + " " + tempTopPos + " " + tempBottomPos);
+                enableRecalibButton = true;
+                AppLogger.LogInfo($"Chaning Asessment State. | AROM State: {aromRawAssessState}, Adjust State: {aromAdjustState}");
+                AppLogger.LogInfo($"Initialize variables for AROM adjustment.");
                 break;
             case AROM_RAW_ASSESS_STATES.ADJUST:
                 aromRawAssessState = AROM_RAW_ASSESS_STATES.DONE;
@@ -518,16 +727,16 @@ public abstract class MarsAssessAROM : MonoBehaviour
                 AppData.Instance.selectedMovement.newArom.WriteToAssessmentFile();
                 // Reload movement data.
                 AppData.Instance.selectedMovement.ReloadMovementData();
+                // Set change scene flag to true.
+                changeScene = true;
+                AppLogger.LogInfo($"Chaning Asessment State | AROM State: {aromRawAssessState}, Adjust State: {aromAdjustState}");
+                AppLogger.LogInfo($"Saving AROM data to file.");
+                AppLogger.LogInfo($"Change scene flag set.");
                 break;
         }
 
     }
-    //Assigned to REDO Button
-    // public void onclick_recalibrate()
-    // {
-    //     SceneManager.LoadScene("ASSESSROM");
-
-    // }
+    
     protected virtual void OnDestroy()
     {
         MarsComm.OnMarsButtonReleased -= OnMarsButtonReleased;
