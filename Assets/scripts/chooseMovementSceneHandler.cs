@@ -115,7 +115,7 @@ public class MovementSceneHandler : MonoBehaviour
             if (istarted == false) return;
             timer -= Time.deltaTime;
          
-            if (previosAngle == MarsComm.angle1 && MarsComm.force > 10)
+            if (previosAngle == MarsComm.angle1 && MarsComm.force < 10)
             {
 
             }
