@@ -13,7 +13,7 @@ public class sheepController : MonoBehaviour
     float xPoint, yPoint;
     private Vector3 endPoint;
     public int OFFSET;
-    public float[] currRom;
+    public MarsArom currRom;
     public Vector3 lastPosition;
     //default values
     public static float yMinendPnt;
@@ -45,11 +45,11 @@ public class sheepController : MonoBehaviour
         
         MarsComm.sendHeartbeat();
         //GET ROM DATA
-        //currRom = AppData.Instance.selectedMovement.CurrentArom;
-        //zMinendPnt = currRom[0];
-        //zMaxendPnt = currRom[1];
-        //yMinendPnt = currRom[2];
-        //yMaxendPnt = currRom[3];
+        currRom = AppData.Instance.selectedMovement.currentArom;
+        zMinendPnt = currRom.rightAdjusted.x;
+        zMaxendPnt = currRom.leftAdjusted.x;
+        yMinendPnt = currRom.bottomAdjusted.y;
+        yMaxendPnt = currRom.topAdjusted.y;
 
         OFFSET = AppData.Instance.userData.limb == 1 ? -1 : 1;
     }
@@ -142,7 +142,7 @@ public class sheepController : MonoBehaviour
         isColliding = false;
         if (collision.gameObject == GameController.Instance.target)
         {
-            isColliding = false;
+          
             
             //if (highlight != null)
             //{
@@ -162,7 +162,7 @@ public class sheepController : MonoBehaviour
                 moveingupstarsobj.Stop(true);
                 highligtsobj.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
                 //GameController.Instance.isSuccess = false;
-                GameController.Instance.isFailure = true;
+                //GameController.Instance.isFailure = true;
             }
         }
     }

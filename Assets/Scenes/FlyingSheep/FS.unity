@@ -1044,6 +1044,7 @@ MonoBehaviour:
   target: {fileID: 0}
   targerPrefeb: {fileID: 8082094940080051211, guid: ccecd2a25529d2e4fa3fee4a8e4b6885, type: 3}
   appleEatingSound: {fileID: 758250534}
+  failSound: {fileID: 758250535}
   waitTime: 0
   isProcessingHit: 0
   debug: 1
@@ -1154,16 +1155,16 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 0}
-  m_PlayOnAwake: 1
+  m_audioClip: {fileID: 8300000, guid: 69c403e0c5d19ec45a4a05c16e6765d8, type: 3}
+  m_Resource: {fileID: 8300000, guid: 69c403e0c5d19ec45a4a05c16e6765d8, type: 3}
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
-  Loop: 1
+  Loop: 0
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
-  Priority: 128
+  Priority: 114
   DopplerLevel: 1
   MinDistance: 1
   MaxDistance: 500
@@ -2060,7 +2061,6 @@ MonoBehaviour:
   yMin: -4.5
   yMax: 1.5
   OFFSET: 0
-  currRom: []
   lastPosition: {x: 0, y: 0, z: 0}
   debug: 0
   highlightPrefeb: {fileID: 3118231116408238350, guid: 7d7303728e17b0b4c80ce28404643eba, type: 3}
@@ -2068,7 +2068,7 @@ MonoBehaviour:
   uiCanvas: {fileID: 1636006826}
   hightlightPartical: {fileID: 2960991977035289202, guid: f698fba04845d134aadb5acd6e1e2c26, type: 3}
   moveingupstars: {fileID: 1220275171491132412, guid: 015670aaed1cde541a19caf10ca1d259, type: 3}
-  moveingdownstarsobj: {fileID: 0}
+  moveingupstarsobj: {fileID: 0}
   highligtsobj: {fileID: 0}
 --- !u!70 &1092066815
 CapsuleCollider2D:
@@ -3375,7 +3375,7 @@ GameObject:
   - component: {fileID: 1831327791}
   - component: {fileID: 1831327790}
   m_Layer: 0
-  m_Name: BackGround
+  m_Name: grass
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3597,7 +3597,7 @@ GameObject:
   - component: {fileID: 1919171112}
   - component: {fileID: 1919171111}
   m_Layer: 0
-  m_Name: Square
+  m_Name: wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4275,6 +4275,7 @@ SceneRoots:
   m_Roots:
   - {fileID: 1633616357}
   - {fileID: 1766598346}
+  - {fileID: 1919171112}
   - {fileID: 1831327791}
   - {fileID: 1092066813}
   - {fileID: 5778581588855716043}
@@ -4282,6 +4283,5 @@ SceneRoots:
   - {fileID: 758250532}
   - {fileID: 1425864313}
   - {fileID: 7259747935443373130}
-  - {fileID: 1919171112}
   - {fileID: 3837997927446914525}
   - {fileID: 954726734346548991}

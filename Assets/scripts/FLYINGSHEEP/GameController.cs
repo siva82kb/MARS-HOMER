@@ -29,7 +29,7 @@ public class GameController : MonoBehaviour
     private float timer;
     private float eventDelayTimer = 0f;
     private bool runOnce = false;
-    public float gameSpeed = 2f;
+    public float gameSpeed = 5f;
     private float targetSpeed;
     public float smoothFactor = 5f;
 
@@ -49,6 +49,7 @@ public class GameController : MonoBehaviour
     public GameObject target;
     public GameObject targerPrefeb;
     public AudioSource appleEatingSound;
+    public AudioSource failSound;
     public enum GameStates
     {
         WAITING = 0,
@@ -184,16 +185,22 @@ public class GameController : MonoBehaviour
                 break;
 
             case GameStates.WAITFOREAT:
-               if(!sheepController.instance.IsCollidingWithTarget())waitTime -= Time.deltaTime;
+                if (isSuccess)
+                {
+                    gameState = GameStates.SUCCESS;
+                    break;
+                }
+                if (!sheepController.instance.IsCollidingWithTarget()&&!isSuccess)waitTime -= Time.deltaTime;
                if(targetTimer!=null)targetTimer.GetComponent<Image>().fillAmount = (waitTime / gameSpeed);
                 if((waitTime / gameSpeed) <= 0.5f&&target!=null&& !sheepController.instance.IsCollidingWithTarget())
                 {
                     targetAnim.Play("end");
                 }
-                if (isSuccess) gameState = GameStates.SUCCESS;
-               
-                if (waitTime <= 0f || isFailure) // Add check
+
+                if (waitTime <= 0f) // Add check
                 {
+                    //if (isSuccess) gameState = GameStates.SUCCESS;
+                    Debug.Log(waitTime + "waittime" + isFailure + isSuccess);
                     nFailure++;
                     gameState = GameStates.FAILURE;
                 }
@@ -203,6 +210,7 @@ public class GameController : MonoBehaviour
                 break;
             case GameStates.SUCCESS:
             case GameStates.FAILURE:
+                if (GameStates.FAILURE == gameState) failSound.Play();
                 if (eventDelayTimer <= 0f)
                 {
                     eventDelayTimer = 0.5f;
@@ -317,6 +325,7 @@ public class GameController : MonoBehaviour
                 targetAnim.Play("faild", -1, 0f);
                 Debug.Log("Collision Eating failed.");
                 isSuccess = false;
+               
                 yield break;
             }
 
@@ -397,11 +406,12 @@ public class GameController : MonoBehaviour
         isSuccess = false;
         startImage.SetActive(false);
         timer = gameDuration; // Initialize timer 
-        targetSpeed = gameSpeed;
+      
         if (debug) return;
         //start new Trail
         AppData.Instance.StartNewTrial();
         gameSpeed = AppData.Instance.gameSpeed <= 0 ? gameSpeed : AppData.Instance.gameSpeed;
+        targetSpeed = gameSpeed;
         Debug.Log(gameSpeed+"gamespeed");
 
     }
