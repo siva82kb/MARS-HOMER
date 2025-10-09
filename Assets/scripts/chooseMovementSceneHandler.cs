@@ -26,15 +26,15 @@ public class MovementSceneHandler : MonoBehaviour
     //OTHER SCENES
     public readonly string marsSetupScene = "MARSSETUP";
     public readonly string robotCalibScene = "ROBOTCALIB";
-    private string aromAssessmentScene = "";
-    private string exitScene = "SUMMARY";
+    private readonly string trainingPlaneScene = "CHOOSEPLANE";
+    private readonly string marsSetUp = "MARSSETUP";
+    private readonly string exitScene = "SUMMARY";
 
-    private string assessmentSceneML = "AROMML";
-    private string assessmentSceneAP = "AROMAP";
-    private string assessmentSceneMLAP = "AROMMLAP";
-    private string trainingPlaneScene = "CHOOSEPLANE";
-    private string marsSetUp = "MARSSETUP";
-    
+    private readonly string assessmentSceneML = "AROMML";
+    private readonly string assessmentSceneAP = "AROMAP";
+    private readonly string assessmentSceneMLAP = "AROMMLAP";
+    private string aromAssessmentScene = "";
+
     void Start()
     {
         MarsComm.sendHeartbeat();
