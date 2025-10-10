@@ -16,6 +16,7 @@ public class MovementSceneHandler : MonoBehaviour
     //ui related variables
     public GameObject movementSelectGroup;
     public Text message;
+    public Text additionalMessage;
 
     public static float initialAngle;
     private string nextScene;
@@ -75,6 +76,7 @@ public class MovementSceneHandler : MonoBehaviour
 
         // Clear the message text.
         message.text = "Please select the movement";
+        additionalMessage.text = "";
     }
 
     void Update()
@@ -197,14 +199,20 @@ public class MovementSceneHandler : MonoBehaviour
                 // Selected movement and game name.
                 AppData.Instance.SetMovement(child.name);
                 AppData.Instance.SetGame(AppData.MARS_GAMES[MarsDefs.getMovementIndex(child.name)]);
-                // Check if assessment is done, else the next scene will be the corresponding assessment scene.
-                if (AppData.Instance.selectedMovement.currentArom == null)
+                // Check if assessment is done or if the correct assessment is available, 
+                // else the next scene will be the corresponding assessment scene.
+                bool noAssessAvailable = AppData.Instance.selectedMovement.currentArom == null;
+                bool trainingPlaneMismatch = AppData.Instance.userData.trainingPlaneAngle != AppData.Instance.selectedMovement.currentArom?.trainingPlaneAngle;
+                Debug.Log($"Angles: {AppData.Instance.userData.trainingPlaneAngle} vs {AppData.Instance.selectedMovement.currentArom?.trainingPlaneAngle}");
+                if (noAssessAvailable || trainingPlaneMismatch)
                 {
                     // Next is an assessment scene;
                     nextScene = AppData.Instance.selectedMovement.name == "ML" ? assessmentSceneML :
                                 AppData.Instance.selectedMovement.name == "AP" ? assessmentSceneAP :
                                 AppData.Instance.selectedMovement.name == "MLAP" ? assessmentSceneMLAP : "";
                     message.text = "Press Mars Button to start assessment";
+                    additionalMessage.text = noAssessAvailable ? "No previous assessment found. Assessment will be done first." :
+                                             trainingPlaneMismatch ? "Training plane angle mismatch. Reassesment will be done first." : "";
                 }
                 else
                 {
@@ -215,6 +223,7 @@ public class MovementSceneHandler : MonoBehaviour
                     // Next is the game scene.
                     nextScene = AppData.MARS_GAMES_SCENES[MarsDefs.getMovementIndex(child.name)];
                     message.text = "Press Mars Button to start game";
+                    additionalMessage.text = "";
                 }
                 AppLogger.LogInfo($"Selected movement ({AppData.Instance.selectedMovement.name}) and game ({AppData.Instance.selectedGame})");
                 break;
@@ -266,4 +275,3 @@ public class MovementSceneHandler : MonoBehaviour
         MarsComm.OnMarsButtonReleased -= OnMarsButtonReleased;
     }
 }
-

@@ -24,6 +24,7 @@ public class CommonUI : MonoBehaviour
     public Text xRangeValueText;
     public Text yRangeValueText;
     public Button recalibrateButton;
+    public Button exitButton;
     public GameObject circlePrefab;
     public static readonly Color LIGHT_GRAY = new Color(0.65f, 0.65f, 0.65f);
     public static readonly Color LIGHTER_GRAY = new Color(0.93f, 0.93f, 0.93f);
@@ -79,9 +80,11 @@ public class CommonUI : MonoBehaviour
         aromLine2RendererOld.endWidth = 0.01f;
         aromLine2RendererOld.startColor = LIGHT_BLUE;
         aromLine2RendererOld.endColor = LIGHT_BLUE;
-        
+
         // Hide recalibrate button initially
         recalibrateButton.gameObject.SetActive(false);
+        // Exit button is always visible.
+        exitButton.gameObject.SetActive(true);
     }
 
     public void ClearLineRenderers()

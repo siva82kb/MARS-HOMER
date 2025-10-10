@@ -110,6 +110,11 @@ public class MarsUserData
         readParseTrainingPlaneData(DataManager.trainingPlaneFile);
     }
 
+    public void reloadTrainingPlaneAngle()
+    {
+        readParseTrainingPlaneData(DataManager.trainingPlaneFile);
+    }
+
     public void parsemoveTimePrev()
     {
         moveTimePrev = createMoveTimeDictionary();
@@ -374,7 +379,7 @@ public class MarsArom
         bottomAdjusted = Vector2.zero;
         leftAdjusted = Vector2.zero;
         rightAdjusted = Vector2.zero;
-        trainingPlaneAngle = 0f;
+        trainingPlaneAngle = AppData.Instance.userData.trainingPlaneAngle;
     }
 
     public void setMovement(string movName) => movement = (movement == null) ? movName : movement;
@@ -454,7 +459,7 @@ public class MarsArom
         {
             // Write the actual data
             file.WriteLine(string.Join(",", new string[] {
-                datetime, assessno.ToString(), trainingPlaneAngle.ToString("F2"),
+                datetime, (assessno + 1).ToString(), trainingPlaneAngle.ToString(),
                 topRaw.x.ToString(), topRaw.y.ToString(), bottomRaw.x.ToString(), bottomRaw.y.ToString(),
                 leftRaw.x.ToString(), leftRaw.y.ToString(), rightRaw.x.ToString(), rightRaw.y.ToString(),
                 topAdjusted.x.ToString(), topAdjusted.y.ToString(), bottomAdjusted.x.ToString(), bottomAdjusted.y.ToString(),
