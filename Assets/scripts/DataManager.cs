@@ -18,22 +18,34 @@ public struct DaySummary
 public class DataManager : MonoBehaviour
 {
     public static readonly string basePath = FixPath(Path.Combine(Application.dataPath, "data"));
-    public static string userpath;
+    public static string userPath;
     public static string sessionPath { get; private set; }
     public static string rawPath { get; private set; }
     public static string romPath { get; private set; }
-    public static string gamepath { get; private set; }
+    public static string armWeightPath { get; private set; }
+    public static string trainingPlanePath { get; private set; }
+    public static string gamePath { get; private set; }
     public static string logPath { get; private set; }
 
     public static string sessionFile { get; private set; }
     public static string configFile;
     private static readonly string configFileName = "configdata.csv";
     public static string trainingPlaneFile;
+    public static string armWeightFile;
+    public static readonly string armWeightFileName = "armweight.csv";
     private static readonly string trainingPlaneFileName = "trainingplane.csv";
     public static string romFile;
     private static readonly string romFileName = "rom.csv";
     public static string[] TRAININGPLANEFILEHEADER = new string[] {
         "DateTime", "TrainingPlaneAngle"
+    };
+    public static string[] ARMWEIGHTFILEHEADER = new string[] {
+        "DateTime", "AssessNo", "TrainingPlaneAngle",
+        "LeftTargetX", "LeftTargetY", "LeftActualX", "LeftActualY", "LeftForce",
+        "RightTargetX", "RightTargetY", "RightActualX", "RightActualY", "RightForce",
+        "TopTargetX", "TopTargetY", "TopActualX", "TopActualY", "TopForce",
+        "BottomTargetX", "BottomTargetY", "BottomActualX", "BottomActualY", "BottomForce",
+        "RawDataFileName"
     };
     // Session file name.
     private static string sessionFileName = "sessions.csv";
@@ -59,15 +71,15 @@ public class DataManager : MonoBehaviour
         "EndPointX", "EndPointY", "EndPointZ",
         "EndPointYPlane","EndPointZPlane",
         "Error", "ErrorDiff", "ErrorSum",
-        "GamePlayerX", "GamePlayerY", "GameTargetX", "GameTargetY", "GameState"
+        "GamePlayerX", "GamePlayerY", "GameTargetX", "GameTargetY", "GameState",
+        "Annotation"
     };
     public static string DATETIMEFORMAT = "yyyy-MM-dd HH:mm:ss";
 
     // Functions to generate file names.
-
     public static string GetRomFileName(string movement) => FixPath(Path.Combine(romPath, $"{movement}-rom.csv"));
     public static string GetRomRawFileName(string movement, string datetime) => FixPath(Path.Combine(romPath, $"romraw-{movement}-{datetime.Replace(" ", "-").Replace(":", "-")}.csv"));
-    
+    public static string GetArmWeightRawFileName(string datetime) => FixPath(Path.Combine(armWeightPath, $"armweightraw-{datetime.Replace(" ", "-").Replace(":", "-")}.csv"));
     public static string GetTrialRawDataFileName(int sessNo, int trialNo, string game, string movement) => FixPath(Path.Combine(rawPath, $"raw-sess{sessNo:D2}-trial{trialNo:D3}-{game}-{movement}.csv"));
 
     public static void CreateFileStructure(string userID)
@@ -75,22 +87,29 @@ public class DataManager : MonoBehaviour
         // Update the user ID path. If the userID is empty, do nothing.
         if (string.IsNullOrEmpty(userID)) return;
         // User ID is not empty.
-        userpath = FixPath(Path.Combine(basePath, userID, "data"));
-        configFile = userpath + $"/{configFileName}";
-        trainingPlaneFile = userpath + $"/{trainingPlaneFileName}";
-        sessionPath = userpath + "/sessions";
-        romPath = userpath + "/rom";
-        rawPath = userpath + "/rawdata";
-        gamepath = userpath + "/game";
-        logPath = userpath + "/applog";
-        romFile = romPath+$"/{romFileName}";
+        userPath = FixPath(Path.Combine(basePath, userID, "data"));
+        configFile = userPath + $"/{configFileName}";
+        sessionPath = userPath + "/sessions";
+        romPath = userPath + "/rom";
+        rawPath = userPath + "/rawdata";
+        gamePath = userPath + "/game";
+        logPath = userPath + "/applog";
+        // Training Plane
+        trainingPlanePath = userPath + "/trainingplane";
+        trainingPlaneFile = trainingPlanePath + $"/{trainingPlaneFileName}";
+        // Arm Weight
+        armWeightPath = userPath + "/armweight";
+        armWeightFile = armWeightPath + $"/{armWeightFileName}";
+        // Session
         sessionFile = FixPath(Path.Combine(sessionPath, sessionFileName));
         Directory.CreateDirectory(sessionPath);
         Directory.CreateDirectory(romPath);
+        Directory.CreateDirectory(trainingPlanePath);
+        Directory.CreateDirectory(armWeightPath);
         Directory.CreateDirectory(rawPath);
-        Directory.CreateDirectory(gamepath);
+        Directory.CreateDirectory(gamePath);
         Directory.CreateDirectory(logPath);
-        Debug.Log("Directory created at: " + userpath);
+        Debug.Log("Directory created at: " + userPath);
     }
 
     public static string FixPath(string path) => path.Replace("\\", "/");
@@ -128,6 +147,24 @@ public class DataManager : MonoBehaviour
                 writer.WriteLine(string.Join(",", header));
             }
             AppLogger.LogWarning($"{trainingPlaneFileName} file not found. Created one.");
+        }
+    }
+
+    public static void CreateArmWeightFile(string userID, string device, string location, string[] header = null)
+    {
+        // Ensure the ArmWeight.csv file has headers if it doesn't exist
+        if (!File.Exists(armWeightFile))
+        {
+            header ??= ARMWEIGHTFILEHEADER;
+            using (var writer = new StreamWriter(armWeightFile, false, Encoding.UTF8))
+            {
+                // Write the preheader details
+                writer.WriteLine($":Location: {location}");
+                writer.WriteLine($":Device: {device}");
+                writer.WriteLine($":User: {userID}");
+                writer.WriteLine(string.Join(",", header));
+            }
+            AppLogger.LogWarning($"{armWeightFileName} file not found. Created one.");
         }
     }
 

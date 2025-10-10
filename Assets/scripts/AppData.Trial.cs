@@ -196,6 +196,7 @@ public partial class AppData
             rawDataString.Append($"{_targetPos.x},");
             rawDataString.Append($"{_targetPos.y},");
             rawDataString.Append($"{GetGameState()}");
+            rawDataString.Append($"{AppData.Instance.annotation}");
             rawDataString.Append("\n");
         }
     }
@@ -259,6 +260,47 @@ public partial class AppData
         }
         MarsComm.OnNewMarsData -= OnNewMarsDataDataLogging;
         trialAromDataFile = null;
+    }
+    
+    // Arm Weight assessment raw data logging function.
+    public void StartRawDataArmWeightDataLogging(string movement, string datetime)
+    {
+        // Set the file name.
+        trialArmWeightDataFile = DataManager.GetArmWeightRawFileName(datetime);
+        Debug.Log(trialArmWeightDataFile);
+
+        // Initialize the string builders.
+        rawDataString = new StringBuilder();
+        // Write pre-header and header information
+        rawDataString.AppendLine($":Device: MARS");
+        rawDataString.AppendLine($":Location: {userData.GetDeviceLocation()}");
+        rawDataString.AppendLine($":Movement: {selectedMovement.name}");
+        rawDataString.AppendLine(string.Join(",", DataManager.RAWFILEHEADER));
+
+        // Attach the event handler for data logging.
+        MarsComm.OnNewMarsData += OnNewMarsDataDataLogging;
+    }
+
+    public void StopRawDataArmWeightDataLogging()
+    {
+        AppLogger.LogInfo($"Writing Arm Weight raw data to {trialArmWeightDataFile}");
+        string _dir = Path.GetDirectoryName(trialArmWeightDataFile);
+
+        // Create directory if it doesn't exist.
+        if (!Directory.Exists(_dir)) Directory.CreateDirectory(_dir);
+
+        // Write the raw data to file.
+        lock (rawDataLock)  // locking
+        {
+            using (StreamWriter sw = new StreamWriter(trialAromDataFile, false, Encoding.UTF8))
+            {
+                sw.Write(rawDataString.ToString());
+            }
+            rawDataString.Clear();
+            rawDataString = null;
+        }
+        MarsComm.OnNewMarsData -= OnNewMarsDataDataLogging;
+        trialArmWeightDataFile = null;
     }
 
     //CHECK FOR MARS

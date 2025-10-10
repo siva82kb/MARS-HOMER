@@ -681,7 +681,6 @@ public abstract class MarsAssessAROM : MonoBehaviour
                 AppLogger.LogInfo($"Change scene flag set.");
                 break;
         }
-
     }
     
     protected virtual void OnDestroy()

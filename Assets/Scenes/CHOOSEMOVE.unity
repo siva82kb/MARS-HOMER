@@ -189,8 +189,8 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "Press Ctrl+R  To Choose TrainingPlane \nPress Ctrl+A  To Assess Range
-    of Motion"
+  m_Text: "Press Ctrl+T To Choose TrainingPlane \nPress Ctrl+W To Measure Arm Weight\nPress
+    Ctrl+A  To Assess Range of Motion"
 --- !u!222 &36844152
 CanvasRenderer:
   m_ObjectHideFlags: 0

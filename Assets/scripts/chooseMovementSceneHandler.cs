@@ -28,6 +28,7 @@ public class MovementSceneHandler : MonoBehaviour
     public readonly string marsSetupScene = "MARSSETUP";
     public readonly string robotCalibScene = "ROBOTCALIB";
     private readonly string trainingPlaneScene = "CHOOSEPLANE";
+    private readonly string armWeightScene = "ARMWEIGHT";
     private readonly string marsSetUp = "MARSSETUP";
     private readonly string exitScene = "SUMMARY";
 
@@ -99,11 +100,29 @@ public class MovementSceneHandler : MonoBehaviour
                 changeScene = true;
             }
         }
-        else if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.R))
+        else if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.T))
         {
             // Switch to the training plane scene.
             nextScene = trainingPlaneScene;
             changeScene = true;
+        }
+        else if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.W))
+        {
+            // First check of MLAP assessment has been completed for the current training angle.
+            if (AppData.Instance.userData.IsAromAssessmentAvailableForTrainingAngle("MLAP"))
+            {
+                // Switch to the training plane scene.
+                nextScene = armWeightScene;
+                changeScene = true;
+            }
+            else
+            {
+                additionalMessage.text = "MLAP assessment needs to be completed first.";
+                // Switch to the MLAP AROM assessment scene.
+                AppData.Instance.SetMovement("MLAP");
+                nextScene = assessmentSceneMLAP;
+                changeScene = true;
+            }
         }
 
         //Check if a scene change is needed.

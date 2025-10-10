@@ -6,6 +6,8 @@ using System.Linq;
 using UnityEngine;
 using System.IO;
 using System.Text;
+using System.Numerics;
+using UnityEngine;
 
 
 public static class MarsDefs
@@ -18,8 +20,10 @@ public static class MarsDefs
     // Centre position
     public static readonly float EPCENTERZ = (EPMAXZ + EPMINZ) / 2;
     public static readonly float EPCENTERY = (EPMAXY + EPMINY) / 2;
-    
+
     public static readonly string[] Movements = new string[] { "ML", "AP", "MLAP" };
+    
+    public static readonly float TRAINING_PLANE_ANGLE_THRESHOLD = 5f; // Degrees
    
     public static int getMovementIndex(string Movement)
     {
@@ -38,8 +42,6 @@ public class MarsUserData
     public const string HOSPITALNUMBER = "HospitalNumber";
     public const string STARTEDATEH = "StartDate";
     public const string TRAININGSIDE = "TrainingSide";
-    public const string FORARMLENGTH = "forearmLength";
-    public const string UPPERARMLENGTH = "upperarmLength";
 
     public bool isExceeded { get; private set; }
     public DataTable dTableConfig { get; private set; } = null;
@@ -221,7 +223,15 @@ public class MarsUserData
         return daySummaries;
     }
 
-    
+    public bool IsAromAssessmentAvailableForTrainingAngle(string movement)
+    {
+        if (MarsArom.AromFileExists(movement))
+        {
+            var arom = new MarsArom(movement, readFromFile: true);
+            return Mathf.Abs(arom.trainingPlaneAngle - AppData.Instance.userData.trainingPlaneAngle) <= MarsDefs.TRAINING_PLANE_ANGLE_THRESHOLD;
+        }
+        return false;
+    } 
 }
 
 // Class representing movements trained by MARS
@@ -335,16 +345,16 @@ public class MarsArom
     private List<float[]> rawData;
 
     // Locations of the raw AROM quadrilateral
-    public Vector2 topRaw { get; private set; }
-    public Vector2 bottomRaw { get; private set; }
-    public Vector2 leftRaw { get; private set; }
-    public Vector2 rightRaw { get; private set; }
+    public UnityEngine.Vector2 topRaw { get; private set; }
+    public UnityEngine.Vector2 bottomRaw { get; private set; }
+    public UnityEngine.Vector2 leftRaw { get; private set; }
+    public UnityEngine.Vector2 rightRaw { get; private set; }
 
     // Locations of the adjusted AROM quadrilateral
-    public Vector2 topAdjusted { get; private set; }
-    public Vector2 bottomAdjusted { get; private set; }
-    public Vector2 leftAdjusted { get; private set; }
-    public Vector2 rightAdjusted { get; private set; }
+    public UnityEngine.Vector2 topAdjusted { get; private set; }
+    public UnityEngine.Vector2 bottomAdjusted { get; private set; }
+    public UnityEngine.Vector2 leftAdjusted { get; private set; }
+    public UnityEngine.Vector2 rightAdjusted { get; private set; }
     private string rawDataFilename;
     public bool isAssessing => rawData != null;
 
@@ -371,14 +381,14 @@ public class MarsArom
         movement = movementName;
         assessno = 1;
         rawData = null;
-        topRaw = Vector2.zero;
-        bottomRaw = Vector2.zero;
-        leftRaw = Vector2.zero;
-        rightRaw = Vector2.zero;
-        topAdjusted = Vector2.zero;
-        bottomAdjusted = Vector2.zero;
-        leftAdjusted = Vector2.zero;
-        rightAdjusted = Vector2.zero;
+        topRaw = UnityEngine.Vector2.zero;
+        bottomRaw = UnityEngine.Vector2.zero;
+        leftRaw = UnityEngine.Vector2.zero;
+        rightRaw = UnityEngine.Vector2.zero;
+        topAdjusted = UnityEngine.Vector2.zero;
+        bottomAdjusted = UnityEngine.Vector2.zero;
+        leftAdjusted = UnityEngine.Vector2.zero;
+        rightAdjusted = UnityEngine.Vector2.zero;
         trainingPlaneAngle = AppData.Instance.userData.trainingPlaneAngle;
     }
 
@@ -416,23 +426,23 @@ public class MarsArom
             // Right point is the average of the bottom 5% of the points.
             rightRaw = AverageofExtremeEnds(orderedByX, 0.05f, false);
             // Adjusted points are same as raw points initially.
-            topAdjusted = new Vector2(topRaw.x, topRaw.y);
-            bottomAdjusted = new Vector2(bottomRaw.x, bottomRaw.y);
-            leftAdjusted = new Vector2(leftRaw.x, leftRaw.y);
-            rightAdjusted = new Vector2(rightRaw.x, rightRaw.y);
+            topAdjusted = new UnityEngine.Vector2(topRaw.x, topRaw.y);
+            bottomAdjusted = new UnityEngine.Vector2(bottomRaw.x, bottomRaw.y);
+            leftAdjusted = new UnityEngine.Vector2(leftRaw.x, leftRaw.y);
+            rightAdjusted = new UnityEngine.Vector2(rightRaw.x, rightRaw.y);
             // Write raw data to file.
 
         }
         rawData = null;
     }
 
-    public void setAdjustedAromTop(float x, float y) => topAdjusted = new Vector2(x, y);
+    public void setAdjustedAromTop(float x, float y) => topAdjusted = new UnityEngine.Vector2(x, y);
 
-    public void setAdjustedAromBottom(float x, float y) => bottomAdjusted = new Vector2(x, y);
+    public void setAdjustedAromBottom(float x, float y) => bottomAdjusted = new UnityEngine.Vector2(x, y);
 
-    public void setAdjustedAromLeft(float x, float y) => leftAdjusted = new Vector2(x, y);
+    public void setAdjustedAromLeft(float x, float y) => leftAdjusted = new UnityEngine.Vector2(x, y);
 
-    public void setAdjustedAromRight(float x, float y) => rightAdjusted = new Vector2(x, y);
+    public void setAdjustedAromRight(float x, float y) => rightAdjusted = new UnityEngine.Vector2(x, y);
 
     public void WriteToAssessmentFile()
     {
@@ -492,28 +502,28 @@ public class MarsArom
         movement = movementName;
         assessno = int.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("assessno"));
         // Assign the raw locations
-        topRaw = new Vector2(float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("TopRawX")),
-                             float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("TopRawY")));
-        bottomRaw = new Vector2(float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("BottomRawX")),
-                                float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("BottomRawY")));
-        leftRaw = new Vector2(float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("LeftRawX")),
-                              float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("LeftRawY")));
-        rightRaw = new Vector2(float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("RightRawX")),
-                               float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("RightRawY")));
+        topRaw = new UnityEngine.Vector2(float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("TopRawX")),
+                                         float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("TopRawY")));
+        bottomRaw = new UnityEngine.Vector2(float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("BottomRawX")),
+                                            float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("BottomRawY")));
+        leftRaw = new UnityEngine.Vector2(float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("LeftRawX")),
+                                          float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("LeftRawY")));
+        rightRaw = new UnityEngine.Vector2(float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("RightRawX")),
+                                           float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("RightRawY")));
         // Assign the adjusted locations
-        topAdjusted = new Vector2(float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("TopAdjustedX")),
-                                  float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("TopAdjustedY")));
-        bottomAdjusted = new Vector2(float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("BottomAdjustedX")),
-                                     float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("BottomAdjustedY")));
-        leftAdjusted = new Vector2(float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("LeftAdjustedX")),
-                                   float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("LeftAdjustedY")));
-        rightAdjusted = new Vector2(float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("RightAdjustedX")),
-                                    float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("RightAdjustedY")));
+        topAdjusted = new UnityEngine.Vector2(float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("TopAdjustedX")),
+                                              float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("TopAdjustedY")));
+        bottomAdjusted = new UnityEngine.Vector2(float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("BottomAdjustedX")),
+                                                 float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("BottomAdjustedY")));
+        leftAdjusted = new UnityEngine.Vector2(float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("LeftAdjustedX")),
+                                               float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("LeftAdjustedY")));
+        rightAdjusted = new UnityEngine.Vector2(float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("RightAdjustedX")),
+                                                float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("RightAdjustedY")));
         trainingPlaneAngle = float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("TrainingPlaneAngle"));
         return true;
     }
-    
-    private Vector2 AverageofExtremeEnds(List<float[]> orderList, float percentage = 0.1f, bool fromStart = true)
+
+    private UnityEngine.Vector2 AverageofExtremeEnds(List<float[]> orderList, float percentage = 0.1f, bool fromStart = true)
     {
         int count = (int)(orderList.Count * percentage);
         float avgX = 0f;
@@ -525,9 +535,176 @@ public class MarsArom
         }
         avgX /= count;
         avgY /= count;
-        return new Vector2(avgX, avgY);
+        return new UnityEngine.Vector2(avgX, avgY);
     }
 }
+
+// Arm Weight Class.
+public class ArmWeight
+{
+    // Class attributes to store data read from the file
+    public enum ARMWEIGHT_TARGET
+    {
+        NONE = -1,
+        LEFT = 0,
+        RIGHT = 1,
+        TOP = 2,
+        BOTTOM = 3,
+        CENTER = 4,
+    }
+
+    public string datetime;
+    public int assessno { get; private set; }
+    public MarsArom mlapArom { get; private set; }
+    public float trainingPlaneAngle => mlapArom != null ? mlapArom.trainingPlaneAngle : 0f;
+
+    // Raw data recorded during the assessment of AROM: each entry is [x, y, force]
+    private List<float[]> rawData;
+    public ARMWEIGHT_TARGET currentTarget { get; private set; } = ARMWEIGHT_TARGET.NONE;
+    public float[,] targetPos { get; private set; }
+    public float[,] actualPos { get; private set; }
+    public float[] actualForce { get; private set; }
+    private string rawDataFilename;
+    public bool[] targetAssessmentStatus { get; private set; }
+    public bool isAssessmentComplete => targetAssessmentStatus != null && targetAssessmentStatus.All(status => status);
+    public bool isAssessingTarget => rawData != null;
+
+    public static bool ArmWeightFileExists() => File.Exists(DataManager.armWeightFileName);
+
+    // Constructor that reads the file and initializes values based on the mechanism
+    public ArmWeight(bool readFromFile)
+    {
+        if (readFromFile)
+        {
+            // File reading is not implemented here; initialize defaults for now.
+            initializeNewArmWeightAssessment();
+        }
+        else initializeNewArmWeightAssessment();
+    }
+
+    private void initializeNewArmWeightAssessment()
+    {
+        datetime = DateTime.Now.ToString();
+        assessno = 1;
+        mlapArom = new MarsArom("MLAP", readFromFile: true);
+        targetPos = null;
+        actualPos = null;
+        actualForce = null;
+        targetAssessmentStatus = null;
+        rawData = null;
+    }
+
+    public void initializeArmWeightAssessment()
+    {
+        currentTarget = ARMWEIGHT_TARGET.NONE;
+        targetPos = new float[5, 2];
+        actualPos = new float[5, 2];
+        actualForce = new float[5];
+        targetAssessmentStatus = new bool[5];
+        // Assign all assessment status to false.
+        for (int i = 0; i < targetAssessmentStatus.Length; i++)
+        {
+            targetAssessmentStatus[i] = false;
+        }
+    }
+
+    public void startArmWeightAssessment(ARMWEIGHT_TARGET target)
+    {
+        if (target == ARMWEIGHT_TARGET.NONE) return;
+        if (rawData == null)
+        {
+            rawData = new List<float[]>();
+            currentTarget = target;
+            int idx = (int)currentTarget;
+            float[] _targetPos = getMLAPAromTarget(currentTarget);  
+            targetPos[idx, 0] = _targetPos[0];
+            targetPos[idx, 1] = _targetPos[1];
+        }
+    }
+
+    public void addArmWeightDataPoint(float x, float y, float force)
+    {
+        if (rawData != null)
+        {
+            rawData.Add(new float[] { x, y, force });
+        }
+    }
+
+    public void stopArmWeightAssessment()
+    {
+        if (rawData != null && rawData.Count > 0)
+        {
+            // Compute the average of the recorded positions and force.
+            int idx = (int)currentTarget;
+            actualPos[idx, 0] = rawData.Average(p => p[0]);
+            actualPos[idx, 1] = rawData.Average(p => p[1]);
+            actualForce[idx] = rawData.Average(p => p[2]);
+            // Update target assessment status
+            targetAssessmentStatus[idx] = true;
+        }
+        rawData = null;
+        currentTarget = ARMWEIGHT_TARGET.NONE;
+    }
+
+    public void WriteToArmWeightFile()
+    {
+        // Check if assessment is complete. Else there is nothing to write.
+        if (!isAssessmentComplete) return;
+
+        // Assessment is complete
+        string fileName = DataManager.armWeightFileName;
+        // Create the file if it doesn't exist
+        if (!File.Exists(fileName))
+        {
+            using (var file = new StreamWriter(fileName, false, Encoding.UTF8))
+            {
+                // Write the pre-header to the file.
+                StringBuilder rawDataString = new StringBuilder();
+                rawDataString.AppendLine(string.Join(",", DataManager.ARMWEIGHTFILEHEADER));
+                file.Write(rawDataString.ToString());
+            }
+        }
+        // First write the raw data file.
+        string _rawfilename = DataManager.GetArmWeightRawFileName(datetime);
+        // Write the assessment data to the file.
+        using (StreamWriter file = new StreamWriter(fileName, true))
+        {
+            // Write the actual data
+            file.WriteLine(string.Join(",", new string[] {
+                datetime, (assessno + 1).ToString(), trainingPlaneAngle.ToString(),
+                targetPos[0,0].ToString(), targetPos[0,1].ToString(), actualPos[0,0].ToString(), actualPos[0,1].ToString(), actualForce[0].ToString(),
+                targetPos[1,0].ToString(), targetPos[1,1].ToString(), actualPos[1,0].ToString(), actualPos[1,1].ToString(), actualForce[1].ToString(),
+                targetPos[2,0].ToString(), targetPos[2,1].ToString(), actualPos[2,0].ToString(), actualPos[2,1].ToString(), actualForce[2].ToString(),
+                targetPos[3,0].ToString(), targetPos[3,1].ToString(), actualPos[3,0].ToString(), actualPos[3,1].ToString(), actualForce[3].ToString(),
+                targetPos[4,0].ToString(), targetPos[4,1].ToString(), actualPos[4,0].ToString(), actualPos[4,1].ToString(), actualForce[4].ToString(),
+                _rawfilename
+            }));
+        }
+    }
+    
+    private float[] getMLAPAromTarget(ARMWEIGHT_TARGET target)
+    {
+        switch(target)
+        {
+            case ARMWEIGHT_TARGET.LEFT:
+                return new float[] { mlapArom.leftAdjusted.x, mlapArom.leftAdjusted.y };
+            case ARMWEIGHT_TARGET.RIGHT:
+                return new float[] { mlapArom.rightAdjusted.x, mlapArom.rightAdjusted.y };
+            case ARMWEIGHT_TARGET.TOP:
+                return new float[] { mlapArom.topAdjusted.x, mlapArom.topAdjusted.y };
+            case ARMWEIGHT_TARGET.BOTTOM:
+                return new float[] { mlapArom.bottomAdjusted.x, mlapArom.bottomAdjusted.y };
+            case ARMWEIGHT_TARGET.CENTER:
+                return new float[] {
+                    (mlapArom.leftAdjusted.x + mlapArom.rightAdjusted.x + mlapArom.topAdjusted.x + mlapArom.bottomAdjusted.x) / 4,
+                    (mlapArom.leftAdjusted.y + mlapArom.rightAdjusted.y + mlapArom.topAdjusted.y + mlapArom.bottomAdjusted.y) / 4
+                };
+        }   
+        return null;
+    }
+
+}
+
 
 public static class Miscellaneous
 {

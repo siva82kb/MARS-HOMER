@@ -32,6 +32,7 @@ public partial class AppData
     */
     public string trialRawDataFile { get; private set; } = null;
     public string trialAromDataFile { get; private set; } = null;
+    public string trialArmWeightDataFile { get; private set; } = null;
     static public string trialDataFileLocation;
     private StringBuilder rawDataString = null;
     private readonly object rawDataLock = new object();
@@ -45,6 +46,9 @@ public partial class AppData
     public MarsArom currentArom { get; private set; } = null;
     public MarsUserData userData;
     public string trainingSide => userData?.limb != null ? MarsComm.LIMBTYPE[userData.limb] : MarsComm.LIMBTYPE[0];
+
+    // An annotation integer for scenes to set annotation it the raw data.
+    public uint annotation = 0;
 
     public void Initialize(string scene)
     {
