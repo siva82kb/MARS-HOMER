@@ -70,7 +70,7 @@ public class sheepController : MonoBehaviour
         );
 
         // Smoothly interpolate from current to target position
-        float smoothSpeed = 5f; // Adjust this for more or less smoothing
+        float smoothSpeed = 10f; // Adjust this for more or less smoothing
         transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * smoothSpeed);
 
     }
@@ -116,7 +116,7 @@ public class sheepController : MonoBehaviour
         if (GameController.Instance.targetTimer != null)
             GameController.Instance.targetTimer.SetActive(false);
         // Check if this is the target object
-        if (collision.gameObject == GameController.Instance.target)
+        if (collision.gameObject == GameController.Instance.target && !GameController.Instance.isSuccess)
         {
             isColliding = true;
          

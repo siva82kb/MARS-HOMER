@@ -50,6 +50,10 @@ public class GameController : MonoBehaviour
     public GameObject targerPrefeb;
     public AudioSource appleEatingSound;
     public AudioSource failSound;
+
+    //catchDiamond
+    public ParticleSystem hightlightsprefeb;
+    public ParticleSystem hightlights;
     public enum GameStates
     {
         WAITING = 0,
@@ -176,7 +180,7 @@ public class GameController : MonoBehaviour
                         
                         waitTime = gameSpeed;
                         targetTimer = Instantiate(targetTimerPrefeb, uiCanvas.transform);
-                        Vector3 screenPos = Camera.main.WorldToScreenPoint(target.transform.position);//just above the sheep
+                        Vector3 screenPos = Camera.main.WorldToScreenPoint(target.transform.position);
                         targetTimer.transform.position = screenPos;
                         runOnce = false;
                         gameState = GameStates.WAITFOREAT;
@@ -199,6 +203,7 @@ public class GameController : MonoBehaviour
 
                 if (waitTime <= 0f) // Add check
                 {
+                    failSound.Play();
                     //if (isSuccess) gameState = GameStates.SUCCESS;
                     Debug.Log(waitTime + "waittime" + isFailure + isSuccess);
                     nFailure++;
@@ -210,7 +215,7 @@ public class GameController : MonoBehaviour
                 break;
             case GameStates.SUCCESS:
             case GameStates.FAILURE:
-                if (GameStates.FAILURE == gameState) failSound.Play();
+               
                 if (eventDelayTimer <= 0f)
                 {
                     eventDelayTimer = 0.5f;
@@ -226,6 +231,7 @@ public class GameController : MonoBehaviour
                         isSuccess = false;
                         gameState = isTimeUp ? GameStates.STOP : GameStates.SPAWNFRUIT;
                         if(target!=null)Destroy(target);
+                        if(hightlights)
                         sheepController.instance.destroyParticals();
                         if (targetTimer != null)Destroy(targetTimer);
                         runOnce = false;
@@ -265,11 +271,8 @@ public class GameController : MonoBehaviour
 
         // Instantiate the target
         target = Instantiate(targerPrefeb, spawnPos, Quaternion.identity);
-        //float x = UnityEngine.Random.Range(xMin, xMax);
-        //float y = UnityEngine.Random.Range(yMin, yMax);
-        
-        //target = Instantiate(targerPrefeb, new Vector3(x, y, 0), Quaternion.identity);
-        //target.transform.position = new Vector3(x, y, 0);
+        //hightlights = Instantiate(hightlightsprefeb, spawnPos, Quaternion.identity);
+        //hightlights.Play();
         if (target.transform.position.x > 0)
         {
             target.GetComponent<SpriteRenderer>().flipX = true;

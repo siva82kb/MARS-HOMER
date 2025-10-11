@@ -22,7 +22,7 @@ public class Player_controller_s : MonoBehaviour
 
     public static float xMin, yMin, xMax, yMax;
 
-    public float ShootInterval = 1f;
+    private float ShootInterval = 0.5f;
     private float timeSinceLastShot = 0f;  // Timer to track intervals between shots
   
     float  yEndPoint, zEndPoing;
@@ -108,6 +108,14 @@ public class Player_controller_s : MonoBehaviour
         {
             return; // Stop shooting when the game is ove
         }
+        if (Player_collision_handler.instance.isHit)
+        {
+            timeSinceLastShot = 0f;
+            ShootInterval = 3f;
+            Player_collision_handler.instance.isHit = false;
+
+        }
+      
         // Track time passed
         timeSinceLastShot += Time.deltaTime;
 
@@ -116,6 +124,7 @@ public class Player_controller_s : MonoBehaviour
         {
             Attack();
             timeSinceLastShot = 0f;  // Reset timer after shooting
+            ShootInterval = 0.5f;
         }
     }
     void Attack()

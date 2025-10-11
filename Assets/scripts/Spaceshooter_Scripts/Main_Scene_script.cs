@@ -9,7 +9,7 @@ public class Main_Scene_script : MonoBehaviour
 {
   
     public static bool changeScene = false;
-    public readonly string nextScene = "SpaceShooter_Level1";
+    public readonly string nextScene = "SS";
     // Start is called before the first frame update
     void Start()
     {

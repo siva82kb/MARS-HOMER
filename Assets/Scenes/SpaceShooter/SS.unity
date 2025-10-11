@@ -316,6 +316,18 @@ PrefabInstance:
       propertyPath: m_LocalPosition.y
       value: 4.7
       objectReference: {fileID: 0}
+    - target: {fileID: 2767126585586093210, guid: 831331beb302ef643976918dac23102c, type: 3}
+      propertyPath: ExplosionSound
+      value: 
+      objectReference: {fileID: 8300000, guid: b0e24cfc8e5a6dd43877d485735585f5, type: 3}
+    - target: {fileID: 2854253612371998874, guid: 831331beb302ef643976918dac23102c, type: 3}
+      propertyPath: m_Resource
+      value: 
+      objectReference: {fileID: 8300000, guid: b0e24cfc8e5a6dd43877d485735585f5, type: 3}
+    - target: {fileID: 2854253612371998874, guid: 831331beb302ef643976918dac23102c, type: 3}
+      propertyPath: m_audioClip
+      value: 
+      objectReference: {fileID: 8300000, guid: b0e24cfc8e5a6dd43877d485735585f5, type: 3}
     - target: {fileID: 3590333365247324475, guid: 831331beb302ef643976918dac23102c, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.018
@@ -355,6 +367,10 @@ PrefabInstance:
     - target: {fileID: 3590333365247324475, guid: 831331beb302ef643976918dac23102c, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3834682533048506897, guid: 831331beb302ef643976918dac23102c, type: 3}
+      propertyPath: Priority
+      value: 121
       objectReference: {fileID: 0}
     - target: {fileID: 4974906490055517097, guid: 831331beb302ef643976918dac23102c, type: 3}
       propertyPath: ShootInterval

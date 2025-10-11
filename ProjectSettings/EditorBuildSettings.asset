@@ -167,5 +167,11 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/AROMML.unity
     guid: 96b190ff055be264abfe55b6d9ff575a
+  - enabled: 1
+    path: Assets/Scenes/AROMMLAP.unity
+    guid: 793495b1e14ff404793e832e7647eb8b
+  - enabled: 1
+    path: Assets/Scenes/AROMAP.unity
+    guid: acce3800dae44c245ac13915c5120e23
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0

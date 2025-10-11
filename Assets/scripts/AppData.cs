@@ -16,7 +16,7 @@ public partial class AppData
      * MARS GAME NAMES
      */
     public static readonly string[] MARS_GAMES = { "SS", "PP", "FS" };
-    public static readonly string[] MARS_GAMES_SCENES = { "SSHOME", "PPMENU", "FS" };
+    public static readonly string[] MARS_GAMES_SCENES = { "SS", "PP", "FS" };
     
     /*
      * SESSION DETAILS
