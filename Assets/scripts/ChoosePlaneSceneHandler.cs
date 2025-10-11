@@ -20,6 +20,7 @@ public class ChoosePlaneSceneHandler : MonoBehaviour
     public Toggle tglChangeCtrlBound;
     public Slider sliderTrainPlane;
     public Slider sliderCtrlBound;
+    public Button btnDone;
     private static string FLOAT_FORMAT = "+0.0;-0.0";
 
     public readonly string robotCalibScene = "ROBOTCALIB";
@@ -71,18 +72,12 @@ public class ChoosePlaneSceneHandler : MonoBehaviour
 
         // Initialize UI
         InitUI();
-        if (MarsComm.CONTROLTYPE[MarsComm.controlType] == "POSITION")
-        {
-           
-            currentState = ChooseTrainingPlaneStates.WAIT_FOR_LIMB_ATTACHMENT;
-        }
-        else
-        {
-            // Initialize state
-            currentState = ChooseTrainingPlaneStates.WAIT_FOR_HORIZONTAL_REACH;
-        }
-           
-            
+        currentState = MarsComm.CONTROLTYPE[MarsComm.controlType] == "POSITION"
+            ? ChooseTrainingPlaneStates.WAIT_FOR_LIMB_ATTACHMENT
+            : ChooseTrainingPlaneStates.WAIT_FOR_HORIZONTAL_REACH;
+        AppLogger.LogInfo($"Starting Choose Training Plane state: {currentState}");
+        
+        // Reset flags
         marsButtonReleased = false;
         calibButtonReleased = false;
     }
@@ -103,32 +98,6 @@ public class ChoosePlaneSceneHandler : MonoBehaviour
 
         // Run the statemachine
         runStateMachine();
-
-        // // Update status text.
-        // string _status = $"User Limb: {_limb} | {MarsComm.CALIBRATION[MarsComm.calibration]}\n{MarsComm.imu1Angle}deg, {MarsComm.imu2Angle}deg, {MarsComm.imu3Angle}deg, {MarsComm.imu4Angle}deg";
-        // // statusText.text = _status;
-
-        // // Check if scene is to be changed.
-        // if (MarsComm.CALIBRATION[MarsComm.calibration] == "YESCALIB")
-        // {
-        //     instructionText.text = "MARS calibration successful.";
-        //     SceneManager.LoadScene(nextScene);
-        // }
-        // else
-        // {
-        //     // Check if all angles are within 20deg.
-        //     if (Mathf.Abs(MarsComm.imu1Angle) > 20 || Mathf.Abs(MarsComm.imu2Angle) > 20 || Mathf.Abs(MarsComm.imu3Angle) > 20 || Mathf.Abs(MarsComm.imu4Angle) > 20)
-        //     {
-        //         instructionText.text = "Make sure all angles are within 20 degrees.";
-        //         instructionText.color = new Color32(202, 0, 0, 255);
-        //     }
-        //     else
-        //     {
-        //         instructionText.text = "Press the MARS Button when ready.";
-        //         instructionText.color = new Color32(202, 108, 0, 255);
-        //     }
-        // }
-      
     }
 
     private void InitUI()
@@ -145,6 +114,11 @@ public class ChoosePlaneSceneHandler : MonoBehaviour
         sliderTrainPlane.maxValue = 0f;
         // Attach some UI callbacks.
         sliderTrainPlane.onValueChanged.AddListener(delegate { OnTrainPlaneSliderValueChanged(); });
+        // Attach call back for the done button.
+        btnDone.onClick.AddListener(() => {
+            AppLogger.LogInfo($"Done button pressed. Leaving abruptly.");
+            SceneManager.LoadScene(nextScene); 
+        });
 
         // Hide control bound controls.
         tglChangeCtrlBound.interactable = false;
@@ -152,7 +126,6 @@ public class ChoosePlaneSceneHandler : MonoBehaviour
         ctrlBoundText.GameObject().SetActive(false);
         sliderCtrlBound.interactable = false;
         sliderCtrlBound.GameObject().SetActive(false);
-       
     }
 
     private void runStateMachine()
@@ -177,12 +150,19 @@ public class ChoosePlaneSceneHandler : MonoBehaviour
                             currentState = ChooseTrainingPlaneStates.WAIT_FOR_LIMB_ATTACHMENT;
                             marsButtonReleased = false;
                             calibButtonReleased = false;
+                            AppLogger.LogInfo($"Changing state to {currentState} | Target: {MarsComm.target} | Actual: {MarsComm.angle1}.");
                         }
                     }
                     else
                     {
                         MarsComm.setControlTarget(-90);
                     }
+                }
+                else
+                {
+                    // Set control to POSITION and set target to -90.
+                    MarsComm.setControlType("POSITION");
+                    MarsComm.setControlTarget(-90);
                 }
                 break;
 
@@ -199,6 +179,7 @@ public class ChoosePlaneSceneHandler : MonoBehaviour
                     newTrainingPlaneAngle = false;
                     setNewTrainingPlaneAngle = false;
                     calibButtonReleased = false;
+                    AppLogger.LogInfo($"Changing state to {currentState}.");
                 }
                 break;
 
@@ -216,6 +197,7 @@ public class ChoosePlaneSceneHandler : MonoBehaviour
                     if (setNewTrainingPlaneAngle)
                     {
                         MarsComm.setControlTarget(sliderTrainPlane.value);
+                        AppLogger.LogInfo($"Setting target to {sliderTrainPlane.value}.");
                         // Reset the new training plane angle flag if the target on MARS is same as the slider value.
                         setNewTrainingPlaneAngle = !(MarsComm.target == sliderTrainPlane.value);
                     }
@@ -233,6 +215,9 @@ public class ChoosePlaneSceneHandler : MonoBehaviour
                         AppData.Instance.userData.writeUpdateTrainingPlaneData(MarsComm.target);
                         marsButtonReleased = false;
                         currentState = ChooseTrainingPlaneStates.ALL_DONE;
+                        // Disable the slider.
+                        sliderTrainPlane.interactable = false;
+                        AppLogger.LogInfo($"Changing state to {currentState}.");
                     }
                 }
                 break;
@@ -242,6 +227,7 @@ public class ChoosePlaneSceneHandler : MonoBehaviour
                 {
                     marsButtonReleased = false;
                     // Go to the next scene.
+                    AppLogger.LogInfo($"Changing state to scene to {nextScene}.");
                     SceneManager.LoadScene(nextScene);
                 }
                 else
@@ -257,6 +243,7 @@ public class ChoosePlaneSceneHandler : MonoBehaviour
                         newTrainingPlaneAngle = false;
                         setNewTrainingPlaneAngle = false;
                         calibButtonReleased = false;
+                        AppLogger.LogInfo($"Changing state to {currentState} | Redoing training plane angle.");
                     }
                 }
                 break;
@@ -297,7 +284,6 @@ public class ChoosePlaneSceneHandler : MonoBehaviour
             // Send the training plane angle.
             setNewTrainingPlaneAngle = true;
         }
-
     }
    
     private void OnTrainPlaneSliderValueChanged()
@@ -311,12 +297,14 @@ public class ChoosePlaneSceneHandler : MonoBehaviour
 
     private void OnDestroy()
     {
+        // Reload the training plane angle from the config file.
+        AppData.Instance.userData.reloadTrainingPlaneAngle();
+        // Detach MARS event listeners.
         MarsComm.OnMarsButtonReleased -= onMarsButtonReleased;
     }
 
     private void OnApplicationQuit()
     {
-
         Application.Quit();
         JediComm.Disconnect();
     }

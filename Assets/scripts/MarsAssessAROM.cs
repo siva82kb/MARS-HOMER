@@ -107,6 +107,14 @@ public abstract class MarsAssessAROM : MonoBehaviour
 
         // Show old AROM if available
         showOldArom = oldMarsArom != null;
+
+        // Attach callback for the done button
+        commonUI.exitButton.onClick.AddListener(() =>
+        {
+            AppLogger.LogWarning("Done Button clicked. Existing assessment scene.");
+            // Move to the next scene, which will be the game scene.
+            changeScene = true;
+        });
     }
 
     protected virtual void Update()
@@ -274,67 +282,6 @@ public abstract class MarsAssessAROM : MonoBehaviour
     // Some useful conversion functions.
     private float robotToUnityX(float robotX) => OFFSET * SCALEX * ((robotX - MarsDefs.EPCENTERZ) / (MarsDefs.EPMAXZ - MarsDefs.EPMINZ));
     private float robotToUnityY(float robotY) => SCALEY * ((robotY - MarsDefs.EPCENTERY) / (MarsDefs.EPMAXY - MarsDefs.EPMINY));
-
-    private void showRawAromBoxLines()
-    {
-        // // What we show depends on the movement.
-        // switch (movement)
-        // {
-        //     case "ML":
-        //         // Show the raw AROM lines
-        //         float leftX = robotToUnityX(newMarsArom.leftRaw.x);
-        //         float rightX = robotToUnityX(newMarsArom.rightRaw.x);
-        //         // Update the raw AROM line renderers
-        //         commonUI.rawAromLine1Renderer.positionCount = 2;
-        //         commonUI.rawAromLine1Renderer.SetPositions(new Vector3[]
-        //         {
-        //             new Vector3(leftX, leftRightY, 0),
-        //             new Vector3(leftX, -leftRightY, 0)
-        //         });
-        //         commonUI.rawAromLine2Renderer.positionCount = 2;
-        //         commonUI.rawAromLine2Renderer.SetPositions(new Vector3[]
-        //         {
-        //             new Vector3(rightX, leftRightY, 0),
-        //             new Vector3(rightX, -leftRightY, 0)
-        //         });
-        //         break;
-        //     case "AP":
-        //         // Show the raw AROM lines
-        //         float topY = robotToUnityY(newMarsArom.topRaw.y);
-        //         float bottomY = robotToUnityY(newMarsArom.bottomRaw.y);
-        //         // Update the raw AROM line renderers
-        //         commonUI.rawAromLine1Renderer.positionCount = 2;
-        //         commonUI.rawAromLine1Renderer.SetPositions(new Vector3[]
-        //         {
-        //             new Vector3(topBottomX, topY, 0),
-        //             new Vector3(-topBottomX, topY, 0)
-        //         });
-        //         commonUI.rawAromLine2Renderer.positionCount = 2;
-        //         commonUI.rawAromLine2Renderer.SetPositions(new Vector3[]
-        //         {
-        //             new Vector3(topBottomX, bottomY, 0),
-        //             new Vector3(-topBottomX, bottomY, 0)
-        //         });
-        //         break;
-        //     case "MLAP":
-        //         // Show the raw AROM Box.
-        //         commonUI.rawAromBoxLineRenderer.positionCount = 5;
-        //         commonUI.rawAromBoxLineRenderer.SetPositions(new Vector3[]
-        //         {
-        //             // Left point
-        //             new Vector3(robotToUnityX(newMarsArom.leftRaw.x), robotToUnityY(newMarsArom.leftRaw.y), 0),
-        //             // Bottom point
-        //             new Vector3(robotToUnityX(newMarsArom.bottomRaw.x), robotToUnityY(newMarsArom.bottomRaw.y), 0),
-        //             // Right point
-        //             new Vector3(robotToUnityX(newMarsArom.rightRaw.x), robotToUnityY(newMarsArom.rightRaw.y), 0),
-        //             // Top point
-        //             new Vector3(robotToUnityX(newMarsArom.topRaw.x), robotToUnityY(newMarsArom.topRaw.y), 0),
-        //             // Closing the box (back to Left point)
-        //             new Vector3(robotToUnityX(newMarsArom.leftRaw.x), robotToUnityY(newMarsArom.leftRaw.y), 0)
-        //         });
-        //         break;
-        // }
-    }
 
     private void showAdjustedAromBoxLines()
     {
@@ -734,7 +681,6 @@ public abstract class MarsAssessAROM : MonoBehaviour
                 AppLogger.LogInfo($"Change scene flag set.");
                 break;
         }
-
     }
     
     protected virtual void OnDestroy()
