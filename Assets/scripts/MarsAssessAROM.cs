@@ -92,8 +92,8 @@ public abstract class MarsAssessAROM : MonoBehaviour
         currentPositionCircle.SetActive(true); // Initially hide the circle
 
         // Initialize offset
-        OFFSET = AppData.Instance.userData?.limb == 1 ? -1 : 1;
-
+        SetOffset();
+        
         // Initialize lists
         unityPoints = null;
         endPoints = null;
@@ -280,6 +280,10 @@ public abstract class MarsAssessAROM : MonoBehaviour
     }
 
     // Some useful conversion functions.
+    private void SetOffset()
+    {
+        OFFSET = AppData.Instance.userData?.limb == 1 ? -1 : 1;
+    }
     private float robotToUnityX(float robotX) => OFFSET * SCALEX * ((robotX - MarsDefs.EPCENTERZ) / (MarsDefs.EPMAXZ - MarsDefs.EPMINZ));
     private float robotToUnityY(float robotY) => SCALEY * ((robotY - MarsDefs.EPCENTERY) / (MarsDefs.EPMAXY - MarsDefs.EPMINY));
 

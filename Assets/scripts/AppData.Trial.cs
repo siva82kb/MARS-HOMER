@@ -263,7 +263,7 @@ public partial class AppData
     }
     
     // Arm Weight assessment raw data logging function.
-    public void StartRawDataArmWeightDataLogging(string movement, string datetime)
+    public void StartRawDataArmWeightDataLogging(string datetime)
     {
         // Set the file name.
         trialArmWeightDataFile = DataManager.GetArmWeightRawFileName(datetime);
@@ -274,7 +274,7 @@ public partial class AppData
         // Write pre-header and header information
         rawDataString.AppendLine($":Device: MARS");
         rawDataString.AppendLine($":Location: {userData.GetDeviceLocation()}");
-        rawDataString.AppendLine($":Movement: {selectedMovement.name}");
+        rawDataString.AppendLine($":Movement: MLAP");
         rawDataString.AppendLine(string.Join(",", DataManager.RAWFILEHEADER));
 
         // Attach the event handler for data logging.
@@ -292,7 +292,7 @@ public partial class AppData
         // Write the raw data to file.
         lock (rawDataLock)  // locking
         {
-            using (StreamWriter sw = new StreamWriter(trialAromDataFile, false, Encoding.UTF8))
+            using (StreamWriter sw = new StreamWriter(trialArmWeightDataFile, false, Encoding.UTF8))
             {
                 sw.Write(rawDataString.ToString());
             }
