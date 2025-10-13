@@ -48,7 +48,7 @@ public partial class AppData
     public string trainingSide => userData?.limb != null ? MarsComm.LIMBTYPE[userData.limb] : MarsComm.LIMBTYPE[0];
 
     // An annotation integer for scenes to set annotation it the raw data.
-    public uint annotation = 0;
+    public int annotation = 0;
 
     public void Initialize(string scene)
     {

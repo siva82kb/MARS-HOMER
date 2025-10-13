@@ -569,7 +569,7 @@ public class ArmWeight
     public bool isAssessmentComplete => targetAssessmentStatus != null && targetAssessmentStatus.All(status => status);
     public bool isAssessingTarget => rawData != null;
 
-    public static bool ArmWeightFileExists() => File.Exists(DataManager.armWeightFileName);
+    public static bool ArmWeightFileExists() => File.Exists(DataManager.armWeightFile);
 
     // Constructor that reads the file and initializes values based on the mechanism
     public ArmWeight(bool readFromFile)
@@ -585,7 +585,7 @@ public class ArmWeight
     private void initializeNewArmWeightAssessment()
     {
         datetime = DateTime.Now.ToString();
-        assessno = 1;
+        assessno = 0;
         mlapArom = new MarsArom("MLAP", readFromFile: true);
         targetPos = null;
         actualPos = null;
@@ -606,6 +606,7 @@ public class ArmWeight
         {
             targetAssessmentStatus[i] = false;
         }
+        AppLogger.LogInfo("Initialized new arm weight assessment.");
     }
 
     public void startArmWeightAssessment(ARMWEIGHT_TARGET target)
@@ -619,6 +620,7 @@ public class ArmWeight
             float[] _targetPos = getMLAPAromTarget(currentTarget);  
             targetPos[idx, 0] = _targetPos[0];
             targetPos[idx, 1] = _targetPos[1];
+            AppLogger.LogInfo($"Starting arm weight assessment for target {currentTarget} at position ({_targetPos[0]}, {_targetPos[1]}).");
         }
     }
 
@@ -649,10 +651,14 @@ public class ArmWeight
     public void WriteToArmWeightFile()
     {
         // Check if assessment is complete. Else there is nothing to write.
-        if (!isAssessmentComplete) return;
+        if (!isAssessmentComplete)
+        {
+            AppLogger.LogWarning("Arm weight assessment is not complete. Cannot write to file.");
+            return;
+        }
 
         // Assessment is complete
-        string fileName = DataManager.armWeightFileName;
+        string fileName = DataManager.armWeightFile;
         // Create the file if it doesn't exist
         if (!File.Exists(fileName))
         {
