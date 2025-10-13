@@ -21,16 +21,20 @@ public class GameController : MonoBehaviour
     public GameObject PauseImage;
     public GameObject GameControl;
     public GameObject reminderPanel;
-  
+    public GameObject targetTimerPrefeb;
+    public GameObject targetTimer;
+    public Canvas uiCanvas;
+    Animator targetAnim;
     public const float gameDuration = 60f;
     private float timer;
     private float eventDelayTimer = 0f;
     private bool runOnce = false;
-    public float gameSpeed = 2f;
+    public float gameSpeed = 5f;
     private float targetSpeed;
     public float smoothFactor = 5f;
 
     public float xMin, xMax, yMin, yMax;
+
     // Game score related variables.
     public int nTargets = 0;
     public int nSuccess = 0;
@@ -45,6 +49,11 @@ public class GameController : MonoBehaviour
     public GameObject target;
     public GameObject targerPrefeb;
     public AudioSource appleEatingSound;
+    public AudioSource failSound;
+
+    //catchDiamond
+    public ParticleSystem hightlightsprefeb;
+    public ParticleSystem hightlights;
     public enum GameStates
     {
         WAITING = 0,
@@ -170,6 +179,9 @@ public class GameController : MonoBehaviour
                     {
                         
                         waitTime = gameSpeed;
+                        targetTimer = Instantiate(targetTimerPrefeb, uiCanvas.transform);
+                        Vector3 screenPos = Camera.main.WorldToScreenPoint(target.transform.position);
+                        targetTimer.transform.position = screenPos;
                         runOnce = false;
                         gameState = GameStates.WAITFOREAT;
                     }
@@ -177,13 +189,23 @@ public class GameController : MonoBehaviour
                 break;
 
             case GameStates.WAITFOREAT:
-               if(!sheepController.instance.IsCollidingWithTarget())
-                 waitTime -= Time.deltaTime;
-           
-                if (isSuccess) gameState = GameStates.SUCCESS;
-               
-                if (waitTime <= 0f || isFailure) // Add check
+                if (isSuccess)
                 {
+                    gameState = GameStates.SUCCESS;
+                    break;
+                }
+                if (!sheepController.instance.IsCollidingWithTarget()&&!isSuccess)waitTime -= Time.deltaTime;
+               if(targetTimer!=null)targetTimer.GetComponent<Image>().fillAmount = (waitTime / gameSpeed);
+                if((waitTime / gameSpeed) <= 0.5f&&target!=null&& !sheepController.instance.IsCollidingWithTarget())
+                {
+                    targetAnim.Play("end");
+                }
+
+                if (waitTime <= 0f) // Add check
+                {
+                    failSound.Play();
+                    //if (isSuccess) gameState = GameStates.SUCCESS;
+                    Debug.Log(waitTime + "waittime" + isFailure + isSuccess);
                     nFailure++;
                     gameState = GameStates.FAILURE;
                 }
@@ -193,6 +215,7 @@ public class GameController : MonoBehaviour
                 break;
             case GameStates.SUCCESS:
             case GameStates.FAILURE:
+               
                 if (eventDelayTimer <= 0f)
                 {
                     eventDelayTimer = 0.5f;
@@ -208,6 +231,9 @@ public class GameController : MonoBehaviour
                         isSuccess = false;
                         gameState = isTimeUp ? GameStates.STOP : GameStates.SPAWNFRUIT;
                         if(target!=null)Destroy(target);
+                        if(hightlights)
+                        sheepController.instance.destroyParticals();
+                        if (targetTimer != null)Destroy(targetTimer);
                         runOnce = false;
                     }
                 }
@@ -232,15 +258,27 @@ public class GameController : MonoBehaviour
 
     public void spawnFruit()
     {
-        float x = UnityEngine.Random.Range(xMin, xMax);
-        float y = UnityEngine.Random.Range(yMin, yMax);
-        target = Instantiate(targerPrefeb, new Vector3(x, y, 0), Quaternion.identity);
-        target.transform.position = new Vector3(x, y, 0);
-        if (x > 0)
+        Vector3 spawnPos;
+
+        // Loop until we find a position far enough from the player
+        do
+        {
+            float x = UnityEngine.Random.Range(xMin, xMax);
+            float y = UnityEngine.Random.Range(yMin, yMax);
+            spawnPos = new Vector3(x, y, 0);
+        }
+        while (Vector3.Distance(spawnPos, GameObject.FindGameObjectWithTag("Player").transform.position) < 5f);
+
+        // Instantiate the target
+        target = Instantiate(targerPrefeb, spawnPos, Quaternion.identity);
+        //hightlights = Instantiate(hightlightsprefeb, spawnPos, Quaternion.identity);
+        //hightlights.Play();
+        if (target.transform.position.x > 0)
         {
             target.GetComponent<SpriteRenderer>().flipX = true;
         }
-     
+        targetAnim = target.GetComponent<Animator>();
+
     }
     public void initUI()
     {
@@ -266,15 +304,15 @@ public class GameController : MonoBehaviour
 
         appleEatingSound.Play();
 
-        Animator anim = target.GetComponent<Animator>();
-        anim.Play("eating", -1, 0f);
+       
+        targetAnim.Play("eating", -1, 0f);
 
         // Wait until animation starts
-        AnimatorStateInfo state = anim.GetCurrentAnimatorStateInfo(0);
+        AnimatorStateInfo state = targetAnim.GetCurrentAnimatorStateInfo(0);
         while (!state.IsName("eating"))
         {
             yield return null;
-            state = anim.GetCurrentAnimatorStateInfo(0);
+            state = targetAnim.GetCurrentAnimatorStateInfo(0);
         }
 
         float animationLength = state.length;
@@ -286,9 +324,11 @@ public class GameController : MonoBehaviour
         {
             if (!sheepController.instance.IsCollidingWithTarget())
             {
-                anim.Play("faild", -1, 0f);
+                appleEatingSound.Stop();
+                targetAnim.Play("faild", -1, 0f);
                 Debug.Log("Collision Eating failed.");
                 isSuccess = false;
+               
                 yield break;
             }
 
@@ -296,11 +336,18 @@ public class GameController : MonoBehaviour
             yield return null;
         }
         sheepController.instance.AddScore();
+        sheepController.instance.highligtsobj.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        sheepController.instance.moveingupstarsobj.Stop(true);
+        //sheepController.instance.StopAllCoroutines();
+
         // Eating completed successfully
         Debug.Log("Eating success!");
         isSuccess = true;
         nSuccess++;
+        if (targetTimer != null) Destroy(targetTimer);
         Destroy(target);
+       
+        
     }
   
     public void onMarsButtonReleased()
@@ -362,11 +409,12 @@ public class GameController : MonoBehaviour
         isSuccess = false;
         startImage.SetActive(false);
         timer = gameDuration; // Initialize timer 
-        targetSpeed = gameSpeed;
+      
         if (debug) return;
         //start new Trail
         AppData.Instance.StartNewTrial();
         gameSpeed = AppData.Instance.gameSpeed <= 0 ? gameSpeed : AppData.Instance.gameSpeed;
+        targetSpeed = gameSpeed;
         Debug.Log(gameSpeed+"gamespeed");
 
     }

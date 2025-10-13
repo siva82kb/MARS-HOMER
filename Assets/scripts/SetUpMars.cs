@@ -16,7 +16,8 @@ public class SetUpMars : MonoBehaviour
     public GameObject AttachArmGIF;
    
     public readonly string robotCalibScene = "ROBOTCALIB";
-    public string nextScene = "CHOOSEMOVE";
+    public readonly string nextScene = "CHOOSEMOVE";
+    public readonly string summaryScene = "SUMMARY";
 
     public enum SETUPMARS
     {
@@ -25,6 +26,8 @@ public class SetUpMars : MonoBehaviour
         ATTACHARM,
         SETTRAININGPLANEANGLE,
         DONE,
+        SETDEACTIVATEMODE,
+        DEACTIVATE
     }
     public SETUPMARS currentState = SETUPMARS.IDLE;
 
@@ -49,6 +52,13 @@ public class SetUpMars : MonoBehaviour
         if (MarsComm.CALIBRATION[MarsComm.calibration] == "NOCALIB")
         {
             SceneManager.LoadScene(robotCalibScene);
+        }
+        //Handle Deactivate Mars
+        if (AppData.Instance.userData.trainingPlaneAngle == 0) return;
+        if (MarsComm.CONTROLTYPE[MarsComm.controlType] == "POSITION"&& MarsComm.target == AppData.Instance.userData.trainingPlaneAngle)
+        {
+            AppLogger.LogInfo("Mars set to Deactivate Mode");
+            currentState = SETUPMARS.SETDEACTIVATEMODE;
         }
     }
 
@@ -77,7 +87,7 @@ public class SetUpMars : MonoBehaviour
                     if (MarsComm.target == -90)
                     {
                         // Check if the target has been reached.
-                        if (Mathf.Abs(MarsComm.angle1 - MarsComm.target) < MarsComm.ARM_WEIGHT_THRESHOLD)
+                        if (Mathf.Abs(MarsComm.angle1 - MarsComm.target) < 2)
                         {
                             currentState = SETUPMARS.ATTACHARM;
                         }
@@ -115,6 +125,35 @@ public class SetUpMars : MonoBehaviour
                     }
                 }
                 break;
+            case SETUPMARS.SETDEACTIVATEMODE:
+                if (MarsComm.force > 2)
+                {
+                    instructionTxt.text = "Please Detach your Limb From Mars";
+                }
+                else
+                {
+                    instructionTxt.text = "Press Mars Button To Deactivate Mars";
+                }
+                break;
+            case SETUPMARS.DEACTIVATE:
+                if (MarsComm.target == 0)
+                {
+                    // Check if the target has been reached.
+                    if (Mathf.Abs(MarsComm.angle1 - MarsComm.target) < 2)
+                    {
+                        AppLogger.LogInfo($"Deativating Mars From TraingPlaneAngle TO Zero  : {MarsComm.angle1}");
+                        currentState = SETUPMARS.DONE;
+                        instructionTxt.text = "";
+                        AppLogger.LogInfo($"Switching  Scene to {summaryScene}");
+                        SceneManager.LoadScene(summaryScene);
+                       
+                    }
+                }
+                else
+                {
+                    MarsComm.setControlTarget(0);
+                }
+                break;
         }
     }
     
@@ -134,7 +173,7 @@ public class SetUpMars : MonoBehaviour
                 currentState = SETUPMARS.ACTIVATE;
                 break;
             case SETUPMARS.ATTACHARM:
-                if (MarsComm.force > 10)
+                if (MarsComm.force > MarsComm.ARM_WEIGHT_THRESHOLD)
                 {
                     AppLogger.LogInfo($"Limb is not Attached with Mars  FORCE - {MarsComm.force}");
                     currentState = SETUPMARS.SETTRAININGPLANEANGLE;
@@ -142,6 +181,17 @@ public class SetUpMars : MonoBehaviour
                 else
                 {
                     AppLogger.LogInfo($"Set Mars Position @ TrainingAngle - {AppData.Instance.userData.trainingPlaneAngle}");
+                }
+                break;
+            case SETUPMARS.SETDEACTIVATEMODE:
+                if(MarsComm.force > 2)
+                {
+                    AppLogger.LogInfo($"Limb is not Attached with Mars  FORCE - {MarsComm.force}"); 
+                }
+                else
+                {
+                    AppLogger.LogInfo("Ready To Deactivate");
+                    currentState = SETUPMARS.DEACTIVATE;
                 }
                 break;
         }

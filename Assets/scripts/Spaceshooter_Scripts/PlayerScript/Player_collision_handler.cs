@@ -7,7 +7,7 @@ public class Player_collision_handler : MonoBehaviour
 {
     private Animator animator;
     private bool isDestroyed = false; // To ensure animation plays only once
-
+    public static Player_collision_handler instance;    
     public AudioClip ExplosionSound;
     private AudioSource audioSource;
    
@@ -15,9 +15,12 @@ public class Player_collision_handler : MonoBehaviour
     public float blinkInterval = 0.1f; // Time between blinks
     private bool isBlinking = false;
     private Renderer playerRenderer;
-    
-      
-   
+    public bool isHit = false;
+    public void Awake()
+    {
+        instance = this;
+    }
+
     void Start()
     {
         audioSource = GetComponent<AudioSource>();
@@ -31,16 +34,16 @@ public class Player_collision_handler : MonoBehaviour
     {
         // Check if the player is hit by an asteroid
         //if ((other.CompareTag("Asteroid") && !isDestroyed) || (other.CompareTag("Enemy") && !isDestroyed) || (other.CompareTag("EnemyLaser") && !isDestroyed))
-        if ((other.CompareTag("Asteroid") && !isDestroyed))//check if any asteroid or enemy hit the player 
+        if ((other.CompareTag("Asteroid") && !isDestroyed && !spaceShooterGameContoller.Instance.isSuccess))//check if any asteroid or enemy hit the player 
         {
-
+            audioSource.PlayOneShot(ExplosionSound);
             //StartCoroutine(Blink());
-
+            isHit = true;
             spaceShooterGameContoller.Instance.nFailure++;
             spaceShooterGameContoller.Instance.setisFailure();
-                       
+           
             Destroy(other.gameObject); //  destroy  the asteroid
-
+            //isDestroyed = true;
 
         }
 

@@ -13,7 +13,7 @@ public class sheepController : MonoBehaviour
     float xPoint, yPoint;
     private Vector3 endPoint;
     public int OFFSET;
-    public float[] currRom;
+    public MarsArom currRom;
     public Vector3 lastPosition;
     //default values
     public static float yMinendPnt;
@@ -27,6 +27,10 @@ public class sheepController : MonoBehaviour
     private GameObject highlight;
     public GameObject pointTextPrefab;
     public Canvas uiCanvas;  // assign the main Canvas here
+    public ParticleSystem hightlightPartical;
+    public ParticleSystem moveingupstars;
+    public ParticleSystem moveingupstarsobj;
+    public ParticleSystem highligtsobj;
 
     void Awake()
     {
@@ -41,11 +45,11 @@ public class sheepController : MonoBehaviour
         
         MarsComm.sendHeartbeat();
         //GET ROM DATA
-        //currRom = AppData.Instance.selectedMovement.CurrentArom;
-        //zMinendPnt = currRom[0];
-        //zMaxendPnt = currRom[1];
-        //yMinendPnt = currRom[2];
-        //yMaxendPnt = currRom[3];
+        currRom = AppData.Instance.selectedMovement.currentArom;
+        zMinendPnt = currRom.rightAdjusted.x;
+        zMaxendPnt = currRom.leftAdjusted.x;
+        yMinendPnt = currRom.bottomAdjusted.y;
+        yMaxendPnt = currRom.topAdjusted.y;
 
         OFFSET = AppData.Instance.userData.limb == 1 ? -1 : 1;
     }
@@ -66,7 +70,7 @@ public class sheepController : MonoBehaviour
         );
 
         // Smoothly interpolate from current to target position
-        float smoothSpeed = 5f; // Adjust this for more or less smoothing
+        float smoothSpeed = 10f; // Adjust this for more or less smoothing
         transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * smoothSpeed);
 
     }
@@ -79,7 +83,7 @@ public class sheepController : MonoBehaviour
         if (!debug) return;
         float moveX = Input.GetAxis("Mouse X");
         float moveY = Input.GetAxis("Mouse Y");
-
+        //if (isColliding) return;
         if (Input.GetMouseButton(0))
         {
             Vector3 temp = transform.position;
@@ -109,13 +113,21 @@ public class sheepController : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D collision)
     {
         Debug.Log(collision.gameObject.name);
-
+        if (GameController.Instance.targetTimer != null)
+            GameController.Instance.targetTimer.SetActive(false);
         // Check if this is the target object
-        if (collision.gameObject == GameController.Instance.target)
+        if (collision.gameObject == GameController.Instance.target && !GameController.Instance.isSuccess)
         {
             isColliding = true;
-            highlight = Instantiate(highlightPrefeb, GameController.Instance.target.transform.position, Quaternion.identity);
-            // Start eating process only once
+         
+            destroyParticals();
+            moveingupstarsobj = Instantiate(moveingupstars, GameController.Instance.target.transform.position, Quaternion.identity);
+            highligtsobj = Instantiate(hightlightPartical, GameController.Instance.target.transform.position, Quaternion.identity);
+
+        
+            moveingupstarsobj.Play();
+            highligtsobj.Play();
+         
             if (eatingCoroutine == null)
             {
                 eatingCoroutine = StartCoroutine(GameController.Instance.PlayEatingAnimation());
@@ -125,14 +137,17 @@ public class sheepController : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D collision)
     {
+        if (GameController.Instance.targetTimer != null) 
+          GameController.Instance.targetTimer.SetActive(true);
         isColliding = false;
         if (collision.gameObject == GameController.Instance.target)
         {
-            isColliding = false;
-            if(highlight != null)
-            {
-                Destroy(highlight);
-            }
+          
+            
+            //if (highlight != null)
+            //{
+            //    Destroy(highlight);
+            //}
             // If player moves away while eating, cancel and mark as failure
             if (eatingCoroutine != null)
             {
@@ -144,12 +159,18 @@ public class sheepController : MonoBehaviour
                     .Play("faild", -1, 0f);
                 //Destroy(GameController.Instance.target);
                 eatingCoroutine = null;
-                GameController.Instance.isSuccess = false;
-                GameController.Instance.isFailure = true;
+                moveingupstarsobj.Stop(true);
+                highligtsobj.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+                //GameController.Instance.isSuccess = false;
+                //GameController.Instance.isFailure = true;
             }
         }
     }
- 
+    public void destroyParticals()
+    {
+       if( highligtsobj != null) Destroy(highligtsobj);
+       if( moveingupstarsobj!=null) Destroy(moveingupstarsobj);
+    }
     public void AddScore()
     {
         // Instantiate near the player position

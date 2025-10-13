@@ -30,10 +30,7 @@ public class summarySceneHandler : MonoBehaviour
     void Update()
     {
         MarsComm.sendHeartbeat();
-        if (!ConnectToRobot.isMARS)
-        {
-            quit();
-        }
+       
         while (_actionQueue.TryDequeue(out var action))
         {
             action.Invoke(); // Execute the action
@@ -69,7 +66,7 @@ public class summarySceneHandler : MonoBehaviour
     //To disconnect the Robot 
     public void onMarsButtonReleased()
     {
-      
+        quit();
     }
 
     //To initialize the barchart with whole data of moveTime per day
