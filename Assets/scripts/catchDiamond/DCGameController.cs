@@ -173,7 +173,7 @@ public class DCGameController : MonoBehaviour
                     {
                         return;
                     }
-                    //ResetEatFlags();
+                   
                     spawnDiamond();
                     nTargets++;
                     eventDelayTimer = 0.5f;
@@ -193,7 +193,8 @@ public class DCGameController : MonoBehaviour
 
             case GameStates.WAITFORCATCH:
                waitTime -= Time.deltaTime;
-
+                Debug.Log(waitTime);
+               targetTimer.GetComponent<Image>().fillAmount = waitTime/gameSpeed ;
                 if (waitTime <= 0f) 
                 {
                     nFailure++;
@@ -208,7 +209,7 @@ public class DCGameController : MonoBehaviour
                     Vector3 screenPos = Camera.main.WorldToScreenPoint(target.transform.position);
                     succTimer.transform.position = new Vector3(screenPos.x, screenPos.y - 25f, screenPos.z);
                     targetAnim.Play("idle", -1, 0f);
-                    catchGlitter = Instantiate(catchGlitterPrefeb, DCGameController.Instance.target.transform.position, Quaternion.identity);
+                    catchGlitter = Instantiate(catchGlitterPrefeb, target.transform.position, Quaternion.identity);
                     catchGlitter.Play();
                     audioSource.PlayOneShot(playerIn);
                 }
@@ -261,6 +262,7 @@ public class DCGameController : MonoBehaviour
                         if (targetBubble != null) Destroy(targetBubble);
                         if(catchGlitter!=null) Destroy(catchGlitter);
                         if(succTimer!=null) Destroy(succTimer);
+                        if(targetTimer!=null) Destroy(targetTimer); 
                         runOnce = false;
                     }
                 }
@@ -302,7 +304,9 @@ public class DCGameController : MonoBehaviour
         target = Instantiate(targerPrefeb, spawnPos, Quaternion.identity);
         targetGlitter = Instantiate(targetGlitterPrefeb, spawnPos, Quaternion.identity);
         targetBubble = Instantiate(targetBubblePrefeb, new Vector3(spawnPos.x,spawnPos.y-0.25f,spawnPos.z), Quaternion.identity);
-        targetTimer = Instantiate(targetTimerPrefeb, new Vector3(spawnPos.x, spawnPos.y - 1f, spawnPos.z), Quaternion.identity);
+        targetTimer = Instantiate(targetTimerPrefeb,uiCanvas.transform);
+        Vector3 screenPos = Camera.main.WorldToScreenPoint(target.transform.position);
+        targetTimer.transform.position = new Vector3(screenPos.x+30f, screenPos.y+50f, screenPos.z);
         if (target.transform.position.x > 0)
         {
             target.GetComponent<SpriteRenderer>().flipX = true;

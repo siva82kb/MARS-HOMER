@@ -7,9 +7,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
 using System.IO;
-using UnityEditor.ShaderKeywordFilter;
-using Unity.Mathematics;
-using Unity.VisualScripting;
+
 
 public class DiagnosticSceneHandler : MonoBehaviour
 {

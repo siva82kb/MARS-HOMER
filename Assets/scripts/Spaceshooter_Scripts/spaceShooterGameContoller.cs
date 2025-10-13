@@ -142,10 +142,7 @@ public class spaceShooterGameContoller : MonoBehaviour
             GameControl.gameObject.SetActive(!GameControl.gameObject.activeSelf);
           
         }
-        //Game Speed - for GameObject Smooth Transition
-        gameSpeed = Mathf.Lerp(gameSpeed, targetSpeed, Time.deltaTime * smoothFactor);
-        gameSpeedTxt.text = gameSpeed.ToString();
-        scoreText.text = "SCORE:" + nSuccess.ToString();
+      
     }
 
     private void FixedUpdate()
@@ -170,7 +167,15 @@ public class spaceShooterGameContoller : MonoBehaviour
     }
     public void RunStateMachine()
     {
-        if(IsGamePlaying()) timer -= Time.deltaTime;
+        if (IsGamePlaying())
+        {
+            gameSpeed = Mathf.Lerp(gameSpeed, targetSpeed, Time.deltaTime * smoothFactor);
+            gameSpeedTxt.text = gameSpeed.ToString();
+            scoreText.text = "SCORE:" + nSuccess.ToString();
+            timer -= Time.deltaTime;
+        }
+            
+           
         bool isTimeUp = timer < 0; 
         switch (gameState)
         {
@@ -321,7 +326,7 @@ public class spaceShooterGameContoller : MonoBehaviour
         startImage.SetActive(false);
         messTxt.enabled = false;
         
-        gameSpeed = AppData.Instance.gameSpeed<=0 ? gameSpeed : AppData.Instance.gameSpeed;
+        gameSpeed = AppData.Instance.gameSpeed<=1f ? gameSpeed : AppData.Instance.gameSpeed;
         targetSpeed = gameSpeed;
        
     }
