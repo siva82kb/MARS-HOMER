@@ -179,7 +179,7 @@ public static class MarsComm
     {
         get => currentStateData[3] & 0x03;
     }
-    static public int marButton
+    static public int buttonState
     {
         get => (currentStateData[3] >> 4) & 0x01;
     }
@@ -254,13 +254,6 @@ public static class MarsComm
     static public float gravityCompensationTorque
     {
         get => currentSensorData[16];
-    }
-    static public byte buttonState
-    {
-        get
-        {
-            return currentButtonState;
-        }
     }
     static public Vector3 epPos
     {

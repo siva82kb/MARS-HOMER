@@ -40,7 +40,7 @@ public class DataManager : MonoBehaviour
         "DateTime", "TrainingPlaneAngle"
     };
     public static string[] ARMWEIGHTFILEHEADER = new string[] {
-        "DateTime", "AssessNo", "TrainingPlaneAngle",
+        "DateTime", "TrainingPlaneAngle",
         "LeftTargetX", "LeftTargetY", "LeftActualX", "LeftActualY", "LeftForce",
         "RightTargetX", "RightTargetY", "RightActualX", "RightActualY", "RightForce",
         "TopTargetX", "TopTargetY", "TopActualX", "TopActualY", "TopForce",
@@ -76,6 +76,7 @@ public class DataManager : MonoBehaviour
         "Annotation"
     };
     public static string DATETIMEFORMAT = "yyyy-MM-dd HH:mm:ss";
+    public static string AROMDATETIMEFORMAT = "dd-MM-yyyy HH:mm:ss";
 
     // Functions to generate file names.
     public static string GetRomFileName(string movement) => FixPath(Path.Combine(romPath, $"{movement}-rom.csv"));

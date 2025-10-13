@@ -52,8 +52,9 @@ public class MarsUserData
     public DateTime startDate { get; private set; }
     public bool rightArm { private set; get; }
     public int limb { get { return rightArm ? 1 : 2; } }
-    
+
     public float trainingPlaneAngle { get; private set; } = 0f; // In degrees
+    public ArmWeight armWeight { get; private set; } = null;
  
     public Dictionary<string, float> moveTimePrsc { get; private set; } // Prescribed movement time
     public Dictionary<string, float> moveTimeCurr { get; private set; } // Current movement time
@@ -110,11 +111,20 @@ public class MarsUserData
         // Read parse the training plane data if it exists.
         if (!File.Exists(DataManager.trainingPlaneFile)) DataManager.CreateTrainingPlaneFile(this.userID, "MARS", GetDeviceLocation());
         readParseTrainingPlaneData(DataManager.trainingPlaneFile);
+
+        // Read the arm weight data if it exists.
+        if (!File.Exists(DataManager.armWeightFile)) DataManager.CreateArmWeightFile(this.userID, "MARS", GetDeviceLocation());
+        armWeight = new ArmWeight(true);
     }
 
     public void reloadTrainingPlaneAngle()
     {
         readParseTrainingPlaneData(DataManager.trainingPlaneFile);
+    }
+
+    public void reloadArmWeightData()
+    {
+        armWeight = new ArmWeight(true);
     }
 
     public void parsemoveTimePrev()
@@ -231,6 +241,44 @@ public class MarsUserData
             return Mathf.Abs(arom.trainingPlaneAngle - AppData.Instance.userData.trainingPlaneAngle) <= MarsDefs.TRAINING_PLANE_ANGLE_THRESHOLD;
         }
         return false;
+    }
+
+    public int DaysSinceAromAssessmentForTrainingAngle(string movement)
+    {
+        // Check of AROM is available.
+        if (!IsAromAssessmentAvailableForTrainingAngle(movement)) return -1;
+
+        // AROM available.
+        MarsArom arom = new MarsArom(movement, readFromFile: true);
+        // Date string format: 13-10-2025 08:05:19
+        DateTime aromDate = DateTime.ParseExact(arom.datetime, DataManager.AROMDATETIMEFORMAT, CultureInfo.InvariantCulture);
+        TimeSpan duration = DateTime.Now - aromDate;
+        return (int)duration.TotalDays;
+    } 
+
+    public bool IsArmWeightAssessmentAvailableForTrainingAngle()
+    {
+        if (ArmWeight.ArmWeightFileExists())
+        {
+            var aw = new ArmWeight(readFromFile: true);
+            Debug.Log($"Arm Weight assessment complete: {aw.isAssessmentComplete}, Training plane angle: {aw.trainingPlaneAngle}, User training plane angle: {AppData.Instance.userData.trainingPlaneAngle}");
+            if (!aw.isAssessmentComplete) return false;
+            return Mathf.Abs(aw.trainingPlaneAngle - AppData.Instance.userData.trainingPlaneAngle) <= MarsDefs.TRAINING_PLANE_ANGLE_THRESHOLD;
+        }
+        return false;
+    }
+
+    public int DaysSinceArmWeightAssessmentForTrainingAngle()
+    {
+        // Check of Arm Weight is available.
+        if (!IsArmWeightAssessmentAvailableForTrainingAngle()) return -1;
+
+        // Arm Weight available.
+        ArmWeight aw = new ArmWeight(readFromFile: true);
+        // Date string format: 13-10-2025 08:05:19
+        DateTime awDate = DateTime.ParseExact(aw.datetime, DataManager.DATETIMEFORMAT, CultureInfo.InvariantCulture);
+        TimeSpan duration = DateTime.Now - awDate;
+        return (int)duration.TotalDays;
     } 
 }
 
@@ -327,14 +375,13 @@ public class MarsMovement
 public class MarsArom
 {
 
-    public static string[] FILEHEADER = new string[] { "DateTime", "AssessNo", "TrainingPlaneAngle",
+    public static string[] FILEHEADER = new string[] { "DateTime", "TrainingPlaneAngle",
         "TopRawX", "TopRawY", "BottomRawX", "BottomRawY", "LeftRawX", "LeftRawY", "RightRawX", "RightRawY",
         "TopAdjustedX", "TopAdjustedY", "BottomAdjustedX", "BottomAdjustedY", "LeftAdjustedX", "LeftAdjustedY", "RightAdjustedX", "RightAdjustedY",
         "RawDataFileName" };
 
     // Class attributes to store data read from the file
     public string datetime;
-    public int assessno { get; private set; }
     public string movement { get; private set; }
     public bool isReadOnly { get; private set; } = false;
 
@@ -377,9 +424,8 @@ public class MarsArom
 
     private void initializeNewAssessment(string movementName)
     {
-        datetime = DateTime.Now.ToString();
+        datetime = DateTime.Now.ToString(DataManager.AROMDATETIMEFORMAT);
         movement = movementName;
-        assessno = 1;
         rawData = null;
         topRaw = UnityEngine.Vector2.zero;
         bottomRaw = UnityEngine.Vector2.zero;
@@ -430,8 +476,6 @@ public class MarsArom
             bottomAdjusted = new UnityEngine.Vector2(bottomRaw.x, bottomRaw.y);
             leftAdjusted = new UnityEngine.Vector2(leftRaw.x, leftRaw.y);
             rightAdjusted = new UnityEngine.Vector2(rightRaw.x, rightRaw.y);
-            // Write raw data to file.
-
         }
         rawData = null;
     }
@@ -469,7 +513,7 @@ public class MarsArom
         {
             // Write the actual data
             file.WriteLine(string.Join(",", new string[] {
-                datetime, (assessno + 1).ToString(), trainingPlaneAngle.ToString(),
+                datetime, trainingPlaneAngle.ToString(),
                 topRaw.x.ToString(), topRaw.y.ToString(), bottomRaw.x.ToString(), bottomRaw.y.ToString(),
                 leftRaw.x.ToString(), leftRaw.y.ToString(), rightRaw.x.ToString(), rightRaw.y.ToString(),
                 topAdjusted.x.ToString(), topAdjusted.y.ToString(), bottomAdjusted.x.ToString(), bottomAdjusted.y.ToString(),
@@ -500,7 +544,6 @@ public class MarsArom
         // Assign ROM from the last row.
         datetime = romData.Rows[romData.Rows.Count - 1].Field<string>("DateTime");
         movement = movementName;
-        assessno = int.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("assessno"));
         // Assign the raw locations
         topRaw = new UnityEngine.Vector2(float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("TopRawX")),
                                          float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("TopRawY")));
@@ -554,9 +597,11 @@ public class ArmWeight
     }
 
     public string datetime;
-    public int assessno { get; private set; }
     public MarsArom mlapArom { get; private set; }
-    public float trainingPlaneAngle => mlapArom != null ? mlapArom.trainingPlaneAngle : 0f;
+    private float _trainingPlaneAngle;
+    public float trainingPlaneAngle {
+        get => _trainingPlaneAngle;
+    }
 
     // Raw data recorded during the assessment of AROM: each entry is [x, y, force]
     private List<float[]> rawData;
@@ -568,30 +613,28 @@ public class ArmWeight
     public bool[] targetAssessmentStatus { get; private set; }
     public bool isAssessmentComplete => targetAssessmentStatus != null && targetAssessmentStatus.All(status => status);
     public bool isAssessingTarget => rawData != null;
+    public bool isReadOnly { get; private set; } = false;
 
     public static bool ArmWeightFileExists() => File.Exists(DataManager.armWeightFile);
 
     // Constructor that reads the file and initializes values based on the mechanism
     public ArmWeight(bool readFromFile)
     {
-        if (readFromFile)
-        {
-            // File reading is not implemented here; initialize defaults for now.
-            initializeNewArmWeightAssessment();
-        }
-        else initializeNewArmWeightAssessment();
+        if (readFromFile) isReadOnly = ReadFromFile();
+        if (!isReadOnly) initializeNewArmWeightAssessment();
     }
 
     private void initializeNewArmWeightAssessment()
     {
-        datetime = DateTime.Now.ToString();
-        assessno = 0;
+        datetime = DateTime.Now.ToString(DataManager.DATETIMEFORMAT);
         mlapArom = new MarsArom("MLAP", readFromFile: true);
+        _trainingPlaneAngle = mlapArom == null? mlapArom.trainingPlaneAngle : 0;
         targetPos = null;
         actualPos = null;
         actualForce = null;
         targetAssessmentStatus = null;
         rawData = null;
+        isReadOnly = false;
     }
 
     public void initializeArmWeightAssessment()
@@ -648,6 +691,76 @@ public class ArmWeight
         currentTarget = ARMWEIGHT_TARGET.NONE;
     }
 
+    private bool ReadFromFile()
+    {
+        string fileName = DataManager.armWeightFile;
+        if (!File.Exists(fileName))
+        {
+            AppLogger.LogWarning($"No Arm Weight assessment file found. Starting new assessment.");
+            return false;
+        }
+
+        // Load the data from the file
+        DataTable awData = DataManager.loadCSV(fileName);
+
+        // Check the number of rows.
+        if (awData.Rows.Count == 0)
+        {
+            AppLogger.LogWarning($"No previous Arm Weight assessment found in the file. Starting new assessment.");
+            return false;
+        }
+        // Assign Arm Weight from the last row.
+        datetime = awData.Rows[awData.Rows.Count - 1].Field<string>("DateTime");
+        _trainingPlaneAngle = float.Parse(awData.Rows[awData.Rows.Count - 1].Field<string>("TrainingPlaneAngle"));
+        // Assign the locations and forces
+        targetPos = new float[5, 2];
+        actualPos = new float[5, 2];
+        actualForce = new float[5];
+        targetAssessmentStatus = new bool[5];
+        // Left
+        targetPos[0, 0] = float.Parse(awData.Rows[awData.Rows.Count - 1].Field<string>("LeftTargetX"));
+        targetPos[0, 1] = float.Parse(awData.Rows[awData.Rows.Count - 1].Field<string>("LeftTargetY"));
+        actualPos[0, 0] = float.Parse(awData.Rows[awData.Rows.Count - 1].Field<string>("LeftActualX"));
+        actualPos[0, 1] = float.Parse(awData.Rows[awData.Rows.Count - 1].Field<string>("LeftActualY"));
+        actualForce[0] = float.Parse(awData.Rows[awData.Rows.Count - 1].Field<string>("LeftForce"));
+        targetAssessmentStatus[0] = actualForce[0] > 0f;
+        targetAssessmentStatus[0] = true;
+        // Right
+        targetPos[1, 0] = float.Parse(awData.Rows[awData.Rows.Count - 1].Field<string>("RightTargetX"));
+        targetPos[1, 1] = float.Parse(awData.Rows[awData.Rows.Count - 1].Field<string>("RightTargetY"));
+        actualPos[1, 0] = float.Parse(awData.Rows[awData.Rows.Count - 1].Field<string>("RightActualX"));
+        actualPos[1, 1] = float.Parse(awData.Rows[awData.Rows.Count - 1].Field<string>("RightActualY"));
+        actualForce[1] = float.Parse(awData.Rows[awData.Rows.Count - 1].Field<string>("RightForce"));
+        targetAssessmentStatus[1] = actualForce[1] > 0f;
+        targetAssessmentStatus[1] = true;
+        // Top
+        targetPos[2, 0] = float.Parse(awData.Rows[awData.Rows.Count - 1].Field<string>("TopTargetX"));
+        targetPos[2, 1] = float.Parse(awData.Rows[awData.Rows.Count - 1].Field<string>("TopTargetY"));
+        actualPos[2, 0] = float.Parse(awData.Rows[awData.Rows.Count - 1].Field<string>("TopActualX"));
+        actualPos[2, 1] = float.Parse(awData.Rows[awData.Rows.Count - 1].Field<string>("TopActualY"));
+        actualForce[2] = float.Parse(awData.Rows[awData.Rows.Count - 1].Field<string>("TopForce"));
+        targetAssessmentStatus[2] = actualForce[2] > 0f;
+        targetAssessmentStatus[2] = true;
+        // Bottom
+        targetPos[3, 0] = float.Parse(awData.Rows[awData.Rows.Count - 1].Field<string>("BottomTargetX"));
+        targetPos[3, 1] = float.Parse(awData.Rows[awData.Rows.Count - 1].Field<string>("BottomTargetY"));
+        actualPos[3, 0] = float.Parse(awData.Rows[awData.Rows.Count - 1].Field<string>("BottomActualX"));
+        actualPos[3, 1] = float.Parse(awData.Rows[awData.Rows.Count - 1].Field<string>("BottomActualY"));
+        actualForce[3] = float.Parse(awData.Rows[awData.Rows.Count - 1].Field<string>("BottomForce"));
+        targetAssessmentStatus[3] = actualForce[3] > 0f;
+        targetAssessmentStatus[3] = true;
+        // Center
+        targetPos[4, 0] = float.Parse(awData.Rows[awData.Rows.Count - 1].Field<string>("CenterTargetX"));
+        targetPos[4, 1] = float.Parse(awData.Rows[awData.Rows.Count - 1].Field<string>("CenterTargetY"));
+        actualPos[4, 0] = float.Parse(awData.Rows[awData.Rows.Count - 1].Field<string>("CenterActualX"));
+        actualPos[4, 1] = float.Parse(awData.Rows[awData.Rows.Count - 1].Field<string>("CenterActualY"));
+        actualForce[4] = float.Parse(awData.Rows[awData.Rows.Count - 1].Field<string>("CenterForce"));
+        targetAssessmentStatus[4] = actualForce[4] > 0f;
+        targetAssessmentStatus[4] = true;
+        AppLogger.LogInfo($"Loaded previous Arm Weight assessment from {datetime} | Training Plane: {trainingPlaneAngle}. Assessment complete: {isAssessmentComplete}");
+        return true;
+    }
+
     public void WriteToArmWeightFile()
     {
         // Check if assessment is complete. Else there is nothing to write.
@@ -677,7 +790,7 @@ public class ArmWeight
         {
             // Write the actual data
             file.WriteLine(string.Join(",", new string[] {
-                datetime, (assessno + 1).ToString(), trainingPlaneAngle.ToString(),
+                datetime, trainingPlaneAngle.ToString(),
                 targetPos[0,0].ToString(), targetPos[0,1].ToString(), actualPos[0,0].ToString(), actualPos[0,1].ToString(), actualForce[0].ToString(),
                 targetPos[1,0].ToString(), targetPos[1,1].ToString(), actualPos[1,0].ToString(), actualPos[1,1].ToString(), actualForce[1].ToString(),
                 targetPos[2,0].ToString(), targetPos[2,1].ToString(), actualPos[2,0].ToString(), actualPos[2,1].ToString(), actualForce[2].ToString(),

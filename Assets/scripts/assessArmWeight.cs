@@ -35,7 +35,11 @@ public class AssessArmWeight : MonoBehaviour
     public GameObject centerTarget;
     public LineRenderer aromBoxLineRenderer;
     public Text instructionText;
+    // TextMeshPro Button
+    public Button exitButton;
+    public Button redoButton;
     private MarsArom mlapArom;
+    private int exitButtonPressCount = 0;
 
     private bool changeScene = false;
 
@@ -51,16 +55,18 @@ public class AssessArmWeight : MonoBehaviour
         ALL_DONE
     }
     private ARMWEIGHT_ASSESS_STATE currentState = ARMWEIGHT_ASSESS_STATE.INIT;
-    private ArmWeight.ARMWEIGHT_TARGET currentTarget
+
+    private ArmWeight.ARMWEIGHT_TARGET _currentTarget;
+    public ArmWeight.ARMWEIGHT_TARGET currentTarget
     {
         get
         {
-            return currentTarget;
+            return _currentTarget;
         }
-        set
+        private set
         {
-            currentTarget = value;
-            AppData.Instance.annotation = (int)currentTarget;
+            _currentTarget = value;
+            AppData.Instance.annotation = (int)_currentTarget;
         }
     }
     private GameObject currentTargetObject = null;
@@ -131,19 +137,36 @@ public class AssessArmWeight : MonoBehaviour
         }
 
         // Initialize the state machine.
-        currentState = ARMWEIGHT_ASSESS_STATE.INIT;
-        currentTarget = ArmWeight.ARMWEIGHT_TARGET.NONE;
-        stateStartTime = 0f;
-        armWeight = new ArmWeight(false);
-        updateTargetsDisplayFlag = true;
+        initializeAssessmentData();
 
         // Attach Mars events after a delay.
         StartCoroutine(AttachCallbacksAfterDelay(1f));
+
+        // Hide the redo button.
+        redoButton.gameObject.SetActive(false);
+        exitButton.gameObject.SetActive(true);
+        // Attach button events.
+        redoButton.onClick.AddListener(() =>
+        {
+            AppLogger.LogInfo("Redo button pressed. Restarting Arm Weight assessment.");
+            initializeAssessmentData();
+        });
+        exitButton.onClick.AddListener(() =>
+        {
+            AppLogger.LogInfo("Exit button pressed. Exiting Arm Weight assessment.");
+            changeScene = true;
+        });
     }
 
     void Update()
     {
         MarsComm.sendHeartbeat();
+
+        // Update UI.
+        if (currentState == ARMWEIGHT_ASSESS_STATE.ALL_DONE)
+        {
+            redoButton.gameObject.SetActive(true);
+        }
 
         // Update the current position of the end effector.
         updateCurrentEpPosition();
@@ -312,7 +335,7 @@ public class AssessArmWeight : MonoBehaviour
                     updateTargetsDisplayFlag = true;
                     AppLogger.LogInfo($"State changed to {currentState}.");
                 }
-                else
+                else if (MarsComm.buttonState == 0)
                 {
                     // Add data to the assessment.
                     armWeight.addArmWeightDataPoint(MarsComm.epPosInThePlane.z, MarsComm.epPosInThePlane.y, MarsComm.force);
@@ -333,6 +356,7 @@ public class AssessArmWeight : MonoBehaviour
                     currentState = ARMWEIGHT_ASSESS_STATE.ALL_DONE;
                     stateStartTime = Time.time;
                     updateTargetsDisplayFlag = true;
+                    exitButtonPressCount = 0;
                 }
                 else
                 {
@@ -350,43 +374,9 @@ public class AssessArmWeight : MonoBehaviour
                 break;
         }
     }
-
-    void getRandomTargt()
-    {
-        // Vector2 t;
-        // Vector2 target;
-      
-        // //rx+ry<=1
-        // float rx = UnityEngine.Random.Range(0, 1f);
-        // float ry = UnityEngine.Random.Range(0, (1f - rx));
-
-        // //find left or right
-        // int random = UnityEngine.Random.value < 0.5f ? -1 : 1;
-     
-        // if (random == 1)
-        // {
-           
-        //     t = (rx * x1) + (ry * y1);
-        //     target = t + left;
-            
-        // }
-        // else
-        // {
-        //     t = (rx * x2) +( ry * y2);
-        //     target = t + right;
-        // }
-
-        // GameObject circle6 = Instantiate(circlePrefab, target, Quaternion.identity);
-        //testCircle = circle6;
-        // if (testCircle != null)
-        //     Destroy(testCircle);
-        // testCircle = circle6;
-
-    }
-
     void OnDestroy()
     {
-        // MarsComm.OnMarsButtonReleased -= OnMarsButtonReleased;
+        MarsComm.OnMarsButtonReleased -= OnMarsButtonReleased;
     }
 
     private IEnumerator AttachCallbacksAfterDelay(float delay)
@@ -395,24 +385,41 @@ public class AssessArmWeight : MonoBehaviour
         MarsComm.OnMarsButtonReleased += OnMarsButtonReleased;
     }
 
+    private void initializeAssessmentData()
+    {
+        currentState = ARMWEIGHT_ASSESS_STATE.INIT;
+        currentTarget = ArmWeight.ARMWEIGHT_TARGET.NONE;
+        stateStartTime = 0f;
+        armWeight = new ArmWeight(false);
+        updateTargetsDisplayFlag = true;
+    }
+    
     private void OnMarsButtonReleased()
     {
         // Act according to the current state.
-        switch(currentState)
+        switch (currentState)
         {
             case ARMWEIGHT_ASSESS_STATE.INIT:
                 // Move to the next state.
                 currentState = ARMWEIGHT_ASSESS_STATE.WAIT_FOR_TARGET_SELECTION;
                 armWeight.initializeArmWeightAssessment();
                 // Initialize raw data annotation and logging.
-                AppData.Instance.annotation = (int) currentTarget;
+                AppData.Instance.annotation = (int)currentTarget;
                 AppData.Instance.StartRawDataArmWeightDataLogging(armWeight.datetime.Replace(" ", "_").Replace(":", "-"));
                 AppLogger.LogInfo($"State changed to {currentState}.");
                 break;
             case ARMWEIGHT_ASSESS_STATE.ALL_DONE:
+                exitButtonPressCount++;
+                if (exitButtonPressCount == 1)
+                {
+                    changeScene = false;
+                    return;
+                }
                 // Save the assessment and exit the scene.
                 armWeight.WriteToArmWeightFile();
                 AppData.Instance.StopRawDataArmWeightDataLogging();
+                // Reload movement data.
+                AppData.Instance.userData.reloadArmWeightData();
                 AppLogger.LogInfo("Arm weight assessment completed and saved.");
                 changeScene = true;
                 break;
