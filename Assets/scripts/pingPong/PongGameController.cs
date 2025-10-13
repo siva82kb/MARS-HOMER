@@ -221,7 +221,7 @@ public class pongGameController : MonoBehaviour {
         //Trial Time
         trialTimeLeft = trialDuration;
         gameState = GameStates.SPAWNBALL;
-        gameSpeed = AppData.Instance.gameSpeed;
+        gameSpeed = AppData.Instance.selectedGame.gameSpeed;
      
     }
     public void gameOver()
@@ -231,7 +231,7 @@ public class pongGameController : MonoBehaviour {
             showFinished();
             float gameTime = trialDuration - trialTimeLeft;
             AppData.Instance.gameTime = (gameTime < trialDuration) ?(int) gameTime : trialDuration;
-            AppData.Instance.gameSpeed = gameSpeed;
+            // AppData.Instance.selectedGame.gameSpeed = gameSpeed;
             AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
         }
      

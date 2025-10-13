@@ -6,8 +6,7 @@ public class SSPlayerController : MonoBehaviour
     public static SSPlayerController instance;
 
     // Start is called before the first frame update
-    Camera mainCamera;
-    private Vector2 screenBounds;
+    private float[] screenBounds;
     private Vector3 endPoint;
 
     [SerializeField]
@@ -52,12 +51,11 @@ public class SSPlayerController : MonoBehaviour
     public void Initialize()
     {
         // Get screen bounds
-        mainCamera = Camera.main;
-        screenBounds = mainCamera.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, mainCamera.transform.position.z));
-        xScreenMin = -0.9f * screenBounds.x;
-        xScreenMax = 0.9f * screenBounds.x;
-        yScreenMin = -screenBounds.y + 0.2f;//change into 1 from 4
-        yScreenMax = screenBounds.y - screenBounds.y / 1.5f;
+        screenBounds = MarsGame.GetGameScreenLimits("SS");
+        xScreenMin = screenBounds[0];
+        xScreenMax = screenBounds[1];
+        yScreenMin = screenBounds[2];
+        yScreenMax = screenBounds[3];
         // Compute midpoints and ranges
         xScreenMidPoint = (xScreenMin + xScreenMax) / 2.0f;
         xScreenRange = xScreenMax - xScreenMin;
@@ -113,10 +111,9 @@ public class SSPlayerController : MonoBehaviour
         shootTime();
     }
 
-
     void shootTime()
     {
-        if (spaceShooterGameContoller.Instance == null 
+        if (spaceShooterGameContoller.Instance == null
             || spaceShooterGameContoller.Instance.isGameFinished
             || !spaceShooterGameContoller.Instance.isGameStarted
             )
@@ -130,7 +127,7 @@ public class SSPlayerController : MonoBehaviour
             Player_collision_handler.instance.isHit = false;
 
         }
-      
+
         // Track time passed
         timeSinceLastShot += Time.deltaTime;
 
@@ -142,6 +139,7 @@ public class SSPlayerController : MonoBehaviour
             ShootInterval = 0.5f;
         }
     }
+    
     void Attack()
     {
         GameObject Laser = Instantiate(Player_bullet, Spawn_point.position, Quaternion.identity);

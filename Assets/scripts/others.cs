@@ -31,6 +31,7 @@ public static class MarsDefs
     }
 }
 
+
 public class MarsUserData
 {
     // Static variables.
@@ -46,7 +47,7 @@ public class MarsUserData
     public bool isExceeded { get; private set; }
     public DataTable dTableConfig { get; private set; } = null;
     public DataTable dTableSession { get; private set; } = null;
- 
+
     public string userID { get; private set; }
     public string hospNumber { get; private set; }
     public DateTime startDate { get; private set; }
@@ -55,11 +56,11 @@ public class MarsUserData
 
     public float trainingPlaneAngle { get; private set; } = 0f; // In degrees
     public ArmWeight armWeight { get; private set; } = null;
- 
+
     public Dictionary<string, float> moveTimePrsc { get; private set; } // Prescribed movement time
     public Dictionary<string, float> moveTimeCurr { get; private set; } // Current movement time
     public Dictionary<string, float> moveTimePrev { get; private set; } // Previous movement time 
-   
+
     // Total movement times.
     public float totalMoveTimePrsc
     {
@@ -174,9 +175,10 @@ public class MarsUserData
     {
         // Read the session file
         dTableSession = DataManager.loadCSV(sessionFile);
+
         // Create the current move time dictionary for the current session.
         moveTimeCurr = createMoveTimeDictionary();
-     
+
         // Get the summary of move times from the previous sessions.
         parsemoveTimePrev();
     }
@@ -251,10 +253,10 @@ public class MarsUserData
         // AROM available.
         MarsArom arom = new MarsArom(movement, readFromFile: true);
         // Date string format: 13-10-2025 08:05:19
-        DateTime aromDate = DateTime.ParseExact(arom.datetime, DataManager.AROMDATETIMEFORMAT, CultureInfo.InvariantCulture);
+        DateTime aromDate = DateTime.ParseExact(arom.datetime, DataManager.DATETIMEFORMAT, CultureInfo.InvariantCulture);
         TimeSpan duration = DateTime.Now - aromDate;
         return (int)duration.TotalDays;
-    } 
+    }
 
     public bool IsArmWeightAssessmentAvailableForTrainingAngle()
     {
@@ -279,7 +281,45 @@ public class MarsUserData
         DateTime awDate = DateTime.ParseExact(aw.datetime, DataManager.DATETIMEFORMAT, CultureInfo.InvariantCulture);
         TimeSpan duration = DateTime.Now - awDate;
         return (int)duration.TotalDays;
-    } 
+    }
+
+    public int[] readCummulativeHitsMissesForGameMovement(string gameName, string movementName)
+    {
+        // Get the last row for the given game.
+        var lastGameRows = dTableSession.AsEnumerable()?
+            .Where(row => row.Field<string>("GameName") == gameName && row.Field<string>("MovementName") == movementName).LastOrDefault();
+        // If there are no rows, set the cummulative score to zero.
+        if (lastGameRows == null)
+        {
+            AppLogger.LogInfo($"No previous data found for game '{gameName}' and movement '{movementName}'. Cummulative hits and misses set to zero.");
+            return new int[] { 0, 0 };
+        }
+        // Get the cummulative hits and misses for the game from the last row.
+        int[] cuScores = new int[]
+        {
+            Convert.ToInt32(lastGameRows.Field<string>("CummulativeHits")),
+            Convert.ToInt32(lastGameRows.Field<string>("CummulativeMisses"))
+        };
+        AppLogger.LogInfo($"Cummulative hits and misses for game '{gameName}' and '{movementName}' updated. Hits: {cuScores[0]} | Misses: {cuScores[1]}.");
+        return cuScores;
+    }
+
+    public float readGameSpeedForGameMovement(string gameName, string movementName)
+    {
+        // Get the last row for the given game and movement.
+        var lastGameRows = dTableSession.AsEnumerable()?
+            .Where(row => row.Field<string>("GameName") == gameName && row.Field<string>("MovementName") == movementName).LastOrDefault();
+        // If there are no rows, set the cummulative score to zero.
+        if (lastGameRows == null)
+        {
+            AppLogger.LogInfo($"No previous data found for game '{gameName}' and movement '{movementName}'. Game speed set to default.");
+            return MarsGame.GetDefaultGameSpeed(gameName);
+        }
+        // Get the game speed for the game from the last row.
+        float gSpeed = float.Parse(lastGameRows.Field<string>("GameSpeed"));
+        AppLogger.LogInfo($"Game speed for game '{gameName}' and movement '{movementName}'. Game speed: {gSpeed}.");
+        return gSpeed;
+    }
 }
 
 // Class representing movements trained by MARS
@@ -371,6 +411,96 @@ public class MarsMovement
     }
 }
 
+// Calss representing MARS games.
+public class MarsGame
+{
+    public static readonly string[] GAMES = new string[] { "SS", "PP", "CD" };
+    public static readonly string[] GAMEFULLNAMES = new string[] { "Space Shooter", "Ping Pong", "Diamond Catcher" };
+    public static float[] GetGameScreenLimits(string gameName)
+    {
+        switch (gameName)
+        {
+            case "PP":
+                return new float[] { -5.8f, 6.38f, -3.5f, 3.5f };
+            case "SS":
+            case "CD":
+                return new float[] { -7.5f, 7.5f, -3.85f, 3.85f };
+            default:
+                return new float[] { 0f, 0f, 0f };
+        }
+    }
+    public static float GetGameDuration(string gameName)
+    {
+        switch (gameName)
+        {
+            case "SS":
+            case "PP":
+            case "CD":
+            default:
+                return 10f;
+        }
+    }
+
+    public static float GetDefaultGameSpeed(string gameName)
+    {
+        switch (gameName)
+        {
+            case "PP":
+                return 1.0f;
+            case "SS":
+                return 1.0f;
+            case "CD":
+                return 1.0f;
+            default:
+                return 0f;
+        }
+    }
+
+    public string name { get; private set; } = null;
+    public string movement { get; set; } = null;
+    public float gameSpeed { get; private set; } = 0f;
+    public float gameTime { get; set; } = 0f;
+    public int cummulativeHits { get; set; } = 0;
+    public int cummulativeMisses { get; set; } = 0;
+
+    public MarsGame(string gName, string mName, float gSpeed, int gCuHits, int gCuMisses)
+    {
+        name = gName?.ToUpper() ?? string.Empty;
+        movement = mName?.ToUpper() ?? string.Empty;
+        gameSpeed = gSpeed;
+        cummulativeHits = gCuHits;
+        cummulativeMisses = gCuMisses;
+    }
+
+    public void SetGameSpeed(float gSpeed)
+    {
+        gameSpeed = gSpeed;
+    }
+
+    public void ResetCummulativeScore()
+    {
+        cummulativeHits = 0;
+        cummulativeMisses = 0;
+    }
+
+    public void UpdateCummulativeHitsMisses(int hits, int misses)
+    {
+        cummulativeHits += hits;
+        cummulativeMisses += misses;
+    }
+
+    public void SetGameTime(float gTime)
+    {
+        gameTime = gTime;
+    }
+
+    public void DecrementGameTime(float deltaTime)
+    {
+        gameTime -= deltaTime;
+    }
+}
+
+
 // MARS Active Range of Motion (AROM) class.
 public class MarsArom
 {
@@ -424,7 +554,7 @@ public class MarsArom
 
     private void initializeNewAssessment(string movementName)
     {
-        datetime = DateTime.Now.ToString(DataManager.AROMDATETIMEFORMAT);
+        datetime = DateTime.Now.ToString(DataManager.DATETIMEFORMAT);
         movement = movementName;
         rawData = null;
         topRaw = UnityEngine.Vector2.zero;

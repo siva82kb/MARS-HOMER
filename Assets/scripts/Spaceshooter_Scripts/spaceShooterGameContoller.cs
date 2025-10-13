@@ -50,21 +50,35 @@ public class spaceShooterGameContoller : MonoBehaviour
     public bool isSuccess { get; private set; } = false;
     public bool isFailure { get; private set; } = false;
 
-    public float gameDuration = 60f; // Game duration in seconds
+    public float gameDuration = MarsGame.GetGameDuration("SS");
     public bool isInitialized { get; private set; } = false;
 
+    // Get screen limits information.
+    public static float[] GetScreenLimits()
+    {
+        Camera mainCamera = Camera.main;
+        if (mainCamera == null)
+        {
+            AppLogger.LogError("SS Game: Main camera not found.");
+            return new float[] { 0, 0, 0, 0 }; // Default values
+        }
+        float zDistance = Mathf.Abs(mainCamera.transform.position.z);
+        Vector3 bottomLeft = mainCamera.ScreenToWorldPoint(new Vector3(0, 0, zDistance));
+        Vector3 topRight = mainCamera.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, zDistance));
+        return new float[] { bottomLeft.x, topRight.x, bottomLeft.y, topRight.y };
+    }
 
-    public void setisSuccess()
+    public void setIsSuccess()
     {
         isSuccess = true;
         nSuccess++;
     }
 
-    public void setisFailure()
+    public void setIsFailure()
     {
         isFailure = true;
     }
-
+    
     public enum GameStates
     {
         WAITING = 0,
@@ -77,13 +91,17 @@ public class spaceShooterGameContoller : MonoBehaviour
         FAILURE,
         DONE
     }
-   
     private GameStates _gameState;
     private GameStates _prevGameState = GameStates.WAITING;
     public GameStates gameState
     {
         get => _gameState;
-        private set => _gameState = value;
+        private set
+        {
+            _prevGameState = _gameState;
+            _gameState = value;
+            AppLogger.LogInfo($"Game state changed from {_prevGameState} to {_gameState}.");
+        }
     }
  
     public Vector3 playerPosition {  get; private set; }   
@@ -92,14 +110,8 @@ public class spaceShooterGameContoller : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+        if (Instance == null) Instance = this;
+        else Destroy(gameObject);
     }
     
     void Start()
@@ -161,6 +173,8 @@ public class spaceShooterGameContoller : MonoBehaviour
 
             // Game ready to start.
             isInitialized = true;
+
+            AppLogger.LogInfo("Space Shooter Game initialized.");
         }
     }
  
@@ -195,9 +209,7 @@ public class spaceShooterGameContoller : MonoBehaviour
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.G))
         {
             GameControl.gameObject.SetActive(!GameControl.gameObject.activeSelf);
-          
         }
-      
     }
 
     private void FixedUpdate()
@@ -218,12 +230,14 @@ public class spaceShooterGameContoller : MonoBehaviour
         startImage.SetActive(true);
         PauseImage.SetActive(false);
     }
+
     public bool IsGamePlaying()
     {
         return gameState != GameStates.WAITING
             && gameState != GameStates.PAUSED
             && gameState != GameStates.STOP;
     }
+
     public void RunStateMachine()
     {
         if (IsGamePlaying())
@@ -232,9 +246,10 @@ public class spaceShooterGameContoller : MonoBehaviour
             gameSpeedTxt.text = gameSpeed.ToString();
             scoreText.text = "SCORE:" + nSuccess.ToString();
             timer -= Time.deltaTime;
+            // // Annotate the changed game speed.
+            // AppData.Instance.annotation = $"GS:{gameSpeed:F6}";
         }
-            
-           
+
         bool isTimeUp = timer < 0; 
         switch (gameState)
         {
@@ -322,7 +337,6 @@ public class spaceShooterGameContoller : MonoBehaviour
         {
             changeScene = true;
         }
-
     }
     public void PauseGame()
     {
@@ -352,7 +366,7 @@ public class spaceShooterGameContoller : MonoBehaviour
             //cal gameTime
             int gametime = (int)gameDuration - (int)timer;
             AppData.Instance.gameTime = gametime < gameDuration ? gametime : gameDuration;
-            AppData.Instance.gameSpeed = gameSpeed;
+            // AppData.Instance.gameSpeed = gameSpeed;
             //stop trail
             AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
         }
@@ -371,8 +385,10 @@ public class spaceShooterGameContoller : MonoBehaviour
     
     public void startGame()
     {
+        // Hide reminder panel if visible
         reminderPanel.SetActive(false);
-        //start new Trail
+
+        // Start a new Trail
         AppData.Instance.StartNewTrial();
 
         nSuccess = 0;
@@ -387,10 +403,7 @@ public class spaceShooterGameContoller : MonoBehaviour
         GameOverPanel.SetActive(false);
         startImage.SetActive(false);
         messTxt.enabled = false;
-
-
-        gameSpeed = AppData.Instance.gameSpeed <= 1f ? gameSpeed : AppData.Instance.gameSpeed;
-
+        gameSpeed = AppData.Instance.selectedGame.gameSpeed;
         targetSpeed = gameSpeed;
     }
 

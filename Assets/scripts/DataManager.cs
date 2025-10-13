@@ -56,7 +56,7 @@ public class DataManager : MonoBehaviour
         "TrialNumberDay", "TrialNumberSession", "TrialStartTime", "TrialStopTime", "TrialRawDataFile",
         "Movement", "TrainingPlaneAngle",
         "GameName", "GameParameter", "GameSpeed",
-        "SuccessRate", "MoveTime"
+        "SuccessRate", "MoveTime", "CummulativeHits", "CummulativeMisses"
     };
     // Raw data header.
     public static string[] RAWFILEHEADER = new string[]
@@ -76,8 +76,7 @@ public class DataManager : MonoBehaviour
         "Annotation"
     };
     public static string DATETIMEFORMAT = "yyyy-MM-dd HH:mm:ss";
-    public static string AROMDATETIMEFORMAT = "dd-MM-yyyy HH:mm:ss";
-
+    
     // Functions to generate file names.
     public static string GetRomFileName(string movement) => FixPath(Path.Combine(romPath, $"{movement}-rom.csv"));
     public static string GetRomRawFileName(string movement, string datetime) => FixPath(Path.Combine(romPath, $"romraw-{movement}-{datetime.Replace(" ", "_").Replace(":", "-")}.csv"));
