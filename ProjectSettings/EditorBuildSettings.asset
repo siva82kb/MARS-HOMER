@@ -71,5 +71,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/ARMWEIGHT.unity
     guid: 85280a011d37b344fb30592ba5ffd312
+  - enabled: 1
+    path: Assets/Scenes/CatchDiamond/CD.unity
+    guid: ecbd15489db07464bb5f4b33fc18fd04
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0

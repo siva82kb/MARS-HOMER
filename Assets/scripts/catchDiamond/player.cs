@@ -22,18 +22,13 @@ public class player : MonoBehaviour
     public static float zMinendPnt;
     public static float zMaxendPnt;
     public bool debug;
-    private bool isColliding = false;
-    private Coroutine eatingCoroutine;
+   
+
     public GameObject highlightPrefeb;
-    private GameObject highlight;
+
     public GameObject pointTextPrefab;
     public Canvas uiCanvas;  // assign the main Canvas here
-    public ParticleSystem hightlightPartical;
-    public ParticleSystem moveingupstars;
-    public ParticleSystem moveingupstarsobj;
-    public ParticleSystem highligtsobj;
-    public GameObject SuccesstimerPrefeb;
-    public GameObject Successtimer;
+  
     void Awake()
     {
         instance = this;
@@ -114,42 +109,21 @@ public class player : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        //Debug.Log(collision.gameObject.name);
-        //if (DCGameController.Instance.targetBubble != null)
-        //    DCGameController.Instance.targetBubble.SetActive(false);
-        //// Check if this is the target object
-        //if (collision.gameObject == DCGameController.Instance.target && !DCGameController.Instance.isSuccess)
-        //{
-        //    isColliding = true;
        
-        DCGameController.Instance.setPlayerIn();
-            //destroyParticals();
-            //Successtimer = Instantiate(SuccesstimerPrefeb, DCGameController.Instance.target.transform.position, Quaternion.identity);
-            //moveingupstarsobj = Instantiate(moveingupstars, DCGameController.Instance.target.transform.position, Quaternion.identity);
-            ////highligtsobj = Instantiate(hightlightPartical, DCGameController.Instance.target.transform.position, Quaternion.identity);
-
-            //moveingupstarsobj.Play();
-            //highligtsobj.Play();
-
-        //    if (eatingCoroutine == null)
-        //    {
-        //        eatingCoroutine = StartCoroutine(DCGameController.Instance.PlayEatingAnimation());
-        //    }
-        //}
+            DCGameController.Instance.setPlayerIn();
+          
     }
 
     private void OnTriggerExit2D(Collider2D collision)
     {
        
-        if (DCGameController.Instance.gameState == DCGameController.GameStates.PLAYERIN)
+        if (DCGameController.Instance.gameState == DCGameController.GameStates.PLAYERIN
+            && DCGameController.Instance.gameState != DCGameController.GameStates.PLAYEREXIT
+          )
             DCGameController.Instance.setPlayerOut();
         
     }
-    public void destroyParticals()
-    {
-         Destroy(highligtsobj);
-        Destroy(moveingupstarsobj);
-    }
+
     public void AddScore()
     {
         // Instantiate near the player position
@@ -160,8 +134,5 @@ public class player : MonoBehaviour
 
         obj.GetComponent<point>().SetText("+1");
     }
-    public bool IsCollidingWithTarget()
-    {
-        return isColliding;
-    }
+  
 }

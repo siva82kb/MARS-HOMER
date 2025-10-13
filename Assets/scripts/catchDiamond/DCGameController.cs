@@ -11,21 +11,20 @@ public class DCGameController : MonoBehaviour
 
     public static DCGameController Instance;
     public GameObject gameOverPanel;
-
-
     public TextMeshProUGUI TimerText;
     public TextMeshProUGUI scoreText;
     public GameObject targetObject;
-
     public Text gameSpeedTxt;
     public GameObject startImage;
     public GameObject PauseImage;
     public GameObject GameControl;
     public GameObject reminderPanel;
     public GameObject targetBubblePrefeb;
+    public GameObject succTimerPrefeb;
     public GameObject targetTimerPrefeb;
-    public GameObject targetBubble;
-    public GameObject targetTimer;  
+    private GameObject targetBubble;
+    private GameObject succTimer;  
+    private GameObject targetTimer;
     public Canvas uiCanvas;
     Animator targetAnim;
     public const float gameDuration = 60f;
@@ -50,26 +49,27 @@ public class DCGameController : MonoBehaviour
     public bool isSuccess { get; set; } = false;
     public bool isFailure { get; set; } = false;
 
-    public GameObject target;
+    
     public GameObject targerPrefeb;
-    public AudioSource appleEatingSound;
-    public AudioSource failSound;
-
-    //catchDiamond
-    public ParticleSystem hightlightsprefeb;
-    public ParticleSystem hightlights;
-    public ParticleSystem moveingupstars;
-    public ParticleSystem moveingupstarsobj;
+    public GameObject target;
+    public ParticleSystem targetGlitterPrefeb;
+    private ParticleSystem targetGlitter;
+    public ParticleSystem catchGlitterPrefeb;
+    private ParticleSystem catchGlitter;
+    public AudioSource audioSource;
+    public AudioClip playerIn;
+    public AudioClip playerOut;
+    public AudioClip TargetFaild;
     public enum GameStates
     {
         WAITING = 0,
         START,
         STOP,
         PAUSED,
-        SPAWNFRUIT,
-        WAITFOREAT,
+        SPAWNDIAMOND,
+        WAITFORCATCH,
         PLAYERIN,
-        PLAYEROUT,
+        PLAYEREXIT,
         SUCCESS,
         FAILURE,
         DONE
@@ -83,11 +83,11 @@ public class DCGameController : MonoBehaviour
         private set => _gameState = value;
     }
 
-    public float waitTime;
+    private float waitTime;
     public Vector3 playerPosition { get; private set; }
     public Vector3? targetPosition { get; private set; }
 
-    public bool isProcessingHit = false;
+
     public bool debug;
     private void Awake()
     {
@@ -102,7 +102,6 @@ public class DCGameController : MonoBehaviour
         }
         MarsComm.sendHeartbeat();
         initUI();
-        //AppData.Instance.updateSessionDetials();
         isGameStarted = false;
         gameSpeed = 5f;//default slow speed
         MarsComm.OnMarsButtonReleased += onMarsButtonReleased;
@@ -164,9 +163,9 @@ public class DCGameController : MonoBehaviour
                 break;
             case GameStates.START:
                 startGame();
-                gameState = GameStates.SPAWNFRUIT;
+                gameState = GameStates.SPAWNDIAMOND;
                 break;
-            case GameStates.SPAWNFRUIT:
+            case GameStates.SPAWNDIAMOND:
 
                 if (eventDelayTimer <= 0f && !runOnce)
                 {
@@ -185,66 +184,56 @@ public class DCGameController : MonoBehaviour
                     eventDelayTimer -= Time.deltaTime;
                     if (eventDelayTimer <= 0f)
                     {
-
                         waitTime = gameSpeed;
-                       
                         runOnce = false;
-                        gameState = GameStates.WAITFOREAT;
+                        gameState = GameStates.WAITFORCATCH;
                     }
                 }
                 break;
 
-            case GameStates.WAITFOREAT:
-                if (isSuccess)
-                {
-                    gameState = GameStates.SUCCESS;
-                    break;
-                }
-                if (!player.instance.IsCollidingWithTarget() && !isSuccess) waitTime -= Time.deltaTime;
-             
-                if ((waitTime / gameSpeed) <= 0.5f && target != null && !player.instance.IsCollidingWithTarget())
-                {
-                    //targetAnim.Play("end");
-                }
+            case GameStates.WAITFORCATCH:
+               waitTime -= Time.deltaTime;
 
-                if (waitTime <= 0f) // Add check
+                if (waitTime <= 0f) 
                 {
-                    //failSound.Play();
-                    //if (isSuccess) gameState = GameStates.SUCCESS;
-                    Debug.Log(waitTime + "waittime" + isFailure + isSuccess);
                     nFailure++;
+                    audioSource.PlayOneShot(TargetFaild);
                     gameState = GameStates.FAILURE;
                 }
                 break;
             case GameStates.PLAYERIN:
-                if (targetTimer == null)
+                if (succTimer == null)
                 {
-                    targetTimer = Instantiate(targetTimerPrefeb, uiCanvas.transform);
-                    Vector3 screenPos = Camera.main.WorldToScreenPoint(target.transform.position);//just above the sheep
-                    targetTimer.transform.position = new Vector3(screenPos.x, screenPos.y - 25f, screenPos.z);
+                    succTimer = Instantiate(succTimerPrefeb, uiCanvas.transform);
+                    Vector3 screenPos = Camera.main.WorldToScreenPoint(target.transform.position);
+                    succTimer.transform.position = new Vector3(screenPos.x, screenPos.y - 25f, screenPos.z);
                     targetAnim.Play("idle", -1, 0f);
-                    moveingupstarsobj = Instantiate(moveingupstars, DCGameController.Instance.target.transform.position, Quaternion.identity);
-                    moveingupstarsobj.Play();
+                    catchGlitter = Instantiate(catchGlitterPrefeb, DCGameController.Instance.target.transform.position, Quaternion.identity);
+                    catchGlitter.Play();
+                    audioSource.PlayOneShot(playerIn);
                 }
-               
 
                 InsideTarget += Time.deltaTime;
-                targetTimer.GetComponent<Image>().fillAmount = InsideTarget;
+                succTimer.GetComponent<Image>().fillAmount = InsideTarget;
                 if (InsideTarget >= 1f)
                 {
                     targetAnim.Play("disappear", -1, 0f);
                     gameState = GameStates.SUCCESS;
                     InsideTarget = 0f;
+                    nSuccess++;
                     player.instance.AddScore();
                 }
                 break;
-            case GameStates.PLAYEROUT:
-                if (targetTimer != null)
+            case GameStates.PLAYEREXIT:
+              
+                if (succTimer != null)
                 {
-                    Destroy(targetTimer);
+                    Destroy(succTimer);
                     targetAnim.Play("TargetHighlight", -1, 0f);
+                    audioSource.PlayOneShot(playerOut);
                 }
-                if(moveingupstarsobj!=null)moveingupstarsobj.Stop(true);
+                if(catchGlitter!=null)catchGlitter.Stop(true);
+                gameState = GameStates.WAITFORCATCH;
                 InsideTarget = 0f;
                 break;
             case GameStates.PAUSED:
@@ -266,12 +255,12 @@ public class DCGameController : MonoBehaviour
                         // Wait for the gamestate to be logged.
                         isFailure = false;
                         isSuccess = false;
-                        gameState = isTimeUp ? GameStates.STOP : GameStates.SPAWNFRUIT;
+                        gameState = isTimeUp ? GameStates.STOP : GameStates.SPAWNDIAMOND;
                         if (target != null) Destroy(target);
-                        if (hightlights!=null)Destroy(hightlights);
+                        if (targetGlitter!=null)Destroy(targetGlitter);
                         if (targetBubble != null) Destroy(targetBubble);
-                        if(moveingupstarsobj!=null) Destroy(moveingupstarsobj);
-                        if(targetTimer!=null) Destroy(targetTimer);
+                        if(catchGlitter!=null) Destroy(catchGlitter);
+                        if(succTimer!=null) Destroy(succTimer);
                         runOnce = false;
                     }
                 }
@@ -288,23 +277,18 @@ public class DCGameController : MonoBehaviour
         Debug.Log(gameState);
 
     }
-    public void ResetEatFlags()
-    {
-        isSuccess = false;
-        isFailure = false;
-    }
+  
     public void setPlayerIn()
     {
         gameState = GameStates.PLAYERIN;
     }
     public void setPlayerOut()
     {
-        gameState = GameStates.PLAYEROUT;
+        gameState = GameStates.PLAYEREXIT;
     }
     public void spawnDiamond()
     {
         Vector3 spawnPos;
-
         // Loop until we find a position far enough from the player
         do
         {
@@ -312,18 +296,13 @@ public class DCGameController : MonoBehaviour
             float y = UnityEngine.Random.Range(yMin, yMax);
             spawnPos = new Vector3(x, y, 0);
         }
+
         while (Vector3.Distance(spawnPos, GameObject.FindGameObjectWithTag("Player").transform.position) < 5f);
-
-        // Instantiate the target
-        //target = Instantiate(targerPrefeb, spawnPos, Quaternion.identity);
-
-       
      
         target = Instantiate(targerPrefeb, spawnPos, Quaternion.identity);
+        targetGlitter = Instantiate(targetGlitterPrefeb, spawnPos, Quaternion.identity);
         targetBubble = Instantiate(targetBubblePrefeb, new Vector3(spawnPos.x,spawnPos.y-0.25f,spawnPos.z), Quaternion.identity);
-        //target.transform.position = Vector3.Lerp(target.transform.position, spawnPos, Time.deltaTime);
-        hightlights = Instantiate(hightlightsprefeb, spawnPos, Quaternion.identity);
-        hightlights.Play();
+        targetTimer = Instantiate(targetTimerPrefeb, new Vector3(spawnPos.x, spawnPos.y - 1f, spawnPos.z), Quaternion.identity);
         if (target.transform.position.x > 0)
         {
             target.GetComponent<SpriteRenderer>().flipX = true;
@@ -347,59 +326,6 @@ public class DCGameController : MonoBehaviour
             && gameState != GameStates.STOP;
     }
 
-
-
-    public IEnumerator PlayEatingAnimation()
-    {
-        if (gameState != GameStates.WAITFOREAT)
-            yield break;
-
-        //appleEatingSound.Play();
-        
-
-        //targetAnim.Play("eating", -1, 0f);
-
-        // Wait until animation starts
-        AnimatorStateInfo state = targetAnim.GetCurrentAnimatorStateInfo(0);
-        while (!state.IsName("eating"))
-        {
-            yield return null;
-            state = targetAnim.GetCurrentAnimatorStateInfo(0);
-        }
-
-        float animationLength = state.length;
-        float elapsed = 0f;
-
-
-
-        while (elapsed < animationLength)
-        {
-            if (!sheepController.instance.IsCollidingWithTarget())
-            {
-              
-                Debug.Log("Collision Eating failed.");
-                isSuccess = false;
-
-                yield break;
-            }
-
-            elapsed += Time.deltaTime;
-            yield return null;
-        }
-        //player.instance.AddScore();
-        //player.instance.highligtsobj.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-        player.instance.moveingupstarsobj.Stop(true);
-        //sheepController.instance.StopAllCoroutines();
-
-        // Eating completed successfully
-        Debug.Log("Eating success!");
-        isSuccess = true;
-        nSuccess++;
-        if (targetBubble != null) Destroy(targetBubble);
-        Destroy(target);
-
-
-    }
 
     public void onMarsButtonReleased()
     {
@@ -426,7 +352,6 @@ public class DCGameController : MonoBehaviour
     public void ResumeGame()
     {
 
-        Debug.Log($"prev GS :{_prevGameState}");
         isGamePaused = false;
         gameState = _prevGameState;
         Time.timeScale = 1f;

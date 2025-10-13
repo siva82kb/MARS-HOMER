@@ -79,13 +79,6 @@ public class Player_controller_s : MonoBehaviour
             -4.0f,
             -8.0f
         );
-
-        //// constant-speed movement (no delay)
-        //transform.position = Vector3.MoveTowards(
-        //    transform.position,
-        //    targetPos,
-        //    smoothSpeed * Time.fixedDeltaTime
-        //);
         // smooth movement
         transform.position = Vector3.Lerp(
             transform.position,

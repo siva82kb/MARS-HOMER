@@ -34,7 +34,7 @@ public class Player_collision_handler : MonoBehaviour
     {
         // Check if the player is hit by an asteroid
         //if ((other.CompareTag("Asteroid") && !isDestroyed) || (other.CompareTag("Enemy") && !isDestroyed) || (other.CompareTag("EnemyLaser") && !isDestroyed))
-        if ((other.CompareTag("Asteroid") && !isDestroyed))//check if any asteroid or enemy hit the player 
+        if ((other.CompareTag("Asteroid") && !isDestroyed && !spaceShooterGameContoller.Instance.isSuccess))//check if any asteroid or enemy hit the player 
         {
             audioSource.PlayOneShot(ExplosionSound);
             //StartCoroutine(Blink());
@@ -43,7 +43,7 @@ public class Player_collision_handler : MonoBehaviour
             spaceShooterGameContoller.Instance.setisFailure();
            
             Destroy(other.gameObject); //  destroy  the asteroid
-
+            //isDestroyed = true;
 
         }
 
