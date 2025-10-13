@@ -17,6 +17,10 @@ public class MovementSceneHandler : MonoBehaviour
     public GameObject movementSelectGroup;
     public Text message;
     public Text additionalMessage;
+    public Text mlAromText;
+    public Text apAromText;
+    public Text mlapAromText;
+    public Text armWeightText;
 
     public static float initialAngle;
     private string nextScene;
@@ -36,6 +40,10 @@ public class MovementSceneHandler : MonoBehaviour
     private readonly string assessmentSceneAP = "AROMAP";
     private readonly string assessmentSceneMLAP = "AROMMLAP";
     private string aromAssessmentScene = "";
+
+    // Define dark red and green colors
+    private Color darkRed = new Color(0.85f, 0f, 0f);
+    private Color darkGreen = new Color(0f, 0.60f, 0f);
 
     void Start()
     {
@@ -78,6 +86,9 @@ public class MovementSceneHandler : MonoBehaviour
         // Clear the message text.
         message.text = "Please select the movement";
         additionalMessage.text = "";
+
+        // Update the assessment status text.
+        updateAssessmentStatusText();
     }
 
     void Update()
@@ -247,6 +258,60 @@ public class MovementSceneHandler : MonoBehaviour
                 AppLogger.LogInfo($"Selected movement ({AppData.Instance.selectedMovement.name}) and game ({AppData.Instance.selectedGame})");
                 break;
             }
+        }
+    }
+
+    private void updateAssessmentStatusText()
+    {
+        int days;
+        // Check if the different assessments are available and update the assessment status text.
+        // ML AROm
+        if (!AppData.Instance.userData.IsAromAssessmentAvailableForTrainingAngle("ML"))
+        {
+            mlAromText.text = "ML AROM   : N/A\n";
+            mlAromText.color = darkRed;
+        }
+        else
+        {
+            days = AppData.Instance.userData.DaysSinceAromAssessmentForTrainingAngle("ML");
+            mlAromText.text = $"ML AROM   : {days} days ago\n";
+            mlAromText.color = days < 13 ? darkGreen : darkRed;
+        }
+        // AP AROM
+        if (!AppData.Instance.userData.IsAromAssessmentAvailableForTrainingAngle("AP"))
+        {
+            apAromText.text = "AP AROM   : N/A\n";
+            apAromText.color = darkRed;
+        }
+        else
+        {
+            days = AppData.Instance.userData.DaysSinceAromAssessmentForTrainingAngle("AP");
+            apAromText.text = $"AP AROM   : {days} days ago\n";
+            apAromText.color = days < 13 ? darkGreen : darkRed;
+        }
+        // MLAP AROM
+        if (!AppData.Instance.userData.IsAromAssessmentAvailableForTrainingAngle("MLAP"))
+        {
+            mlapAromText.text = "MLAP AROM : N/A\n";
+            mlapAromText.color = darkRed;
+        }
+        else
+        {
+            days = AppData.Instance.userData.DaysSinceAromAssessmentForTrainingAngle("MLAP");
+            mlapAromText.text = $"MLAP AROM : {days} days ago\n";
+            mlapAromText.color = days < 13 ? darkGreen : darkRed;
+        }
+        // Arm Weight
+        if (!AppData.Instance.userData.IsArmWeightAssessmentAvailableForTrainingAngle())
+        {
+            armWeightText.text = "Arm Weight: N/A\n";
+            armWeightText.color = darkRed;
+        }
+        else
+        {
+            days = AppData.Instance.userData.DaysSinceArmWeightAssessmentForTrainingAngle();
+            armWeightText.text = $"Arm Weight: {days} days ago\n";
+            armWeightText.color = days < 13 ? darkGreen : darkRed;
         }
     }
     

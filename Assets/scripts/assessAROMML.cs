@@ -99,6 +99,5 @@ public class AssessROMML : MarsAssessAROM
     protected override void OnDestroy()
     {
         base.OnDestroy();
-        // MarsComm.OnMarsButtonReleased -= OnMarsButtonReleased;
     }
 }
