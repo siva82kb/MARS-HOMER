@@ -14,7 +14,7 @@ public partial class AppData
 {
     //Trail Detials
     public float gameTime { get; set; } = 0;
-    public float gameSpeed { get; set; }
+    public float gameSpeed { get; set; } = 0;
     // Start a new trial.
     public void StartNewTrial()
     {
@@ -104,6 +104,8 @@ public partial class AppData
             trialRawDataFile.Split("/data/")[1],
             // "Movement"
              $"{selectedMovement.name}",
+             //TrainingPlaneAngle
+             $"{userData.trainingPlaneAngle}",
             // "GameName"
             $"{selectedGame}",
             // "GameParameter"

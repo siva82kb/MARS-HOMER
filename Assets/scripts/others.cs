@@ -251,7 +251,7 @@ public class MarsUserData
         // AROM available.
         MarsArom arom = new MarsArom(movement, readFromFile: true);
         // Date string format: 13-10-2025 08:05:19
-        DateTime aromDate = DateTime.ParseExact(arom.datetime, DataManager.DATETIMEFORMAT, CultureInfo.InvariantCulture);
+        DateTime aromDate = DateTime.ParseExact(arom.datetime, DataManager.AROMDATETIMEFORMAT, CultureInfo.InvariantCulture);
         TimeSpan duration = DateTime.Now - aromDate;
         return (int)duration.TotalDays;
     } 
@@ -424,7 +424,7 @@ public class MarsArom
 
     private void initializeNewAssessment(string movementName)
     {
-        datetime = DateTime.Now.ToString(DataManager.DATETIMEFORMAT);
+        datetime = DateTime.Now.ToString(DataManager.AROMDATETIMEFORMAT);
         movement = movementName;
         rawData = null;
         topRaw = UnityEngine.Vector2.zero;
