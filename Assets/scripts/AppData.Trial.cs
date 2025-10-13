@@ -163,40 +163,40 @@ public partial class AppData
             }
             Vector3 _playerPos = GetGamePlayerPosition();
             Vector3 _targetPos = GetGamePlayerPosition();
-            rawDataString.Append($"{MarsComm.runTime},");
-            rawDataString.Append($"{MarsComm.packetNumber},");
-            rawDataString.Append($"{MarsComm.status},");
-            rawDataString.Append($"{MarsComm.controlType},");
-            rawDataString.Append($"{MarsComm.errorStatus},");
-            rawDataString.Append($"{MarsComm.limb},");
-            rawDataString.Append($"{MarsComm.calibration},");
-            rawDataString.Append($"{MarsComm.angle1},");
-            rawDataString.Append($"{MarsComm.angle2},");
-            rawDataString.Append($"{MarsComm.angle3},");
-            rawDataString.Append($"{MarsComm.angle4},");
-            rawDataString.Append($"{MarsComm.imuAngle1},");
-            rawDataString.Append($"{MarsComm.imuAngle2},");
-            rawDataString.Append($"{MarsComm.imuAngle3},");
-            rawDataString.Append($"{MarsComm.imuAngle4},");
-            rawDataString.Append($"{MarsComm.force},");
-            rawDataString.Append($"{MarsComm.target},");
-            rawDataString.Append($"{MarsComm.desired},");
-            rawDataString.Append($"{MarsComm.control},");
-            rawDataString.Append($"{MarsComm.buttonState},");
-            rawDataString.Append($"{MarsComm.epPos.x},");
-            rawDataString.Append($"{MarsComm.epPos.y},");
-            rawDataString.Append($"{MarsComm.epPos.z},");
-            rawDataString.Append($"{MarsComm.epPosInThePlane.y},");
-            rawDataString.Append($"{MarsComm.epPosInThePlane.z},");
-            rawDataString.Append($"{MarsComm.errP},");
-            rawDataString.Append($"{MarsComm.errD},");
-            rawDataString.Append($"{MarsComm.errI},");
-            rawDataString.Append($"{_playerPos.x},");
-            rawDataString.Append($"{_playerPos.y},");
-            rawDataString.Append($"{_targetPos.x},");
-            rawDataString.Append($"{_targetPos.y},");
-            rawDataString.Append($"{GetGameState()}");
-            rawDataString.Append($"{AppData.Instance.annotation}");
+            rawDataString.Append($"{MarsComm.runTime},");               // DeviceRunTime
+            rawDataString.Append($"{MarsComm.packetNumber},");          // PacketNumber
+            rawDataString.Append($"{MarsComm.status},");                // Status
+            rawDataString.Append($"{MarsComm.controlType},");           // ControlType
+            rawDataString.Append($"{MarsComm.errorStatus},");           // ErrorStatus
+            rawDataString.Append($"{MarsComm.limb},");                  // Limb
+            rawDataString.Append($"{MarsComm.calibration},");           // Calibration
+            rawDataString.Append($"{MarsComm.angle1},");                // MarsAngle1
+            rawDataString.Append($"{MarsComm.angle2},");                // MarsAngle2
+            rawDataString.Append($"{MarsComm.angle3},");                // MarsAngle3
+            rawDataString.Append($"{MarsComm.angle4},");                // MarsAngle4
+            rawDataString.Append($"{MarsComm.imuAngle1},");             // ImuMarsAngle1
+            rawDataString.Append($"{MarsComm.imuAngle2},");             // ImuMarsAngle2
+            rawDataString.Append($"{MarsComm.imuAngle3},");             // ImuMarsAngle3
+            rawDataString.Append($"{MarsComm.imuAngle4},");             // ImuMarsAngle4
+            rawDataString.Append($"{MarsComm.force},");                 // Force
+            rawDataString.Append($"{MarsComm.target},");                // Target
+            rawDataString.Append($"{MarsComm.desired},");               // Desired
+            rawDataString.Append($"{MarsComm.control},");               // Control
+            rawDataString.Append($"{MarsComm.buttonState},");           // Button
+            rawDataString.Append($"{MarsComm.epPos.x},");               // EndPointX
+            rawDataString.Append($"{MarsComm.epPos.y},");               // EndPointY
+            rawDataString.Append($"{MarsComm.epPos.z},");               // EndPointZ
+            rawDataString.Append($"{MarsComm.epPosInThePlane.y},");     // EndPointYPlaneY
+            rawDataString.Append($"{MarsComm.epPosInThePlane.z},");     // EndPointZPlaneZ
+            rawDataString.Append($"{MarsComm.errP},");                  // Error
+            rawDataString.Append($"{MarsComm.errD},");                  // ErrorDiff
+            rawDataString.Append($"{MarsComm.errI},");                  // ErrorSum
+            rawDataString.Append($"{_playerPos.x},");                   // GamePlayerX
+            rawDataString.Append($"{_playerPos.y},");                   // GamePlayerY
+            rawDataString.Append($"{_targetPos.x},");                   // GameTargetX
+            rawDataString.Append($"{_targetPos.y},");                   // GameTargetY
+            rawDataString.Append($"{GetGameState()},");                 // GameState
+            rawDataString.Append($"{AppData.Instance.annotation}");     // Annotation
             rawDataString.Append("\n");
         }
     }

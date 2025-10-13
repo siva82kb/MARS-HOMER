@@ -40,7 +40,7 @@ public class DataManager : MonoBehaviour
         "DateTime", "TrainingPlaneAngle"
     };
     public static string[] ARMWEIGHTFILEHEADER = new string[] {
-        "DateTime", "AssessNo", "TrainingPlaneAngle",
+        "DateTime", "TrainingPlaneAngle",
         "LeftTargetX", "LeftTargetY", "LeftActualX", "LeftActualY", "LeftForce",
         "RightTargetX", "RightTargetY", "RightActualX", "RightActualY", "RightForce",
         "TopTargetX", "TopTargetY", "TopActualX", "TopActualY", "TopForce",

@@ -35,7 +35,11 @@ public class AssessArmWeight : MonoBehaviour
     public GameObject centerTarget;
     public LineRenderer aromBoxLineRenderer;
     public Text instructionText;
+    // TextMeshPro Button
+    public Button exitButton;
+    public Button redoButton;
     private MarsArom mlapArom;
+    private int exitButtonPressCount = 0;
 
     private bool changeScene = false;
 
@@ -51,16 +55,18 @@ public class AssessArmWeight : MonoBehaviour
         ALL_DONE
     }
     private ARMWEIGHT_ASSESS_STATE currentState = ARMWEIGHT_ASSESS_STATE.INIT;
-    private ArmWeight.ARMWEIGHT_TARGET currentTarget
+
+    private ArmWeight.ARMWEIGHT_TARGET _currentTarget;
+    public ArmWeight.ARMWEIGHT_TARGET currentTarget
     {
         get
         {
-            return currentTarget;
+            return _currentTarget;
         }
-        set
+        private set
         {
-            currentTarget = value;
-            AppData.Instance.annotation = (int)currentTarget;
+            _currentTarget = value;
+            AppData.Instance.annotation = (int)_currentTarget;
         }
     }
     private GameObject currentTargetObject = null;
@@ -105,11 +111,11 @@ public class AssessArmWeight : MonoBehaviour
         AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);
         AppLogger.LogInfo($"{SceneManager.GetActiveScene().name} scene started.");
 
-        // If the robot is not calibrated go to the robot calib scene.
-        if (MarsComm.CALIBRATION[MarsComm.calibration] == "NOCALIB") SceneManager.LoadScene(robotCalibScene);
+        // // If the robot is not calibrated go to the robot calib scene.
+        // if (MarsComm.CALIBRATION[MarsComm.calibration] == "NOCALIB") SceneManager.LoadScene(robotCalibScene);
 
-        // If the robot is not in position control go to the mars setup scene.
-        if (MarsComm.CONTROLTYPE[MarsComm.controlType] != "POSITION") SceneManager.LoadScene(marsSetUp);
+        // // If the robot is not in position control go to the mars setup scene.
+        // if (MarsComm.CONTROLTYPE[MarsComm.controlType] != "POSITION") SceneManager.LoadScene(marsSetUp);
 
         // First check of MLAP AROM assessment is available.
         SetOffset();
@@ -131,19 +137,36 @@ public class AssessArmWeight : MonoBehaviour
         }
 
         // Initialize the state machine.
-        currentState = ARMWEIGHT_ASSESS_STATE.INIT;
-        currentTarget = ArmWeight.ARMWEIGHT_TARGET.NONE;
-        stateStartTime = 0f;
-        armWeight = new ArmWeight(false);
-        updateTargetsDisplayFlag = true;
+        initializeAssessmentData();
 
         // Attach Mars events after a delay.
         StartCoroutine(AttachCallbacksAfterDelay(1f));
+
+        // Hide the redo button.
+        redoButton.gameObject.SetActive(false);
+        exitButton.gameObject.SetActive(true);
+        // Attach button events.
+        redoButton.onClick.AddListener(() =>
+        {
+            AppLogger.LogInfo("Redo button pressed. Restarting Arm Weight assessment.");
+            initializeAssessmentData();
+        });
+        exitButton.onClick.AddListener(() =>
+        {
+            AppLogger.LogInfo("Exit button pressed. Exiting Arm Weight assessment.");
+            changeScene = true;
+        });
     }
 
     void Update()
     {
         MarsComm.sendHeartbeat();
+
+        // Update UI.
+        if (currentState == ARMWEIGHT_ASSESS_STATE.ALL_DONE)
+        {
+            redoButton.gameObject.SetActive(true);
+        }
 
         // Update the current position of the end effector.
         updateCurrentEpPosition();
@@ -312,7 +335,7 @@ public class AssessArmWeight : MonoBehaviour
                     updateTargetsDisplayFlag = true;
                     AppLogger.LogInfo($"State changed to {currentState}.");
                 }
-                else
+                else if (MarsComm.buttonState == 0)
                 {
                     // Add data to the assessment.
                     armWeight.addArmWeightDataPoint(MarsComm.epPosInThePlane.z, MarsComm.epPosInThePlane.y, MarsComm.force);
@@ -333,6 +356,7 @@ public class AssessArmWeight : MonoBehaviour
                     currentState = ARMWEIGHT_ASSESS_STATE.ALL_DONE;
                     stateStartTime = Time.time;
                     updateTargetsDisplayFlag = true;
+                    exitButtonPressCount = 0;
                 }
                 else
                 {
@@ -395,21 +419,36 @@ public class AssessArmWeight : MonoBehaviour
         MarsComm.OnMarsButtonReleased += OnMarsButtonReleased;
     }
 
+    private void initializeAssessmentData()
+    {
+        currentState = ARMWEIGHT_ASSESS_STATE.INIT;
+        currentTarget = ArmWeight.ARMWEIGHT_TARGET.NONE;
+        stateStartTime = 0f;
+        armWeight = new ArmWeight(false);
+        updateTargetsDisplayFlag = true;
+    }
+    
     private void OnMarsButtonReleased()
     {
         // Act according to the current state.
-        switch(currentState)
+        switch (currentState)
         {
             case ARMWEIGHT_ASSESS_STATE.INIT:
                 // Move to the next state.
                 currentState = ARMWEIGHT_ASSESS_STATE.WAIT_FOR_TARGET_SELECTION;
                 armWeight.initializeArmWeightAssessment();
                 // Initialize raw data annotation and logging.
-                AppData.Instance.annotation = (int) currentTarget;
+                AppData.Instance.annotation = (int)currentTarget;
                 AppData.Instance.StartRawDataArmWeightDataLogging(armWeight.datetime.Replace(" ", "_").Replace(":", "-"));
                 AppLogger.LogInfo($"State changed to {currentState}.");
                 break;
             case ARMWEIGHT_ASSESS_STATE.ALL_DONE:
+                exitButtonPressCount++;
+                if (exitButtonPressCount == 1)
+                {
+                    changeScene = false;
+                    return;
+                }
                 // Save the assessment and exit the scene.
                 armWeight.WriteToArmWeightFile();
                 AppData.Instance.StopRawDataArmWeightDataLogging();
