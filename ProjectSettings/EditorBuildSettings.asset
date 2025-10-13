@@ -24,23 +24,8 @@ EditorBuildSettings:
     path: Assets/Scenes/SpaceShooter/SS.unity
     guid: a70930fea6d6a3545a90d56ef1b83657
   - enabled: 1
-    path: Assets/Scenes/SpaceShooter/SSHOME.unity
-    guid: 72173926127dcd74f9f6e72c45d376f2
-  - enabled: 1
-    path: Assets/FlappyGame/Scenes/FlappyGame.unity
-    guid: 071352bb11a2bdd49a617f0ddbee8565
-  - enabled: 1
-    path: Assets/Scenes/ping_pong/PPMENU.unity
-    guid: 1bd52a7e0eece124dac8389cc0f1a7c7
-  - enabled: 1
-    path: Assets/Scenes/ping_pong/PP.unity
+    path: Assets/Scenes/PingPong/PP.unity
     guid: 35f526e95398d814a9fd87da4b01a9e8
-  - enabled: 1
-    path: Assets/Scenes/Whack-a-mole/WAM.unity
-    guid: e03997b56ee923e4caf0efa96710758d
-  - enabled: 1
-    path: Assets/Scenes/Whack-a-mole/WAMHOME.unity
-    guid: 0c87fe50da1c0d148a86dded2850f0e4
   - enabled: 1
     path: Assets/Scenes/CONFIG.unity
     guid: a2ba4a851b035334aa6baf3d2f143627

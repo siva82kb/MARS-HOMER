@@ -371,6 +371,5 @@ public partial class AppData
     public void updateSessionDetails()
     {
         AppData.Instance.userData.readParseSessionData(DataManager.sessionFile);
-       
     }
 }

@@ -48,7 +48,7 @@ public class MovementSceneHandler : MonoBehaviour
     void Start()
     {
         MarsComm.sendHeartbeat();
-
+    
         // Initialize AppData if needed
         if (AppData.Instance.userData == null)
         {
