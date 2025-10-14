@@ -56,7 +56,9 @@ public class DataManager : MonoBehaviour
         "TrialNumberDay", "TrialNumberSession", "TrialStartTime", "TrialStopTime", "TrialRawDataFile",
         "Movement", "TrainingPlaneAngle",
         "GameName", "GameParameter", "GameSpeed",
-        "SuccessRate", "MoveTime", "CummulativeHits", "CummulativeMisses"
+        "SuccessRate", "MoveTime",
+        "CummulativeTargets", "CummulativeHits", "CummulativeMisses",
+        "RawDataFileName"
     };
     // Raw data header.
     public static string[] RAWFILEHEADER = new string[]

@@ -77,7 +77,7 @@ public class MovementSceneHandler : MonoBehaviour
         MarsComm.OnMarsButtonReleased += OnMarsButtonReleased;
 
         // Update Session Details
-        AppData.Instance.updateSessionDetails();
+        AppData.Instance.userData.readParseSessionData(DataManager.sessionFile);
 
         // Initialize GUI
         UpdateMovementToggleButtons();
@@ -228,6 +228,8 @@ public class MovementSceneHandler : MonoBehaviour
                 toggleSelected = true;
                 // Selected movement and game name.
                 AppData.Instance.SetMovement(child.name);
+                Debug.Log($"Selected movement: {child.name}");
+                Debug.Log($"Game: {AppData.MARS_GAMES[MarsDefs.getMovementIndex(child.name)]}");
                 AppData.Instance.SetGame(AppData.MARS_GAMES[MarsDefs.getMovementIndex(child.name)]);
                 // Check if assessment is done or if the correct assessment is available, 
                 // else the next scene will be the corresponding assessment scene.

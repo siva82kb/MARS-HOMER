@@ -263,7 +263,6 @@ public class MarsUserData
         if (ArmWeight.ArmWeightFileExists())
         {
             var aw = new ArmWeight(readFromFile: true);
-            Debug.Log($"Arm Weight assessment complete: {aw.isAssessmentComplete}, Training plane angle: {aw.trainingPlaneAngle}, User training plane angle: {AppData.Instance.userData.trainingPlaneAngle}");
             if (!aw.isAssessmentComplete) return false;
             return Mathf.Abs(aw.trainingPlaneAngle - AppData.Instance.userData.trainingPlaneAngle) <= MarsDefs.TRAINING_PLANE_ANGLE_THRESHOLD;
         }
@@ -287,20 +286,21 @@ public class MarsUserData
     {
         // Get the last row for the given game.
         var lastGameRows = dTableSession.AsEnumerable()?
-            .Where(row => row.Field<string>("GameName") == gameName && row.Field<string>("MovementName") == movementName).LastOrDefault();
+            .Where(row => row.Field<string>("GameName") == gameName && row.Field<string>("Movement") == movementName).LastOrDefault();
         // If there are no rows, set the cummulative score to zero.
         if (lastGameRows == null)
         {
             AppLogger.LogInfo($"No previous data found for game '{gameName}' and movement '{movementName}'. Cummulative hits and misses set to zero.");
-            return new int[] { 0, 0 };
+            return new int[] { 0, 0, 0 };
         }
         // Get the cummulative hits and misses for the game from the last row.
         int[] cuScores = new int[]
         {
+            Convert.ToInt32(lastGameRows.Field<string>("CummulativeTargets")),
             Convert.ToInt32(lastGameRows.Field<string>("CummulativeHits")),
             Convert.ToInt32(lastGameRows.Field<string>("CummulativeMisses"))
         };
-        AppLogger.LogInfo($"Cummulative hits and misses for game '{gameName}' and '{movementName}' updated. Hits: {cuScores[0]} | Misses: {cuScores[1]}.");
+        AppLogger.LogInfo($"Cummulative hits and misses for game '{gameName}' and '{movementName}' updated. Targets: {cuScores[0]} | Hits: {cuScores[1]} | Misses: {cuScores[2]}.");
         return cuScores;
     }
 
@@ -308,7 +308,7 @@ public class MarsUserData
     {
         // Get the last row for the given game and movement.
         var lastGameRows = dTableSession.AsEnumerable()?
-            .Where(row => row.Field<string>("GameName") == gameName && row.Field<string>("MovementName") == movementName).LastOrDefault();
+            .Where(row => row.Field<string>("GameName") == gameName && row.Field<string>("Movement") == movementName).LastOrDefault();
         // If there are no rows, set the cummulative score to zero.
         if (lastGameRows == null)
         {
@@ -416,6 +416,9 @@ public class MarsGame
 {
     public static readonly string[] GAMES = new string[] { "SS", "PP", "CD" };
     public static readonly string[] GAMEFULLNAMES = new string[] { "Space Shooter", "Ping Pong", "Diamond Catcher" };
+    public static readonly float GAME_SPEED_DELTA = 0.25f;
+    public static readonly float MIN_GAME_SPEED = 0.5f;
+    public static readonly float MAX_GAME_SPEED = 5.0f;
     public static float[] GetGameScreenLimits(string gameName)
     {
         switch (gameName)
@@ -434,8 +437,11 @@ public class MarsGame
         switch (gameName)
         {
             case "SS":
+                return 10f;
             case "PP":
+                return 10f;
             case "CD":
+                return 10f;
             default:
                 return 10f;
         }
@@ -460,31 +466,36 @@ public class MarsGame
     public string movement { get; set; } = null;
     public float gameSpeed { get; private set; } = 0f;
     public float gameTime { get; set; } = 0f;
+    public int cummulativeTargets { get; set; } = 0;
     public int cummulativeHits { get; set; } = 0;
     public int cummulativeMisses { get; set; } = 0;
 
-    public MarsGame(string gName, string mName, float gSpeed, int gCuHits, int gCuMisses)
+    public MarsGame(string gName, string mName, float gSpeed, int gCuTargets, int gCuHits, int gCuMisses)
     {
         name = gName?.ToUpper() ?? string.Empty;
         movement = mName?.ToUpper() ?? string.Empty;
         gameSpeed = gSpeed;
+        cummulativeTargets = gCuTargets;
         cummulativeHits = gCuHits;
         cummulativeMisses = gCuMisses;
     }
 
     public void SetGameSpeed(float gSpeed)
     {
-        gameSpeed = gSpeed;
+        gameSpeed = Math.Clamp(gSpeed, MIN_GAME_SPEED, MAX_GAME_SPEED);
+        AppLogger.LogInfo($"Game speed for game '{name}' and movement '{movement}' set to {gameSpeed}.");
     }
 
     public void ResetCummulativeScore()
     {
+        cummulativeTargets = 0;
         cummulativeHits = 0;
         cummulativeMisses = 0;
     }
 
-    public void UpdateCummulativeHitsMisses(int hits, int misses)
+    public void UpdateCummulativeHitsMisses(int targets, int hits, int misses)
     {
+        cummulativeTargets += targets;
         cummulativeHits += hits;
         cummulativeMisses += misses;
     }
@@ -492,11 +503,6 @@ public class MarsGame
     public void SetGameTime(float gTime)
     {
         gameTime = gTime;
-    }
-
-    public void DecrementGameTime(float deltaTime)
-    {
-        gameTime -= deltaTime;
     }
 }
 
@@ -954,6 +960,14 @@ public class ArmWeight
 
 }
 
+
+// Space Shooter Game Constants
+public static class SpaceShooterGameDefs
+{
+    // Space ship firing constants.
+    public const float FIRING_INTERVAL = 0.25f;
+    public const float LOW_SPEED_THRESHOLD = 2.5f;  // cm/sec 
+}
 
 public static class Miscellaneous
 {

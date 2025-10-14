@@ -8,29 +8,12 @@ public class SSPlayerController : MonoBehaviour
     // Start is called before the first frame update
     private float[] screenBounds;
     private Vector3 endPoint;
-
-    [SerializeField]
-    private GameObject Player_bullet;
-
-    public AudioClip laserSound;
-    private AudioSource audioSource;
-
     public bool isInitialized { get; private set; } = false;
-
-    [SerializeField]
-    private Transform Spawn_point;
-    public int[] DEPENDENT = new int[] { 0, -1, 1 };
-
     public static float xScreenMin, yScreenMin, xScreenMax, yScreenMax;
     public static float xScreenMidPoint;
     public static float xScreenRange;
-
-    private float ShootInterval = 0.5f;
-    private float timeSinceLastShot = 0f;  // Timer to track intervals between shots
-  
-    float  yEndPoint, zEndPoint;
-    float xPoint, yPoint;
-    public float tilt;
+    float  zEndPoint;
+    float xPoint;
     private float smoothSpeed = 20f;
 
     // Robot AROM limits values.
@@ -60,8 +43,8 @@ public class SSPlayerController : MonoBehaviour
         xScreenMidPoint = (xScreenMin + xScreenMax) / 2.0f;
         xScreenRange = xScreenMax - xScreenMin;
 
-        // Get the audio source component
-        audioSource = GetComponent<AudioSource>();
+        // // Get the audio source component
+        // audioSource = GetComponent<AudioSource>();
 
         // Get the current AROM data.
         // Check of selected movement is null
@@ -107,50 +90,8 @@ public class SSPlayerController : MonoBehaviour
             targetPos,
             smoothSpeed * Time.fixedDeltaTime
         );
-        // Initiate Bullet
-        shootTime();
-    }
-
-    void shootTime()
-    {
-        if (spaceShooterGameContoller.Instance == null
-            || spaceShooterGameContoller.Instance.isGameFinished
-            || !spaceShooterGameContoller.Instance.isGameStarted
-            )
-        {
-            return; // Stop shooting when the game is ove
-        }
-        if (Player_collision_handler.instance.isHit)
-        {
-            timeSinceLastShot = 0f;
-            ShootInterval = 3f;
-            Player_collision_handler.instance.isHit = false;
-
-        }
-
-        // Track time passed
-        timeSinceLastShot += Time.deltaTime;
-
-        // Check if it's time to shoot
-        if (timeSinceLastShot >= ShootInterval)
-        {
-            Attack();
-            timeSinceLastShot = 0f;  // Reset timer after shooting
-            ShootInterval = 0.5f;
-        }
     }
     
-    void Attack()
-    {
-        GameObject Laser = Instantiate(Player_bullet, Spawn_point.position, Quaternion.identity);
-        // Destroy laser after 5 seconds to prevent clutter
-        if (audioSource != null && laserSound != null)
-        {
-            audioSource.PlayOneShot(laserSound);
-        }
-        Destroy(Laser, 1.5f);
-    }
- 
     public void DestroyPlayer()
     {
         Destroy(gameObject);

@@ -158,9 +158,9 @@ public partial class AppData
         // Read the cummulative hits and misses from the session data.
         int[] cuScores = Instance.userData.readCummulativeHitsMissesForGameMovement(game, selectedMovement?.name);
         // Set the selected game.
-        selectedGame = new MarsGame(gName: game, mName: selectedMovement?.name, gSpeed: gSpeed, gCuHits: cuScores[0], gCuMisses: cuScores[1]);
+        selectedGame = new MarsGame(gName: game, mName: selectedMovement?.name, gSpeed: gSpeed, gCuTargets: cuScores[0], gCuHits: cuScores[1], gCuMisses: cuScores[2]);
         AppLogger.SetCurrentGame(selectedGame.name);
-        AppLogger.LogInfo($"Selected game '{selectedGame.name}'. Game speed: {selectedGame.gameSpeed}, Cummulative hits: {selectedGame.cummulativeHits}, Cummulative misses: {selectedGame.cummulativeMisses}.");
+        AppLogger.LogInfo($"Selected game '{selectedGame.name}'. Game speed: {selectedGame.gameSpeed}, Cummulative targets: {selectedGame.cummulativeTargets}, Cummulative hits: {selectedGame.cummulativeHits}, Cummulative misses: {selectedGame.cummulativeMisses}.");
     }
 
     // Check training side.

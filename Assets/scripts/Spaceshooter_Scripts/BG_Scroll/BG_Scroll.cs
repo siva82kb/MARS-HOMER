@@ -8,7 +8,7 @@ public class BG_Scroll : MonoBehaviour
     // Start is called before the first frame update
     public float scroll_speed = 0.5f;
     private MeshRenderer mesh_Renderer;
-    private spaceShooterGameContoller gameManager;
+    private SpaceShooterGameContoller gameManager;
     private float y_scroll;
 
 
@@ -21,9 +21,9 @@ public class BG_Scroll : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!spaceShooterGameContoller.Instance.isGamePaused 
-            && !spaceShooterGameContoller.Instance.isGameFinished 
-            && spaceShooterGameContoller.Instance.isGameStarted)
+        if (!SpaceShooterGameContoller.Instance.isGamePaused 
+            && !SpaceShooterGameContoller.Instance.isGameFinished 
+            && SpaceShooterGameContoller.Instance.isGameStarted)
         {
             Scroll();
         }

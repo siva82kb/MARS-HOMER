@@ -77,7 +77,7 @@ public class WAMGameController : MonoBehaviour
     {
         MarsComm.sendHeartbeat();
         initUI();
-        AppData.Instance.updateSessionDetails();
+        AppData.Instance.userData.readParseSessionData(DataManager.sessionFile);
         isGameStarted = false;
         gameSpeed = 5f;//default slow speed
         MarsComm.OnMarsButtonReleased += onMarsButtonReleased;

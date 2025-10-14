@@ -87,7 +87,7 @@ public class pongGameController : MonoBehaviour {
 		finishObjects = GameObject.FindGameObjectsWithTag("ShowOnFinish");
 		hideFinished();
         gameState = GameStates.WAITING;
-        AppData.Instance.updateSessionDetails();
+        AppData.Instance.userData.readParseSessionData(DataManager.sessionFile);
         if (AppData.Instance.selectedMovement.trialNumberDay >= AppData.Instance.userData.moveTimePrsc[AppData.Instance.selectedMovement.name])
         {
             reminderPanel.SetActive(true);

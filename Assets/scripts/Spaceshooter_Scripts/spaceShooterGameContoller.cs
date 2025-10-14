@@ -1,5 +1,6 @@
 
 
+using System.Diagnostics.Eventing.Reader;
 using System.IO;
 using TMPro;
 using UnityEngine;
@@ -7,24 +8,22 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 
-public class spaceShooterGameContoller : MonoBehaviour
+public class SpaceShooterGameContoller : MonoBehaviour
 {
-    public static spaceShooterGameContoller Instance { get; private set; }
+    public static SpaceShooterGameContoller Instance { get; private set; }
 
     // List of scenes to change to.
     private readonly string robotCalibScene = "ROBOTCALIB";
     private readonly string marsSetUp = "MARSSETUP";
     public readonly string moveSelect = "CHOOSEMOVE";
 
-    public GameObject GameOverPanel;
-
+    public GameObject gameOverPanel;
     public TextMeshProUGUI timerText;
     public TextMeshProUGUI scoreText;
-    public Text messTxt;
-    public Text gameSpeedTxt;
+    public GameObject gameSpeedControl;
+    public bool gameSpeedChanged = false;
     public GameObject startImage;
     public GameObject PauseImage;
-    public GameObject GameControl;
     public float smoothFactor = 5f;
     public GameObject newSpaceshipPanel;
     public GameObject reminderPanel;
@@ -34,7 +33,7 @@ public class spaceShooterGameContoller : MonoBehaviour
     private float timer;
     public static bool changeScene = false;
     private float eventDelayTimer = 0f; 
-    private float gameSpeed = 1f;
+    // private float gameSpeed = 1f;
     private float targetSpeed;
   
     private bool runOnce = false;
@@ -46,27 +45,12 @@ public class spaceShooterGameContoller : MonoBehaviour
 
     public bool isGameStarted { get; private set; } = false;
     public bool isGameFinished { get; private set; } = false;
-    public bool isGamePaused { get; private set; } = false;
     public bool isSuccess { get; private set; } = false;
+    public bool isGamePaused { get; private set; } = false;
     public bool isFailure { get; private set; } = false;
 
     public float gameDuration = MarsGame.GetGameDuration("SS");
     public bool isInitialized { get; private set; } = false;
-
-    // Get screen limits information.
-    public static float[] GetScreenLimits()
-    {
-        Camera mainCamera = Camera.main;
-        if (mainCamera == null)
-        {
-            AppLogger.LogError("SS Game: Main camera not found.");
-            return new float[] { 0, 0, 0, 0 }; // Default values
-        }
-        float zDistance = Mathf.Abs(mainCamera.transform.position.z);
-        Vector3 bottomLeft = mainCamera.ScreenToWorldPoint(new Vector3(0, 0, zDistance));
-        Vector3 topRight = mainCamera.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, zDistance));
-        return new float[] { bottomLeft.x, topRight.x, bottomLeft.y, topRight.y };
-    }
 
     public void setIsSuccess()
     {
@@ -77,6 +61,7 @@ public class spaceShooterGameContoller : MonoBehaviour
     public void setIsFailure()
     {
         isFailure = true;
+        nFailure++;
     }
     
     public enum GameStates
@@ -148,19 +133,24 @@ public class spaceShooterGameContoller : MonoBehaviour
         }
         else
         {
-            // Update session details
-            AppData.Instance.updateSessionDetails();
-            if (AppData.Instance.selectedMovement.trialNumberDay >= AppData.Instance.userData.moveTimePrsc[AppData.Instance.selectedMovement.name])
-            {
-                reminderPanel.SetActive(true);
-            }
-            else
-            {
-                reminderPanel.SetActive(false);
-            }
+            // Reload session details to get the latest data.
+            AppData.Instance.userData.readParseSessionData(DataManager.sessionFile);
+
+            // Check of the required amount of trials for the selected movement is completed.
+            bool isRequiredTrialsCompleted = AppData.Instance.selectedMovement.trialNumberDay >= AppData.Instance.userData.moveTimePrsc[AppData.Instance.selectedMovement.name];
+            if (isRequiredTrialsCompleted) reminderPanel.SetActive(true);
+            else reminderPanel.SetActive(false);
+
+            // Get game duration
+            gameDuration = MarsGame.GetGameDuration("SS");
+
+            // Initialize the game speed controller.
+            initializeGameSpeedController();
+            gameSpeedControl.SetActive(false);
             
             // Initialize the game GUI.
-            initUI();
+            startImage.SetActive(true);
+            PauseImage.SetActive(false);
 
             // Game start flag.
             isGameStarted = false;
@@ -170,6 +160,7 @@ public class spaceShooterGameContoller : MonoBehaviour
 
             // Initialize the player.
             GameObject.FindGameObjectWithTag("Player").GetComponent<SSPlayerController>().Initialize();
+            GameObject.FindGameObjectWithTag("Player").GetComponent<SSPlayerFiringController>().Initialize();
 
             // Game ready to start.
             isInitialized = true;
@@ -190,25 +181,24 @@ public class spaceShooterGameContoller : MonoBehaviour
         if (isGamePaused && gameState != GameStates.PAUSED) PauseGame();
         else if (!isGamePaused && gameState == GameStates.PAUSED) ResumeGame();
 
-        // Update Timer
-        if (timerText != null)
-        {
-            timerText.text = "TIMER:" + Mathf.FloorToInt(timer).ToString() + "s"; // Show remaining time
-        }
+        // Update Timer (show remaining time)
+        timerText.text = $"Time Left: {Mathf.FloorToInt(timer)}s";
 
         // Track Restart
         if (changeScene && gameState == GameStates.STOP)
         {
-            restart();
+            restartGame();
             changeScene = false;
         }
         else
         {
             changeScene = false;
         }
+
+        // Check of the game speed controller is to be shown.
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.G))
         {
-            GameControl.gameObject.SetActive(!GameControl.gameObject.activeSelf);
+            gameSpeedControl.SetActive(!gameSpeedControl.activeSelf);
         }
     }
 
@@ -219,16 +209,11 @@ public class spaceShooterGameContoller : MonoBehaviour
 
         // Initialization is done.
         RunStateMachine();
+        
+        // Update the player and target positions.
         playerPosition = GameObject.FindGameObjectWithTag("Player").transform.position;
         targetObject = GameObject.FindGameObjectWithTag("Asteroid");
         targetPosition = targetObject != null ? targetObject.transform.position : null;
-    }
-
-    public void initUI()
-    {
-        messTxt.enabled = true;
-        startImage.SetActive(true);
-        PauseImage.SetActive(false);
     }
 
     public bool IsGamePlaying()
@@ -240,14 +225,11 @@ public class spaceShooterGameContoller : MonoBehaviour
 
     public void RunStateMachine()
     {
-        if (IsGamePlaying())
+        bool isGamePlaying = gameState != GameStates.WAITING && gameState != GameStates.PAUSED && gameState != GameStates.STOP;
+        if (isGamePlaying)
         {
-            gameSpeed = Mathf.Lerp(gameSpeed, targetSpeed, Time.deltaTime * smoothFactor);
-            gameSpeedTxt.text = gameSpeed.ToString();
             scoreText.text = "SCORE:" + nSuccess.ToString();
             timer -= Time.deltaTime;
-            // // Annotate the changed game speed.
-            // AppData.Instance.annotation = $"GS:{gameSpeed:F6}";
         }
 
         bool isTimeUp = timer < 0; 
@@ -259,17 +241,18 @@ public class spaceShooterGameContoller : MonoBehaviour
             case GameStates.START:
                 startGame();
                 gameState = GameStates.SPAWNASTROID;
+                eventDelayTimer = 0.05f;
+                runOnce = false;
                 break;
             case GameStates.SPAWNASTROID:
-                if (AsteroidSpawner.Instance == null)
-                    break;
-                if (eventDelayTimer <= 0f && !runOnce)
+                if (AsteroidSpawner.Instance == null) break;
+                if (!runOnce)
                 {
                     AsteroidSpawner.Instance.SpawnAsteroid(
                         xMin: SSPlayerController.xScreenMin,
                         xMax: SSPlayerController.xScreenMax
                     );
-                    AsteroidFall.instance.SetFallSpeed(gameSpeed);
+                    AsteroidFall.instance.SetFallSpeed(AppData.Instance.selectedGame.gameSpeed);
                     nTargets++;
                     eventDelayTimer = 0.05f;
                     runOnce = true;
@@ -285,59 +268,45 @@ public class spaceShooterGameContoller : MonoBehaviour
                 }
                 break;
             case GameStates.MOVE:
-                if (isSuccess) gameState = GameStates.SUCCESS;
-                if(isFailure)gameState = GameStates.FAILURE;
+                if (isSuccess)
+                {
+                    gameState = GameStates.SUCCESS;
+                    eventDelayTimer = 0.05f;
+                }
+                if (isFailure)
+                {
+                    gameState = GameStates.FAILURE;
+                    eventDelayTimer = 0.05f;
+                }
                 break;
             case GameStates.PAUSED:
-                Debug.Log(isGamePaused);
                 break;
             case GameStates.SUCCESS:
             case GameStates.FAILURE:
+                eventDelayTimer -= Time.deltaTime;
                 if (eventDelayTimer <= 0f)
                 {
+                    isFailure = false;
+                    isSuccess = false;
+                    gameState = isTimeUp ? GameStates.STOP : GameStates.SPAWNASTROID;
                     eventDelayTimer = 0.05f;
-                }
-                else
-                {
-                    eventDelayTimer -= Time.deltaTime;
-                    if (eventDelayTimer <= 0f)
-                    {
-                        // Wait for the gamestate to be logged.
-                        isFailure = false;
-                        isSuccess = false;
-                        gameState = isTimeUp ? GameStates.STOP : GameStates.SPAWNASTROID;
-                        runOnce = false;
-                    }
+                    runOnce = false;
                 }
                 break;
             case GameStates.STOP:
                 gameOver();
                 break;
         }
-
-    }
-    public void IncreaseSpeed()
-    {
-        targetSpeed = Mathf.Clamp(targetSpeed + 0.5f, 1f, 5f); // step change in target
     }
 
-    public void DecreaseSpeed()
-    {
-        targetSpeed = Mathf.Clamp(targetSpeed - 0.5f, 1f, 5f);
-    }
-  
     public void onMarsButtonReleased()
     {
-        //To pause and resume
+        // To pause, resume or restart the game.
         if (gameState == GameStates.WAITING) isGameStarted = true;
         else if (gameState != GameStates.STOP) isGamePaused = !isGamePaused;
-
-        //To restart
-        if (gameState == GameStates.STOP && isGameFinished)
-        {
-            changeScene = true;
-        }
+        else if (gameState == GameStates.STOP && isGameFinished) changeScene = true;
     }
+    
     public void PauseGame()
     {
         _prevGameState = gameState;
@@ -360,18 +329,19 @@ public class spaceShooterGameContoller : MonoBehaviour
 
     public void gameOver()
     {
-        if (Levelunlocked == false && !isGameFinished)
+        if (!isGameFinished)
         {
-            GameOverPanel.SetActive(true);
-            //cal gameTime
-            int gametime = (int)gameDuration - (int)timer;
-            AppData.Instance.gameTime = gametime < gameDuration ? gametime : gameDuration;
-            // AppData.Instance.gameSpeed = gameSpeed;
-            //stop trail
+            gameOverPanel.SetActive(true);
+            // Compute game time
+            int gametime = (int)(gameDuration - timer);
+            AppData.Instance.gameTime = gametime;
+            // Stop the current game trial
             AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
+            AppLogger.LogInfo($"Space Shooter Game Over. Time: {gametime}s | Targets: {nTargets} | Hits: {nSuccess} | Misses: {nFailure}");
         }
-        timerText.text = "Time:0s";
-        isGameFinished = true; // Set game over state 
+        timerText.text = "Time: 0s";
+        // Set game over state
+        isGameFinished = true; 
     }
     
     public void onClickExit()
@@ -391,43 +361,54 @@ public class spaceShooterGameContoller : MonoBehaviour
         // Start a new Trail
         AppData.Instance.StartNewTrial();
 
+        // Initialize targets, hits, and misses
         nSuccess = 0;
         nFailure = 0;
         nTargets = 0;
 
+        // Trial success/failure.
         isFailure = false;
         isSuccess = false;
 
-        timer = gameDuration; // Initialize timer 
+        // Set game duration.
+        timer = gameDuration;
+        AppLogger.LogInfo($"Space Shooter Game started for movement '{AppData.Instance.selectedMovement.name}'. Game Speed: {AppData.Instance.selectedGame.gameSpeed} | Duration: {gameDuration}s");
 
-        GameOverPanel.SetActive(false);
+        // Remove game over and start panel.
+        gameOverPanel.SetActive(false);
         startImage.SetActive(false);
-        messTxt.enabled = false;
-        gameSpeed = AppData.Instance.selectedGame.gameSpeed;
-        targetSpeed = gameSpeed;
     }
 
-    public void restart()
+    public void restartGame()
     {
         string currentSceneName = SceneManager.GetActiveScene().name;
         AppLogger.LogInfo($"The Game is Restarted '{currentSceneName}'.");
         SceneManager.LoadScene(currentSceneName);
     }
 
-
-    public void Back_to_ChooseLevel()
+    private void initializeGameSpeedController()
     {
-        SceneManager.LoadScene("CHOOSEMOVE");
+        // Hide game speed control initially
+        gameSpeedControl.SetActive(false);
+
+        GameSpeedController gsc = gameSpeedControl.GetComponent<GameSpeedController>();
+        if (gsc == null) return;
+
+        // Attach the buttons
+        if (gsc.decreaseButton != null)
+            gsc.decreaseButton.onClick.AddListener(() => changeGameSpeed(false));
+        if (gsc.increaseButton != null)
+            gsc.increaseButton.onClick.AddListener(() => changeGameSpeed(true));
+
+        // Set the initial game speed
+        gsc.gameSpeedText.text = $"{AppData.Instance.selectedGame.gameSpeed:F2}";
     }
     
-    public void UnlockShipPanel()
+    public void changeGameSpeed(bool increase)
     {
-        if (newSpaceshipPanel != null)
-        {
-            newSpaceshipPanel.SetActive(true);
-            Levelunlocked = true;
-            gameOver();
-        }
+        float _gs = AppData.Instance.selectedGame.gameSpeed;
+        AppData.Instance.selectedGame.SetGameSpeed(_gs + (increase ? MarsGame.GAME_SPEED_DELTA : -MarsGame.GAME_SPEED_DELTA));
+        AppData.Instance.annotation = $"GS:{AppData.Instance.selectedGame.gameSpeed:F6}";
     }
   
     private void OnApplicationQuit()

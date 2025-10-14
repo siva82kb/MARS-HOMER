@@ -4,15 +4,16 @@ using UnityEngine;
 
 public class AsteroidCollisionHandler : MonoBehaviour
 {
-   
-    private bool isDestroyed = false; // Track if the asteroid is destroyed
-    private Animator animator; // Reference to the Animator component
+    // Track if the asteroid is destroyed
+    private bool isDestroyed = false;
+    // Reference to the Animator component
+    private Animator animator;
     public AudioClip ExplosionSound;
     private AudioSource audioSource;
 
     void Start()
     {
-      
+        // Get the Animator and AudioSource components
         animator = GetComponent<Animator>();
         audioSource = GetComponent<AudioSource>();
     }
@@ -22,17 +23,14 @@ public class AsteroidCollisionHandler : MonoBehaviour
         // Check the other object is tagged as a laser
         if (other.CompareTag("Laser") && !isDestroyed)
         {
-            AsteroidSpawner.Instance.currentAsteroid = null;
-
-            spaceShooterGameContoller.Instance.setIsSuccess();
-            isDestroyed = true; // Mark asteroid as destroye
+            SpaceShooterGameContoller.Instance.setIsSuccess();
+            // Mark asteroid as destroyed
+            isDestroyed = true;
             gameObject.transform.localScale = new Vector3(0.33f, 0.33f, 0);
-            animator.SetTrigger("TriggerDestroy"); // Play destruction animation
-             if (audioSource != null && ExplosionSound != null)
-            {
-                audioSource.PlayOneShot(ExplosionSound);
-            }
-
+            // Play destruction animation
+            animator.SetTrigger("TriggerDestroy");
+            if (audioSource != null && ExplosionSound != null) audioSource.PlayOneShot(ExplosionSound); 
+            AsteroidSpawner.Instance.currentAsteroid = null;
             Destroy(other.gameObject); // Destroy the laser
         }
     }

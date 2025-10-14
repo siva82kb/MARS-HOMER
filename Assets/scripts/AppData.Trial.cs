@@ -41,7 +41,7 @@ public partial class AppData
     {
         trialStopTime = DateTime.Now;
         nTargets = (nTargets == 0) ? 1 : nTargets;
-        successRate = 100 * nSuccess / nTargets;
+        successRate = Math.Clamp(100 * nSuccess / nTargets, 0, 100);
 
         // Compute the new speed based on the current performance.
         float adaptRate = (successRate < LOW_SUCCESS_RATE) ? SPEED_REDUCTION_FACTOR :
@@ -50,7 +50,7 @@ public partial class AppData
         selectedGame.SetGameSpeed(adaptRate * currGameSpeed);
 
         // Update cummulative hits and misses.
-        selectedGame.UpdateCummulativeHitsMisses(nSuccess, nFailure);
+        selectedGame.UpdateCummulativeHitsMisses(nTargets, nSuccess, nFailure);
 
         // Write trial information to the session details file.
         WriteTrialToSessionsFile();
@@ -65,6 +65,7 @@ public partial class AppData
                 $"NSuccess: {nSuccess}",
                 $"NFailure: {nFailure}",
                 $"Trial SR: {successRate} ",
+                $"CuTargets: {selectedGame.cummulativeTargets} ",
                 $"CuHits: {selectedGame.cummulativeHits} ",
                 $"CuMisses: {selectedGame.cummulativeMisses} ",
                 $"Current Game Speed: {currGameSpeed} ",
@@ -97,6 +98,10 @@ public partial class AppData
             $"{selectedGame.gameSpeed}",                            // GameSpeed
             $"{successRate}",                                       // SuccessRate
             Instance.gameTime.ToString(),                           // GameTime
+            $"{selectedGame.cummulativeTargets}",                   // CummulativeTargets
+            $"{selectedGame.cummulativeHits}",                      // CummulativeHits
+            $"{selectedGame.cummulativeMisses}",                    // CummulativeMisses
+            $"{trialRawDataFile.Split('/').Last()}"                 // RawDataFileName
         };
 
         // Write the trial row to the session file.
@@ -305,7 +310,7 @@ public partial class AppData
         // Get the game target X position.
         if (selectedGame.name == "SS")
         {
-            return spaceShooterGameContoller.Instance.playerPosition;
+            return SpaceShooterGameContoller.Instance.playerPosition;
         }
         else if (selectedGame.name == "PP")
         {
@@ -323,9 +328,9 @@ public partial class AppData
         //// Get the game target X position.
         if (selectedGame.name == "SS")
         {
-            if (spaceShooterGameContoller.Instance.targetPosition.HasValue)
+            if (SpaceShooterGameContoller.Instance.targetPosition.HasValue)
             {
-                return $"{spaceShooterGameContoller.Instance.targetPosition.Value.x:F3},{spaceShooterGameContoller.Instance.targetPosition.Value.y:F3}";
+                return $"{SpaceShooterGameContoller.Instance.targetPosition.Value.x:F3},{SpaceShooterGameContoller.Instance.targetPosition.Value.y:F3}";
             }
         }
         else if (selectedGame.name == "PP")
@@ -348,7 +353,7 @@ public partial class AppData
         //// Get the game state.
         if (selectedGame.name == "SS")
         {
-            return $"{spaceShooterGameContoller.Instance.gameState}";
+            return $"{SpaceShooterGameContoller.Instance.gameState}";
         }
         else if (selectedGame.name == "PP")
         {
@@ -361,9 +366,6 @@ public partial class AppData
         }
         return "";
     }
-    
-    public void updateSessionDetails()
-    {
-        AppData.Instance.userData.readParseSessionData(DataManager.sessionFile);
-    }
+
+    public void reloadSessionDetails() => Instance.userData.readParseSessionData(DataManager.sessionFile);
 }

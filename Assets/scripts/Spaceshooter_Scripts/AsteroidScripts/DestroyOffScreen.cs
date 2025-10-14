@@ -4,24 +4,19 @@ using UnityEngine;
 
 public class DestroyOffScreen : MonoBehaviour
 {
-    public float yThreshold = -5.3f; // Y-position threshold for destroying the asteroid
-    // Start is called before the first frame update
-    void Start()
-    {
+    // Y-position threshold for destroying the asteroid
+    public float yThreshold { get; private set; } = -5.3f; 
 
-    }
-
-    // Update is called once per frame
+    public void SetYThreshold(float newThreshold) => yThreshold = newThreshold;
+    
     void Update()
     {
         // Check if the asteroid has fallen below the specified threshold
         if (transform.position.y <= yThreshold)
         {
-            spaceShooterGameContoller.Instance.setisFailure();
-            spaceShooterGameContoller.Instance.nFailure++;
+            SpaceShooterGameContoller.Instance.setIsFailure();
             gameObject.SetActive(false);
             Destroy(gameObject);
         }
-
     }
 }
