@@ -18,7 +18,7 @@ public class pongGameController : MonoBehaviour {
     public Text timerTxt, pointCounter;
     public Text gameSpeedTxt;
     public GameObject exitBtn;
-    public GameObject GameControl;
+    public GameObject gameSpeedControl;
     public bool isPaused  = false;
     public bool buttonPressed = false;
     public bool playerWon, enemyWon;
@@ -57,12 +57,17 @@ public class pongGameController : MonoBehaviour {
         DONE
     }
     private GameStates _gameState;
+    private GameStates _prevGameState = GameStates.WAITING;
     public GameStates gameState
     {
         get => _gameState;
-        private set => _gameState = value;
+        private set
+        {
+            _prevGameState = _gameState;
+            _gameState = value;
+            AppLogger.LogInfo($"Game state changed from {_prevGameState} to {_gameState}.");
+        }
     }
-    private GameStates _prevGameState = GameStates.WAITING;
 
     public bool isGameStarted { get; private set; } = false;
     public bool isGameFinished { get; private set; } = false;
@@ -70,78 +75,67 @@ public class pongGameController : MonoBehaviour {
     public bool isBallSpawned { get; private set; } = false;
     public bool isBallHitted { get; private set; } = false;
     public bool isBallMissed { get; private set; } = false;
-  
+    public bool restartGame = false;
+
     public bool runOnce = false;
-
-    public void Awake()
+    
+    public bool isPlayingState(GameStates state)
     {
-     
-        Instance = this;
-        
-
+        return state == GameStates.MOVE
+            || state == GameStates.SPAWNBALL
+            || state == GameStates.SUCCESS
+            || state == GameStates.FAILURE;
     }
-    void Start () {
-       
-        MarsComm.OnMarsButtonReleased += onMarsButtonReleased;
+
+    public void Awake() => Instance = this;
+    
+    void Start ()
+    {
+        MarsComm.sendHeartbeat();
+        // Get the objects to show/hide on pausing or finishing the game.
         pauseObjects = GameObject.FindGameObjectsWithTag("ShowOnPause");
 		finishObjects = GameObject.FindGameObjectsWithTag("ShowOnFinish");
-		hideFinished();
+        hideFinished();
+
+        // Initialize game state.
         gameState = GameStates.WAITING;
+
+        // Read session data.
         AppData.Instance.userData.readParseSessionData(DataManager.sessionFile);
-        if (AppData.Instance.selectedMovement.trialNumberDay >= AppData.Instance.userData.moveTimePrsc[AppData.Instance.selectedMovement.name])
-        {
-            reminderPanel.SetActive(true);
+        
+        // Check if the required amount of trails for the selected movement is completed.
+        bool isRequiredTrialsCompleted = AppData.Instance.selectedMovement.trialNumberDay >= AppData.Instance.userData.moveTimePrsc[AppData.Instance.selectedMovement.name];
+        if (isRequiredTrialsCompleted) reminderPanel.SetActive(true);
+        else reminderPanel.SetActive(false);
 
-        }
-        else
-        {
-            reminderPanel.SetActive(false);
-
-        }
-
+        // Attach event handler for Mars button release.
+        MarsComm.OnMarsButtonReleased += onMarsButtonReleased;
     }
-	
-	void Update () {
 
+    void Update()
+    {
+        // Update the point counter.
+        pointCounter.text = enemyScore + "\t\t\t" + playerScore;
+        timerTxt.text = "Time:" + Mathf.FloorToInt(trialTimeLeft).ToString() + "s";
 
-        pointCounter.text = enemyScore + "\t\t\t" +playerScore;
-        if (timerTxt != null)
-        {
-            timerTxt.text = "Time:" + Mathf.CeilToInt(trialTimeLeft).ToString() + "s"; // Show remaining time
-        }
+        // Pause/Resume the game
+        if (isGameStarted && isGamePaused) pauseGame();
+        else if (isGameStarted && !isGamePaused) resumeGame();
 
-        if ((Input.GetKeyDown(KeyCode.P) && !isGameFinished) || (buttonPressed && !isGameFinished))
-        {
-            if(gameState == GameStates.WAITING && buttonPressed)
-            {
-                isGameStarted = true;
-                buttonPressed = false;
-                return;
-            }
-            if (!isPaused)
-            {
-                pauseGame();
-            }
-            else
-            {
-                resumeGame();
-               
-            }
-            buttonPressed = false;
-        }
-        if ((isGameFinished && Input.GetKeyDown(KeyCode.P)) || (isGameFinished && buttonPressed && gameState == GameStates.STOP))
+        // Check if the game is to be restarted.
+        if (restartGame)
         {
             Reload();
-            buttonPressed = false;
+            restartGame = false;
         }
+        
+        // Check of the game speed controller is to be shown.
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.G))
         {
-            GameControl.gameObject.SetActive(!GameControl.gameObject.activeSelf);
-
+            gameSpeedControl.SetActive(!gameSpeedControl.activeSelf);
         }
-
-        gameSpeedTxt.text = gameSpeed.ToString();
     }
+    
     public void FixedUpdate()
     {
         MarsComm.sendHeartbeat();
@@ -306,13 +300,31 @@ public class pongGameController : MonoBehaviour {
         BallController.instance.speed = gameSpeed;
     }
 
-
     public void onMarsButtonReleased()
     {
-        AppLogger.LogInfo("Mars button released.");
-        buttonPressed = true;
-      
+        // Act according to the current game state.
+        if (gameState == GameStates.WAITING)
+        {
+            // Start the game.
+            isGameStarted = true;
+            isGamePaused = false;
+            return;
+        }
+        else if (isPlayingState(gameState))
+        {
+            // Pause the game if it is currently playing.
+            isGamePaused = !isGamePaused;
+            return;
+        }
+        // Check if game is done. Then this is a request to restart the game.
+        else if (gameState == GameStates.STOP)
+        {
+            // Restart the game.
+            restartGame = true;
+            return;
+        }
     }
+    
     public void Reload()
     {
         playerScore = enemyScore = 0;
