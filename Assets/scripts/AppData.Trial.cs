@@ -3,6 +3,7 @@ using System;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using System.Text;
 using UnityEngine;
 
@@ -12,9 +13,9 @@ using UnityEngine;
  */
 public partial class AppData
 {
-    //Trail Detials
+    // Trail Detials
     public float gameTime { get; set; } = 0;
-    public float gameSpeed { get; set; } = 0;
+    // public float gameSpeed { get => selectedGame.gameSpeed; }
     // Start a new trial.
     public void StartNewTrial()
     {
@@ -23,7 +24,7 @@ public partial class AppData
         selectedMovement.NextTrial();
         
         // Set the trial data files.
-        StartRawAndAanExecDataLogging();
+        StartRawDataLogging();
 
         // Write trial details to the log file.
         string _tdetails = string.Join(" | ",
@@ -31,30 +32,25 @@ public partial class AppData
                 $"Start Time: {trialStartTime:yyyy-MM-ddTHH:mm:ss}",
                 $"Trial#Day: {selectedMovement.trialNumberDay}",
                 $"Trial#Sess: {selectedMovement.trialNumberSession}",
-                $"TrialType: ",
-                $"Desired SR: ",
-                $"Current CB: ",
                 $"TrialRawDataFile: {trialRawDataFile.Split('/').Last()}"
         });
         AppLogger.LogInfo($"StartNewTrial | {_tdetails}");
-
-        //Get GamelastSpeed of current Movement
-        if (userData.dTableSession.Rows.Count == 0) return;
-        var lastRowForMovement = userData.dTableSession.AsEnumerable()
-                                .Where(r => r.Field<string>("Movement") == AppData.Instance.selectedMovement.name)
-                                .LastOrDefault();
-
-        if (lastRowForMovement != null)
-        {
-            gameSpeed = float.Parse(lastRowForMovement.Field<string>("GameSpeed"));
-        }
     }
 
     public void StopTrial(int nTargets, int nSuccess, int nFailure)
     {
         trialStopTime = DateTime.Now;
         nTargets = (nTargets == 0) ? 1 : nTargets;
-        successRate = 100 * nSuccess / nTargets;
+        successRate = Math.Clamp(100 * nSuccess / nTargets, 0, 100);
+
+        // Compute the new speed based on the current performance.
+        float adaptRate = (successRate < LOW_SUCCESS_RATE) ? SPEED_REDUCTION_FACTOR :
+                          (successRate > HIGH_SUCCESS_RATE) ? SPEED_INCREASE_FACTOR : 1.0f;
+        float currGameSpeed = selectedGame.gameSpeed;
+        selectedGame.SetGameSpeed(adaptRate * currGameSpeed);
+
+        // Update cummulative hits and misses.
+        selectedGame.UpdateCummulativeHitsMisses(nTargets, nSuccess, nFailure);
 
         // Write trial information to the session details file.
         WriteTrialToSessionsFile();
@@ -65,57 +61,47 @@ public partial class AppData
                 $"Stop Time: {trialStopTime:yyyy-MM-ddTHH:mm:ss}",
                 $"Trial#Day: {selectedMovement.trialNumberDay}",
                 $"Trial#Sess: {selectedMovement.trialNumberSession}",
-                $"TrialType: ",
                 $"NTargets: {nTargets}",
                 $"NSuccess: {nSuccess}",
                 $"NFailure: {nFailure}",
-                $"Desired SR: ",
-                $"Trial SR:{successRate} ", 
-                $"Current CB:",//CHANGE FOR MARS
-                $"Next CB: ",//CHANGE FOR MARS
+                $"Trial SR: {successRate} ",
+                $"CuTargets: {selectedGame.cummulativeTargets} ",
+                $"CuHits: {selectedGame.cummulativeHits} ",
+                $"CuMisses: {selectedGame.cummulativeMisses} ",
+                $"Current Game Speed: {currGameSpeed} ",
+                $"New Game Speed: {selectedGame.gameSpeed} ",
                 $"TrialRawDataFile: {trialRawDataFile.Split('/').Last()}"
         });
         AppLogger.LogInfo($"StopTrial | {_tdetails}");
+        
         // Stop Raw and AAN real-time data logging.
         WriteTrialDataToRawDataFile();
         MarsComm.OnNewMarsData -= OnNewMarsDataDataLogging;
         trialRawDataFile = null;
-        //set to upload the data to the AWS
-        //awsManager.changeUploadStatus(awsManager.status[0]);
     }
 
     private void WriteTrialToSessionsFile()
     {
         // Build the trial row.
         string[] trialRow = new string[] {
-            // "SessionNumber"
-            $"{currentSessionNumber}",
-            // "DateTime"
-            startTime.ToString(DataManager.DATETIMEFORMAT),
-            // "TrialNumberDay"
-            $"{selectedMovement.trialNumberDay}",
-            // "TrialNumberSession"
-            $"{selectedMovement.trialNumberSession}",
-            // "TrialStartTime"
-            trialStartTime.ToString(DataManager.DATETIMEFORMAT),
-            // "TrialStopTime"
-            trialStopTime?.ToString(DataManager.DATETIMEFORMAT),
-            // "TrialRawDataFile"
-            trialRawDataFile.Split("/data/")[1],
-            // "Movement"
-             $"{selectedMovement.name}",
-             //TrainingPlaneAngle
-             $"{userData.trainingPlaneAngle}",
-            // "GameName"
-            $"{selectedGame}",
-            // "GameParameter"
-            null,
-            // "GameSpeed"
-            $"{gameSpeed}",
-            // "SuccessRate"
-            $"{successRate}",
-            //gameTime
-            AppData.Instance.gameTime.ToString()
+            $"{currentSessionNumber}",                              // SessionNumber
+            startTime.ToString(DataManager.DATETIMEFORMAT),         // DateTime
+            $"{selectedMovement.trialNumberDay}",                   // TrialNumberDay
+            $"{selectedMovement.trialNumberSession}",               // TrialNumberSession
+            trialStartTime.ToString(DataManager.DATETIMEFORMAT),    // TrialStartTime
+            trialStopTime?.ToString(DataManager.DATETIMEFORMAT),    // TrialStopTime
+            trialRawDataFile.Split("/data/")[1],                    // TrialRawDataFile
+            $"{selectedMovement.name}",                             // Movement
+            $"{userData.trainingPlaneAngle}",                       // TrainingPlaneAngle
+            $"{selectedGame.name}",                                 // Game  
+            null,                                                   // GameParameter
+            $"{selectedGame.gameSpeed}",                            // GameSpeed
+            $"{successRate}",                                       // SuccessRate
+            Instance.gameTime.ToString(),                           // GameTime
+            $"{selectedGame.cummulativeTargets}",                   // CummulativeTargets
+            $"{selectedGame.cummulativeHits}",                      // CummulativeHits
+            $"{selectedGame.cummulativeMisses}",                    // CummulativeMisses
+            $"{trialRawDataFile.Split('/').Last()}"                 // RawDataFileName
         };
 
         // Write the trial row to the session file.
@@ -126,13 +112,13 @@ public partial class AppData
         }
     }
 
-    public void StartRawAndAanExecDataLogging()
+    public void StartRawDataLogging()
     {
         //// Set the file name.
         trialRawDataFile = DataManager.GetTrialRawDataFileName(
             currentSessionNumber,
             selectedMovement.trialNumberDay,
-            Instance.selectedGame,
+            Instance.selectedGame.name,
             Instance.selectedMovement.name);
 
         //// Initialize the string builders.
@@ -141,13 +127,26 @@ public partial class AppData
         rawDataString.AppendLine($":Device: MARS");
         rawDataString.AppendLine($":Location: {userData.GetDeviceLocation()}");
         rawDataString.AppendLine($":Movement: {selectedMovement.name}");
-        rawDataString.AppendLine($":Game: {selectedGame}");
+        rawDataString.AppendLine($":Game: {selectedGame.name}");
         rawDataString.AppendLine($":TrialType: ");
         rawDataString.AppendLine($":TrialStartTime: {trialStartTime:yyyy-MM-ddTHH:mm:ss}");
         rawDataString.AppendLine($":TrialNumberDay: {selectedMovement.trialNumberDay}");
-        // rawDataString.AppendLine($":FWS-ROM: X-[{selectedMovement.CurrentArom[0]:F3},{selectedMovement.CurrentArom[1]:F3}],Y-[{selectedMovement.CurrentArom[2]:F3},{selectedMovement.CurrentArom[3]:F3}]");
-        rawDataString.AppendLine($":DesiredSuccessRate: ");
-        rawDataString.AppendLine($":ControlBound: ");
+        // Screen/Robot limits string
+        float[] _screenLimits = MarsGame.GetGameScreenLimits(selectedGame.name);
+        string _limitstr = string.Join(",", new string[] {
+            $"{_screenLimits[0]:F6}",
+            $"{_screenLimits[1]:F6}",
+            $"{_screenLimits[2]:F6}",
+            $"{_screenLimits[3]:F6}"
+        });
+        rawDataString.AppendLine($":ScreenLimits: {_limitstr}");
+        _limitstr = string.Join(",", new string[] {
+            $"{Instance.selectedMovement.currentArom.leftAdjusted.x:F6}",
+            $"{Instance.selectedMovement.currentArom.rightAdjusted.x:F6}",
+            $"{Instance.selectedMovement.currentArom.bottomAdjusted.y:F6}",
+            $"{Instance.selectedMovement.currentArom.topAdjusted.y:F6}"
+        });
+        rawDataString.AppendLine($":RobotLimits: {_limitstr}");
         rawDataString.AppendLine(string.Join(",", DataManager.RAWFILEHEADER));
 
         // Attach the event handler for data logging.
@@ -309,20 +308,17 @@ public partial class AppData
     private Vector3 GetGamePlayerPosition()
     {
         // Get the game target X position.
-        if (selectedGame == "space_shooter_home")
+        if (selectedGame.name == "SS")
         {
-            return spaceShooterGameContoller.Instance.playerPosition;
+            return SpaceShooterGameContoller.Instance.playerPosition;
         }
-        else if (selectedGame == "pong_game")
+        else if (selectedGame.name == "PP")
         {
             return pongGameController.Instance.playerPosition;
         }
-
-        else if (selectedGame == "Whack_WelcomeScene")
+        else if (selectedGame.name == "CD")
         {
-
             return WAMGameController.Instance.playerPosition;
-
         }
         return Vector3.zero;
     }
@@ -330,19 +326,19 @@ public partial class AppData
     private string GetGameTargetPosition()
     {
         //// Get the game target X position.
-        if (selectedGame == "space_shooter_home")
+        if (selectedGame.name == "SS")
         {
-            if (spaceShooterGameContoller.Instance.targetPosition.HasValue)
+            if (SpaceShooterGameContoller.Instance.targetPosition.HasValue)
             {
-                return $"{spaceShooterGameContoller.Instance.targetPosition.Value.x:F3},{spaceShooterGameContoller.Instance.targetPosition.Value.y:F3}";
+                return $"{SpaceShooterGameContoller.Instance.targetPosition.Value.x:F3},{SpaceShooterGameContoller.Instance.targetPosition.Value.y:F3}";
             }
         }
-        else if (selectedGame == "pong_game")
+        else if (selectedGame.name == "PP")
         {
             if (pongGameController.Instance.targetPosition.HasValue) return $"{pongGameController.Instance.targetPosition.Value.x:F3},{pongGameController.Instance.targetPosition.Value.y:F3}";
         }
 
-        else if (selectedGame == "Whack_WelcomeScene")
+        else if (selectedGame.name == "CD")
         {
             if (WAMGameController.Instance.targetPosition.HasValue)
             {
@@ -355,23 +351,21 @@ public partial class AppData
     private string GetGameState()
     {
         //// Get the game state.
-        if (selectedGame == "space_shooter_home")
+        if (selectedGame.name == "SS")
         {
-            return $"{spaceShooterGameContoller.Instance.gameState}";
+            return $"{SpaceShooterGameContoller.Instance.gameState}";
         }
-        else if (selectedGame == "pong_game")
+        else if (selectedGame.name == "PP")
         {
             return $"{pongGameController.Instance.gameState}";
         }
-       
-        else if(selectedGame == "Whack_WelcomeScene")
+
+        else if (selectedGame.name == "CD")
         {
             return $"{WAMGameController.Instance.gameState}";
         }
-            return "";
+        return "";
     }
-    public void updateSessionDetails()
-    {
-        AppData.Instance.userData.readParseSessionData(DataManager.sessionFile);
-    }
+
+    public void reloadSessionDetails() => Instance.userData.readParseSessionData(DataManager.sessionFile);
 }

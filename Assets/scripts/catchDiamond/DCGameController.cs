@@ -363,7 +363,7 @@ public class DCGameController : MonoBehaviour
             //cal gameTime
             int gametime = (int)gameDuration - (int)timer;
             AppData.Instance.gameTime = gametime < gameDuration ? gametime : gameDuration;
-            AppData.Instance.gameSpeed = gameSpeed;
+            // AppData.Instance.gameSpeed = gameSpeed;
             //stop trail
             AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
 
@@ -385,7 +385,7 @@ public class DCGameController : MonoBehaviour
         if (debug) return;
         //start new Trail
         AppData.Instance.StartNewTrial();
-        gameSpeed = AppData.Instance.gameSpeed <= 0 ? gameSpeed : AppData.Instance.gameSpeed;
+        gameSpeed = AppData.Instance.selectedGame.gameSpeed;
         targetSpeed = gameSpeed;
         Debug.Log(gameSpeed + "gamespeed");
 

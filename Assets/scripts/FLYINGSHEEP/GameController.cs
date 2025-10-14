@@ -25,7 +25,7 @@ public class GameController : MonoBehaviour
     public GameObject targetTimer;
     public Canvas uiCanvas;
     Animator targetAnim;
-    public const float gameDuration = 60f;
+    public readonly float gameDuration = MarsGame.GetGameDuration("FS");
     private float timer;
     private float eventDelayTimer = 0f;
     private bool runOnce = false;
@@ -384,14 +384,13 @@ public class GameController : MonoBehaviour
     }
     public void gameOver()
     {
-
         if (!isGameFinished)
         {
             gameOverPanel.SetActive(true);
-            //cal gameTime
+            // Calculate gameTime
             int gametime = (int)gameDuration - (int)timer;
             AppData.Instance.gameTime = gametime < gameDuration ? gametime : gameDuration;
-            AppData.Instance.gameSpeed = gameSpeed;
+            // AppData.Instance.gameSpeed = gameSpeed;
             //stop trail
             AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
 
@@ -413,7 +412,7 @@ public class GameController : MonoBehaviour
         if (debug) return;
         //start new Trail
         AppData.Instance.StartNewTrial();
-        gameSpeed = AppData.Instance.gameSpeed <= 0 ? gameSpeed : AppData.Instance.gameSpeed;
+        gameSpeed = AppData.Instance.selectedGame.gameSpeed;
         targetSpeed = gameSpeed;
         Debug.Log(gameSpeed+"gamespeed");
 

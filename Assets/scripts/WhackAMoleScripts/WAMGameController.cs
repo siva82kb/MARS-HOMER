@@ -77,7 +77,7 @@ public class WAMGameController : MonoBehaviour
     {
         MarsComm.sendHeartbeat();
         initUI();
-        AppData.Instance.updateSessionDetails();
+        AppData.Instance.userData.readParseSessionData(DataManager.sessionFile);
         isGameStarted = false;
         gameSpeed = 5f;//default slow speed
         MarsComm.OnMarsButtonReleased += onMarsButtonReleased;
@@ -281,7 +281,7 @@ public class WAMGameController : MonoBehaviour
             //cal gameTime
             int gametime = (int)gameDuration - (int)timer;
             AppData.Instance.gameTime = gametime < gameDuration ? gametime : gameDuration;
-            AppData.Instance.gameSpeed = gameSpeed;
+            // AppData.Instance.gameSpeed = gameSpeed;
             //stop trail
             AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
 
@@ -301,7 +301,7 @@ public class WAMGameController : MonoBehaviour
         startImage.SetActive(false);
       
         timer = gameDuration; // Initialize timer 
-        gameSpeed = AppData.Instance.gameSpeed <= 0 ? gameSpeed : AppData.Instance.gameSpeed;
+        gameSpeed = AppData.Instance.selectedGame.gameSpeed;
         targetSpeed = gameSpeed;
     }
 

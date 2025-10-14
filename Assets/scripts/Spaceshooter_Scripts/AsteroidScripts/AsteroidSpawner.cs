@@ -20,19 +20,6 @@ public class AsteroidSpawner : MonoBehaviour
         Instance = this;
     }
 
-    void Start()
-    {    
-    }
-
-    void Update()
-    {
-    }
-    
-    private void FixedUpdate()
-    {
-    }
-    
-
     public void SpawnAsteroid(float xMin, float xMax)
     {
         if (currentAsteroid != null)
@@ -46,6 +33,6 @@ public class AsteroidSpawner : MonoBehaviour
         Vector3 spawnPosition = new Vector3(randomX, spawnY, 0f);
 
         // Instantiate the asteroid prefab 
-        currentAsteroid=Instantiate(asteroidPrefab, spawnPosition, Quaternion.identity);     
+        currentAsteroid = Instantiate(asteroidPrefab, spawnPosition, Quaternion.identity);     
     }
 }

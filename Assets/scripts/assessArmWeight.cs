@@ -66,7 +66,7 @@ public class AssessArmWeight : MonoBehaviour
         private set
         {
             _currentTarget = value;
-            AppData.Instance.annotation = (int)_currentTarget;
+            AppData.Instance.annotation = _currentTarget.ToString();
         }
     }
     private GameObject currentTargetObject = null;
@@ -258,7 +258,7 @@ public class AssessArmWeight : MonoBehaviour
         stateStartTime = Time.time;
         armWeight.startArmWeightAssessment(currentTarget);
         // Upate raw data annotation
-        AppData.Instance.annotation = (int)currentTarget;
+        AppData.Instance.annotation = currentTarget.ToString();
         updateTargetsDisplayFlag = true;
         AppLogger.LogInfo($"State changed to {currentState}.");
     }
@@ -404,7 +404,7 @@ public class AssessArmWeight : MonoBehaviour
                 currentState = ARMWEIGHT_ASSESS_STATE.WAIT_FOR_TARGET_SELECTION;
                 armWeight.initializeArmWeightAssessment();
                 // Initialize raw data annotation and logging.
-                AppData.Instance.annotation = (int)currentTarget;
+                AppData.Instance.annotation = currentTarget.ToString();
                 AppData.Instance.StartRawDataArmWeightDataLogging(armWeight.datetime.Replace(" ", "_").Replace(":", "-"));
                 AppLogger.LogInfo($"State changed to {currentState}.");
                 break;

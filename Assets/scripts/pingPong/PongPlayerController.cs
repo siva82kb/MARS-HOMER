@@ -7,6 +7,7 @@ public class PongPlayerController : MonoBehaviour
 	public float speed = 10;
     static float topBound = 3.6F;
 	static float bottomBound = -3.6F;
+    
     Vector2 direction;
     public static float playSize;
    

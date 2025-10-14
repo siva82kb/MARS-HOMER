@@ -10,7 +10,15 @@ public partial class AppData
     private static readonly Lazy<AppData> _instance = new Lazy<AppData>(() => new AppData());
     public static AppData Instance => _instance.Value;
 
-    static public readonly string COMPort = "COM50"; //1-35//2-30//3-32//4-50
+    static public readonly string COMPort = "COM4"; //1-35//2-30//3-32//4-50
+
+    /*
+     * GAME ADAPTATION CONSTANTS
+     */
+    public const float LOW_SUCCESS_RATE = 80;
+    public const float HIGH_SUCCESS_RATE = 90;
+    public const float SPEED_REDUCTION_FACTOR = 0.975f; // Reduce by 2.5%
+    public const float SPEED_INCREASE_FACTOR = 1.025f; // Increase by 2.5%
 
     /*
      * MARS GAME NAMES
@@ -41,14 +49,15 @@ public partial class AppData
     public float successRate { get; private set; } = 0f;
 
     /* DO OBJECT CREATION HERE */
-    public string selectedGame { get; private set; } = null;
+    // public string selectedGame { get; private set; } = null;
+    public MarsGame selectedGame { get; private set; } = null;
     public MarsMovement selectedMovement { get; private set; } = null;
-    public MarsArom currentArom { get; private set; } = null;
+    // public MarsArom currentArom { get; private set; } = null;
     public MarsUserData userData;
     public string trainingSide => userData?.limb != null ? MarsComm.LIMBTYPE[userData.limb] : MarsComm.LIMBTYPE[0];
 
     // An annotation integer for scenes to set annotation it the raw data.
-    public int annotation = 0;
+    public string annotation = "";
 
     public void Initialize(string scene)
     {
@@ -126,6 +135,7 @@ public partial class AppData
         if (string.IsNullOrEmpty(name))
         {
             selectedMovement = null;
+            selectedGame = null;
             AppLogger.LogInfo($"Selected movment set to null.");
             return;
         }
@@ -134,18 +144,43 @@ public partial class AppData
         selectedMovement = new MarsMovement(name: name, side: trainingSide, sessno: currentSessionNumber);
         AppLogger.LogInfo($"Selected movement '{selectedMovement.name}'.");
         AppLogger.SetCurrentMovement(selectedMovement.name);
-        AppLogger.LogInfo($"Trial numbers for ' {selectedMovement.name}' updated. Day: {selectedMovement.trialNumberDay}, Session: {selectedMovement.trialNumberSession}.");
+        AppLogger.LogInfo($"Trial numbers for '{selectedMovement.name}' updated. Day: {selectedMovement.trialNumberDay}, Session: {selectedMovement.trialNumberSession}.");
+        // Reset the selected game.
+        selectedGame = null;
+        AppLogger.LogInfo($"Selected game reset to null.");
+        AppLogger.SetCurrentGame("");
     }
 
     public void SetGame(string game)
     {
-        selectedGame = game;
-        AppLogger.LogInfo($"Selected game '{game}'.");
-        AppLogger.SetCurrentGame(selectedGame);
+        // Read the game speed from the session data.
+        float gSpeed = Instance.userData.readGameSpeedForGameMovement(game, selectedMovement?.name);
+        // Read the cummulative hits and misses from the session data.
+        int[] cuScores = Instance.userData.readCummulativeHitsMissesForGameMovement(game, selectedMovement?.name);
+        // Set the selected game.
+        selectedGame = new MarsGame(gName: game, mName: selectedMovement?.name, gSpeed: gSpeed, gCuTargets: cuScores[0], gCuHits: cuScores[1], gCuMisses: cuScores[2]);
+        AppLogger.SetCurrentGame(selectedGame.name);
+        AppLogger.LogInfo($"Selected game '{selectedGame.name}'. Game speed: {selectedGame.gameSpeed}, Cummulative targets: {selectedGame.cummulativeTargets}, Cummulative hits: {selectedGame.cummulativeHits}, Cummulative misses: {selectedGame.cummulativeMisses}.");
     }
-    
+
     // Check training side.
     public bool IsTrainingSide(string side) => string.Equals(trainingSide, side, StringComparison.OrdinalIgnoreCase);
+    
+    // Get the game screen limits.
+    public float[] GetScreenLimitsForGame(string gameName)
+    {
+        switch (gameName)
+        {
+            case "SS":
+                return new float[] { -8.0f, 8.0f, -4.5f, 4.5f }; // xMin, xMax, yMin, yMax
+            case "PP":
+                return new float[] { -7.5f, 7.5f, -4.0f, 4.0f }; // xMin, xMax, yMin, yMax
+            case "CD":
+                return new float[] { -8.0f, 8.0f, -4.5f, 4.5f }; // xMin, xMax, yMin, yMax
+            default:
+                throw new ArgumentException($"Unknown game name: {gameName}");
+        }
+    }
 }
 
 public static class ConnectToRobot
