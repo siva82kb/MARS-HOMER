@@ -76,16 +76,13 @@ public class pongGameController : MonoBehaviour {
     public bool isBallHitted { get; private set; } = false;
     public bool isBallMissed { get; private set; } = false;
     public bool restartGame = false;
+    public bool isGamePlaying => gameState == GameStates.MOVE
+            || gameState == GameStates.SPAWNBALL
+            || gameState == GameStates.SUCCESS
+            || gameState == GameStates.FAILURE;
 
     public bool runOnce = false;
     
-    public bool isPlayingState(GameStates state)
-    {
-        return state == GameStates.MOVE
-            || state == GameStates.SPAWNBALL
-            || state == GameStates.SUCCESS
-            || state == GameStates.FAILURE;
-    }
 
     public void Awake() => Instance = this;
     
@@ -102,6 +99,10 @@ public class pongGameController : MonoBehaviour {
 
         // Read session data.
         AppData.Instance.userData.readParseSessionData(DataManager.sessionFile);
+
+         // Initialize the game speed controller.
+        initializeGameSpeedController();
+        gameSpeedControl.SetActive(false);
         
         // Check if the required amount of trails for the selected movement is completed.
         bool isRequiredTrialsCompleted = AppData.Instance.selectedMovement.trialNumberDay >= AppData.Instance.userData.moveTimePrsc[AppData.Instance.selectedMovement.name];
@@ -118,10 +119,6 @@ public class pongGameController : MonoBehaviour {
         pointCounter.text = enemyScore + "\t\t\t" + playerScore;
         timerTxt.text = "Time:" + Mathf.FloorToInt(trialTimeLeft).ToString() + "s";
 
-        // Pause/Resume the game
-        if (isGameStarted && isGamePaused) pauseGame();
-        else if (isGameStarted && !isGamePaused) resumeGame();
-
         // Check if the game is to be restarted.
         if (restartGame)
         {
@@ -135,27 +132,32 @@ public class pongGameController : MonoBehaviour {
             gameSpeedControl.SetActive(!gameSpeedControl.activeSelf);
         }
     }
-    
+
     public void FixedUpdate()
     {
         MarsComm.sendHeartbeat();
+
+        // Run the state machine
         RunStateMachine();
-        if (IsGamePlaying())
+
+        // Update player and target positions
+        if (isGamePlaying)
         {
-            
             playerPosition = GameObject.FindGameObjectWithTag("Player").transform.position;
             targetObject = GameObject.FindGameObjectWithTag("Target");
             targetPosition = targetObject != null ? targetObject.transform.position : null;
-          
         }
-       
     }
+    
     public void RunStateMachine()
     {
+        // Check if the game is paused or to be paused/resumed.
         if (isGamePaused) pauseGame();
         else if (gameState == GameStates.PAUSED) resumeGame();
-        if (IsGamePlaying())trialTimeLeft -= Time.deltaTime;
-      
+
+        // Update the trial timer if the game is playing.
+        if (isGamePlaying) trialTimeLeft -= Time.deltaTime;
+        // Check if the trial time is up.
         bool isTimeUp = trialTimeLeft < 0;
         switch (gameState)
         {
@@ -206,31 +208,39 @@ public class pongGameController : MonoBehaviour {
 
     public void startGame()
     {
-        reminderPanel.SetActive(false);
+        // Disable the reminder panel if it is showing.
+        if (reminderPanel.activeSelf) reminderPanel.SetActive(false);
+
+        // Start the new trial.
         AppData.Instance.StartNewTrial();
-        trialDuration = 60f;
+        
+        // Set the trial duration
+        trialDuration = MarsGame.GetGameDuration(AppData.Instance.selectedGame.name);
         nTargets = 0;
         nSuccess = 0;
         nFailure = 0;
-        //Trial Time
+
+        // Trial Time
         trialTimeLeft = trialDuration;
+        
+        // Spawing the ball.
         gameState = GameStates.SPAWNBALL;
         gameSpeed = AppData.Instance.selectedGame.gameSpeed;
-     
     }
+
     public void gameOver()
     {
         if (!isGameFinished)
         {
             showFinished();
             float gameTime = trialDuration - trialTimeLeft;
-            AppData.Instance.gameTime = (gameTime < trialDuration) ?(int) gameTime : trialDuration;
+            AppData.Instance.gameTime = (gameTime < trialDuration) ? (int)gameTime : trialDuration;
             // AppData.Instance.selectedGame.gameSpeed = gameSpeed;
             AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
         }
-     
-       isGameFinished = true;
+        isGameFinished = true;
     }
+    
     private void pauseGame()
     {
         _prevGameState = gameState;
@@ -241,6 +251,32 @@ public class pongGameController : MonoBehaviour {
         showPaused();
         exitBtn.SetActive(false);
     }
+
+    private void initializeGameSpeedController()
+    {
+        // Hide game speed control initially
+        gameSpeedControl.SetActive(false);
+
+        GameSpeedController gsc = gameSpeedControl.GetComponent<GameSpeedController>();
+        if (gsc == null) return;
+
+        // Attach the buttons
+        if (gsc.decreaseButton != null)
+            gsc.decreaseButton.onClick.AddListener(() => changeGameSpeed(false));
+        if (gsc.increaseButton != null)
+            gsc.increaseButton.onClick.AddListener(() => changeGameSpeed(true));
+
+        // Set the initial game speed
+        gsc.gameSpeedText.text = $"{AppData.Instance.selectedGame.gameSpeed:F2}";
+    }
+    
+    public void changeGameSpeed(bool increase)
+    {
+        float _gs = AppData.Instance.selectedGame.gameSpeed;
+        AppData.Instance.selectedGame.SetGameSpeed(_gs + (increase ? MarsGame.GAME_SPEED_DELTA : -MarsGame.GAME_SPEED_DELTA));
+        AppData.Instance.annotation = $"GS:{AppData.Instance.selectedGame.gameSpeed:F6}";
+    }
+    
     public void ExitGame()
     {
         if (gameState != GameStates.WAITING && gameState != GameStates.STOP)
@@ -259,14 +295,15 @@ public class pongGameController : MonoBehaviour {
         isPaused = false;
         hidePaused();
         exitBtn.SetActive(true);
-       
+
     }
-    public bool IsGamePlaying()
-    {
-        return gameState != GameStates.WAITING
-            && gameState != GameStates.PAUSED
-            && gameState != GameStates.STOP;
-    }
+    // public bool IsGamePlaying()
+    // {
+    //     return gameState != GameStates.WAITING
+    //         && gameState != GameStates.PAUSED
+    //         && gameState != GameStates.STOP;
+    // }
+    
     public void BallHitted()
     {
         isBallHitted = true;
@@ -310,7 +347,7 @@ public class pongGameController : MonoBehaviour {
             isGamePaused = false;
             return;
         }
-        else if (isPlayingState(gameState))
+        else if (isGamePlaying)
         {
             // Pause the game if it is currently playing.
             isGamePaused = !isGamePaused;
