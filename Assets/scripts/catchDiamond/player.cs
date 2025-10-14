@@ -158,81 +158,83 @@ public class player : MonoBehaviour
         x2 = bottom - right;
         y2 = top - right;
     }
-    public Vector2 getRandomTargt()
-    {
-        Vector2 t;
-        Vector2 target;
-        float minDistance = 2f; // minimum required distance between two targets
-        int maxAttempts = 20;   // prevent infinite loop
-
-        int attempts = 0;
-        do
-        {
-            float rx = UnityEngine.Random.Range(0, 1f);
-            float ry = UnityEngine.Random.Range(0, (1f - rx));
-
-            int random = UnityEngine.Random.value < 0.5f ? -1 : 1;
-
-            if (random == 1)
-            {
-                t = (rx * x1) + (ry * y1);
-                target = t + left;
-            }
-            else
-            {
-                t = (rx * x2) + (ry * y2);
-                target = t + right;
-            }
-
-            attempts++;
-
-        } while (Vector2.Distance(target, lastTarget) < minDistance && attempts < maxAttempts);
-
-        lastTarget = target; // remember for next spawn
-        return target;
-    }
-
     //public Vector2 getRandomTargt()
     //{
-       
-
     //    Vector2 t;
     //    Vector2 target;
+    //    float minDistance = 2f;
+    //    int maxAttempts = 20;   // stop loop
 
-    //    //rx+ry<=1
-    //    float rx = UnityEngine.Random.Range(0, 1f);
-    //    float ry = UnityEngine.Random.Range(0, (1f - rx));
-
-    //    //find left or right
-    //    int random = UnityEngine.Random.value < 0.5f ? -1 : 1;
-
-    //    if (random == 1)
+    //    int attempts = 0;
+    //    do
     //    {
+    //        float rx = UnityEngine.Random.Range(0, 1f);
+    //        float ry = UnityEngine.Random.Range(0, (1f - rx));
 
-    //        t = (rx * x1) + (ry * y1);
-    //        target = t + left;
+    //        int random = UnityEngine.Random.value < 0.5f ? -1 : 1;
 
-    //    }
-    //    else
-    //    {
-    //        t = (rx * x2) + (ry * y2);
-    //        target = t + right;
-    //    }
-       
+    //        if (random == 1)
+    //        {
+    //            t = (rx * x1) + (ry * y1);
+    //            target = t + left;
+    //        }
+    //        else
+    //        {
+    //            t = (rx * x2) + (ry * y2);
+    //            target = t + right;
+    //        }
+
+    //        attempts++;
+
+    //    } while (Vector2.Distance(target, lastTarget) < minDistance && attempts < maxAttempts);
+
+    //    lastTarget = target; // remember for next spawn
     //    return target;
-
     //}
-    private float robotToUnityX(float robotX)
-    {
-        float norm = (robotX - MarsDefs.EPMINZ) / (MarsDefs.EPMAXZ - MarsDefs.EPMINZ);
-        return Mathf.Lerp(xMax, xMin, norm);
-    }
 
-    private float robotToUnityY(float robotY)
+    public Vector2 getRandomTargt()
     {
-        float norm = (robotY - MarsDefs.EPMINY) / (MarsDefs.EPMAXY - MarsDefs.EPMINY);
-        return Mathf.Lerp(yMin, yMax, norm);
+
+
+        Vector2 t;
+        Vector2 target;
+
+        //rx+ry<=1
+        float rx = UnityEngine.Random.Range(0, 1f);
+        float ry = UnityEngine.Random.Range(0, (1f - rx));
+
+        //find left or right
+        int random = UnityEngine.Random.value < 0.5f ? -1 : 1;
+
+        if (random == 1)
+        {
+
+            t = (rx * x1) + (ry * y1);
+            target = t + left;
+
+        }
+        else
+        {
+            t = (rx * x2) + (ry * y2);
+            target = t + right;
+        }
+
+        return target;
+
     }
+    private float robotToUnityX(float robotX) => 10f * ((robotX - MarsDefs.EPCENTERZ) / (MarsDefs.EPMAXZ - MarsDefs.EPMINZ));
+    private float robotToUnityY(float robotY) => 10f * ((robotY - MarsDefs.EPCENTERY) / (MarsDefs.EPMAXY - MarsDefs.EPMINY));
+    //private float robotToUnityX(float robotX)
+    //{
+    //    float norm = (robotX - MarsDefs.EPMINZ) / (MarsDefs.EPMAXZ - MarsDefs.EPMINZ);
+    //    return Mathf.Lerp(xMin, xMax, norm);
+    //}
+
+    //private float robotToUnityY(float robotY)
+    //{
+    //    float norm = (robotY - MarsDefs.EPMINY) / (MarsDefs.EPMAXY - MarsDefs.EPMINY);
+    //    return Mathf.Lerp(yMin, yMax, norm);
+    //}
 
 
 
