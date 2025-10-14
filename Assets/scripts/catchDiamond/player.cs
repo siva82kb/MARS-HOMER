@@ -1,6 +1,8 @@
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class player : MonoBehaviour
 {
@@ -21,14 +23,23 @@ public class player : MonoBehaviour
     public static float yMaxendPnt;
     public static float zMinendPnt;
     public static float zMaxendPnt;
-    public bool debug;
-   
+    private bool debug;
 
+    // Points of the quadrilateral
+    private Vector2 top;
+    private Vector2 bottom;
+    private Vector2 left;
+    private Vector2 right;
+    public Vector2 x1;
+    public Vector2 x2;
+    public Vector2 y1;
+    public Vector2 y2;
+    Vector2 lastTarget;
     public GameObject highlightPrefeb;
 
     public GameObject pointTextPrefab;
     public Canvas uiCanvas;  // assign the main Canvas here
-  
+    public LineRenderer test;
     void Awake()
     {
         instance = this;
@@ -48,10 +59,16 @@ public class player : MonoBehaviour
         yMinendPnt = currRom.bottomAdjusted.y;
         yMaxendPnt = currRom.topAdjusted.y;
 
+        createVectors();
         OFFSET = AppData.Instance.userData.limb == 1 ? -1 : 1;
+        DrawQuad(test, Color.green);
     }
+
+
+
     private void FixedUpdate()
     {
+        //Debug.Log(robotToUnityX(currRom.topAdjusted.x) + "," + currRom.topAdjusted.x + "check");
         if (debug) return;
         MarsComm.sendHeartbeat();
         endPoint = MarsComm.epPosInThePlane;
@@ -65,6 +82,7 @@ public class player : MonoBehaviour
             Mathf.Clamp(yPoint, yMin, yMax),
             0f
         );
+
 
         // Smoothly interpolate from current to target position
         float smoothSpeed = 10f; // Adjust this for more or less smoothing
@@ -93,35 +111,146 @@ public class player : MonoBehaviour
         }
 
     }
-    public void sheepChangeMovingDirection()
+    void DrawQuad(LineRenderer lr, Color color)
+
     {
-        // Calculate movement direction
-        float moveDirection = transform.position.x - lastPosition.x;
+        //top,
+        // left,
+        // bottom,
+        // right,
+        // top,
+        
 
-        if (moveDirection > 0) // Moving right
-            GetComponent<SpriteRenderer>().flipX = false;
-        else if (moveDirection < 0) // Moving left
-            GetComponent<SpriteRenderer>().flipX = true;
 
-        lastPosition = transform.position; // Update last position
+        Vector3[] corners = new Vector3[5]
+        {
+
+             new Vector3(top.x, yMax, 0),
+             new Vector3(xMax, left.y, 0),
+             new Vector3(bottom.x, yMin, 0),
+             new Vector3(xMin, right.y),
+            new Vector3(top.x, yMax, 0),
+        };
+
+        createFrame(lr, corners, color);
     }
+    public void createFrame(LineRenderer lr, Vector3[] corners, Color color)
+    {
+        lr.positionCount = corners.Length;
+        lr.startColor = lr.endColor = color;
+        lr.SetPositions(corners);
+        lr.material = new Material(Shader.Find("Sprites/Default"));
+        lr.startWidth = 0.05f;
+        lr.endWidth = 0.05f;
+        lr.loop = false;
+        lr.useWorldSpace = true;
+    }
+    public void createVectors()
+    {
+        top = new Vector2(robotToUnityX(currRom.topAdjusted.x), robotToUnityY(currRom.topAdjusted.y));
+        bottom = new Vector2(robotToUnityX(currRom.bottomAdjusted.x), robotToUnityY(currRom.bottomAdjusted.y));
+        left = new Vector2(robotToUnityX(currRom.leftAdjusted.x), robotToUnityY(currRom.leftAdjusted.y));
+        right = new Vector2(robotToUnityX(currRom.rightAdjusted.x), robotToUnityY(currRom.rightAdjusted.y));
+
+        //genrate vector
+        x1 = bottom - left;
+        y1 = top - left;
+        x2 = bottom - right;
+        y2 = top - right;
+    }
+    public Vector2 getRandomTargt()
+    {
+        Vector2 t;
+        Vector2 target;
+        float minDistance = 2f; // minimum required distance between two targets
+        int maxAttempts = 20;   // prevent infinite loop
+
+        int attempts = 0;
+        do
+        {
+            float rx = UnityEngine.Random.Range(0, 1f);
+            float ry = UnityEngine.Random.Range(0, (1f - rx));
+
+            int random = UnityEngine.Random.value < 0.5f ? -1 : 1;
+
+            if (random == 1)
+            {
+                t = (rx * x1) + (ry * y1);
+                target = t + left;
+            }
+            else
+            {
+                t = (rx * x2) + (ry * y2);
+                target = t + right;
+            }
+
+            attempts++;
+
+        } while (Vector2.Distance(target, lastTarget) < minDistance && attempts < maxAttempts);
+
+        lastTarget = target; // remember for next spawn
+        return target;
+    }
+
+    //public Vector2 getRandomTargt()
+    //{
+       
+
+    //    Vector2 t;
+    //    Vector2 target;
+
+    //    //rx+ry<=1
+    //    float rx = UnityEngine.Random.Range(0, 1f);
+    //    float ry = UnityEngine.Random.Range(0, (1f - rx));
+
+    //    //find left or right
+    //    int random = UnityEngine.Random.value < 0.5f ? -1 : 1;
+
+    //    if (random == 1)
+    //    {
+
+    //        t = (rx * x1) + (ry * y1);
+    //        target = t + left;
+
+    //    }
+    //    else
+    //    {
+    //        t = (rx * x2) + (ry * y2);
+    //        target = t + right;
+    //    }
+       
+    //    return target;
+
+    //}
+    private float robotToUnityX(float robotX)
+    {
+        float norm = (robotX - MarsDefs.EPMINZ) / (MarsDefs.EPMAXZ - MarsDefs.EPMINZ);
+        return Mathf.Lerp(xMax, xMin, norm);
+    }
+
+    private float robotToUnityY(float robotY)
+    {
+        float norm = (robotY - MarsDefs.EPMINY) / (MarsDefs.EPMAXY - MarsDefs.EPMINY);
+        return Mathf.Lerp(yMin, yMax, norm);
+    }
+
 
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-       
-            DCGameController.Instance.setPlayerIn();
-          
+        if(DCGameController.Instance.gameState != DCGameController.GameStates.FAILURE)
+           DCGameController.Instance.setPlayerIn();
+
     }
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-       
+
         if (DCGameController.Instance.gameState == DCGameController.GameStates.PLAYERIN
             && DCGameController.Instance.gameState != DCGameController.GameStates.PLAYEREXIT
           )
             DCGameController.Instance.setPlayerOut();
-        
+
     }
 
     public void AddScore()
@@ -134,5 +263,5 @@ public class player : MonoBehaviour
 
         obj.GetComponent<point>().SetText("+1");
     }
-  
+
 }

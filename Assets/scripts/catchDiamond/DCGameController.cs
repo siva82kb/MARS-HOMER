@@ -291,16 +291,8 @@ public class DCGameController : MonoBehaviour
     public void spawnDiamond()
     {
         Vector3 spawnPos;
-        // Loop until we find a position far enough from the player
-        do
-        {
-            float x = UnityEngine.Random.Range(xMin, xMax);
-            float y = UnityEngine.Random.Range(yMin, yMax);
-            spawnPos = new Vector3(x, y, 0);
-        }
-
-        while (Vector3.Distance(spawnPos, GameObject.FindGameObjectWithTag("Player").transform.position) < 5f);
-     
+        Vector2 randomTarget = player.instance.getRandomTargt();
+        spawnPos = new Vector3(randomTarget.x, randomTarget.y, 0);
         target = Instantiate(targerPrefeb, spawnPos, Quaternion.identity);
         targetGlitter = Instantiate(targetGlitterPrefeb, spawnPos, Quaternion.identity);
         targetBubble = Instantiate(targetBubblePrefeb, new Vector3(spawnPos.x,spawnPos.y-0.25f,spawnPos.z), Quaternion.identity);
