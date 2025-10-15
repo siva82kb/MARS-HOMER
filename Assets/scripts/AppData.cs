@@ -170,7 +170,7 @@ public partial class AppData
 
     public void SetGame(string game)
     {
-        // Read the game speed from the session data.
+        //Read the game speed from the session data.
         float rSpeed = Instance.userData.readReachSpeedForGameMovement(game, selectedMovement?.name);
 
         // Read the cummulative hits and misses from the session data.

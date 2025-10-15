@@ -34,11 +34,10 @@ public class player : MonoBehaviour
     public Vector2 x2;
     public Vector2 y1;
     public Vector2 y2;
-    Vector2 lastTarget;
-    public GameObject highlightPrefeb;
-
+   
+   //UI related Variables
     public GameObject pointTextPrefab;
-    public Canvas uiCanvas;  // assign the main Canvas here
+    public Canvas uiCanvas; 
     public LineRenderer test;
     void Awake()
     {
@@ -63,7 +62,7 @@ public class player : MonoBehaviour
 
         createVectors();
         OFFSET = AppData.Instance.userData.limb == 1 ? -1 : 1;
-        DrawQuad(test, Color.green);
+        //DrawQuad(test, Color.green);
        
 
     }
@@ -96,13 +95,13 @@ public class player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //sheepChangeMovingDirection();
+        
         if (DCGameController.Instance.target != null)
             GetComponent<SpriteRenderer>().flipX = !DCGameController.Instance.target.GetComponent<SpriteRenderer>().flipX;
         if (!debug) return;
         float moveX = Input.GetAxis("Mouse X");
         float moveY = Input.GetAxis("Mouse Y");
-        //if (isColliding) return;
+      
         if (Input.GetMouseButton(0))
         {
             Vector3 temp = transform.position;
@@ -121,11 +120,11 @@ public class player : MonoBehaviour
         
         Vector3[] corners = new Vector3[5] 
         { 
-            new Vector3(top.x, top.y, 0), 
-            new Vector3(left.x, left.y, 0), 
-            new Vector3(bottom.x, bottom.y, 0), 
-            new Vector3(right.x, right.y), 
-            new Vector3(top.x, top.y, 0), 
+          top,
+          left,
+          bottom,
+          right,
+          top,
         };
 
         createFrame(lr, corners, color);
@@ -143,10 +142,10 @@ public class player : MonoBehaviour
     }
     public void createVectors()
     {
-        top = new Vector2(robotToUnityX(currRom.topAdjusted.x), Mathf.Max(robotToUnityY(currRom.topAdjusted.y),yMax));
-        bottom = new Vector2(robotToUnityX(currRom.bottomAdjusted.x), Mathf.Min(robotToUnityY(currRom.bottomAdjusted.y),yMin));
-        left = new Vector2(Mathf.Max(robotToUnityX(currRom.leftAdjusted.x),xMax), robotToUnityY(currRom.leftAdjusted.y));
-        right = new Vector2(Mathf.Min(robotToUnityX(currRom.rightAdjusted.x),xMin), robotToUnityY(currRom.rightAdjusted.y));
+        top = new Vector2(robotToUnityX(currRom.topAdjusted.x), Mathf.Max(robotToUnityY(currRom.topAdjusted.y)));
+        bottom = new Vector2(robotToUnityX(currRom.bottomAdjusted.x), Mathf.Min(robotToUnityY(currRom.bottomAdjusted.y)));
+        left = new Vector2(Mathf.Max(robotToUnityX(currRom.leftAdjusted.x)), robotToUnityY(currRom.leftAdjusted.y));
+        right = new Vector2(Mathf.Min(robotToUnityX(currRom.rightAdjusted.x)), robotToUnityY(currRom.rightAdjusted.y));
 
         //genrate vector
         x1 = bottom - left;
@@ -158,8 +157,6 @@ public class player : MonoBehaviour
 
     public Vector2 getRandomTargt()
     {
-
-
         Vector2 t;
         Vector2 target;
 
@@ -186,20 +183,16 @@ public class player : MonoBehaviour
         return target;
 
     }
-    //private float robotToUnityX(float robotX) => 10f * ((robotX - MarsDefs.EPCENTERZ) / (MarsDefs.EPMAXZ - MarsDefs.EPMINZ));
-    //private float robotToUnityY(float robotY) => 10f * ((robotY - MarsDefs.EPCENTERY) / (MarsDefs.EPMAXY - MarsDefs.EPMINY));
+ 
     private float robotToUnityX(float robotX)
     {
-        float norm = (robotX - MarsDefs.EPMINZ) / (MarsDefs.EPMAXZ - MarsDefs.EPMINZ);
-        return Mathf.Lerp(xMax, xMin, norm);
+       return xPoint = ((xMin + xMax) / 2.0f + (xMax - xMin) / (zMaxendPnt - zMinendPnt) * (robotX - ((zMinendPnt + zMaxendPnt) / 2.0f)));
     }
 
     private float robotToUnityY(float robotY)
     {
-        float norm = (robotY - MarsDefs.EPMINY) / (MarsDefs.EPMAXY - MarsDefs.EPMINY);
-        return Mathf.Lerp(yMin, yMax, norm);
+        return yPoint = -((yMin + yMax) / 2.0f - (yMax - yMin) / (yMaxendPnt - yMinendPnt) * (robotY - ((yMinendPnt + yMaxendPnt) / 2.0f)));
     }
-
 
 
     private void OnTriggerEnter2D(Collider2D collision)
