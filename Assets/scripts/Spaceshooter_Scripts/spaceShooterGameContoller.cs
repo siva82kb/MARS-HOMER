@@ -21,7 +21,6 @@ public class SpaceShooterGameContoller : MonoBehaviour
     public TextMeshProUGUI timerText;
     public TextMeshProUGUI scoreText;
     public GameObject gameSpeedControl;
-    public bool gameSpeedChanged = false;
     public GameObject startImage;
     public GameObject PauseImage;
     public float smoothFactor = 5f;
@@ -30,7 +29,7 @@ public class SpaceShooterGameContoller : MonoBehaviour
     public TextMeshProUGUI cummulativeHitTxt;
     public bool Levelunlocked = false;
 
-    private float timer;
+    private float gameTimeLeft;
     public static bool changeScene = false;
     private float eventDelayTimer = 0f; 
     // private float gameSpeed = 1f;
@@ -182,7 +181,7 @@ public class SpaceShooterGameContoller : MonoBehaviour
         else if (!isGamePaused && gameState == GameStates.PAUSED) ResumeGame();
 
         // Update Timer (show remaining time)
-        timerText.text = $"Time Left: {Mathf.FloorToInt(timer)}s";
+        timerText.text = $"Time Left: {Mathf.CeilToInt(gameTimeLeft)}s";
 
         // Track Restart
         if (changeScene && gameState == GameStates.STOP)
@@ -229,10 +228,10 @@ public class SpaceShooterGameContoller : MonoBehaviour
         if (isGamePlaying)
         {
             scoreText.text = "SCORE:" + nSuccess.ToString();
-            timer -= Time.deltaTime;
+            gameTimeLeft -= Time.deltaTime;
         }
 
-        bool isTimeUp = timer < 0; 
+        bool isTimeUp = gameTimeLeft < 0; 
         switch (gameState)
         {
             case GameStates.WAITING:
@@ -331,16 +330,14 @@ public class SpaceShooterGameContoller : MonoBehaviour
     {
         if (!isGameFinished)
         {
-            
             // Compute game time
-            int gametime = (int)(gameDuration - timer);
+            int gametime = (int)(gameDuration - gameTimeLeft);
             AppData.Instance.gameTime = gametime;
             // Stop the current game trial
             AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
 
             gameOverPanel.SetActive(true);
             if (gameOverPanel.gameObject.activeSelf) cummulativeHitTxt.text = $"{AppData.Instance.selectedGame.cummulativeHits:D4}";
-
             AppLogger.LogInfo($"Space Shooter Game Over. Time: {gametime}s | Targets: {nTargets} | Hits: {nSuccess} | Misses: {nFailure}");
         }
         timerText.text = "Time: 0s";
@@ -375,7 +372,7 @@ public class SpaceShooterGameContoller : MonoBehaviour
         isSuccess = false;
 
         // Set game duration.
-        timer = gameDuration;
+        gameTimeLeft = gameDuration;
         AppLogger.LogInfo($"Space Shooter Game started for movement '{AppData.Instance.selectedMovement.name}'. Game Speed: {AppData.Instance.selectedGame.gameSpeed} | Duration: {gameDuration}s");
 
         // Remove game over and start panel.

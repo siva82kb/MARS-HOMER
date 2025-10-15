@@ -136,7 +136,7 @@ public class MarsUserData
             var _totalMoveTime = dTableSession.AsEnumerable()
                 .Where(row => DateTime.ParseExact(row.Field<string>(DATETIME), DataManager.DATETIMEFORMAT, CultureInfo.InvariantCulture).Date == DateTime.Now.Date)
                 .Where(row => row.Field<string>(MOVEMENT) == MarsDefs.Movements[i])
-                .Sum(row => Convert.ToInt32(row[MOVETIME]));
+                .Sum(row => Convert.ToSingle(row[MOVETIME]));
             moveTimePrev[MarsDefs.Movements[i]] = _totalMoveTime / 60f;
         }
     }
