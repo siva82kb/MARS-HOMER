@@ -253,7 +253,7 @@ public class MarsUserData
         // AROM available.
         MarsArom arom = new MarsArom(movement, readFromFile: true);
         // Compuate date difference only considering dates, while ignoring time.
-        DateTime aromDate = DateTime.ParseExact(arom.datetime, DataManager.DATETIMEFORMAT, CultureInfo.InvariantCulture);
+        DateTime aromDate = DateTime.ParseExact(arom.datetime, DataManager.AROMDATEFORMAT, CultureInfo.InvariantCulture);
         TimeSpan duration = DateTime.Now.Date - aromDate.Date;
         return (int)duration.TotalDays;
     }
@@ -833,7 +833,7 @@ public class ArmWeight
 
     private void initializeNewArmWeightAssessment()
     {
-        datetime = DateTime.Now.ToString(DataManager.DATETIMEFORMAT);
+        datetime = DateTime.Now.ToString(DataManager.AROMDATEFORMAT);
         mlapArom = new MarsArom("MLAP", readFromFile: true);
         _trainingPlaneAngle = mlapArom == null? mlapArom.trainingPlaneAngle : 0;
         targetPos = null;

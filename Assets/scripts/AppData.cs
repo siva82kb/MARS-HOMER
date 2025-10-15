@@ -10,7 +10,7 @@ public partial class AppData
     private static readonly Lazy<AppData> _instance = new Lazy<AppData>(() => new AppData());
     public static AppData Instance => _instance.Value;
 
-    static public readonly string COMPort = "COM50"; //1-35//2-30//3-32//4-50
+    static public readonly string COMPort = "COM32"; //1-35//2-30//3-32//4-50
 
     /*
      * GAME ADAPTATION CONSTANTS
@@ -170,7 +170,7 @@ public partial class AppData
 
     public void SetGame(string game)
     {
-        // Read the game speed from the session data.
+        //Read the game speed from the session data.
         float rSpeed = Instance.userData.readReachSpeedForGameMovement(game, selectedMovement?.name);
 
         // Read the cummulative hits and misses from the session data.

@@ -243,7 +243,6 @@ public class pongGameController : MonoBehaviour {
             showFinished();
             float gameTime = trialDuration - trialTimeLeft;
             AppData.Instance.gameTime = (gameTime < trialDuration) ? (int)gameTime : trialDuration;
-            // AppData.Instance.selectedGame.gameSpeed = gameSpeed;
             AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
         }
         isGameFinished = true;
