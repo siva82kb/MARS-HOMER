@@ -16,18 +16,12 @@ public class BallSpawnerController : MonoBehaviour {
 	void Update () {
         if (!pongGameController.Instance.isGamePlaying) return;
 		if (pongGameController.Instance.gameSpeed == 0) return;
-
         if (transform.childCount == 0)
         {
-            //GameObject ballClone;
-            ballClone = Instantiate(ball, this.transform.position, this.transform.rotation) as GameObject;
-            ballClone.transform.SetParent(this.transform);
+            // GameObject ballClone;
+            ballClone = Instantiate(ball, transform.position, transform.rotation);
+            ballClone.transform.SetParent(transform);
         }
         ballPos = ballClone.transform.position;
-        
-		
-		
-	}
-
-  
+	}  
 }

@@ -26,9 +26,9 @@ public class pongGameController : MonoBehaviour {
     public GameObject reminderPanel;
 
     public int enemyScore, playerScore;
-    public float trialTimeLeft,
+    public float gameTimeLeft,
                 eventDelayTimer,
-                trialDuration,
+                gameDuration,
                 gameSpeed;
     public EnemyController enemy;
     public BallController ballSpeed;
@@ -80,10 +80,7 @@ public class pongGameController : MonoBehaviour {
     public bool isGamePlaying => gameState == GameStates.MOVE
             || gameState == GameStates.SPAWNBALL
             || gameState == GameStates.SUCCESS
-            || gameState == GameStates.FAILURE;
-
-    public bool runOnce = false;
-    
+            || gameState == GameStates.FAILURE;    
 
     public void Awake() => Instance = this;
     
@@ -117,8 +114,11 @@ public class pongGameController : MonoBehaviour {
     void Update()
     {
         // Update the point counter.
-        pointCounter.text = enemyScore + "\t\t\t" + playerScore;
-        timerTxt.text = "Time:" + Mathf.FloorToInt(trialTimeLeft).ToString() + "s";
+        if (isGamePlaying)
+        {
+            pointCounter.text = enemyScore + "\t\t\t" + playerScore;
+            timerTxt.text = "Time:" + Mathf.CeilToInt(gameTimeLeft).ToString() + "s";
+        }
 
         // Check if the game is to be restarted.
         if (restartGame)
@@ -131,7 +131,7 @@ public class pongGameController : MonoBehaviour {
         if (gameSpeedChanged)
         {
             gameSpeedChanged = false;
-            BallController.instance.speed = AppData.Instance.selectedGame.gameSpeed;
+            BallController.instance.ballSpeed = AppData.Instance.selectedGame.gameSpeed;
         }
         
         // Check of the game speed controller is to be shown.
@@ -164,9 +164,10 @@ public class pongGameController : MonoBehaviour {
         else if (gameState == GameStates.PAUSED) resumeGame();
 
         // Update the trial timer if the game is playing.
-        if (isGamePlaying) trialTimeLeft -= Time.deltaTime;
+        if (isGamePlaying && nTargets > 0) gameTimeLeft -= Time.deltaTime;
+        
         // Check if the trial time is up.
-        bool isTimeUp = trialTimeLeft < 0;
+        bool isTimeUp = gameTimeLeft < 0;
         switch (gameState)
         {
             case GameStates.WAITING:
@@ -178,33 +179,31 @@ public class pongGameController : MonoBehaviour {
                 startGame();
                 break;
             case GameStates.SPAWNBALL:
-                nTargets++;
                 gameState = GameStates.MOVE;
                 break;
             case GameStates.MOVE:
-                if (isBallHitted) gameState = GameStates.SUCCESS;
-                if (isBallMissed) gameState = GameStates.FAILURE;
+                if (isBallHitted)
+                {
+                    gameState = GameStates.SUCCESS;
+                    eventDelayTimer = 0.05f;
+                }
+                if (isBallMissed)
+                {
+                    gameState = GameStates.FAILURE;
+                    eventDelayTimer = 0.05f;
+                }
                 break;
             case GameStates.PAUSED:
-                Debug.Log(isGamePaused);
                 break;
             case GameStates.SUCCESS:
             case GameStates.FAILURE:
+                eventDelayTimer -= Time.deltaTime;
                 if (eventDelayTimer <= 0f)
                 {
+                    isBallHitted = false;
+                    isBallMissed = false;
+                    gameState = isTimeUp ? GameStates.STOP : GameStates.SPAWNBALL;
                     eventDelayTimer = 0.05f;
-                }
-                else
-                {
-                    eventDelayTimer -= Time.deltaTime;
-                    if (eventDelayTimer <= 0f)
-                    {
-                        // Wait for the gamestate to be logged.
-                        isBallHitted = false;
-                        isBallMissed = false;
-                        gameState = isTimeUp ? GameStates.STOP : GameStates.SPAWNBALL;
-                        runOnce = false;
-                    }
                 }
                 break;
             case GameStates.STOP:
@@ -223,13 +222,13 @@ public class pongGameController : MonoBehaviour {
         AppData.Instance.StartNewTrial();
         
         // Set the trial duration
-        trialDuration = MarsGameDefs.GAMEDURATION[AppData.Instance.selectedGame.name];
+        gameDuration = MarsGameDefs.GAMEDURATION[AppData.Instance.selectedGame.name];
         nTargets = 0;
         nSuccess = 0;
         nFailure = 0;
 
         // Trial Time
-        trialTimeLeft = trialDuration;
+        gameTimeLeft = gameDuration;
         
         // Spawing the ball.
         gameState = GameStates.SPAWNBALL;
@@ -240,12 +239,15 @@ public class pongGameController : MonoBehaviour {
     {
         if (!isGameFinished)
         {
-            showFinished();
-            float gameTime = trialDuration - trialTimeLeft;
-            AppData.Instance.gameTime = (gameTime < trialDuration) ? (int)gameTime : trialDuration;
-            // AppData.Instance.selectedGame.gameSpeed = gameSpeed;
+            // Compute game time
+            int gameTime = (int)(gameDuration - gameTimeLeft);
+            AppData.Instance.gameTime = gameTime;
             AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
+            showFinished();
+            AppLogger.LogInfo($"PingPong Game Over. Time: {gameTime}s | Targets: {nTargets} | Hits: {nSuccess} | Misses: {nFailure}");
         }
+        timerTxt.text = "Time: 0s";
+        // Set game over state
         isGameFinished = true;
     }
     
@@ -292,7 +294,6 @@ public class pongGameController : MonoBehaviour {
         {
             gameOver();
         }
-
         SceneManager.LoadScene("CHOOSEMOVE");
     }
     
@@ -304,15 +305,25 @@ public class pongGameController : MonoBehaviour {
         isPaused = false;
         hidePaused();
         exitBtn.SetActive(true);
-
     }
-    
+
+    public void BallReturned()
+    {
+        isBallHitted = false;
+        isBallMissed = false;
+        nTargets++;
+        Debug.Log(nTargets);
+        enemyScore++;
+    }
+
     public void BallHitted()
     {
         isBallHitted = true;
         isBallMissed = false;
         nSuccess++;
+        playerScore++;
     }
+    
     public void BallMissed()
     {
         isBallHitted = false;
@@ -351,27 +362,34 @@ public class pongGameController : MonoBehaviour {
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
-    public void showPaused(){
-		foreach(GameObject g in pauseObjects){
-			g.SetActive(true);
-		}
-	}
+    public void showPaused()
+    {
+        foreach(GameObject g in pauseObjects)
+        {
+            g.SetActive(true);
+        }
+    }
 
-	public void hidePaused(){
-		foreach(GameObject g in pauseObjects){
+	public void hidePaused()
+	{
+		foreach(GameObject g in pauseObjects)
+		{
 			g.SetActive(false);
 		}
 	}
 
-	public void showFinished(){
+	public void showFinished()
+    {
+        foreach (GameObject g in finishObjects)
+        {
+            g.SetActive(true);
+        }
+    }
 
-        foreach (GameObject g in finishObjects){
-			g.SetActive(true);
-		}
-	}
-	
-	public void hideFinished(){
-		foreach(GameObject g in finishObjects){
+	public void hideFinished()
+	{
+		foreach(GameObject g in finishObjects)
+		{
 			g.SetActive(false);
 		}
 	}

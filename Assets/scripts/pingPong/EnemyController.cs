@@ -17,49 +17,55 @@ public class EnemyController : MonoBehaviour {
 	public float bottomBound = -4.5F;
 	public float stopWatch;
 
-	// Use this for initialization
-	void Start () {
-		//Continously Invokes Move every x seconds (values may differ)
+	void Start()
+	{
+		// Continously Invokes Move every x seconds (values may differ)
 		InvokeRepeating("Move", .02F, .02F);
 	}
+	
     private void OnCollisionEnter2D(Collision2D collision)
-    {
-		pongGameController.Instance.enemyScore++;
-        //Debug.Log("enemy hit");
+	{
+		pongGameController.Instance.BallReturned();
     }
     
     // Movement for the paddle
-    void Move () {
-		//finding the ball
-		if(!pongGameController.Instance.isGamePlaying) return;
+    void Move ()
+	{
+		// Finding the ball
+		if (!pongGameController.Instance.isGamePlaying) return;
         if (pongGameController.Instance.gameSpeed == 0) return;
 
-        if (ball == null){
-		
+        if (ball == null)
+		{
 			ball = GameObject.FindGameObjectWithTag("Target").transform;
 		}
 
-		//setting the ball's rigidbody to a variable
+		// Setting the ball's rigidbody to a variable
 		ballRig2D = ball.GetComponent<Rigidbody2D>();
 
-		//checking x direction of the ball
-		if(ballRig2D.velocity.x < 0){
-
-			//checking y direction of ball
-			if(ball.position.y < this.transform.position.y-.3F){
-				//move ball down if lower than paddle
-				transform.Translate(Vector3.down*speed*Time.deltaTime);
-			} else if(ball.position.y > this.transform.position.y+.3F){
-				//move ball up if higher than paddle
-				transform.Translate(Vector3.up*speed*Time.deltaTime);
+		// Checking x direction of the ball
+		if (ballRig2D.velocity.x < 0)
+		{
+			// Checking y direction of ball
+			if (ball.position.y < this.transform.position.y - .3F)
+			{
+				// Move ball down if lower than paddle
+				transform.Translate(Vector3.down * speed * Time.deltaTime);
 			}
-
+			else if (ball.position.y > this.transform.position.y + .3F)
+			{
+				// Move ball up if higher than paddle
+				transform.Translate(Vector3.up * speed * Time.deltaTime);
+			}
 		}
 
-		//set bounds of enemy
-		if(transform.position.y > topBound){
+		// Set bounds of enemy
+		if (transform.position.y > topBound)
+		{
 			transform.position = new Vector3(transform.position.x, topBound, 0);
-		} else if(transform.position.y < bottomBound){
+		}
+		else if (transform.position.y < bottomBound)
+		{
 			transform.position = new Vector3(transform.position.x, bottomBound, 0);
 		}
 	}
