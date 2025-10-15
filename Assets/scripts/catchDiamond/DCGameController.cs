@@ -7,8 +7,6 @@ using UnityEngine.UI;
 
 public class DCGameController : MonoBehaviour
 {
-   
-
     public static DCGameController Instance;
     public GameObject gameOverPanel;
     public TextMeshProUGUI TimerText;
