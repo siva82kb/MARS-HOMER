@@ -43,18 +43,18 @@ public partial class AppData
         nTargets = (nTargets == 0) ? 1 : nTargets;
         successRate = Math.Clamp(100 * nSuccess / nTargets, 0, 100);
 
-        // Compute the new speed based on the current performance.
-        float adaptRate = (successRate < LOW_SUCCESS_RATE) ? SPEED_REDUCTION_FACTOR :
-                          (successRate > HIGH_SUCCESS_RATE) ? SPEED_INCREASE_FACTOR : 1.0f;
-        float currGameSpeed = selectedGame.gameSpeed;
-        selectedGame.SetGameSpeed(adaptRate * currGameSpeed);
-
         // Update cummulative hits and misses.
         selectedGame.UpdateCummulativeHitsMisses(nTargets, nSuccess, nFailure);
 
         // Write trial information to the session details file.
         WriteTrialToSessionsFile();
-       
+
+        // Compute the new speed based on the current performance.
+        float currReachSpeed = selectedGame.reachSpeed;
+        float currGameSpeed = selectedGame.gameSpeed;
+        float adaptRate = GetReachSpeedAdaptationRate(successRate, currReachSpeed);
+        selectedGame.reachSpeed = adaptRate * currReachSpeed;
+        
         string _tdetails = string.Join(" | ",
             new string[] {
                 $"Start Time: {trialStartTime:yyyy-MM-ddTHH:mm:ss}",
@@ -64,12 +64,14 @@ public partial class AppData
                 $"NTargets: {nTargets}",
                 $"NSuccess: {nSuccess}",
                 $"NFailure: {nFailure}",
-                $"Trial SR: {successRate} ",
-                $"CuTargets: {selectedGame.cummulativeTargets} ",
-                $"CuHits: {selectedGame.cummulativeHits} ",
-                $"CuMisses: {selectedGame.cummulativeMisses} ",
-                $"Current Game Speed: {currGameSpeed} ",
-                $"New Game Speed: {selectedGame.gameSpeed} ",
+                $"Trial SR: {successRate}",
+                $"CuTargets: {selectedGame.cummulativeTargets}",
+                $"CuHits: {selectedGame.cummulativeHits}",
+                $"CuMisses: {selectedGame.cummulativeMisses}",
+                $"Current Reach Speed: {currReachSpeed}m/s",
+                $"New Reach Speed: {selectedGame.reachSpeed}m/s",
+                $"Current Game Speed: {currGameSpeed}",
+                $"New Game Speed: {selectedGame.gameSpeed}",
                 $"TrialRawDataFile: {trialRawDataFile.Split('/').Last()}"
         });
         AppLogger.LogInfo($"StopTrial | {_tdetails}");
@@ -95,7 +97,9 @@ public partial class AppData
             $"{userData.trainingPlaneAngle}",                       // TrainingPlaneAngle
             $"{selectedGame.name}",                                 // Game  
             null,                                                   // GameParameter
+            $"{selectedGame.reachSpeed}",                           // ReachSpeed
             $"{selectedGame.gameSpeed}",                            // GameSpeed
+            $"{selectedGame.gameDuration}",                         // GameDuration
             $"{successRate}",                                       // SuccessRate
             Instance.gameTime.ToString(),                           // GameTime
             $"{selectedGame.cummulativeTargets}",                   // CummulativeTargets
@@ -132,7 +136,7 @@ public partial class AppData
         rawDataString.AppendLine($":TrialStartTime: {trialStartTime:yyyy-MM-ddTHH:mm:ss}");
         rawDataString.AppendLine($":TrialNumberDay: {selectedMovement.trialNumberDay}");
         // Screen/Robot limits string
-        float[] _screenLimits = MarsGame.GetGameScreenLimits(selectedGame.name);
+        float[] _screenLimits = MarsGameDefs.SCREEN_LIMITS[selectedGame.name];
         string _limitstr = string.Join(",", new string[] {
             $"{_screenLimits[0]:F6}",
             $"{_screenLimits[1]:F6}",

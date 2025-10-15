@@ -14,7 +14,7 @@ public class BallSpawnerController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        if (!pongGameController.Instance.IsGamePlaying()) return;
+        if (!pongGameController.Instance.isGamePlaying) return;
 		if (pongGameController.Instance.gameSpeed == 0) return;
 
         if (transform.childCount == 0)
