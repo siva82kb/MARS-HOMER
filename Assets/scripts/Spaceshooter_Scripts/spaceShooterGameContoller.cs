@@ -21,7 +21,6 @@ public class SpaceShooterGameContoller : MonoBehaviour
     public TextMeshProUGUI timerText;
     public TextMeshProUGUI scoreText;
     public GameObject gameSpeedControl;
-    public bool gameSpeedChanged = false;
     public GameObject startImage;
     public GameObject PauseImage;
     public float smoothFactor = 5f;
