@@ -308,24 +308,6 @@ public partial class AppData
         trialArmWeightDataFile = null;
     }
 
-    //CHECK FOR MARS
-    //private Vector3 GetGamePlayerPosition()
-    //{
-    //    // Get the game target X position.
-    //    if (selectedGame.name == "SS")
-    //    {
-    //        return SpaceShooterGameContoller.Instance.playerPosition;
-    //    }
-    //    else if (selectedGame.name == "PP")
-    //    {
-    //        return pongGameController.Instance.playerPosition;
-    //    }
-    //    else if (selectedGame.name == "CD")
-    //    {
-    //        return DCGameController.Instance.playerPosition;
-    //    }
-    //    return Vector3.zero;
-    //}
     private Vector3 GetGamePlayerPosition()
     {
       
@@ -342,7 +324,7 @@ public partial class AppData
                     ? pongGameController.Instance.playerPosition
                     : Vector3.zero;
 
-            case "CD":
+            case "DC":
                 return DCGameController.Instance != null
                     ? DCGameController.Instance.playerPosition
                     : Vector3.zero;
@@ -368,7 +350,7 @@ public partial class AppData
             if (pongGameController.Instance.targetPosition.HasValue) return $"{pongGameController.Instance.targetPosition.Value.x:F3},{pongGameController.Instance.targetPosition.Value.y:F3}";
         }
 
-        else if (selectedGame.name == "CD")
+        else if (selectedGame.name == "DC")
         {
             if (DCGameController.Instance.targetPosition.HasValue)
             {
@@ -390,7 +372,7 @@ public partial class AppData
             return pongGameController.Instance!=null?pongGameController.Instance.gameState.ToString():"";
         }
 
-        else if (selectedGame.name == "CD")
+        else if (selectedGame.name == "DC")
         {
             return DCGameController.Instance != null ? DCGameController.Instance.gameState.ToString() : "";
         }

@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 9172839006594913565}
   - component: {fileID: 5926835514283836092}
   m_Layer: 5
-  m_Name: succTimer
+  m_Name: successTimer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

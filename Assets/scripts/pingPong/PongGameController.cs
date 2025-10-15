@@ -80,7 +80,7 @@ public class pongGameController : MonoBehaviour {
     public bool isGamePlaying => gameState == GameStates.MOVE
             || gameState == GameStates.SPAWNBALL
             || gameState == GameStates.SUCCESS
-            || gameState == GameStates.FAILURE;    
+            || gameState == GameStates.FAILURE;
 
     public void Awake() => Instance = this;
     
@@ -98,7 +98,7 @@ public class pongGameController : MonoBehaviour {
         // Read session data.
         AppData.Instance.userData.readParseSessionData(DataManager.sessionFile);
 
-         // Initialize the game speed controller.
+        // Initialize the game speed controller.
         initializeGameSpeedController();
         gameSpeedControl.SetActive(false);
         
@@ -386,17 +386,16 @@ public class pongGameController : MonoBehaviour {
         }
     }
 
-	public void hideFinished()
-	{
-		foreach(GameObject g in finishObjects)
-		{
-			g.SetActive(false);
-		}
-	}
+    public void hideFinished()
+    {
+        foreach (GameObject g in finishObjects)
+        {
+            g.SetActive(false);
+        }
+    }
+    
     private void OnDestroy()
     {
         MarsComm.OnMarsButtonReleased -= onMarsButtonReleased;
     }
-
-
 }

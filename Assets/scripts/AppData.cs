@@ -38,12 +38,6 @@ public partial class AppData
     } 
 
     /*
-     * MARS GAME NAMES
-     */
-    public static readonly string[] MARS_GAMES = { "SS", "PP", "CD" };
-    public static readonly string[] MARS_GAMES_SCENES = { "SS", "PP", "CD" };
-    
-    /*
      * SESSION DETAILS
      */
     public int currentSessionNumber { get; set; }
@@ -191,22 +185,6 @@ public partial class AppData
 
     // Check training side.
     public bool IsTrainingSide(string side) => string.Equals(trainingSide, side, StringComparison.OrdinalIgnoreCase);
-    
-    // Get the game screen limits.
-    public float[] GetScreenLimitsForGame(string gameName)
-    {
-        switch (gameName)
-        {
-            case "SS":
-                return new float[] { -8.0f, 8.0f, -4.5f, 4.5f }; // xMin, xMax, yMin, yMax
-            case "PP":
-                return new float[] { -7.5f, 7.5f, -4.0f, 4.0f }; // xMin, xMax, yMin, yMax
-            case "CD":
-                return new float[] { -8.0f, 8.0f, -4.5f, 4.5f }; // xMin, xMax, yMin, yMax
-            default:
-                throw new ArgumentException($"Unknown game name: {gameName}");
-        }
-    }
 }
 
 public static class ConnectToRobot

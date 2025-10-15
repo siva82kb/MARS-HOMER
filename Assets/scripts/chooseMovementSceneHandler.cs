@@ -229,8 +229,8 @@ public class MovementSceneHandler : MonoBehaviour
                 // Selected movement and game name.
                 AppData.Instance.SetMovement(child.name);
                 Debug.Log($"Selected movement: {child.name}");
-                Debug.Log($"Game: {AppData.MARS_GAMES[MarsDefs.getMovementIndex(child.name)]}");
-                AppData.Instance.SetGame(AppData.MARS_GAMES[MarsDefs.getMovementIndex(child.name)]);
+                Debug.Log($"Game: {MarsGameDefs.GAMES[MarsDefs.getMovementIndex(child.name)]}");
+                AppData.Instance.SetGame(MarsGameDefs.GAMES[MarsDefs.getMovementIndex(child.name)]);
                 // Check if assessment is done or if the correct assessment is available, 
                 // else the next scene will be the corresponding assessment scene.
                 bool noAssessAvailable = AppData.Instance.selectedMovement.currentArom == null;
@@ -254,7 +254,7 @@ public class MovementSceneHandler : MonoBehaviour
                                           AppData.Instance.selectedMovement.name == "AP" ? assessmentSceneAP :
                                           AppData.Instance.selectedMovement.name == "MLAP" ? assessmentSceneMLAP : "";
                     // Next is the game scene.
-                    nextScene = AppData.MARS_GAMES_SCENES[MarsDefs.getMovementIndex(child.name)];
+                    nextScene = MarsGameDefs.GAME_SCENES[MarsDefs.getMovementIndex(child.name)];
                     message.text = "Press Mars Button to start game";
                     additionalMessage.text = "";
                     
