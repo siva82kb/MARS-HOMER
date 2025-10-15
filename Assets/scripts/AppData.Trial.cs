@@ -309,23 +309,49 @@ public partial class AppData
     }
 
     //CHECK FOR MARS
+    //private Vector3 GetGamePlayerPosition()
+    //{
+    //    // Get the game target X position.
+    //    if (selectedGame.name == "SS")
+    //    {
+    //        return SpaceShooterGameContoller.Instance.playerPosition;
+    //    }
+    //    else if (selectedGame.name == "PP")
+    //    {
+    //        return pongGameController.Instance.playerPosition;
+    //    }
+    //    else if (selectedGame.name == "CD")
+    //    {
+    //        return DCGameController.Instance.playerPosition;
+    //    }
+    //    return Vector3.zero;
+    //}
     private Vector3 GetGamePlayerPosition()
     {
-        // Get the game target X position.
-        if (selectedGame.name == "SS")
+      
+
+        switch (selectedGame.name)
         {
-            return SpaceShooterGameContoller.Instance.playerPosition;
+            case "SS":
+                return SpaceShooterGameContoller.Instance != null
+                    ? SpaceShooterGameContoller.Instance.playerPosition
+                    : Vector3.zero;
+
+            case "PP":
+                return pongGameController.Instance != null
+                    ? pongGameController.Instance.playerPosition
+                    : Vector3.zero;
+
+            case "CD":
+                return DCGameController.Instance != null
+                    ? DCGameController.Instance.playerPosition
+                    : Vector3.zero;
+
+            default:
+                return Vector3.zero;
         }
-        else if (selectedGame.name == "PP")
-        {
-            return pongGameController.Instance.playerPosition;
-        }
-        else if (selectedGame.name == "CD")
-        {
-            return WAMGameController.Instance.playerPosition;
-        }
-        return Vector3.zero;
     }
+
 
     private string GetGameTargetPosition()
     {
@@ -344,9 +370,9 @@ public partial class AppData
 
         else if (selectedGame.name == "CD")
         {
-            if (WAMGameController.Instance.targetPosition.HasValue)
+            if (DCGameController.Instance.targetPosition.HasValue)
             {
-                return $"{WAMGameController.Instance.targetPosition.Value.x:F3},{WAMGameController.Instance.targetPosition.Value.y:F3}";
+                return $"{DCGameController.Instance.targetPosition.Value.x:F3},{DCGameController.Instance.targetPosition.Value.y:F3}";
             }
         }
         return ",";
@@ -357,16 +383,16 @@ public partial class AppData
         //// Get the game state.
         if (selectedGame.name == "SS")
         {
-            return $"{SpaceShooterGameContoller.Instance.gameState}";
+            return SpaceShooterGameContoller.Instance!=null? SpaceShooterGameContoller.Instance.gameState.ToString():"";
         }
         else if (selectedGame.name == "PP")
         {
-            return $"{pongGameController.Instance.gameState}";
+            return pongGameController.Instance!=null?pongGameController.Instance.gameState.ToString():"";
         }
 
         else if (selectedGame.name == "CD")
         {
-            return $"{WAMGameController.Instance.gameState}";
+            return DCGameController.Instance != null ? DCGameController.Instance.gameState.ToString() : "";
         }
         return "";
     }

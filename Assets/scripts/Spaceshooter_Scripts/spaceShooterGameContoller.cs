@@ -27,7 +27,7 @@ public class SpaceShooterGameContoller : MonoBehaviour
     public float smoothFactor = 5f;
     public GameObject newSpaceshipPanel;
     public GameObject reminderPanel;
-
+    public TextMeshProUGUI cummulativeHitTxt;
     public bool Levelunlocked = false;
 
     private float timer;
@@ -331,12 +331,16 @@ public class SpaceShooterGameContoller : MonoBehaviour
     {
         if (!isGameFinished)
         {
-            gameOverPanel.SetActive(true);
+            
             // Compute game time
             int gametime = (int)(gameDuration - timer);
             AppData.Instance.gameTime = gametime;
             // Stop the current game trial
             AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
+
+            gameOverPanel.SetActive(true);
+            if (gameOverPanel.gameObject.activeSelf) cummulativeHitTxt.text = $"{AppData.Instance.selectedGame.cummulativeHits:D4}";
+
             AppLogger.LogInfo($"Space Shooter Game Over. Time: {gametime}s | Targets: {nTargets} | Hits: {nSuccess} | Misses: {nFailure}");
         }
         timerText.text = "Time: 0s";

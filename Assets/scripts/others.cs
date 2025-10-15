@@ -631,7 +631,7 @@ public class MarsArom
 
     private void initializeNewAssessment(string movementName)
     {
-        datetime = DateTime.Now.ToString(DataManager.DATETIMEFORMAT);
+        datetime = DateTime.Now.ToString(DataManager.AROMDATEFORMAT);
         movement = movementName;
         rawData = null;
         topRaw = UnityEngine.Vector2.zero;
