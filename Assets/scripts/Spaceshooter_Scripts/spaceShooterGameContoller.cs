@@ -339,7 +339,7 @@ public class SpaceShooterGameContoller : MonoBehaviour
             AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
 
             gameOverPanel.SetActive(true);
-            if (gameOverPanel.gameObject.activeSelf) cummulativeHitTxt.text = $"TOTAL HITs : {AppData.Instance.selectedGame.cummulativeHits}";
+            if (gameOverPanel.gameObject.activeSelf) cummulativeHitTxt.text = $"{AppData.Instance.selectedGame.cummulativeHits:D4}";
 
             AppLogger.LogInfo($"Space Shooter Game Over. Time: {gametime}s | Targets: {nTargets} | Hits: {nSuccess} | Misses: {nFailure}");
         }

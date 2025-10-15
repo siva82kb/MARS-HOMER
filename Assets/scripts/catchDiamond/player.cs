@@ -49,6 +49,8 @@ public class player : MonoBehaviour
     {
         debug = DCGameController.Instance.debug;
         lastPosition = transform.position;
+        //DrawQuad(test, Color.green);
+
         if (debug) return;
 
         MarsComm.sendHeartbeat();
@@ -62,6 +64,8 @@ public class player : MonoBehaviour
         createVectors();
         OFFSET = AppData.Instance.userData.limb == 1 ? -1 : 1;
         DrawQuad(test, Color.green);
+       
+
     }
 
 
@@ -114,22 +118,14 @@ public class player : MonoBehaviour
     void DrawQuad(LineRenderer lr, Color color)
 
     {
-        //top,
-        // left,
-        // bottom,
-        // right,
-        // top,
         
-
-
-        Vector3[] corners = new Vector3[5]
-        {
-
-             new Vector3(top.x, yMax, 0),
-             new Vector3(xMax, left.y, 0),
-             new Vector3(bottom.x, yMin, 0),
-             new Vector3(xMin, right.y),
-            new Vector3(top.x, yMax, 0),
+        Vector3[] corners = new Vector3[5] 
+        { 
+            new Vector3(top.x, top.y, 0), 
+            new Vector3(left.x, left.y, 0), 
+            new Vector3(bottom.x, bottom.y, 0), 
+            new Vector3(right.x, right.y), 
+            new Vector3(top.x, top.y, 0), 
         };
 
         createFrame(lr, corners, color);
@@ -147,10 +143,10 @@ public class player : MonoBehaviour
     }
     public void createVectors()
     {
-        top = new Vector2(robotToUnityX(currRom.topAdjusted.x), robotToUnityY(currRom.topAdjusted.y));
-        bottom = new Vector2(robotToUnityX(currRom.bottomAdjusted.x), robotToUnityY(currRom.bottomAdjusted.y));
-        left = new Vector2(robotToUnityX(currRom.leftAdjusted.x), robotToUnityY(currRom.leftAdjusted.y));
-        right = new Vector2(robotToUnityX(currRom.rightAdjusted.x), robotToUnityY(currRom.rightAdjusted.y));
+        top = new Vector2(robotToUnityX(currRom.topAdjusted.x), Mathf.Max(robotToUnityY(currRom.topAdjusted.y),yMax));
+        bottom = new Vector2(robotToUnityX(currRom.bottomAdjusted.x), Mathf.Min(robotToUnityY(currRom.bottomAdjusted.y),yMin));
+        left = new Vector2(Mathf.Max(robotToUnityX(currRom.leftAdjusted.x),xMax), robotToUnityY(currRom.leftAdjusted.y));
+        right = new Vector2(Mathf.Min(robotToUnityX(currRom.rightAdjusted.x),xMin), robotToUnityY(currRom.rightAdjusted.y));
 
         //genrate vector
         x1 = bottom - left;
@@ -158,39 +154,7 @@ public class player : MonoBehaviour
         x2 = bottom - right;
         y2 = top - right;
     }
-    //public Vector2 getRandomTargt()
-    //{
-    //    Vector2 t;
-    //    Vector2 target;
-    //    float minDistance = 2f;
-    //    int maxAttempts = 20;   // stop loop
-
-    //    int attempts = 0;
-    //    do
-    //    {
-    //        float rx = UnityEngine.Random.Range(0, 1f);
-    //        float ry = UnityEngine.Random.Range(0, (1f - rx));
-
-    //        int random = UnityEngine.Random.value < 0.5f ? -1 : 1;
-
-    //        if (random == 1)
-    //        {
-    //            t = (rx * x1) + (ry * y1);
-    //            target = t + left;
-    //        }
-    //        else
-    //        {
-    //            t = (rx * x2) + (ry * y2);
-    //            target = t + right;
-    //        }
-
-    //        attempts++;
-
-    //    } while (Vector2.Distance(target, lastTarget) < minDistance && attempts < maxAttempts);
-
-    //    lastTarget = target; // remember for next spawn
-    //    return target;
-    //}
+   
 
     public Vector2 getRandomTargt()
     {
@@ -222,19 +186,19 @@ public class player : MonoBehaviour
         return target;
 
     }
-    private float robotToUnityX(float robotX) => 10f * ((robotX - MarsDefs.EPCENTERZ) / (MarsDefs.EPMAXZ - MarsDefs.EPMINZ));
-    private float robotToUnityY(float robotY) => 10f * ((robotY - MarsDefs.EPCENTERY) / (MarsDefs.EPMAXY - MarsDefs.EPMINY));
-    //private float robotToUnityX(float robotX)
-    //{
-    //    float norm = (robotX - MarsDefs.EPMINZ) / (MarsDefs.EPMAXZ - MarsDefs.EPMINZ);
-    //    return Mathf.Lerp(xMin, xMax, norm);
-    //}
+    //private float robotToUnityX(float robotX) => 10f * ((robotX - MarsDefs.EPCENTERZ) / (MarsDefs.EPMAXZ - MarsDefs.EPMINZ));
+    //private float robotToUnityY(float robotY) => 10f * ((robotY - MarsDefs.EPCENTERY) / (MarsDefs.EPMAXY - MarsDefs.EPMINY));
+    private float robotToUnityX(float robotX)
+    {
+        float norm = (robotX - MarsDefs.EPMINZ) / (MarsDefs.EPMAXZ - MarsDefs.EPMINZ);
+        return Mathf.Lerp(xMax, xMin, norm);
+    }
 
-    //private float robotToUnityY(float robotY)
-    //{
-    //    float norm = (robotY - MarsDefs.EPMINY) / (MarsDefs.EPMAXY - MarsDefs.EPMINY);
-    //    return Mathf.Lerp(yMin, yMax, norm);
-    //}
+    private float robotToUnityY(float robotY)
+    {
+        float norm = (robotY - MarsDefs.EPMINY) / (MarsDefs.EPMAXY - MarsDefs.EPMINY);
+        return Mathf.Lerp(yMin, yMax, norm);
+    }
 
 
 
