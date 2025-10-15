@@ -34,7 +34,7 @@ public class SSPlayerController : MonoBehaviour
     public void Initialize()
     {
         // Get screen bounds
-        screenBounds = MarsGame.GetGameScreenLimits("SS");
+        screenBounds = MarsGameDefs.SCREEN_LIMITS["SS"];
         xScreenMin = screenBounds[0];
         xScreenMax = screenBounds[1];
         yScreenMin = screenBounds[2];

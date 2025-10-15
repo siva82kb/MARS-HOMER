@@ -25,7 +25,7 @@ public class GameController : MonoBehaviour
     public GameObject targetTimer;
     public Canvas uiCanvas;
     Animator targetAnim;
-    public readonly float gameDuration = MarsGame.GetGameDuration("FS");
+    public readonly float gameDuration = 60f;
     private float timer;
     private float eventDelayTimer = 0f;
     private bool runOnce = false;

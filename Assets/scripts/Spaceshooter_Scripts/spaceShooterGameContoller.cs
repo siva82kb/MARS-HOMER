@@ -49,7 +49,7 @@ public class SpaceShooterGameContoller : MonoBehaviour
     public bool isGamePaused { get; private set; } = false;
     public bool isFailure { get; private set; } = false;
 
-    public float gameDuration = MarsGame.GetGameDuration("SS");
+    public float gameDuration = MarsGameDefs.GAMEDURATION["SS"];
     public bool isInitialized { get; private set; } = false;
 
     public void setIsSuccess()
@@ -142,7 +142,7 @@ public class SpaceShooterGameContoller : MonoBehaviour
             else reminderPanel.SetActive(false);
 
             // Get game duration
-            gameDuration = MarsGame.GetGameDuration("SS");
+            gameDuration = MarsGameDefs.GAMEDURATION["SS"];
 
             // Initialize the game speed controller.
             initializeGameSpeedController();
@@ -406,9 +406,9 @@ public class SpaceShooterGameContoller : MonoBehaviour
     
     public void changeGameSpeed(bool increase)
     {
-        float _gs = AppData.Instance.selectedGame.gameSpeed;
-        AppData.Instance.selectedGame.SetGameSpeed(_gs + (increase ? MarsGame.GAME_SPEED_DELTA : -MarsGame.GAME_SPEED_DELTA));
-        AppData.Instance.annotation = $"GS:{AppData.Instance.selectedGame.gameSpeed:F6}";
+        float _rs = AppData.Instance.selectedGame.reachSpeed;
+        AppData.Instance.selectedGame.reachSpeed = _rs + (increase ? MarsGameDefs.REACH_SPEED_DELTA : -MarsGameDefs.REACH_SPEED_DELTA);
+        AppData.Instance.annotation = $"RS:{AppData.Instance.selectedGame.reachSpeed:F3},GS:{AppData.Instance.selectedGame.gameSpeed:F3}";
     }
   
     private void OnApplicationQuit()

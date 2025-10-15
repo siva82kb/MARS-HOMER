@@ -30,9 +30,8 @@ public class EnemyController : MonoBehaviour {
     
     // Movement for the paddle
     void Move () {
-
 		//finding the ball
-		if(!pongGameController.Instance.IsGamePlaying())return;
+		if(!pongGameController.Instance.isGamePlaying) return;
         if (pongGameController.Instance.gameSpeed == 0) return;
 
         if (ball == null){

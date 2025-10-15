@@ -42,6 +42,7 @@ public class pongGameController : MonoBehaviour {
     public Vector3 playerPosition { get; private set; }
 
     public GameObject targetObject;
+    private bool gameSpeedChanged = false;
 
     //pong game events and related variables.
     public enum GameStates
@@ -124,6 +125,13 @@ public class pongGameController : MonoBehaviour {
         {
             Reload();
             restartGame = false;
+        }
+
+        // Update game speed.
+        if (gameSpeedChanged)
+        {
+            gameSpeedChanged = false;
+            BallController.instance.speed = AppData.Instance.selectedGame.gameSpeed;
         }
         
         // Check of the game speed controller is to be shown.
@@ -215,7 +223,7 @@ public class pongGameController : MonoBehaviour {
         AppData.Instance.StartNewTrial();
         
         // Set the trial duration
-        trialDuration = MarsGame.GetGameDuration(AppData.Instance.selectedGame.name);
+        trialDuration = MarsGameDefs.GAMEDURATION[AppData.Instance.selectedGame.name];
         nTargets = 0;
         nSuccess = 0;
         nFailure = 0;
@@ -272,21 +280,22 @@ public class pongGameController : MonoBehaviour {
     
     public void changeGameSpeed(bool increase)
     {
-        float _gs = AppData.Instance.selectedGame.gameSpeed;
-        AppData.Instance.selectedGame.SetGameSpeed(_gs + (increase ? MarsGame.GAME_SPEED_DELTA : -MarsGame.GAME_SPEED_DELTA));
-        AppData.Instance.annotation = $"GS:{AppData.Instance.selectedGame.gameSpeed:F6}";
+        float _rs = AppData.Instance.selectedGame.reachSpeed;
+        AppData.Instance.selectedGame.reachSpeed = _rs + (increase ? MarsGameDefs.REACH_SPEED_DELTA : -MarsGameDefs.REACH_SPEED_DELTA);
+        AppData.Instance.annotation = $"RS:{AppData.Instance.selectedGame.reachSpeed:F3},GS:{AppData.Instance.selectedGame.gameSpeed:F3}";
+        gameSpeedChanged = true;
     }
-    
+
     public void ExitGame()
     {
         if (gameState != GameStates.WAITING && gameState != GameStates.STOP)
         {
             gameOver();
-
         }
 
         SceneManager.LoadScene("CHOOSEMOVE");
     }
+    
     private void resumeGame()
     {
         gameState = _prevGameState;
@@ -297,12 +306,6 @@ public class pongGameController : MonoBehaviour {
         exitBtn.SetActive(true);
 
     }
-    // public bool IsGamePlaying()
-    // {
-    //     return gameState != GameStates.WAITING
-    //         && gameState != GameStates.PAUSED
-    //         && gameState != GameStates.STOP;
-    // }
     
     public void BallHitted()
     {
@@ -315,26 +318,6 @@ public class pongGameController : MonoBehaviour {
         isBallHitted = false;
         isBallMissed = true;
         nFailure++;
-    }
-    public void increaseGameSpeed()
-    {
-        if (gameSpeed >= 5.0f) return;
-        gameSpeed += 0.2f;
-        UpdateGameSpeeds();
-    }
-    public void decreaseGameSpeed()
-    {
-
-      
-        if (gameSpeed <= 1.5f) return;
-        gameSpeed -= 0.2f;
-        UpdateGameSpeeds();
-
-    }
-    private void UpdateGameSpeeds()
-    {
-        gameSpeed = Mathf.Clamp(gameSpeed, 1.5f, 5.0f);
-        BallController.instance.speed = gameSpeed;
     }
 
     public void onMarsButtonReleased()
@@ -373,7 +356,6 @@ public class pongGameController : MonoBehaviour {
 			g.SetActive(true);
 		}
 	}
-
 
 	public void hidePaused(){
 		foreach(GameObject g in pauseObjects){

@@ -54,10 +54,10 @@ public class SSPlayerFiringController : MonoBehaviour
         prevEpPos = MarsComm.epPosInThePlane;
 
         // Shooting is faster when slow, slow when fast.
-        bool _slow = 100f * currVel.magnitude < SpaceShooterGameDefs.LOW_SPEED_THRESHOLD;
+        bool _slow = 100f * currVel.magnitude < MarsGameDefs.Spaceshooter.LOW_SPEED_THRESHOLD;
         timeSinceLastShot += _slow ? 1.25f * Time.deltaTime : 0.25f * Time.deltaTime;
         // Is it time to fire?
-        if (timeSinceLastShot >= SpaceShooterGameDefs.FIRING_INTERVAL)
+        if (timeSinceLastShot >= MarsGameDefs.Spaceshooter.FIRING_INTERVAL)
         {
             Destroy(Instantiate(Player_bullet, Spawn_point.position, Quaternion.identity), 1.5f);
             // Reset timer after shooting

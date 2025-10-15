@@ -17,8 +17,25 @@ public partial class AppData
      */
     public const float LOW_SUCCESS_RATE = 80;
     public const float HIGH_SUCCESS_RATE = 90;
-    public const float SPEED_REDUCTION_FACTOR = 0.975f; // Reduce by 2.5%
-    public const float SPEED_INCREASE_FACTOR = 1.025f; // Increase by 2.5%
+    private const float SPEED_REDUCTION_FACTOR_MIN = 0.975f; // Reduce by 2.5%
+    private const float SPEED_REDUCTION_FACTOR_MAX = 0.995f; // Reduce by 0.5%
+    private const float SPEED_INCREASE_FACTOR_MIN = 1.005f; // Increase by 0.5%
+    private const float SPEED_INCREASE_FACTOR_MAX = 1.025f; // Increase by 2.5%
+    public float GetReachSpeedAdaptationRate(float successRate, float currentReachSpeed)
+    {
+        float _normspeed = (currentReachSpeed - MarsGameDefs.MIN_REACH_SPEED) / (MarsGameDefs.MAX_REACH_SPEED - MarsGameDefs.MIN_REACH_SPEED);
+        if (successRate < LOW_SUCCESS_RATE)
+        {
+            // Compute speed reduction factor.
+            return SPEED_REDUCTION_FACTOR_MIN + (SPEED_REDUCTION_FACTOR_MAX - SPEED_REDUCTION_FACTOR_MIN) * _normspeed;
+        }
+        else if (successRate > HIGH_SUCCESS_RATE)
+        {
+            // Compute speed increase factor.
+            return SPEED_INCREASE_FACTOR_MAX - (SPEED_INCREASE_FACTOR_MAX - SPEED_INCREASE_FACTOR_MIN) * _normspeed;
+        }
+        return 1.0f;
+    } 
 
     /*
      * MARS GAME NAMES
@@ -154,13 +171,22 @@ public partial class AppData
     public void SetGame(string game)
     {
         // Read the game speed from the session data.
-        float gSpeed = Instance.userData.readGameSpeedForGameMovement(game, selectedMovement?.name);
+        float rSpeed = Instance.userData.readReachSpeedForGameMovement(game, selectedMovement?.name);
+
         // Read the cummulative hits and misses from the session data.
         int[] cuScores = Instance.userData.readCummulativeHitsMissesForGameMovement(game, selectedMovement?.name);
+        
         // Set the selected game.
-        selectedGame = new MarsGame(gName: game, mName: selectedMovement?.name, gSpeed: gSpeed, gCuTargets: cuScores[0], gCuHits: cuScores[1], gCuMisses: cuScores[2]);
+        selectedGame = new MarsGame(gName: game,
+                                    mName: selectedMovement?.name,
+                                    rSpeed: rSpeed,
+                                    gDuration: MarsGameDefs.GAMEDURATION[game],
+                                    arom: selectedMovement?.currentArom,
+                                    gCuTargets: cuScores[0],
+                                    gCuHits: cuScores[1],
+                                    gCuMisses: cuScores[2]);
         AppLogger.SetCurrentGame(selectedGame.name);
-        AppLogger.LogInfo($"Selected game '{selectedGame.name}'. Game speed: {selectedGame.gameSpeed}, Cummulative targets: {selectedGame.cummulativeTargets}, Cummulative hits: {selectedGame.cummulativeHits}, Cummulative misses: {selectedGame.cummulativeMisses}.");
+        AppLogger.LogInfo($"Selected game '{selectedGame.name}'. Reach speed: {selectedGame.reachSpeed}m/s, Cummulative targets: {selectedGame.cummulativeTargets}, Cummulative hits: {selectedGame.cummulativeHits}, Cummulative misses: {selectedGame.cummulativeMisses}.");
     }
 
     // Check training side.

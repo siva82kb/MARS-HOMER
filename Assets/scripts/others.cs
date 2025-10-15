@@ -252,9 +252,9 @@ public class MarsUserData
 
         // AROM available.
         MarsArom arom = new MarsArom(movement, readFromFile: true);
-        // Date string format: 13-10-2025 08:05:19
+        // Compuate date difference only considering dates, while ignoring time.
         DateTime aromDate = DateTime.ParseExact(arom.datetime, DataManager.DATETIMEFORMAT, CultureInfo.InvariantCulture);
-        TimeSpan duration = DateTime.Now - aromDate;
+        TimeSpan duration = DateTime.Now.Date - aromDate.Date;
         return (int)duration.TotalDays;
     }
 
@@ -278,7 +278,7 @@ public class MarsUserData
         ArmWeight aw = new ArmWeight(readFromFile: true);
         // Date string format: 13-10-2025 08:05:19
         DateTime awDate = DateTime.ParseExact(aw.datetime, DataManager.DATETIMEFORMAT, CultureInfo.InvariantCulture);
-        TimeSpan duration = DateTime.Now - awDate;
+        TimeSpan duration = DateTime.Now.Date - awDate.Date;
         return (int)duration.TotalDays;
     }
 
@@ -304,21 +304,24 @@ public class MarsUserData
         return cuScores;
     }
 
-    public float readGameSpeedForGameMovement(string gameName, string movementName)
+    public float readReachSpeedForGameMovement(string gameName, string movementName)
     {
         // Get the last row for the given game and movement.
         var lastGameRows = dTableSession.AsEnumerable()?
             .Where(row => row.Field<string>("GameName") == gameName && row.Field<string>("Movement") == movementName).LastOrDefault();
+        
         // If there are no rows, set the cummulative score to zero.
         if (lastGameRows == null)
         {
-            AppLogger.LogInfo($"No previous data found for game '{gameName}' and movement '{movementName}'. Game speed set to default.");
-            return MarsGame.GetDefaultGameSpeed(gameName);
+            float _defaultReachSpeed = MarsGameDefs.DEFAULT_REACH_SPEED;
+            AppLogger.LogInfo($"No previous data found for game '{gameName}' and movement '{movementName}'. Default values set : Reach Speed: {_defaultReachSpeed}.");
+            return _defaultReachSpeed;
         }
+
         // Get the game speed for the game from the last row.
-        float gSpeed = float.Parse(lastGameRows.Field<string>("GameSpeed"));
-        AppLogger.LogInfo($"Game speed for game '{gameName}' and movement '{movementName}'. Game speed: {gSpeed}.");
-        return gSpeed;
+        float rSpeed = float.Parse(lastGameRows.Field<string>("ReachSpeed"));
+        AppLogger.LogInfo($"Game speed for game '{gameName}' and movement '{movementName}'. Reach Speed: {rSpeed}.");
+        return rSpeed;
     }
 }
 
@@ -411,79 +414,152 @@ public class MarsMovement
     }
 }
 
-// Calss representing MARS games.
-public class MarsGame
+// Mars Game definitions
+public static class MarsGameDefs
 {
     public static readonly string[] GAMES = new string[] { "SS", "PP", "CD" };
     public static readonly string[] GAMEFULLNAMES = new string[] { "Space Shooter", "Ping Pong", "Diamond Catcher" };
-    public static readonly float GAME_SPEED_DELTA = 0.25f;
-    public static readonly float MIN_GAME_SPEED = 0.5f;
-    public static readonly float MAX_GAME_SPEED = 5.0f;
-    public static float[] GetGameScreenLimits(string gameName)
+    
+    // Reach duration are used to compute the games speeds. These are the durations
+    // set for reaching from one extreme of the AROM to the other extreme.
+    public const float REACH_SPEED_DELTA = 0.005f;      // m/sec
+    public const float MIN_REACH_SPEED = 0.025f;        // m/sec
+    public const float MAX_REACH_SPEED = 0.25f;         // m/sec
+    public const float DEFAULT_REACH_SPEED = 0.025f;    // m/sec
+
+    public static Dictionary<string, float[]> SCREEN_LIMITS = new Dictionary<string, float[]>()
     {
-        switch (gameName)
+        { "SS", new float[] { Spaceshooter.LEFTLIMIT, Spaceshooter.RIGHTLIMIT, Spaceshooter.BOTTOMLIMIT, Spaceshooter.TOPLIMIT } },
+        { "PP", new float[] { PingPong.LEFTLIMIT, PingPong.RIGHTLIMIT, PingPong.BOTTOMLIMIT, PingPong.TOPLIMIT } },
+        { "CD", new float[] { DiamondCatcher.LEFTLIMIT, DiamondCatcher.RIGHTLIMIT, DiamondCatcher.BOTTOMLIMIT, DiamondCatcher.TOPLIMIT } }
+    };
+
+    public static Dictionary<string, float> GAMEDURATION = new Dictionary<string, float>()
+    {
+        { "SS", Spaceshooter.GAMEDURATION },
+        { "PP", PingPong.GAMEDURATION },
+        { "CD", DiamondCatcher.GAMEDURATION }
+    };
+
+    public static float GetGameSpeedForGame(string game, float reachSpeed, MarsArom arom)
+    {
+        switch (game.ToUpper())
         {
-            case "PP":
-                return new float[] { -5.8f, 6.38f, -3.5f, 3.5f };
             case "SS":
+                return Spaceshooter.GetGameSpeed(reachSpeed, arom);
+            case "PP":
+                return PingPong.GetGameSpeed(reachSpeed, arom);
             case "CD":
-                return new float[] { -7.5f, 7.5f, -3.85f, 3.85f };
+                return DiamondCatcher.GetGameSpeed(reachSpeed, arom);
             default:
-                return new float[] { 0f, 0f, 0f };
+                throw new Exception($"Invalid game name '{game}'");
         }
-    }
-    public static float GetGameDuration(string gameName)
+    }   
+
+    // SpaceShooter specific definitions
+    public static class Spaceshooter
     {
-        switch (gameName)
+        // Screen limit constants
+        public const float LEFTLIMIT = -7.5f;
+        public const float RIGHTLIMIT = 7.5f;
+        public const float TOPLIMIT = 3.85f;
+        public const float BOTTOMLIMIT = -3.85f;
+
+        // Game duration
+        public const float GAMEDURATION = 10f; // seconds
+
+        // Space ship firing constants.
+        public const float FIRING_INTERVAL = 0.25f;
+        public const float LOW_SPEED_THRESHOLD = 2.5f;  // cm/sec 
+
+        public static float GetGameSpeed(float reachSpeed, MarsArom arom)
         {
-            case "SS":
-                return 10f;
-            case "PP":
-                return 10f;
-            case "CD":
-                return 10f;
-            default:
-                return 10f;
+            // Find the duration for the given speed.
+            reachSpeed = Math.Clamp(reachSpeed, MIN_REACH_SPEED, MAX_REACH_SPEED);
+            float reachDuration = Math.Abs((arom.rightAdjusted.x - arom.leftAdjusted.x) / reachSpeed);
+            float gameSpeed = Math.Abs((RIGHTLIMIT - LEFTLIMIT) / reachDuration);
+            AppLogger.LogInfo($"Computing game speed for Space Shooter. Reach Speed: {reachSpeed} | AROM Limits: ({arom.rightAdjusted.x}, {arom.leftAdjusted.x}) | Reach Duration: {reachDuration} | Screen Limits: ({RIGHTLIMIT}, {LEFTLIMIT}) | Game Speed: {gameSpeed}");
+            return gameSpeed;
         }
     }
 
-    public static float GetDefaultGameSpeed(string gameName)
+    // PingPong specific definitions
+    public static class PingPong
     {
-        switch (gameName)
+        // Screen limit constants
+        public const float LEFTLIMIT = -8.5f;
+        public const float RIGHTLIMIT = 8.5f;
+        public const float TOPLIMIT = 4.5f;
+        public const float BOTTOMLIMIT = -4.5f;
+
+        // Game duration
+        public const float GAMEDURATION = 10f; // seconds
+        
+        public static float GetGameSpeed(float reachSpeed, MarsArom arom)
         {
-            case "PP":
-                return 1.0f;
-            case "SS":
-                return 1.0f;
-            case "CD":
-                return 1.0f;
-            default:
-                return 0f;
+            // Find the duration for the given speed.
+            reachSpeed = Math.Clamp(reachSpeed, MIN_REACH_SPEED, MAX_REACH_SPEED);
+            float reachDuration = Math.Abs((arom.topAdjusted.y - arom.bottomAdjusted.y) / reachSpeed);
+            return Math.Abs((RIGHTLIMIT - LEFTLIMIT) / reachDuration);
         }
     }
 
+    // DiamondCatcher specific definitions
+    public static class DiamondCatcher
+    {
+        // Screen limit constants
+        public const float LEFTLIMIT = -7.5f;
+        public const float RIGHTLIMIT = 7.5f;
+        public const float TOPLIMIT = 4.0f;
+        public const float BOTTOMLIMIT = -4.0f;
+
+        // Game duration
+        public const float GAMEDURATION = 10f; // seconds
+
+        public static float GetGameSpeed(float reachSpeed, MarsArom arom)
+        {
+            // Find the duration for the given speed.
+            reachSpeed = Math.Clamp(reachSpeed, MIN_REACH_SPEED, MAX_REACH_SPEED);
+            float _avgreach = (Math.Abs(arom.rightAdjusted.x - arom.leftAdjusted.x) + Math.Abs(arom.topAdjusted.y - arom.bottomAdjusted.y)) / 2;
+            float reachDuration = _avgreach / reachSpeed;
+            float _avgscreen = (Math.Abs(RIGHTLIMIT - LEFTLIMIT) + Math.Abs(TOPLIMIT - BOTTOMLIMIT)) / 2;
+            return _avgscreen / reachDuration;
+        }
+    }
+}
+
+// Class representing MARS games.
+public class MarsGame
+{
     public string name { get; private set; } = null;
     public string movement { get; set; } = null;
-    public float gameSpeed { get; private set; } = 0f;
-    public float gameTime { get; set; } = 0f;
+    private float _reachSpeed;
+    public float reachSpeed {
+        get => _reachSpeed;
+        set
+        {
+            _reachSpeed = Math.Clamp(value, MarsGameDefs.MIN_REACH_SPEED, MarsGameDefs.MAX_REACH_SPEED);
+            gameSpeed = arom != null ? MarsGameDefs.GetGameSpeedForGame(name, _reachSpeed, arom) : 0f;
+            AppLogger.LogInfo($"Reach speed for game '{name}' and movement '{movement}' set to {_reachSpeed} (Game speed: {gameSpeed}).");
+        }
+    }
+    public float gameSpeed { get; private set; }
+    public float gameDuration { get; set; } = 0f;
+    public MarsArom arom { get; private set; } = null;
     public int cummulativeTargets { get; set; } = 0;
     public int cummulativeHits { get; set; } = 0;
     public int cummulativeMisses { get; set; } = 0;
 
-    public MarsGame(string gName, string mName, float gSpeed, int gCuTargets, int gCuHits, int gCuMisses)
+    public MarsGame(string gName, string mName, float rSpeed, float gDuration, MarsArom arom, int gCuTargets, int gCuHits, int gCuMisses)
     {
         name = gName?.ToUpper() ?? string.Empty;
         movement = mName?.ToUpper() ?? string.Empty;
-        gameSpeed = gSpeed;
+        this.arom = arom;
+        reachSpeed = rSpeed;
+        gameDuration = gDuration;
         cummulativeTargets = gCuTargets;
         cummulativeHits = gCuHits;
         cummulativeMisses = gCuMisses;
-    }
-
-    public void SetGameSpeed(float gSpeed)
-    {
-        gameSpeed = Math.Clamp(gSpeed, MIN_GAME_SPEED, MAX_GAME_SPEED);
-        AppLogger.LogInfo($"Game speed for game '{name}' and movement '{movement}' set to {gameSpeed}.");
     }
 
     public void ResetCummulativeScore()
@@ -498,11 +574,6 @@ public class MarsGame
         cummulativeTargets += targets;
         cummulativeHits += hits;
         cummulativeMisses += misses;
-    }
-
-    public void SetGameTime(float gTime)
-    {
-        gameTime = gTime;
     }
 }
 
@@ -958,15 +1029,6 @@ public class ArmWeight
         return null;
     }
 
-}
-
-
-// Space Shooter Game Constants
-public static class SpaceShooterGameDefs
-{
-    // Space ship firing constants.
-    public const float FIRING_INTERVAL = 0.25f;
-    public const float LOW_SPEED_THRESHOLD = 2.5f;  // cm/sec 
 }
 
 public static class Miscellaneous

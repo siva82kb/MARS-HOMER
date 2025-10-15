@@ -55,7 +55,7 @@ public class DataManager : MonoBehaviour
         "SessionNumber", "DateTime",
         "TrialNumberDay", "TrialNumberSession", "TrialStartTime", "TrialStopTime", "TrialRawDataFile",
         "Movement", "TrainingPlaneAngle",
-        "GameName", "GameParameter", "GameSpeed",
+        "GameName", "GameParameter", "ReachSpeed", "GameSpeed", "GameDuration",
         "SuccessRate", "MoveTime",
         "CummulativeTargets", "CummulativeHits", "CummulativeMisses",
         "RawDataFileName"
