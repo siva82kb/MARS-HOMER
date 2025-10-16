@@ -323,7 +323,7 @@ public partial class AppData
 
             case "PP":
                 return pongGameController.Instance != null
-                    ? pongGameController.Instance.playerPosition
+                    ? pongGameController.Instance.playerGamePosition
                     : Vector3.zero;
 
             case "DC":
@@ -348,7 +348,7 @@ public partial class AppData
 
             case "PP":
                 return pongGameController.Instance != null
-                    ? pongGameController.Instance.targetPosition ?? Vector3.zero
+                    ? pongGameController.Instance.targetGamePosition ?? Vector3.zero
                     : Vector3.zero;
 
             case "DC":
@@ -373,7 +373,7 @@ public partial class AppData
 
             case "PP":
                 return pongGameController.Instance != null
-                    ? pongGameController.Instance.targetPosition ?? Vector3.zero
+                    ? pongGameController.Instance.targetEndPointPosition ?? Vector3.zero
                     : Vector3.zero;
 
             case "DC":
