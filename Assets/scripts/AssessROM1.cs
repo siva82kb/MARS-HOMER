@@ -126,8 +126,6 @@ public class AssessROM1 : MonoBehaviour
 
         //Dependent on Limb
         OFFSET = AppData.Instance.userData.limb == 1 ? -1 : 1;
-        Debug.Log("offset" + OFFSET);
-        Debug.Log(AppData.Instance.userData.limb+"limb");
         centerValX = (endPointMaxZ + endPointMinZ) / 2;
         centerValY = (endPointMaxY + endPointMinY) / 2;
 
@@ -138,21 +136,6 @@ public class AssessROM1 : MonoBehaviour
     { 
         MarsComm.sendHeartbeat();
         updateUI();
-        //Test Targets insdide the quad
-        //if (Input.GetKeyDown(KeyCode.G))
-        //{
-        //    if (currState == ASSESSSTATE.WAITTOREACH)
-        //    {
-        //        currState = ASSESSSTATE.TEST;
-        //        Debug.Log(currState);
-        //    }
-        //}
-        //if (Input.GetKeyDown(KeyCode.Y))
-        //{
-           
-        //    getRandomTargt();
-        //}
-      
     }
     
     public void createWorkSpace()
@@ -329,9 +312,7 @@ public class AssessROM1 : MonoBehaviour
             case ASSESSSTATE.DONE:
                 SceneManager.LoadScene(preScene);
                 break;
-
         }
-        //Debug.Log(currState);
     }
    
     void scaleupStateMachine()

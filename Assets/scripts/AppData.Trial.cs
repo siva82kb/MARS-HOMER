@@ -43,8 +43,8 @@ public partial class AppData
         nTargets = (nTargets == 0) ? 1 : nTargets;
         successRate = Math.Clamp(100 * nSuccess / nTargets, 0, 100);
 
-        // Update cummulative hits and misses.
-        selectedGame.UpdateCummulativeHitsMisses(nTargets, nSuccess, nFailure);
+        // Update targets, hits and misses.
+        selectedGame.UpdateTargetsHitsMisses(nTargets, nSuccess, nFailure);
 
         // Write trial information to the session details file.
         WriteTrialToSessionsFile();
@@ -61,9 +61,9 @@ public partial class AppData
                 $"Stop Time: {trialStopTime:yyyy-MM-ddTHH:mm:ss}",
                 $"Trial#Day: {selectedMovement.trialNumberDay}",
                 $"Trial#Sess: {selectedMovement.trialNumberSession}",
-                $"NTargets: {nTargets}",
-                $"NSuccess: {nSuccess}",
-                $"NFailure: {nFailure}",
+                $"NTargets: {selectedGame.currentTargets}",
+                $"NSuccess: {selectedGame.currentHits}",
+                $"NFailure: {selectedGame.currentMisses}",
                 $"Trial SR: {successRate}",
                 $"CuTargets: {selectedGame.cummulativeTargets}",
                 $"CuHits: {selectedGame.cummulativeHits}",
@@ -102,6 +102,9 @@ public partial class AppData
             $"{selectedGame.gameDuration}",                         // GameDuration
             $"{successRate}",                                       // SuccessRate
             Instance.gameTime.ToString(),                           // GameTime
+            $"{selectedGame.currentTargets}",                       // CurrentTargets
+            $"{selectedGame.currentHits}",                          // CurrentHits
+            $"{selectedGame.currentMisses}",                        // CurrentMisses
             $"{selectedGame.cummulativeTargets}",                   // CummulativeTargets
             $"{selectedGame.cummulativeHits}",                      // CummulativeHits
             $"{selectedGame.cummulativeMisses}",                    // CummulativeMisses
@@ -166,42 +169,45 @@ public partial class AppData
                 Debug.LogWarning("rawDataString is null, skipping logging.");
                 return;
             }
-            Vector3 _playerPos = GetGamePlayerPosition();
-            Vector3 _targetPos = GetGamePlayerPosition();
-            rawDataString.Append($"{MarsComm.runTime},");               // DeviceRunTime
-            rawDataString.Append($"{MarsComm.packetNumber},");          // PacketNumber
-            rawDataString.Append($"{MarsComm.status},");                // Status
-            rawDataString.Append($"{MarsComm.controlType},");           // ControlType
-            rawDataString.Append($"{MarsComm.errorStatus},");           // ErrorStatus
-            rawDataString.Append($"{MarsComm.limb},");                  // Limb
-            rawDataString.Append($"{MarsComm.calibration},");           // Calibration
-            rawDataString.Append($"{MarsComm.angle1},");                // MarsAngle1
-            rawDataString.Append($"{MarsComm.angle2},");                // MarsAngle2
-            rawDataString.Append($"{MarsComm.angle3},");                // MarsAngle3
-            rawDataString.Append($"{MarsComm.angle4},");                // MarsAngle4
-            rawDataString.Append($"{MarsComm.imuAngle1},");             // ImuMarsAngle1
-            rawDataString.Append($"{MarsComm.imuAngle2},");             // ImuMarsAngle2
-            rawDataString.Append($"{MarsComm.imuAngle3},");             // ImuMarsAngle3
-            rawDataString.Append($"{MarsComm.imuAngle4},");             // ImuMarsAngle4
-            rawDataString.Append($"{MarsComm.force},");                 // Force
-            rawDataString.Append($"{MarsComm.target},");                // Target
-            rawDataString.Append($"{MarsComm.desired},");               // Desired
-            rawDataString.Append($"{MarsComm.control},");               // Control
-            rawDataString.Append($"{MarsComm.buttonState},");           // Button
-            rawDataString.Append($"{MarsComm.epPos.x},");               // EndPointX
-            rawDataString.Append($"{MarsComm.epPos.y},");               // EndPointY
-            rawDataString.Append($"{MarsComm.epPos.z},");               // EndPointZ
-            rawDataString.Append($"{MarsComm.epPosInThePlane.y},");     // EndPointYPlaneY
-            rawDataString.Append($"{MarsComm.epPosInThePlane.z},");     // EndPointZPlaneZ
-            rawDataString.Append($"{MarsComm.errP},");                  // Error
-            rawDataString.Append($"{MarsComm.errD},");                  // ErrorDiff
-            rawDataString.Append($"{MarsComm.errI},");                  // ErrorSum
-            rawDataString.Append($"{_playerPos.x},");                   // GamePlayerX
-            rawDataString.Append($"{_playerPos.y},");                   // GamePlayerY
-            rawDataString.Append($"{_targetPos.x},");                   // GameTargetX
-            rawDataString.Append($"{_targetPos.y},");                   // GameTargetY
-            rawDataString.Append($"{GetGameState()},");                 // GameState
-            rawDataString.Append($"{AppData.Instance.annotation}");     // Annotation
+            Vector3 _playerGamePos = GetGamePlayerPosition();
+            Vector3 _targetGamePos = GetGameTargetPosition();
+            Vector3 _targetEndPointPos = GetEndPointTargetPosition();
+            rawDataString.Append($"{MarsComm.runTime},");                           // DeviceRunTime
+            rawDataString.Append($"{MarsComm.packetNumber},");                      // PacketNumber
+            rawDataString.Append($"{MarsComm.status},");                            // Status
+            rawDataString.Append($"{MarsComm.controlType},");                       // ControlType
+            rawDataString.Append($"{MarsComm.errorStatus},");                       // ErrorStatus
+            rawDataString.Append($"{MarsComm.limb},");                              // Limb
+            rawDataString.Append($"{MarsComm.calibration},");                       // Calibration
+            rawDataString.Append($"{MarsComm.angle1},");                            // MarsAngle1
+            rawDataString.Append($"{MarsComm.angle2},");                            // MarsAngle2
+            rawDataString.Append($"{MarsComm.angle3},");                            // MarsAngle3
+            rawDataString.Append($"{MarsComm.angle4},");                            // MarsAngle4
+            rawDataString.Append($"{MarsComm.imuAngle1},");                         // ImuMarsAngle1
+            rawDataString.Append($"{MarsComm.imuAngle2},");                         // ImuMarsAngle2
+            rawDataString.Append($"{MarsComm.imuAngle3},");                         // ImuMarsAngle3
+            rawDataString.Append($"{MarsComm.imuAngle4},");                         // ImuMarsAngle4
+            rawDataString.Append($"{MarsComm.force},");                             // Force
+            rawDataString.Append($"{MarsComm.target},");                            // Target
+            rawDataString.Append($"{MarsComm.desired},");                           // Desired
+            rawDataString.Append($"{MarsComm.control},");                           // Control
+            rawDataString.Append($"{MarsComm.buttonState},");                       // Button
+            rawDataString.Append($"{MarsComm.epPos.x},");                           // EndPointX
+            rawDataString.Append($"{MarsComm.epPos.y},");                           // EndPointY
+            rawDataString.Append($"{MarsComm.epPos.z},");                           // EndPointZ
+            rawDataString.Append($"{MarsComm.epPosInThePlane.y},");                 // EndPointYPlaneY
+            rawDataString.Append($"{MarsComm.epPosInThePlane.z},");                 // EndPointZPlaneZ
+            rawDataString.Append($"{_targetEndPointPos.y},");                       // EndPointTargetY
+            rawDataString.Append($"{_targetEndPointPos.z},");                       // EndPointTargetZ
+            rawDataString.Append($"{MarsComm.errP},");                              // Error
+            rawDataString.Append($"{MarsComm.errD},");                              // ErrorDiff
+            rawDataString.Append($"{MarsComm.errI},");                              // ErrorSum
+            rawDataString.Append($"{_playerGamePos.x},");                           // GamePlayerX
+            rawDataString.Append($"{_playerGamePos.y},");                           // GamePlayerY
+            rawDataString.Append($"{_targetGamePos.x},");                           // GameTargetX
+            rawDataString.Append($"{_targetGamePos.y},");                           // GameTargetY
+            rawDataString.Append($"{GetGameState()},");                             // GameState
+            rawDataString.Append($"{AppData.Instance.annotation}");                 // Annotation
             rawDataString.Append("\n");
         }
     }
@@ -231,7 +237,6 @@ public partial class AppData
     {
         // Set the file name.
         trialAromDataFile = DataManager.GetRomRawFileName(movement, datetime);
-        Debug.Log(trialAromDataFile);
 
         // Initialize the string builders.
         rawDataString = new StringBuilder();
@@ -272,7 +277,6 @@ public partial class AppData
     {
         // Set the file name.
         trialArmWeightDataFile = DataManager.GetArmWeightRawFileName(datetime);
-        Debug.Log(trialArmWeightDataFile);
 
         // Initialize the string builders.
         rawDataString = new StringBuilder();
@@ -310,13 +314,11 @@ public partial class AppData
 
     private Vector3 GetGamePlayerPosition()
     {
-      
-
         switch (selectedGame.name)
         {
             case "SS":
                 return SpaceShooterGameContoller.Instance != null
-                    ? SpaceShooterGameContoller.Instance.playerPosition
+                    ? SpaceShooterGameContoller.Instance.playerGamePosition
                     : Vector3.zero;
 
             case "PP":
@@ -326,7 +328,7 @@ public partial class AppData
 
             case "DC":
                 return DCGameController.Instance != null
-                    ? DCGameController.Instance.playerPosition
+                    ? DCGameController.Instance.playerGamePosition
                     : Vector3.zero;
 
             default:
@@ -335,29 +337,53 @@ public partial class AppData
     }
 
 
-    private string GetGameTargetPosition()
+    private Vector3 GetGameTargetPosition()
     {
-        //// Get the game target X position.
-        if (selectedGame.name == "SS")
+        switch (selectedGame.name)
         {
-            if (SpaceShooterGameContoller.Instance.targetPosition.HasValue)
-            {
-                return $"{SpaceShooterGameContoller.Instance.targetPosition.Value.x:F3},{SpaceShooterGameContoller.Instance.targetPosition.Value.y:F3}";
-            }
-        }
-        else if (selectedGame.name == "PP")
-        {
-            if (pongGameController.Instance.targetPosition.HasValue) return $"{pongGameController.Instance.targetPosition.Value.x:F3},{pongGameController.Instance.targetPosition.Value.y:F3}";
-        }
+            case "SS":
+                return SpaceShooterGameContoller.Instance != null
+                    ? SpaceShooterGameContoller.Instance.targetGamePosition ?? Vector3.zero
+                    : Vector3.zero;
 
-        else if (selectedGame.name == "DC")
-        {
-            if (DCGameController.Instance.targetPosition.HasValue)
-            {
-                return $"{DCGameController.Instance.targetPosition.Value.x:F3},{DCGameController.Instance.targetPosition.Value.y:F3}";
-            }
+            case "PP":
+                return pongGameController.Instance != null
+                    ? pongGameController.Instance.targetPosition ?? Vector3.zero
+                    : Vector3.zero;
+
+            case "DC":
+                return DCGameController.Instance != null
+                    ? DCGameController.Instance.targetGamePosition ?? Vector3.zero
+                    : Vector3.zero;
+
+            default:
+                return Vector3.zero;
         }
-        return ",";
+    }
+
+
+    private Vector3 GetEndPointTargetPosition()
+    {
+        switch (selectedGame.name)
+        {
+            case "SS":
+                return SpaceShooterGameContoller.Instance != null
+                    ? SpaceShooterGameContoller.Instance.targetEndPointPosition ?? Vector3.zero
+                    : Vector3.zero;
+
+            case "PP":
+                return pongGameController.Instance != null
+                    ? pongGameController.Instance.targetPosition ?? Vector3.zero
+                    : Vector3.zero;
+
+            case "DC":
+                return DCGameController.Instance != null
+                    ? DCGameController.Instance.targetEndPointPosition ?? Vector3.zero
+                    : Vector3.zero;
+
+            default:
+                return Vector3.zero;
+        }
     }
 
     private string GetGameState()

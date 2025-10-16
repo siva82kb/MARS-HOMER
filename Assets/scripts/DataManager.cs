@@ -74,8 +74,11 @@ public class DataManager : MonoBehaviour
         "Button",
         "EndPointX", "EndPointY", "EndPointZ",
         "EndPointYPlane","EndPointZPlane",
+        "EndPointTargetY", "EndPointTargetZ",
         "Error", "ErrorDiff", "ErrorSum",
-        "GamePlayerX", "GamePlayerY", "GameTargetX", "GameTargetY", "GameState",
+        "GamePlayerX", "GamePlayerY",
+        "GameTargetX", "GameTargetY",
+        "GameState",
         "Annotation"
     };
     public static string DATETIMEFORMAT = "yyyy-MM-dd HH:mm:ss";

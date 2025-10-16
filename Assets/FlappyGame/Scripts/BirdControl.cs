@@ -161,7 +161,6 @@ public class BirdControl : MonoBehaviour
         FGC.playerHitMountain();
         startBlinking = true;
         collustionCount++;
-        // Debug.Log(collision_count+" :collision");
         if (collustionCount == 1)
         {
             life1.enabled = false;

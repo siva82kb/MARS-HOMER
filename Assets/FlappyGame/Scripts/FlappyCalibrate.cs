@@ -38,12 +38,6 @@ public class FlappyCalibrate : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // if (Input.GetMouseButtonDown(0))
-        // {
-        //     Vector3 mousePos = Input.mousePosition;
-        //     Debug.Log(Camera.main.ScreenToWorldPoint(Input.mousePosition)+" :xx");
-        //     // Debug.Log(mousePos.y+" yy");
-        // }
     }
 
     void FixedUpdate ()
@@ -58,7 +52,6 @@ public class FlappyCalibrate : MonoBehaviour
         double y_value = ((Mathf.Cos(3.14f/180*MarsComm.angle1) * (333 * Mathf.Cos(3.14f / 180 * MarsComm.angle2) + 381 * Mathf.Cos(3.14f / 180 * MarsComm.angle2 + 3.14f / 180 *MarsComm.angle3))));
         double result_value = (-(y_value/400)*7.0);
 		
-        // Debug.Log("PlayerPosition: "+AppData.plutoData.enc1);
         ScoreText.text = MarsComm.angle1.ToString();
 
         GetComponent<Rigidbody2D>().position = new Vector3
@@ -70,9 +63,7 @@ public class FlappyCalibrate : MonoBehaviour
 		
 		GetComponent<Rigidbody2D>().transform.rotation = Quaternion.Euler (0.0f, 0.0f, GetComponent<Rigidbody2D>().velocity.x * -tilt);
 
-		
 		Vector3 xxx = GetComponent<Rigidbody2D>().position;
-		// Debug.Log("PlayerPosition: "+xxx);
 
         Vector3 to_draw_values = xxx;
         Vector3 to_pass = new Vector3 (0.0f, (float)y_value,0.0f);

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+// using System.Numerics;
 using System.Threading;
 using UnityEditor;
 using UnityEngine;
@@ -20,11 +21,11 @@ public class AsteroidSpawner : MonoBehaviour
         Instance = this;
     }
 
-    public void SpawnAsteroid(float xMin, float xMax)
+    public Vector3 SpawnAsteroid(float xMin, float xMax)
     {
         if (currentAsteroid != null)
         {
-            return;
+            return Vector3.zero;
         }
         // Generate a random X position within specified bounds
         float randomX = Random.Range(xMin, xMax);
@@ -34,5 +35,6 @@ public class AsteroidSpawner : MonoBehaviour
 
         // Instantiate the asteroid prefab 
         currentAsteroid = Instantiate(asteroidPrefab, spawnPosition, Quaternion.identity);     
+        return spawnPosition;
     }
 }
