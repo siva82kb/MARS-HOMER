@@ -394,11 +394,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2573650506292658664, guid: 0f29b2b8d4e33084ab4a8e55048a9f4b, type: 3}
       propertyPath: m_SizeDelta.x
-      value: -1086.5968
+      value: -1090.0503
       objectReference: {fileID: 0}
     - target: {fileID: 2573650506292658664, guid: 0f29b2b8d4e33084ab4a8e55048a9f4b, type: 3}
       propertyPath: m_SizeDelta.y
-      value: -715.4797
+      value: -691.3066
       objectReference: {fileID: 0}
     - target: {fileID: 2573650506292658664, guid: 0f29b2b8d4e33084ab4a8e55048a9f4b, type: 3}
       propertyPath: m_LocalPosition.x
@@ -430,11 +430,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2573650506292658664, guid: 0f29b2b8d4e33084ab4a8e55048a9f4b, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -122.64071
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2573650506292658664, guid: 0f29b2b8d4e33084ab4a8e55048a9f4b, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -35.61902
+      value: -48.307007
       objectReference: {fileID: 0}
     - target: {fileID: 2573650506292658664, guid: 0f29b2b8d4e33084ab4a8e55048a9f4b, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -454,7 +454,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6380783093304021327, guid: 0f29b2b8d4e33084ab4a8e55048a9f4b, type: 3}
       propertyPath: m_Name
-      value: GameOverPanel (1)
+      value: GameOverPanel
       objectReference: {fileID: 0}
     - target: {fileID: 6380783093304021327, guid: 0f29b2b8d4e33084ab4a8e55048a9f4b, type: 3}
       propertyPath: m_IsActive

@@ -26,8 +26,9 @@ public class BallController : MonoBehaviour {
 
     void Update()
 	{
+        MarsComm.sendHeartbeat();
         // If the the state is not playing, stop the ball and destroy it
-		if (pongGameController.Instance.gameState == pongGameController.GameStates.STOP)
+        if (pongGameController.Instance.gameState == pongGameController.GameStates.STOP)
 		{
 			rigidBody2D.velocity = Vector2.zero;
 			Destroy(this.gameObject);
