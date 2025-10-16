@@ -3,6 +3,7 @@ using UnityEngine.SceneManagement;
 using TMPro;
 using UnityEngine.UI;
 using System.ComponentModel;
+using System.Security.Policy;
 
 
 public class pongGameController : MonoBehaviour {
@@ -12,19 +13,17 @@ public class pongGameController : MonoBehaviour {
     GameObject[] pauseObjects, finishObjects;
 	public BoundController rightBound;
 	public BoundController leftBound;
-
-    public Image SupportSlider;
-    public TextMeshProUGUI support;
     public Text timerTxt, pointCounter;
     public Text gameSpeedTxt;
     public GameObject exitBtn;
     public GameObject gameSpeedControl;
+    public TextMeshProUGUI cummulativeScoreTxt;
     public bool isPaused  = false;
     public bool buttonPressed = false;
     public bool playerWon, enemyWon;
     public AudioClip[] audioClips; // winlevel loose
     public GameObject reminderPanel;
-
+    public GameObject pauseImage;
     public int enemyScore, playerScore;
     public float gameTimeLeft,
                 eventDelayTimer,
@@ -81,6 +80,9 @@ public class pongGameController : MonoBehaviour {
             || gameState == GameStates.SPAWNBALL
             || gameState == GameStates.SUCCESS
             || gameState == GameStates.FAILURE;
+            || gameState == GameStates.FAILURE
+            ;
+               
 
     public void Awake() => Instance = this;
     
@@ -113,6 +115,10 @@ public class pongGameController : MonoBehaviour {
 
     void Update()
     {
+        MarsComm.sendHeartbeat();
+        // Check if the game is paused or to be paused/resumed.
+        if (isGamePaused) pauseGame();
+        else if (gameState == GameStates.PAUSED) resumeGame();
         // Update the point counter.
         if (isGamePlaying)
         {
@@ -159,9 +165,7 @@ public class pongGameController : MonoBehaviour {
     
     public void RunStateMachine()
     {
-        // Check if the game is paused or to be paused/resumed.
-        if (isGamePaused) pauseGame();
-        else if (gameState == GameStates.PAUSED) resumeGame();
+        
 
         // Update the trial timer if the game is playing.
         if (isGamePlaying && nTargets > 0) gameTimeLeft -= Time.deltaTime;
@@ -244,6 +248,7 @@ public class pongGameController : MonoBehaviour {
             AppData.Instance.gameTime = gameTime;
             AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
             showFinished();
+            cummulativeScoreTxt.text = $"{AppData.Instance.selectedGame.cummulativeHits:D4}";
             AppLogger.LogInfo($"PingPong Game Over. Time: {gameTime}s | Targets: {nTargets} | Hits: {nSuccess} | Misses: {nFailure}");
         }
         timerTxt.text = "Time: 0s";
@@ -255,11 +260,11 @@ public class pongGameController : MonoBehaviour {
     {
         _prevGameState = gameState;
         gameState = GameStates.PAUSED;
-        Time.timeScale = 0;
         isGamePaused = true;
-        isPaused = true;
+        pauseImage.SetActive(isGamePaused);
         showPaused();
         exitBtn.SetActive(false);
+        Time.timeScale = 0;
     }
 
     private void initializeGameSpeedController()
@@ -300,10 +305,10 @@ public class pongGameController : MonoBehaviour {
     private void resumeGame()
     {
         gameState = _prevGameState;
-        Time.timeScale = 1;
         isGamePaused = false;
-        isPaused = false;
+        Time.timeScale = 1;
         hidePaused();
+        pauseImage.SetActive(isGamePaused);
         exitBtn.SetActive(true);
     }
 
@@ -341,7 +346,7 @@ public class pongGameController : MonoBehaviour {
             isGamePaused = false;
             return;
         }
-        else if (isGamePlaying)
+        else if (gameState != GameStates.STOP)
         {
             // Pause the game if it is currently playing.
             isGamePaused = !isGamePaused;
@@ -354,6 +359,7 @@ public class pongGameController : MonoBehaviour {
             restartGame = true;
             return;
         }
+
     }
     
     public void Reload()
