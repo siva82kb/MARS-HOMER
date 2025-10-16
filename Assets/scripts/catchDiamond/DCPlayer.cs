@@ -48,7 +48,12 @@ public class DCPlayer : MonoBehaviour
     public GameObject pointTextPrefab;
     public Canvas uiCanvas;
     public LineRenderer test;
-    
+
+    // Target generation variables.
+    private float[] prevTargetSelection = new float[] { 0f, 0f, 0f, 0f };
+    private float prevTargetSelectionSum => prevTargetSelection[0] + prevTargetSelection[1] + prevTargetSelection[2] + prevTargetSelection[3];
+    private float[] currTargetSelection = new float[] { 0f, 0f, 0f, 0f };
+
     void Awake() => instance = this;
     
     void Start()
@@ -58,8 +63,9 @@ public class DCPlayer : MonoBehaviour
         // Initialize the robot to screen mapping variables.
         Initialize();
 
-        // Adjust limb scalse for left or right
-        // OFFSET = AppData.Instance.userData.limb == 1 ? -1 : 1;
+        // Initialize previous and current target selection.
+        prevTargetSelection = new float[] { 1f, 0f, 0f, 0f };
+        currTargetSelection = new float[] { 1f, 0f, 0f, 0f };
     }
     
     public void Initialize()
@@ -140,70 +146,45 @@ public class DCPlayer : MonoBehaviour
         }
     }
 
-    // void DrawQuad(LineRenderer lr, Color color)
-    // {
-    //     Vector3[] corners = new Vector3[5]
-    //     {
-    //       top,
-    //       left,
-    //       bottom,
-    //       right,
-    //       top,
-    //     };
-
-    //     createFrame(lr, corners, color);
-    // }
-
-    // public void createFrame(LineRenderer lr, Vector3[] corners, Color color)
-    // {
-    //     lr.positionCount = corners.Length;
-    //     lr.startColor = lr.endColor = color;
-    //     lr.SetPositions(corners);
-    //     lr.material = new Material(Shader.Find("Sprites/Default"));
-    //     lr.startWidth = 0.05f;
-    //     lr.endWidth = 0.05f;
-    //     lr.loop = false;
-    //     lr.useWorldSpace = true;
-    // }
-
-    // public void createVectors()
-    // {
-    //     top = new Vector2(robotToUnityX(currArom.topAdjusted.x), Mathf.Max(robotToUnityY(currArom.topAdjusted.y)));
-    //     bottom = new Vector2(robotToUnityX(currArom.bottomAdjusted.x), Mathf.Min(robotToUnityY(currArom.bottomAdjusted.y)));
-    //     left = new Vector2(Mathf.Max(robotToUnityX(currArom.leftAdjusted.x)), robotToUnityY(currArom.leftAdjusted.y));
-    //     right = new Vector2(Mathf.Min(robotToUnityX(currArom.rightAdjusted.x)), robotToUnityY(currArom.rightAdjusted.y));
-
-    //     //genrate vector
-    //     x1 = bottom - left;
-    //     y1 = top - left;
-    //     x2 = bottom - right;
-    //     y2 = top - right;
-    // }
-
     private float robotToUnityX(float z) => LIMBSCALE * (xScreenMidPoint + xScreenRange * (z - zEndPointMid) / zEndPointRange);
     private float robotToUnityY(float y) => yScreenMidPoint + yScreenRange * (y - yEndPointMid) / yEndPointRange;
     
     public Vector2 GenerateNextRandomTarget()
     {
-        // Generate the scales for the convex combination
-        float[] alphas = new float[] {
-            UnityEngine.Random.Range(0, 2) + UnityEngine.Random.Range(0f, 0.25f),
-            UnityEngine.Random.Range(0, 2) + UnityEngine.Random.Range(0f, 0.25f),
-            UnityEngine.Random.Range(0, 2) + UnityEngine.Random.Range(0f, 0.25f),
-            UnityEngine.Random.Range(0, 2) + UnityEngine.Random.Range(0f, 0.25f)
-        };
-        Debug.Log($"Alphas: {alphas[0]:F3}, {alphas[1]:F3}, {alphas[2]:F3}, {alphas[3]:F3}");
-        Debug.Log($"Current AROM: {AppData.Instance.selectedMovement.currentArom.topAdjusted}, {AppData.Instance.selectedMovement.currentArom.rightAdjusted}, {AppData.Instance.selectedMovement.currentArom.leftAdjusted}, {AppData.Instance.selectedMovement.currentArom.bottomAdjusted}.");
+        // Generate current target selection so that there is less than 100% overlap with previous target selection.
+        float overlap = 0;
+        do
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                currTargetSelection[i] = UnityEngine.Random.Range(0, 2);
+                overlap += currTargetSelection[i] * prevTargetSelection[i];
+            }
+            // Percent overlap
+            overlap /= prevTargetSelectionSum;
+
+        } while (overlap == 1f);
+        
+        // Perturb current target selection a bit.
+        float[] alphas = new float[4];
+        float sum = 0;
+        for (int i = 0; i < 4; i++)
+        {
+            alphas[i] = currTargetSelection[i] + UnityEngine.Random.Range(0f, 0.25f);
+            sum += alphas[i];
+        }
+        
         // Normalized alphas
-        float sum = alphas[0] + alphas[1] + alphas[2] + alphas[3];
         for (int i = 0; i < alphas.Length; i++) alphas[i] /= sum;
-        Debug.Log($"Normalized Alphas: {alphas[0]:F3}, {alphas[1]:F3}, {alphas[2]:F3}, {alphas[3]:F3}");
 
         // Target in the robot/task space.
         Vector2 target = alphas[0] * AppData.Instance.selectedMovement.currentArom.topAdjusted
                         + alphas[1] * AppData.Instance.selectedMovement.currentArom.rightAdjusted
                         + alphas[2] * AppData.Instance.selectedMovement.currentArom.leftAdjusted
                         + alphas[3] * AppData.Instance.selectedMovement.currentArom.bottomAdjusted;
+
+        // Update previous target selection.
+        prevTargetSelection = (float[])currTargetSelection.Clone();
 
         // Convert to Unity space.
         return new Vector2(robotToUnityX(target.x), robotToUnityY(target.y));

@@ -57,6 +57,7 @@ public class DataManager : MonoBehaviour
         "Movement", "TrainingPlaneAngle",
         "GameName", "GameParameter", "ReachSpeed", "GameSpeed", "GameDuration",
         "SuccessRate", "MoveTime",
+        "CurrentTargets", "CurrentHits", "CurrentMisses",
         "CummulativeTargets", "CummulativeHits", "CummulativeMisses",
         "RawDataFileName"
     };
