@@ -40,7 +40,13 @@ public class pongGameController : MonoBehaviour {
     public Vector3? targetPosition { get; private set; }
     public Vector3 playerPosition { get; private set; }
 
+    public Vector3 playerGamePosition {  get; private set; }   
+    public Vector3? targetGamePosition { get; private set; }
+    public Vector3? targetEndPointPosition { get; set; }
+
     public GameObject targetObject;
+    private  GameObject target;
+
     private bool gameSpeedChanged = false;
 
     //pong game events and related variables.
@@ -154,12 +160,27 @@ public class pongGameController : MonoBehaviour {
         // Run the state machine
         RunStateMachine();
 
-        // Update player and target positions
+        // // Update player and target positions
+        // if (isGamePlaying)
+        // {
+        //     playerPosition = GameObject.FindGameObjectWithTag("Player").transform.position;
+        //     targetObject = GameObject.FindGameObjectWithTag("Target");
+        //     targetPosition = targetObject != null ? targetObject.transform.position : null;
+        // }
+
         if (isGamePlaying)
         {
-            playerPosition = GameObject.FindGameObjectWithTag("Player").transform.position;
-            targetObject = GameObject.FindGameObjectWithTag("Target");
-            targetPosition = targetObject != null ? targetObject.transform.position : null;
+            playerGamePosition = GameObject.FindGameObjectWithTag("Player").transform.position;
+             target = GameObject.FindGameObjectWithTag("Target");
+            if (target == null)
+            {
+                targetGamePosition = null;
+                targetEndPointPosition = null;
+            }
+            else
+            {
+                targetGamePosition =  target.transform.position;
+            }
         }
     }
     

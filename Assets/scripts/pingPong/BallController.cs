@@ -3,7 +3,8 @@ using System.Collections;
 
 public class BallController : MonoBehaviour {
 	public static BallController instance;
-	public float ballSpeed; 
+	public float ballSpeed;
+	public static float playerPos = 6f, topWall = 5.5f, bottomWall = -5.5f, bounciness = 1.2f;
 	Rigidbody2D rigidBody2D;
     
     // Audio clip ballCollision,Win, Loose
@@ -53,12 +54,17 @@ public class BallController : MonoBehaviour {
 			// Set enc1 and speed
 			Vector2 dir = new Vector2(1, y).normalized;
 			rigidBody2D.velocity = dir * ballSpeed * 1.5F;
+
+			// Predict where it will reach player's side (x = +6)
+			float predictedY = PredictPlayerImpactOnY(playerPos, topWall, bottomWall, bounciness); 
+			pongGameController.Instance.targetEndPointPosition= new Vector3(0f, predictedY, 0f);
+			Debug.Log("Predicted hit Y on player side: " + predictedY);
 		}
 		if (col.gameObject.tag == "Player") 
 		{
             // Calculate enc1
             float y = launchAngle(transform.position, col.transform.position, col.collider.bounds.size.y);
-
+			pongGameController.Instance.targetEndPointPosition = Vector3.zero;
 			// Set enc1 and speed
 			Vector2 dir = new Vector2(-1, y).normalized;
 			rigidBody2D.velocity = dir * ballSpeed * 1.5F;
@@ -70,4 +76,52 @@ public class BallController : MonoBehaviour {
 	{
 		return 0.2f * Mathf.Sign(ballPos.y - paddlePos.y) + (ballPos.y - paddlePos.y) / paddleHeight;
 	}
+float PredictPlayerImpactOnY(float xPlayer, float topWallY, float bottomWallY, float wallBounciness)
+{
+    Vector2 pos = transform.position;
+    Vector2 vel = rigidBody2D.velocity;
+
+    if (vel.x <= 0)
+        return float.NaN;
+
+    float predictedY = pos.y;
+    float predictedX = pos.x;
+
+    // Simulate until the ball crosses the player's X position
+    while (predictedX < xPlayer)
+    {
+        float timeToTop = (topWallY - predictedY) / vel.y;
+        float timeToBottom = (bottomWallY - predictedY) / vel.y;
+
+        // Time to reach player's X
+        float timeToPlayer = (xPlayer - predictedX) / vel.x;
+
+        // If it reaches player before a wall
+        if ((vel.y > 0 && timeToPlayer < timeToTop) ||
+            (vel.y < 0 && timeToPlayer < timeToBottom))
+        {
+            predictedY += vel.y * timeToPlayer;
+            break;
+        }
+
+        // Otherwise bounce off a wall
+        if (vel.y > 0) // hitting top
+        {
+            predictedY = topWallY - (topWallY - predictedY) + 0.001f; // move slightly below wall
+            vel.y = -vel.y * wallBounciness; // reverse + amplify
+            predictedX += vel.x * timeToTop;
+        }
+        else // hitting bottom
+        {
+            predictedY = bottomWallY - (bottomWallY - predictedY) - 0.001f; // move slightly above wall
+            vel.y = -vel.y * wallBounciness;
+            predictedX += vel.x * timeToBottom;
+        }
+    }
+
+    return predictedY;
+}
+
+
+	
 }
