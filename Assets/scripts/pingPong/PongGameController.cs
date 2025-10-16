@@ -79,7 +79,7 @@ public class pongGameController : MonoBehaviour {
     public bool isGamePlaying => gameState == GameStates.MOVE
             || gameState == GameStates.SPAWNBALL
             || gameState == GameStates.SUCCESS
-            || gameState == GameStates.FAILURE;
+            || gameState == GameStates.FAILURE
             || gameState == GameStates.FAILURE
             ;
                
