@@ -21,7 +21,10 @@ public class SSPlayerController : MonoBehaviour
     public static float zEndPointMax;
     public static float zEndPointMid;
     public static float zEndPointRange;
-    public int LIMBSCALE;
+    public static int LIMBSCALE;
+
+    public static float robotZToUnityX(float z) => LIMBSCALE * (xScreenMidPoint + xScreenRange * (z - zEndPointMid) / zEndPointRange);
+    public static float unityXToRobotZ(float x) => ((x / LIMBSCALE) - xScreenMidPoint) * (zEndPointRange / xScreenRange) + zEndPointMid;
 
     private void Awake()
     {
@@ -76,7 +79,8 @@ public class SSPlayerController : MonoBehaviour
         // Get the current endpoint position in the training plane.
         endPoint = MarsComm.epPosInThePlane;
         zEndPoint = endPoint.z;
-        xPoint = LIMBSCALE * (xScreenMidPoint + xScreenRange * (zEndPoint - zEndPointMid) / zEndPointRange);
+        xPoint = robotZToUnityX(zEndPoint); // LIMBSCALE * (xScreenMidPoint + xScreenRange * (zEndPoint - zEndPointMid) / zEndPointRange);
+
 
         // Player position
         Vector3 targetPos = new Vector3(

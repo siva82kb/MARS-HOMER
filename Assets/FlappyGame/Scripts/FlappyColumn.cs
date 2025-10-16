@@ -19,16 +19,11 @@ public class FlappyColumn : MonoBehaviour
     void Update()
     {
         prevSpawnTime += Time.deltaTime;
-        //Debug.Log(prevSpawnTime);
-
-
     }
     private void OnTriggerExit2D(Collider2D collision)
     {
-       // Debug.Log("Trigger" + collision.gameObject.tag);
         if (collision.gameObject.tag == "Player" &&collision.GetComponent<BirdControl>() != null && prevSpawnTime > 1)
         {
-            //  Debug.Log(this.gameObject.name);
             FlappyGameControl.instance.targetHit();
             prevSpawnTime = 0;
         

@@ -141,21 +141,6 @@ public class AssessROM : MonoBehaviour
     {
         MarsComm.sendHeartbeat();
         updateUI();
-        //Test Targets insdide the quad
-        //if (Input.GetKeyDown(KeyCode.G))
-        //{
-        //    if (aromRawAssessState == AROM_RAW_ASSESS_STATES.WAITTOREACH)
-        //    {
-        //        aromRawAssessState = AROM_RAW_ASSESS_STATES.TEST;
-        //        Debug.Log(aromRawAssessState);
-        //    }
-        //}
-        //if (Input.GetKeyDown(KeyCode.Y))
-        //{
-
-        //    getRandomTargt();
-        //}
-
     }
 
     public void createWorkSpace()
@@ -334,9 +319,7 @@ public class AssessROM : MonoBehaviour
             case AROM_RAW_ASSESS_STATES.DONE:
                 SceneManager.LoadScene(preScene);
                 break;
-
         }
-        //Debug.Log(aromRawAssessState);
     }
 
     void scaleupStateMachine()

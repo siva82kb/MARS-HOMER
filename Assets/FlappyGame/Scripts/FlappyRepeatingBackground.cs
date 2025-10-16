@@ -15,7 +15,6 @@ public class FlappyRepeatingBackground : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-     //   Debug.Log(transform.position.x);
         if(transform.position.x < -groundHorizontalLength)
         {
             RepositionBackgound();

@@ -53,6 +53,7 @@ public class DCPlayer : MonoBehaviour
     private float[] prevTargetSelection = new float[] { 0f, 0f, 0f, 0f };
     private float prevTargetSelectionSum => prevTargetSelection[0] + prevTargetSelection[1] + prevTargetSelection[2] + prevTargetSelection[3];
     private float[] currTargetSelection = new float[] { 0f, 0f, 0f, 0f };
+    private float[] alphas = new float[] { 0f, 0f, 0f, 0f };
 
     void Awake() => instance = this;
     
@@ -148,13 +149,47 @@ public class DCPlayer : MonoBehaviour
 
     private float robotToUnityX(float z) => LIMBSCALE * (xScreenMidPoint + xScreenRange * (z - zEndPointMid) / zEndPointRange);
     private float robotToUnityY(float y) => yScreenMidPoint + yScreenRange * (y - yEndPointMid) / yEndPointRange;
-    
-    public Vector2 GenerateNextRandomTarget()
+
+    public (UnityEngine.Vector2 endPointTarget, UnityEngine.Vector2 gameTarget) GenerateNextRandomTarget()
+    {
+        // Generate current target selection so that there is less than 100% overlap with previous target selection.
+        GenerateNewTargetSelection(1f);
+
+        // Generate perturbed scalars for convex combination.
+        GenerateScalarsForConvexCombination();
+
+        // Target in the robot/task space.
+        UnityEngine.Vector2 endPointTarget = alphas[0] * AppData.Instance.selectedMovement.currentArom.topAdjusted
+                        + alphas[1] * AppData.Instance.selectedMovement.currentArom.rightAdjusted
+                        + alphas[2] * AppData.Instance.selectedMovement.currentArom.leftAdjusted
+                        + alphas[3] * AppData.Instance.selectedMovement.currentArom.bottomAdjusted;
+
+        UnityEngine.Vector2 gameTarget = new UnityEngine.Vector2(robotToUnityX(endPointTarget.x), robotToUnityY(endPointTarget.y));
+
+        // Convert to Unity space.
+        return (endPointTarget, gameTarget);
+    }
+
+    private void GenerateScalarsForConvexCombination()
+    {
+        float sum = 0;
+        for (int i = 0; i < 4; i++)
+        {
+            alphas[i] = currTargetSelection[i] + UnityEngine.Random.Range(0f, 0.25f);
+            sum += alphas[i];
+        }
+
+        // Normalized alphas
+        for (int i = 0; i < alphas.Length; i++) alphas[i] /= sum;
+    }
+
+    private void GenerateNewTargetSelection(float minOverlap)
     {
         // Generate current target selection so that there is less than 100% overlap with previous target selection.
         float overlap = 0;
         do
         {
+            overlap = 0;
             for (int i = 0; i < 4; i++)
             {
                 currTargetSelection[i] = UnityEngine.Random.Range(0, 2);
@@ -162,32 +197,14 @@ public class DCPlayer : MonoBehaviour
             }
             // Percent overlap
             overlap /= prevTargetSelectionSum;
+            Debug.Log($"Previous Target Selection: {prevTargetSelection[0]}, {prevTargetSelection[1]}, {prevTargetSelection[2]}, {prevTargetSelection[3]}");
+            Debug.Log($"Current Target Selection: {currTargetSelection[0]}, {currTargetSelection[1]}, {currTargetSelection[2]}, {currTargetSelection[3]}");
+            Debug.Log($"Overlap: {overlap}");
 
-        } while (overlap == 1f);
-        
-        // Perturb current target selection a bit.
-        float[] alphas = new float[4];
-        float sum = 0;
-        for (int i = 0; i < 4; i++)
-        {
-            alphas[i] = currTargetSelection[i] + UnityEngine.Random.Range(0f, 0.25f);
-            sum += alphas[i];
-        }
-        
-        // Normalized alphas
-        for (int i = 0; i < alphas.Length; i++) alphas[i] /= sum;
-
-        // Target in the robot/task space.
-        Vector2 target = alphas[0] * AppData.Instance.selectedMovement.currentArom.topAdjusted
-                        + alphas[1] * AppData.Instance.selectedMovement.currentArom.rightAdjusted
-                        + alphas[2] * AppData.Instance.selectedMovement.currentArom.leftAdjusted
-                        + alphas[3] * AppData.Instance.selectedMovement.currentArom.bottomAdjusted;
+        } while (overlap >= minOverlap);
 
         // Update previous target selection.
         prevTargetSelection = (float[])currTargetSelection.Clone();
-
-        // Convert to Unity space.
-        return new Vector2(robotToUnityX(target.x), robotToUnityY(target.y));
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

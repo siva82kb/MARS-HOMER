@@ -2,6 +2,7 @@
 
 using System.Diagnostics.Eventing.Reader;
 using System.IO;
+// using System.Numerics;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -88,8 +89,9 @@ public class SpaceShooterGameContoller : MonoBehaviour
         }
     }
  
-    public Vector3 playerPosition {  get; private set; }   
-    public Vector3? targetPosition { get; private set; }
+    public Vector3 playerGamePosition {  get; private set; }   
+    public Vector3? targetGamePosition { get; private set; }
+    public Vector3? targetEndPointPosition { get; private set; }
     public GameObject targetObject;
 
     private void Awake()
@@ -210,9 +212,15 @@ public class SpaceShooterGameContoller : MonoBehaviour
         RunStateMachine();
         
         // Update the player and target positions.
-        playerPosition = GameObject.FindGameObjectWithTag("Player").transform.position;
-        targetObject = GameObject.FindGameObjectWithTag("Asteroid");
-        targetPosition = targetObject != null ? targetObject.transform.position : null;
+        if (IsGamePlaying())
+        {
+            playerGamePosition = GameObject.FindGameObjectWithTag("Player").transform.position;
+            if (GameObject.FindGameObjectWithTag("Asteroid") == null)
+            {
+                targetGamePosition = null;
+                targetEndPointPosition = null;
+            }
+        }
     }
 
     public bool IsGamePlaying()
@@ -247,10 +255,17 @@ public class SpaceShooterGameContoller : MonoBehaviour
                 if (AsteroidSpawner.Instance == null) break;
                 if (!runOnce)
                 {
-                    AsteroidSpawner.Instance.SpawnAsteroid(
+                    Vector3 gTarget = AsteroidSpawner.Instance.SpawnAsteroid(
                         xMin: SSPlayerController.xScreenMin,
                         xMax: SSPlayerController.xScreenMax
                     );
+                    // Update the game and endpoint target positions
+                    targetGamePosition = gTarget;
+                    targetEndPointPosition = new Vector3(
+                        0,
+                        0,
+                        SSPlayerController.unityXToRobotZ(gTarget.x)
+                    );  // I do not like how we are doing this, and how conversions are handled in general.
                     AsteroidFall.instance.SetFallSpeed(AppData.Instance.selectedGame.gameSpeed);
                     nTargets++;
                     eventDelayTimer = 0.05f;

@@ -589,9 +589,12 @@ public class MarsGame
     public float gameSpeed { get; private set; }
     public float gameDuration { get; set; } = 0f;
     public MarsArom arom { get; private set; } = null;
-    public int cummulativeTargets { get; set; } = 0;
-    public int cummulativeHits { get; set; } = 0;
-    public int cummulativeMisses { get; set; } = 0;
+    public int currentTargets { get; private set; } = 0;
+    public int currentHits { get; private set; } = 0;
+    public int currentMisses { get; private set; } = 0;
+    public int cummulativeTargets { get; private set; } = 0;
+    public int cummulativeHits { get; private set; } = 0;
+    public int cummulativeMisses { get; private set; } = 0;
 
     public MarsGame(string gName, string mName, float rSpeed, float gDuration, MarsArom arom, int gCuTargets, int gCuHits, int gCuMisses)
     {
@@ -612,8 +615,11 @@ public class MarsGame
         cummulativeMisses = 0;
     }
 
-    public void UpdateCummulativeHitsMisses(int targets, int hits, int misses)
+    public void UpdateTargetsHitsMisses(int targets, int hits, int misses)
     {
+        currentTargets = targets;
+        currentHits = hits;
+        currentMisses = misses;
         cummulativeTargets += targets;
         cummulativeHits += hits;
         cummulativeMisses += misses;

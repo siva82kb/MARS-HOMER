@@ -101,8 +101,9 @@ public class DCGameController : MonoBehaviour
     }
 
     private float reachTimeLeft;
-    public Vector3 playerPosition { get; private set; }
-    public Vector3? targetPosition { get; private set; }
+    public Vector3 playerGamePosition { get; private set; }
+    public Vector3? targetGamePosition { get; private set; }
+    public Vector3? targetEndPointPosition { get; private set; }
     public float gameDuration = MarsGameDefs.GAMEDURATION["DC"];
     public bool gameSpeedChanged { get; private set; } = false;
     private float reachDuration;
@@ -158,10 +159,21 @@ public class DCGameController : MonoBehaviour
         // Update player and target positions.
         if (isGamePlaying)
         {
-            playerPosition = GameObject.FindGameObjectWithTag("Player").transform.position;
-            if (target == null) return;
-            targetObject = target.gameObject;
-            targetPosition = targetObject != null ? targetObject.transform.position : null;
+            // Player game position.
+            playerGamePosition = GameObject.FindGameObjectWithTag("Player").transform.position;
+            if (target == null)
+            {
+                targetEndPointPosition = null;
+                targetGamePosition = null;
+            }
+            else
+            {
+                // Target game position.
+                targetObject = target.gameObject;
+                targetGamePosition = targetObject != null ? targetObject.transform.position : null;
+                // Target endpoint position.
+                targetEndPointPosition = targetObject != null ? targetEndPointPosition : null;
+            }
         }
     }
 
@@ -213,6 +225,7 @@ public class DCGameController : MonoBehaviour
                 if (!runOnce)
                 {
                     if (target != null) return;
+                    // Spawn the new target.
                     SpawnDiamond();
                     nTargets++;
                     eventDelayTimer = 0.5f;
@@ -318,9 +331,15 @@ public class DCGameController : MonoBehaviour
 
     public void SpawnDiamond()
     {
-        Vector2 randomTarget = DCPlayer.instance.GenerateNextRandomTarget();
-        Vector3 spawnPos = new Vector3(randomTarget.x, randomTarget.y, 0);
-        Debug.Log($"Spawning target at {spawnPos}");
+        // Generate the new target
+        (Vector2 epTarget, Vector2 gTarget) = DCPlayer.instance.GenerateNextRandomTarget();
+        
+        // Update the target game and endpoint positions.
+        targetGamePosition = new Vector3(gTarget.x, gTarget.y, 0);
+        targetEndPointPosition = new Vector3(0, epTarget.y, epTarget.x);
+
+        // Update the game target.
+        Vector3 spawnPos = new Vector3(gTarget.x, gTarget.y, 0);
 
         // Instantiate the target, target glitter, target bubble and target timer.
         target = Instantiate(targetPrefab, spawnPos, Quaternion.identity);
@@ -328,7 +347,7 @@ public class DCGameController : MonoBehaviour
         targetBubble = Instantiate(targetBubblePrefab, new Vector3(spawnPos.x, spawnPos.y - 0.25f, spawnPos.z), Quaternion.identity);
         targetTimer = Instantiate(targetTimerPrefab, uiCanvas.transform);
         Vector3 screenPos = Camera.main.WorldToScreenPoint(target.transform.position);
-        targetTimer.transform.position = new Vector3(screenPos.x + 30f, screenPos.y + 50f, screenPos.z);
+        targetTimer.transform.position = new Vector3(screenPos.x + 20f, screenPos.y + 50f, screenPos.z);
         if (target.transform.position.x > 0) target.GetComponent<SpriteRenderer>().flipX = true;
         targetAnim = target.GetComponentInChildren<Animator>();
         targetAnim.Play("TargetHighlight", -1, 0f);
