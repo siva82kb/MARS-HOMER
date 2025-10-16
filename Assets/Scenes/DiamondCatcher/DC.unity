@@ -1271,7 +1271,7 @@ MonoBehaviour:
   targetTimerPrefab: {fileID: 3253213401442039276, guid: e01cab2764665ab40ba71c8f1f89914f, type: 3}
   targetPrefab: {fileID: 641651896583965660, guid: 9b86f85f6e87816498b954a404080eb2, type: 3}
   target: {fileID: 0}
-  targetGlitterPrefab: {fileID: 674703150584792947}
+  targetGlitterPrefab: {fileID: 5254780918472864000, guid: e1e783d6d78c81e41ad511f3fa97cd7d, type: 3}
   catchGlitterPrefeb: {fileID: 2075739776726815378, guid: ac830547d0bfde64f878371fde7a2b02, type: 3}
   audioSource: {fileID: 758250534}
   playerIn: {fileID: 8300000, guid: b923e1bef9c55834195fe93706d2fab3, type: 3}
