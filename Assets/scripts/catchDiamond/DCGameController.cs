@@ -403,10 +403,11 @@ public class DCGameController : MonoBehaviour
             int gametime = (int)gameDuration - (int)gameTimeLeft;
             AppData.Instance.gameTime = gametime < gameDuration ? gametime : gameDuration;
             // AppData.Instance.gameSpeed = gameSpeed;
-            cummulativeScoreTxt.text = $"{AppData.Instance.selectedGame.cummulativeHits:D4}";
 
             //stop trail
             AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
+            cummulativeScoreTxt.text = $"{AppData.Instance.selectedGame.cummulativeHits:D4}";
+
 
         }
         isGameFinished = true; // Set game over state 
