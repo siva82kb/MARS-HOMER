@@ -45,6 +45,8 @@ public class DCGameController : MonoBehaviour
     public AudioClip playerIn;
     public AudioClip playerOut;
     public AudioClip TargetFailed;
+    public TextMeshProUGUI cummulativeScoreTxt;
+
 
     // UI Canvas
     public Canvas uiCanvas;
@@ -382,6 +384,8 @@ public class DCGameController : MonoBehaviour
             int gametime = (int)gameDuration - (int)gameTimeLeft;
             AppData.Instance.gameTime = gametime < gameDuration ? gametime : gameDuration;
             // AppData.Instance.gameSpeed = gameSpeed;
+            cummulativeScoreTxt.text = $"{AppData.Instance.selectedGame.cummulativeHits:D4}";
+
             //stop trail
             AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
 
