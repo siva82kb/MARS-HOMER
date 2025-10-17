@@ -263,6 +263,7 @@ public class MarsUserData
         if (ArmWeight.ArmWeightFileExists())
         {
             var aw = new ArmWeight(readFromFile: true);
+
             if (!aw.isAssessmentComplete) return false;
             return Mathf.Abs(aw.trainingPlaneAngle - AppData.Instance.userData.trainingPlaneAngle) <= MarsDefs.TRAINING_PLANE_ANGLE_THRESHOLD;
         }
@@ -482,7 +483,7 @@ public static class MarsGameDefs
         public const float BOTTOMLIMIT = -3.85f;
 
         // Game duration
-        public const float GAMEDURATION = 60f; // seconds
+        public const float GAMEDURATION = 20f; // seconds
 
         // Space ship firing constants.
         public const float FIRING_INTERVAL = 0.25f;
@@ -515,7 +516,7 @@ public static class MarsGameDefs
         public const float BOTTOMLIMIT = -5.5f;
 
         // Game duration
-        public const float GAMEDURATION = 60f; // seconds
+        public const float GAMEDURATION = 20f; // seconds
 
         public static float GetReachDuration(float reachSpeed, MarsArom arom)
         {
@@ -545,7 +546,7 @@ public static class MarsGameDefs
         public const float BOTTOMLIMIT = -4.0f;
 
         // Game duration
-        public const float GAMEDURATION = 60f;  // seconds
+        public const float GAMEDURATION = 20f;  // seconds
 
         // Target reach hold time.
         public const float TARGET_IN_TIME = 1f; // seconds
@@ -884,7 +885,7 @@ public class ArmWeight
     {
         datetime = DateTime.Now.ToString(DataManager.DATETIMEFORMAT);
         mlapArom = new MarsArom("MLAP", readFromFile: true);
-        _trainingPlaneAngle = mlapArom == null? mlapArom.trainingPlaneAngle : 0;
+        _trainingPlaneAngle = mlapArom != null? mlapArom.trainingPlaneAngle : 0;
         targetPos = null;
         actualPos = null;
         actualForce = null;
