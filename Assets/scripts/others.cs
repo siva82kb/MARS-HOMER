@@ -509,13 +509,13 @@ public static class MarsGameDefs
     public static class PingPong
     {
         // Screen limit constants
-        public const float LEFTLIMIT = -8.5f;
-        public const float RIGHTLIMIT = 8.5f;
-        public const float TOPLIMIT = 4.5f;
-        public const float BOTTOMLIMIT = -4.5f;
+        public const float LEFTLIMIT = -7f;
+        public const float RIGHTLIMIT = 7f;
+        public const float TOPLIMIT = 5.5f;
+        public const float BOTTOMLIMIT = -5.5f;
 
         // Game duration
-        public const float GAMEDURATION = 10f; // seconds
+        public const float GAMEDURATION = 20f; // seconds
 
         public static float GetReachDuration(float reachSpeed, MarsArom arom)
         {

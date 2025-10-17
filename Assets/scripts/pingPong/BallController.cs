@@ -57,14 +57,14 @@ public class BallController : MonoBehaviour {
 
 			// Predict where it will reach player's side (x = +6)
 			float predictedY = PredictPlayerImpactOnY(playerPos, topWall, bottomWall, bounciness); 
-			pongGameController.Instance.targetEndPointPosition= new Vector3(0f, predictedY, 0f);
+			pongGameController.Instance.targetEndPointPosition= new Vector3(0f, PongPlayerController.unityYToRobotY(predictedY), 0f);
 			Debug.Log("Predicted hit Y on player side: " + predictedY);
 		}
 		if (col.gameObject.tag == "Player") 
 		{
             // Calculate enc1
             float y = launchAngle(transform.position, col.transform.position, col.collider.bounds.size.y);
-			pongGameController.Instance.targetEndPointPosition = Vector3.zero;
+			// pongGameController.Instance.targetEndPointPosition = Vector3.zero;
 			// Set enc1 and speed
 			Vector2 dir = new Vector2(-1, y).normalized;
 			rigidBody2D.velocity = dir * ballSpeed * 1.5F;
