@@ -10,7 +10,7 @@ public partial class AppData
     private static readonly Lazy<AppData> _instance = new Lazy<AppData>(() => new AppData());
     public static AppData Instance => _instance.Value;
 
-    static public readonly string COMPort = "COM30"; //1-35//2-30//3-32//4-50
+    static public readonly string COMPort = "COM5"; //1-35//2-30//3-32//4-50
 
     /*
      * GAME ADAPTATION CONSTANTS
@@ -35,7 +35,7 @@ public partial class AppData
             return SPEED_INCREASE_FACTOR_MAX - (SPEED_INCREASE_FACTOR_MAX - SPEED_INCREASE_FACTOR_MIN) * _normspeed;
         }
         return 1.0f;
-    } 
+    }
 
     /*
      * SESSION DETAILS

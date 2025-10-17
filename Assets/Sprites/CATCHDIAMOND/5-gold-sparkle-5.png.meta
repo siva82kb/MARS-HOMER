@@ -226,7 +226,12 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      5-gold-sparkle-5_0: -4086852088078471674
+      5-gold-sparkle-5_1: 326697713158484935
+      5-gold-sparkle-5_2: 8907385275137583361
+      5-gold-sparkle-5_3: 6720236917516239740
+      5-gold-sparkle-5_4: -2169287938804284836
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

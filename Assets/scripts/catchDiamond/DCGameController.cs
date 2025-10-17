@@ -121,6 +121,7 @@ public class DCGameController : MonoBehaviour
         gameSpeedControl.SetActive(false);
         // Compute reach duration.
         reachDuration = MarsGameDefs.GetReachDurationForGame("DC", AppData.Instance.selectedGame.reachSpeed, AppData.Instance.selectedGame.arom);
+        AppLogger.LogInfo($"Reach duration for game 'DC' with reach speed {AppData.Instance.selectedGame.reachSpeed} m/s is {reachDuration} seconds.");
 
         // Check if the required amount fo trials for the selected movement has been completed today.
         bool isRequiredTrialsCompleted = AppData.Instance.selectedMovement.trialNumberDay >= AppData.Instance.userData.moveTimePrsc[AppData.Instance.selectedMovement.name];
