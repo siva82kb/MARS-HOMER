@@ -197,10 +197,6 @@ public class DCPlayer : MonoBehaviour
             }
             // Percent overlap
             overlap /= prevTargetSelectionSum;
-            Debug.Log($"Previous Target Selection: {prevTargetSelection[0]}, {prevTargetSelection[1]}, {prevTargetSelection[2]}, {prevTargetSelection[3]}");
-            Debug.Log($"Current Target Selection: {currTargetSelection[0]}, {currTargetSelection[1]}, {currTargetSelection[2]}, {currTargetSelection[3]}");
-            Debug.Log($"Overlap: {overlap}");
-
         } while (overlap >= minOverlap);
 
         // Update previous target selection.

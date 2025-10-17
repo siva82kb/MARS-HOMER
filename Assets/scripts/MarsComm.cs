@@ -375,6 +375,18 @@ public static class MarsComm
                 // Updat framerate
                 frameRate = 1 / (runTime - prevRunTime);
 
+                // Error check. Frame rate should be above 85Hz for SENSORSTREAM data.
+                if (frameRate < 85)
+                {
+                    MarsCommLogger.LogWarning($"Frame Rate Low | Frame Rate: {frameRate:F1}Hz | Time: {runTime:F2}");
+                    // Set control mode to NONE if framerate is below 20Hz
+                    if (frameRate < 20 && controlType != GetMarsCodeFromLabel(CONTROLTYPE, "NONE"))
+                    {
+                        setControlType("NONE");
+                        MarsCommLogger.LogInfo($"FrameRate too low. Setting control to NONE.");
+                    }
+                }
+
                 // Check if the MARS button has been released.
                 if ((((previousStateData[3] >> 4) & 0x01) == 0) && (((currentStateData[3] >> 4) & 0x01) == 1))
                 {
@@ -836,7 +848,8 @@ public static class MarsCommLogger
             if (logWriter != null)
             {
                 string _user = AppData.Instance.userData != null ? AppData.Instance.userData.hospNumber : "";
-                string _msg = $"{DateTime.Now:dd-MM-yyyy HH:mm:ss} {logMsgType,-7} {InBraces(_user),-10} {InBraces(AppLogger.currentScene),-12} {InBraces(AppLogger.currentMovement),-8} {InBraces(AppLogger.currentGame),-8} >> {message}";
+                string frate = MarsComm.frameRate.ToString("F1") + "Hz";
+                string _msg = $"{DateTime.Now:dd-MM-yyyy HH:mm:ss} {logMsgType,-7} {InBraces(_user),-10} {InBraces(AppLogger.currentScene),-12} {InBraces(AppLogger.currentMovement),-8} {InBraces(AppLogger.currentGame),-8} {InBraces(frate),-8} >> {message}";
                 logWriter.WriteLine(_msg);
                 logWriter.Flush();
                 if (DEBUG) Debug.Log(_msg);

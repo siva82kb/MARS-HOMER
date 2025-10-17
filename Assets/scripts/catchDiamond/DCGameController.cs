@@ -430,7 +430,8 @@ public class DCGameController : MonoBehaviour
 
         // Hide the start image.
         startImage.SetActive(false);
-        gameTimeLeft = gameDuration; 
+        gameDuration = MarsGameDefs.GAMEDURATION["DC"];
+        gameTimeLeft = gameDuration;
 
         // Start the next new Trail
         AppData.Instance.StartNewTrial();
