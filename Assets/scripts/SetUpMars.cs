@@ -87,7 +87,7 @@ public class SetUpMars : MonoBehaviour
                     if (MarsComm.target == -90)
                     {
                         // Check if the target has been reached.
-                        if (Mathf.Abs(MarsComm.angle1 - MarsComm.target) < 2)
+                        if (Mathf.Abs(MarsComm.angle1 - MarsComm.target) < 5)
                         {
                             currentState = SETUPMARS.ATTACHARM;
                         }

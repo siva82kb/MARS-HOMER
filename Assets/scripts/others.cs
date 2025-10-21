@@ -483,7 +483,7 @@ public static class MarsGameDefs
         public const float BOTTOMLIMIT = -3.85f;
 
         // Game duration
-        public const float GAMEDURATION = 20f; // seconds
+        public const float GAMEDURATION = 60f; // seconds
 
         // Space ship firing constants.
         public const float FIRING_INTERVAL = 0.25f;
@@ -516,7 +516,7 @@ public static class MarsGameDefs
         public const float BOTTOMLIMIT = -5.5f;
 
         // Game duration
-        public const float GAMEDURATION = 20f; // seconds
+        public const float GAMEDURATION = 60f; // seconds
 
         public static float GetReachDuration(float reachSpeed, MarsArom arom)
         {
@@ -546,7 +546,7 @@ public static class MarsGameDefs
         public const float BOTTOMLIMIT = -4.0f;
 
         // Game duration
-        public const float GAMEDURATION = 20f;  // seconds
+        public const float GAMEDURATION = 60f;  // seconds
 
         // Target reach hold time.
         public const float TARGET_IN_TIME = 1f; // seconds

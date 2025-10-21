@@ -29,12 +29,17 @@ public class welcomeSceneHandler : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        if (!Directory.Exists(DataManager.basePath)) 
+        {
+            SceneManager.LoadScene("GETCONFIG");
+            return;
+        }
         // Initialize AppData
         AppData.Instance.Initialize(SceneManager.GetActiveScene().name);
 
         // Check if the directory exists
         if (!Directory.Exists(DataManager.basePath)) Directory.CreateDirectory(DataManager.basePath);
-        if (!File.Exists(DataManager.configFile)) SceneManager.LoadScene("CONFIG");
+        // if (!File.Exists(DataManager.configFile)) SceneManager.LoadScene("CONFIG");
 
         AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);
         AppLogger.LogInfo($"'{SceneManager.GetActiveScene().name}' scene started.");

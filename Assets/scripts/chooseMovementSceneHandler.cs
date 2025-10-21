@@ -119,7 +119,14 @@ public class MovementSceneHandler : MonoBehaviour
         }
         else if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.W))
         {
-            // First check of MLAP assessment has been completed for the current training angle.
+            if (AppData.Instance.selectedMovement == null || AppData.Instance.selectedMovement.name != "MLAP")
+            {
+                message.text = "Weight assessment available only for MLAP movement.";
+                additionalMessage.text = "";
+                changeScene = false;
+                return;
+            }
+
             if (AppData.Instance.userData.IsAromAssessmentAvailableForTrainingAngle("MLAP"))
             {
                 // Switch to the training plane scene.
@@ -134,6 +141,7 @@ public class MovementSceneHandler : MonoBehaviour
                 nextScene = assessmentSceneMLAP;
                 changeScene = true;
             }
+            
         }
 
         //Check if a scene change is needed.
@@ -249,7 +257,7 @@ public class MovementSceneHandler : MonoBehaviour
                 }
                 else
                 {
-                    if ((noAssessAvailable || trainingPlaneMismatch || AppData.Instance.userData.IsArmWeightAssessmentAvailableForTrainingAngle()== false) && AppData.Instance.selectedMovement.name == "MLAP")
+                    if ((trainingPlaneMismatch || AppData.Instance.userData.IsArmWeightAssessmentAvailableForTrainingAngle()== false) && AppData.Instance.selectedMovement.name == "MLAP")
                     {
                      message.text = "Press Mars Button to start weight assessment";
                     additionalMessage.text = !AppData.Instance.userData.IsArmWeightAssessmentAvailableForTrainingAngle() ? "No previous weight assessment found. Assessment will be done first." : "";
