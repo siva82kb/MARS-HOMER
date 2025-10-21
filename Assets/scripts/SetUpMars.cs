@@ -31,6 +31,8 @@ public class SetUpMars : MonoBehaviour
     }
     public SETUPMARS currentState = SETUPMARS.IDLE;
 
+    private const float TARGET_REACH_ERROR = 5.0f; // Degrees
+
     // Start is called before the first frame update
     void Start()
     {
@@ -87,7 +89,7 @@ public class SetUpMars : MonoBehaviour
                     if (MarsComm.target == -90)
                     {
                         // Check if the target has been reached.
-                        if (Mathf.Abs(MarsComm.angle1 - MarsComm.target) < 2)
+                        if (Mathf.Abs(MarsComm.angle1 - MarsComm.target) < TARGET_REACH_ERROR)
                         {
                             currentState = SETUPMARS.ATTACHARM;
                         }
@@ -115,9 +117,9 @@ public class SetUpMars : MonoBehaviour
                 if (MarsComm.target == AppData.Instance.userData.trainingPlaneAngle)
                 {
                     // Check if the target has been reached.
-                    if (Mathf.Abs(MarsComm.angle1 - MarsComm.target) < 2)
+                    if (Mathf.Abs(MarsComm.angle1 - MarsComm.target) < TARGET_REACH_ERROR)
                     {
-                        AppLogger.LogInfo($"Setting Mars Position @ TrainingAngle : {MarsComm.angle1}");
+                        AppLogger.LogInfo($"Setting Mars Position @ TrainingAngle {MarsComm.target}deg | Actual : {MarsComm.angle1}deg");
                         currentState = SETUPMARS.DONE;
                         instructionTxt.text = "";
                         AppLogger.LogInfo($"Switching  Scene to {nextScene}");

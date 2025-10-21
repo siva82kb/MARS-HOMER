@@ -12,6 +12,26 @@ public partial class AppData
 
     static public readonly string COMPort = "COM5"; //1-35//2-30//3-32//4-50
 
+    // Robot Connection Alive Variables.
+    static public float MARS_WATCHDOG_TIMEOUT = 2.0f; //seconds
+    static private bool _isMARSConnectionAlive = false;
+    static public bool isMARSConnectionAlive
+    {
+        get { return _isMARSConnectionAlive; }
+        set
+        {
+            if (value == false && _isMARSConnectionAlive == true)
+            {
+                AppLogger.LogWarning("MARS connection lost! Stopping session.");
+            }
+            else if (value == true && _isMARSConnectionAlive == false)
+            {
+                AppLogger.LogInfo("MARS connection restored.");
+            }
+            _isMARSConnectionAlive = value;
+        }
+    }
+
     /*
      * GAME ADAPTATION CONSTANTS
      */

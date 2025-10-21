@@ -66,7 +66,9 @@ public static class MarsComm
         "ANG1MISMATCHERR",
         "ANG234MISMATCHERR",
         "ANG1JUMPERR",
-        "ANG234JUMPERR"
+        "ANG234JUMPERR",
+        "ANG1LIMITERR",
+        "ANG234LIMITERR",
     };
     public static readonly string[] MOVETYPE = new string[]
     {
