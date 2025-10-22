@@ -123,6 +123,10 @@ public partial class AppData
         currentSessionNumber = userData.dTableSession.Rows.Count > 0 ?
             Convert.ToInt32(userData.dTableSession.Rows[userData.dTableSession.Rows.Count - 1]["SessionNumber"]) + 1 : 1;
         AppLogger.LogInfo($"Session number set to {currentSessionNumber}.");
+
+        if (userData.isErrorOccurred()) AppLogger.LogError($"Error Occured in Mars. Needs to rectify it.");
+        
+
     }
 
     // Waiting for MarsComm

@@ -23,7 +23,7 @@ public class welcomeSceneHandler : MonoBehaviour
     private DaySummary[] daySummaries;
     public static bool changeScene = false;
     public readonly string nextScene = "ROBOTCALIB";
-
+    public GameObject errorPanel;
     public bool attachMarsButtonEvent = false;
 
     // Start is called before the first frame update
@@ -44,6 +44,8 @@ public class welcomeSceneHandler : MonoBehaviour
         AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);
         AppLogger.LogInfo($"'{SceneManager.GetActiveScene().name}' scene started.");
         daySummaries = AppData.Instance.userData.CalculateMoveTimePerDay();
+
+        if (AppData.Instance.userData.isErrorOccurred()) errorPanel.SetActive(true);
 
         // Update summary display
         UpdateUserData();
@@ -70,8 +72,16 @@ public class welcomeSceneHandler : MonoBehaviour
 
     public void OnMarsButtonReleased()
     {
-        AppLogger.LogInfo("Mars button released.");
-        changeScene = true;
+        if (AppData.Instance.userData.isErrorOccurred())
+        {
+             AppLogger.LogError("Error Occured. Need to address it. check the error log file");
+        }
+        else
+        {
+            AppLogger.LogInfo("Mars button released.");
+            changeScene = true;
+        }
+        
     }
 
     private void LoadTargetScene()
