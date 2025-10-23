@@ -223,7 +223,20 @@ public class MarsUserData
         using (var writer = new StreamWriter(DataManager.errorLogFile, true, Encoding.UTF8))
         {
             string _dtstr = DateTime.Now.ToString(DataManager.DATETIMEFORMAT);
-            writer.WriteLine($"{_dtstr},{error},{ERRORSTATUS[1]}");
+             string trialNo = AppData.Instance.selectedMovement == null 
+            ? "null" 
+            : AppData.Instance.selectedMovement.trialNumberDay.ToString();
+
+            writer.WriteLine(
+                $"{_dtstr}," +
+                $"{AppData.Instance.userData.hospNumber}," +
+                $"{AppData.Instance.currentSessionNumber}," +
+                $"{trialNo}," +
+                $"{AppLogger.currentScene}," +
+                $"{AppLogger.currentMovement}," +
+                $"{error}," +
+                $"{ERRORSTATUS[1]}"
+            );
         }
     }
 

@@ -11,10 +11,9 @@ public class connectStatusHandler : MonoBehaviour
 {
     private Image connectStatus;
     private GameObject loading;
-
+    public Button closePanel;
+    public GameObject errorPanel;
     private TextMeshProUGUI statusText;
-    private float disconnectTimer = 0f;
-    private const float shutdownDelay = 3f;
 
     void Awake()
     {
@@ -22,16 +21,19 @@ public class connectStatusHandler : MonoBehaviour
         Application.quitting += CloseAppLogger; //for Exe file
         AppDomain.CurrentDomain.ProcessExit += (_, __) => CloseAppLogger(); // for external crash like OS Crash
 
-#if UNITY_EDITOR
-        EditorApplication.quitting += CloseAppLogger; //for editor
-#endif
+        #if UNITY_EDITOR
+                EditorApplication.quitting += CloseAppLogger; //for editor
+        #endif
     }
     // Start is called before the first frame update
     void Start()
     {
         connectStatus = GetComponent<Image>(); // Uncomment if connectStatus is on the same GameObject
         loading = transform.Find("loading").gameObject; // Assuming loading is a child GameObject
+
         statusText = transform.Find("statusText").GetComponent<TextMeshProUGUI>();
+        closePanel.onClick.AddListener(delegate { CloseAppLogger(); });
+        if (AppData.Instance.userData.isErrorOccurred()) errorPanel.SetActive(true);
     }
 
     // Update is called once per frame
@@ -43,27 +45,23 @@ public class connectStatusHandler : MonoBehaviour
             connectStatus.color = Color.green;
             loading.SetActive(false);
             statusText.text = $"{MarsComm.version}\n[{MarsComm.frameRate:F1}Hz]";
-            disconnectTimer = 0f; //reset when connected
 
         }
         else
         {
-            disconnectTimer += Time.deltaTime;
-
-            if (disconnectTimer >= shutdownDelay)
-            {
-                CloseAppLogger();
-            }
             connectStatus.color = Color.red;
             loading.SetActive(true);
             statusText.text = "Not connected";
-
-
+        }
+        if (MarsComm.errorStatus != 0 && MarsComm.errorStatus != 1)
+        {
+            errorPanel.SetActive(true);
         }
            
     }
     private void CloseAppLogger()
     {
+        JediComm.Disconnect();
         AppLogger.StopLogging();
         MarsCommLogger.StopLogging();
 

@@ -45,7 +45,7 @@ public class DataManager : MonoBehaviour
         "DateTime", "TrainingPlaneAngle"
     };
      public static string[] ERRORLOGFILEHEADER = new string[] {
-        "DateTime", "Error","Status"
+        "DateTime", "HospitalID","SessionNumber","TrialNumberDay","Scene","Movement","Error","Status"
     };
     public static string[] ARMWEIGHTFILEHEADER = new string[] {
         "DateTime", "TrainingPlaneAngle",
