@@ -13,6 +13,8 @@ public class connectStatusHandler : MonoBehaviour
     private GameObject loading;
 
     private TextMeshProUGUI statusText;
+    private float disconnectTimer = 0f;
+    private const float shutdownDelay = 3f;
 
     void Awake()
     {
@@ -41,19 +43,34 @@ public class connectStatusHandler : MonoBehaviour
             connectStatus.color = Color.green;
             loading.SetActive(false);
             statusText.text = $"{MarsComm.version}\n[{MarsComm.frameRate:F1}Hz]";
-        } 
+            disconnectTimer = 0f; //reset when connected
+
+        }
         else
         {
+            disconnectTimer += Time.deltaTime;
+
+            if (disconnectTimer >= shutdownDelay)
+            {
+                CloseAppLogger();
+            }
             connectStatus.color = Color.red;
             loading.SetActive(true);
             statusText.text = "Not connected";
+
+
         }
+           
     }
     private void CloseAppLogger()
     {
         AppLogger.StopLogging();
         MarsCommLogger.StopLogging();
 
+        Application.Quit();
+            #if UNITY_EDITOR
+                        UnityEditor.EditorApplication.isPlaying = false; // Stop play mode if in editor
+            #endif
         //Need to change
         //MarsAanLogger.StopLogging();
 

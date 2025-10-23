@@ -334,8 +334,18 @@ public static class MarsComm
                     {
                         try
                         {
-                            AppData.Instance.userData.writeUpdateErrorLogData($"ID: [{AppData.Instance.userData.hospNumber}] Session No: [{AppData.Instance.currentSessionNumber}] Trial No: [{AppData.Instance.selectedMovement.trialNumberDay}]  Scene: [{AppLogger.currentScene}] Movement: [{AppLogger.currentMovement}] Game: [{AppLogger.currentGame} | error: [{errorString}] | Time: {runTime:F2}");
+                            AppData.Instance.userData.writeUpdateErrorLogData(
+                                $"ID: [{AppData.Instance.userData.hospNumber}] " +
+                                $"Session No: [{AppData.Instance.currentSessionNumber}] " +
+                                $"Trial No: [{(AppData.Instance.selectedMovement == null ? "" : AppData.Instance.selectedMovement.trialNumberDay)}] " +
+                                $"Scene: [{AppLogger.currentScene}] " +
+                                $"Movement: [{AppLogger.currentMovement}] " +
+                                $"Game: [{AppLogger.currentGame}] | " +
+                                $"Error: [{errorString}] | " +
+                                $"Time: {runTime:F2}"
+                            );
                             hasErrorLoggedOnce = true;
+                            JediComm.Disconnect();
                         }
                         catch (Exception ex)
                         {
