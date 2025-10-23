@@ -133,6 +133,7 @@ public static class MarsComm
     static public ushort packetNumber { get; private set; }
     static public float runTime { get; private set; }
     static public float prevRunTime { get; private set; }
+    private static bool hasErrorLoggedOnce = false;
 
 
     public static int GetMarsCodeFromLabel(string[] array, string value)
@@ -329,6 +330,18 @@ public static class MarsComm
             if (prevErrorStatus != errorStatus || GetRandomNumber() <= 5)
             {
                 MarsCommLogger.LogError($"Error: {errorString} ({errorStatus}) | Time: {runTime:F2}");
+                 if (!hasErrorLoggedOnce && !errorString.Contains("NOHEARTBEAT"))
+                    {
+                        try
+                        {
+                            AppData.Instance.userData.writeUpdateErrorLogData(errorString);
+                            hasErrorLoggedOnce = true;
+                        }
+                        catch (Exception ex)
+                        {
+                            MarsCommLogger.LogWarning($"Failed to write error log to CSV: {ex.Message}");
+                        }
+                    }
             }
         }
         else

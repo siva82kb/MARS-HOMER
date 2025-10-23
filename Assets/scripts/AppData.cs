@@ -10,7 +10,7 @@ public partial class AppData
     private static readonly Lazy<AppData> _instance = new Lazy<AppData>(() => new AppData());
     public static AppData Instance => _instance.Value;
 
-    static public readonly string COMPort = "COM5"; //1-35//2-30//3-32//4-50
+    static public readonly string COMPort = "COM30"; //1-35//2-30//3-32//4-50
 
     // Robot Connection Alive Variables.
     static public float MARS_WATCHDOG_TIMEOUT = 2.0f; //seconds
@@ -123,6 +123,10 @@ public partial class AppData
         currentSessionNumber = userData.dTableSession.Rows.Count > 0 ?
             Convert.ToInt32(userData.dTableSession.Rows[userData.dTableSession.Rows.Count - 1]["SessionNumber"]) + 1 : 1;
         AppLogger.LogInfo($"Session number set to {currentSessionNumber}.");
+
+        if (userData.isErrorOccurred()) AppLogger.LogError($"Error Occured in Mars. Needs to rectify it.");
+        
+
     }
 
     // Waiting for MarsComm

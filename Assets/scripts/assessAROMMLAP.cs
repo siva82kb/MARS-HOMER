@@ -16,6 +16,8 @@ public class AssessROMMLAP : MarsAssessAROM
     private readonly string preScene = "CHOOSEMOVE";
     private readonly string robotCalibScene = "ROBOTCALIB";
     private readonly string marsSetUp = "MARSSETUP";
+    private readonly string weightAssessmentScene = "ARMWEIGHT";
+
 
     protected override void Awake()
     {
@@ -59,7 +61,7 @@ public class AssessROMMLAP : MarsAssessAROM
         // Check if its time to change scene.
         if (changeScene)
         {
-            SceneManager.LoadScene(preScene);
+            SceneManager.LoadScene(weightAssessmentScene);
         }
     }
 

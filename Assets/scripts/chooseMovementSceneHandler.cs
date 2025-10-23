@@ -119,7 +119,14 @@ public class MovementSceneHandler : MonoBehaviour
         }
         else if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.W))
         {
-            // First check of MLAP assessment has been completed for the current training angle.
+            if (AppData.Instance.selectedMovement == null || AppData.Instance.selectedMovement.name != "MLAP")
+            {
+                message.text = "Weight assessment available only for MLAP movement.";
+                additionalMessage.text = "";
+                changeScene = false;
+                return;
+            }
+
             if (AppData.Instance.userData.IsAromAssessmentAvailableForTrainingAngle("MLAP"))
             {
                 // Switch to the training plane scene.
@@ -134,6 +141,7 @@ public class MovementSceneHandler : MonoBehaviour
                 nextScene = assessmentSceneMLAP;
                 changeScene = true;
             }
+            
         }
 
         //Check if a scene change is needed.
@@ -245,11 +253,21 @@ public class MovementSceneHandler : MonoBehaviour
                     message.text = "Press Mars Button to start assessment";
                     additionalMessage.text = noAssessAvailable ? "No previous assessment found. Assessment will be done first." :
                                              trainingPlaneMismatch ? "Training plane angle mismatch. Reassesment will be done first." : "";
-                  
+
                 }
                 else
                 {
-                    // Set the AROM assessment scene.
+                    if ((trainingPlaneMismatch || AppData.Instance.userData.IsArmWeightAssessmentAvailableForTrainingAngle()== false) && AppData.Instance.selectedMovement.name == "MLAP")
+                    {
+                     message.text = "Press Mars Button to start weight assessment";
+                    additionalMessage.text = !AppData.Instance.userData.IsArmWeightAssessmentAvailableForTrainingAngle() ? "No previous weight assessment found. Assessment will be done first." : "";
+                    nextScene = armWeightScene;
+
+
+                    }
+                    else
+                    {
+                         // Set the AROM assessment scene.
                     aromAssessmentScene = AppData.Instance.selectedMovement.name == "ML" ? assessmentSceneML :
                                           AppData.Instance.selectedMovement.name == "AP" ? assessmentSceneAP :
                                           AppData.Instance.selectedMovement.name == "MLAP" ? assessmentSceneMLAP : "";
@@ -257,8 +275,13 @@ public class MovementSceneHandler : MonoBehaviour
                     nextScene = MarsGameDefs.GAME_SCENES[MarsDefs.getMovementIndex(child.name)];
                     message.text = "Press Mars Button to start game";
                     additionalMessage.text = "";
-                    
+                    }
+                   
+
                 }
+               
+                
+                
                 AppLogger.LogInfo($"Selected movement ({AppData.Instance.selectedMovement.name}) and game ({AppData.Instance.selectedGame})");
                 break;
             }
