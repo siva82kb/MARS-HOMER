@@ -405,6 +405,7 @@ public class AssessArmWeight : MonoBehaviour
                 armWeight.initializeArmWeightAssessment();
                 // Initialize raw data annotation and logging.
                 AppData.Instance.annotation = currentTarget.ToString();
+                Debug.Log(armWeight.datetime.ToString()+"stringdate");
                 AppData.Instance.StartRawDataArmWeightDataLogging(armWeight.datetime.Replace(" ", "_").Replace(":", "-"));
                 AppLogger.LogInfo($"State changed to {currentState}.");
                 break;

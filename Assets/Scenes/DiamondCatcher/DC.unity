@@ -1283,7 +1283,7 @@ MonoBehaviour:
   nSuccess: 0
   nFailure: 0
   gameDuration: 10
-  debug: 0
+  debug: 1
 --- !u!1 &880395062
 GameObject:
   m_ObjectHideFlags: 0
@@ -2984,11 +2984,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e1e783d6d78c81e41ad511f3fa97cd7d, type: 3}
---- !u!198 &674703150584792947 stripped
-ParticleSystem:
-  m_CorrespondingSourceObject: {fileID: 5254780918472864000, guid: e1e783d6d78c81e41ad511f3fa97cd7d, type: 3}
-  m_PrefabInstance: {fileID: 674703150584792946}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1574761668757214909
 PrefabInstance:
   m_ObjectHideFlags: 0

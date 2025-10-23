@@ -884,7 +884,7 @@ public class ArmWeight
     {
         datetime = DateTime.Now.ToString(DataManager.DATETIMEFORMAT);
         mlapArom = new MarsArom("MLAP", readFromFile: true);
-        _trainingPlaneAngle = mlapArom == null? mlapArom.trainingPlaneAngle : 0;
+        _trainingPlaneAngle = mlapArom != null? mlapArom.trainingPlaneAngle : 0;
         targetPos = null;
         actualPos = null;
         actualForce = null;

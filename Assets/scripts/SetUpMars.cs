@@ -140,6 +140,7 @@ public class SetUpMars : MonoBehaviour
             case SETUPMARS.DEACTIVATE:
                 if (MarsComm.target == 0)
                 {
+                    instructionTxt.text = "Deativating Mars From TraingPlaneAngle TO  - 0 - ";
                     // Check if the target has been reached.
                     if (Mathf.Abs(MarsComm.angle1 - MarsComm.target) < 2)
                     {

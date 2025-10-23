@@ -238,6 +238,7 @@ public class DCGameController : MonoBehaviour
                     if (eventDelayTimer <= 0f)
                     {
                         reachTimeLeft = reachDuration;
+                        Debug.Log(reachDuration + "reach");
                         runOnce = false;
                         gameState = GameStates.WAITFORCATCH;
                     }
@@ -403,8 +404,7 @@ public class DCGameController : MonoBehaviour
             //cal gameTime
             int gametime = (int)gameDuration - (int)gameTimeLeft;
             AppData.Instance.gameTime = gametime < gameDuration ? gametime : gameDuration;
-            // AppData.Instance.gameSpeed = gameSpeed;
-
+          
             //stop trail
             AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
             cummulativeScoreTxt.text = $"{AppData.Instance.selectedGame.cummulativeHits:D4}";

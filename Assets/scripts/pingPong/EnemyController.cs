@@ -34,10 +34,10 @@ public class EnemyController : MonoBehaviour {
 		// Finding the ball
 		if (!pongGameController.Instance.isGamePlaying) return;
         if (pongGameController.Instance.gameSpeed == 0) return;
-
+		
         if (ball == null)
 		{
-			ball = GameObject.FindGameObjectWithTag("Target").transform;
+			ball = GameObject.FindGameObjectWithTag("Target").transform==null?null: GameObject.FindGameObjectWithTag("Target").transform;
 		}
 
 		// Setting the ball's rigidbody to a variable

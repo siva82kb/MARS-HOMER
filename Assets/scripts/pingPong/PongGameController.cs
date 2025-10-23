@@ -144,6 +144,7 @@ public class pongGameController : MonoBehaviour {
         {
             gameSpeedChanged = false;
             BallController.instance.ballSpeed = AppData.Instance.selectedGame.gameSpeed;
+            gameSpeed = AppData.Instance.selectedGame.gameSpeed;
         }
         
         // Check of the game speed controller is to be shown.
@@ -160,13 +161,6 @@ public class pongGameController : MonoBehaviour {
         // Run the state machine
         RunStateMachine();
 
-        // // Update player and target positions
-        // if (isGamePlaying)
-        // {
-        //     playerPosition = GameObject.FindGameObjectWithTag("Player").transform.position;
-        //     targetObject = GameObject.FindGameObjectWithTag("Target");
-        //     targetPosition = targetObject != null ? targetObject.transform.position : null;
-        // }
 
         if (isGamePlaying)
         {

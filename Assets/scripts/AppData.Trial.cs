@@ -314,6 +314,7 @@ public partial class AppData
 
     private Vector3 GetGamePlayerPosition()
     {
+       
         switch (selectedGame.name)
         {
             case "SS":

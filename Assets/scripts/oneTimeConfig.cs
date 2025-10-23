@@ -15,15 +15,13 @@ public class OneTimeConfig : MonoBehaviour
     public TMP_InputField startDateField;
     public TMP_InputField endDateField;
 
-    public TMP_InputField sfeField;
-    public TMP_InputField sabad;
-    public TMP_InputField elfe;
+    public TMP_InputField mlDuration;
+    public TMP_InputField apDuration;
+    public TMP_InputField mlapDuration;
     public Button Done;
     public TMP_Dropdown affectedSideDropdown;
 
     public TextMeshProUGUI totalDurationText;
-    public Animator animator; // Assign UI element�s Animator in Inspector
-    [SerializeField]private AudioSource audioSource;
     public string upperArmLength = "250";
     public string foreArmLength = "150";
     
@@ -35,57 +33,24 @@ public class OneTimeConfig : MonoBehaviour
 
         startDateField.text = startDate.ToString("dd-MM-yyyy");
         endDateField.text = endDate.ToString("dd-MM-yyyy");
-        sfeField.onValueChanged.AddListener(delegate { UpdateTotalDuration(); });
-        sabad.onValueChanged.AddListener(delegate { UpdateTotalDuration(); });
-        elfe.onValueChanged.AddListener(delegate { UpdateTotalDuration(); });
-
-        if (audioSource == null)
-        {
-            Debug.LogError("AudioSource not found on " + gameObject.name);
-        }
-        if (audioSource != null && audioSource.clip != null)
-        {
-            Debug.Log("Playing Audio: " + audioSource.clip.name);
-            audioSource.ignoreListenerPause = true;
-
-        }
-        else
-        {
-            Debug.LogError("Audio Source or Clip is missing!");
-        }
-        Done.gameObject.SetActive(false);
+        mlDuration.onValueChanged.AddListener(delegate { UpdateTotalDuration(); });
+        apDuration.onValueChanged.AddListener(delegate { UpdateTotalDuration(); });
+        mlapDuration.onValueChanged.AddListener(delegate { UpdateTotalDuration(); });
+        Done.onClick.AddListener(delegate { saveConfig(); });
+      
     }
     private void Update()
     {
-        if (string.IsNullOrWhiteSpace(nameField.text) ||
-          string.IsNullOrWhiteSpace(ageField.text) ||
-          string.IsNullOrWhiteSpace(hospitalIdField.text) ||
-          string.IsNullOrWhiteSpace(startDateField.text) ||
-          string.IsNullOrWhiteSpace(endDateField.text)||
-          string.IsNullOrWhiteSpace(sfeField.text)||
-          string.IsNullOrWhiteSpace(sabad.text)||
-          string.IsNullOrWhiteSpace(elfe.text))
-        {
-           
-            animator.SetBool("isZomming", false);
-            Done.gameObject.SetActive(false);
-        }
-        else
-        {
-           
-            animator.SetBool("isZomming", true); // Start zooming
-            Done.gameObject.SetActive(true);
-
-        }
+       
        
     }
     private void UpdateTotalDuration()
     {
         int totalDuration = 0;
 
-        totalDuration += ParseField(sfeField);
-        totalDuration += ParseField(sabad);
-        totalDuration += ParseField(elfe);
+        totalDuration += ParseField(mlDuration);
+        totalDuration += ParseField(apDuration);
+        totalDuration += ParseField(mlapDuration);
        
         totalDurationText.text = totalDuration.ToString();
     }
@@ -119,46 +84,41 @@ public class OneTimeConfig : MonoBehaviour
         string endDate = endDateField.text;
         
         // Set null to "0".
-        string sfe = string.IsNullOrEmpty(sfeField.text) ? "0" : sfeField.text;
-        string sabad = string.IsNullOrEmpty(this.sabad.text) ? "0" : this.sabad.text;
-        string elfe = string.IsNullOrEmpty(this.elfe.text) ? "0" : this.elfe.text;
+        string ML = string.IsNullOrEmpty(mlDuration.text) ? "0" : mlDuration.text;
+        string AP = string.IsNullOrEmpty(this.apDuration.text) ? "0" : this.apDuration.text;
+        string MLAP = string.IsNullOrEmpty(this.mlapDuration.text) ? "0" : this.mlapDuration.text;
       
         string totalDuration = totalDurationText.text;
 
         string trainingSide = affectedSideDropdown.options[affectedSideDropdown.value].text;
-        if (trainingSide == "Right")
-        {
-            trainingSide = "2";
-        }
-        else
-        {
-            trainingSide = "1";
-        }
-            string headers = "Date,name,hospno,Startdate,end ,age,TotaDuration,SFE,SABDU,ELFE,useHand,forearmLength,upperarmLength";
-        string data = $"{date},{name},{hospitalId},{startDate},{endDate},{age},{totalDuration},{sfe},{sabad},{elfe},{trainingSide},{upperArmLength},{foreArmLength}";
+       
+        string headers = "Date,name,HospitalNumber,Startdate,end,age,time,ML,AP,MLAP,forearmLength,upperarmLength,TrainingSide,Location";
+        string data = $"{date},{name},{hospitalId},{startDate},{endDate},{age},{totalDuration},{ML},{AP},{MLAP},{upperArmLength},{foreArmLength},{trainingSide},CMCV";
+        string directoryPath = Path.Combine(Application.dataPath, "data", hospitalId, "data");
+        string datapath = Path.Combine(directoryPath, "configdata.csv");
 
-        if (!Directory.Exists(DataManager.basePath))
-        {
-            Directory.CreateDirectory(DataManager.basePath);
-        }
-     
+        // Ensure directory exists
+        if (!Directory.Exists(directoryPath)) Directory.CreateDirectory(directoryPath);
 
-        if (File.Exists(DataManager.configFile))
+        // DataManager.CreateFileStructure();
+        if (File.Exists(datapath))
         {
             Debug.Log("Configuration File Already Exists. you can't update Here");
         }
-        else {
-            if (!File.Exists(DataManager.configFile))
+        else
+        {
+            if (!File.Exists(datapath))
             {
-                File.Create(DataManager.configFile).Dispose();
-                File.WriteAllText(DataManager.configFile, headers + Environment.NewLine);
-                Debug.Log("Data saved to CSV: " + DataManager.configFile);
+                File.WriteAllText(datapath, headers + Environment.NewLine);
+                Debug.Log("Data saved to CSV: " + datapath);
             }
-            File.AppendAllText(DataManager.configFile, data + Environment.NewLine);
+            File.AppendAllText(datapath, data + Environment.NewLine);
 
-            SceneManager.LoadScene("welcomeScene");
+
+            SceneManager.LoadScene("MAIN");
 
         }
+      
         
     }
 }

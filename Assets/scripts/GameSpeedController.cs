@@ -8,6 +8,7 @@ using UnityEditor;
 using System.IO;
 using TMPro;
 using Unity.VisualScripting;
+using System.Diagnostics;
 
 
 public class GameSpeedController : MonoBehaviour
@@ -25,6 +26,7 @@ public class GameSpeedController : MonoBehaviour
 
     void Update()
     {
+     
         // Only if the game object is active
         if (gameObject.activeSelf)
         {
