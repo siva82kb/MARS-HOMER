@@ -82,7 +82,7 @@ public class OneTimeConfig : MonoBehaviour
         string hospitalId = hospitalIdField.text;
         string startDate = startDateField.text;
         string endDate = endDateField.text;
-        
+        AppData.Instance.setUser(hospitalId);
         // Set null to "0".
         string ML = string.IsNullOrEmpty(mlDuration.text) ? "0" : mlDuration.text;
         string AP = string.IsNullOrEmpty(this.apDuration.text) ? "0" : this.apDuration.text;
@@ -94,7 +94,7 @@ public class OneTimeConfig : MonoBehaviour
        
         string headers = "Date,name,HospitalNumber,Startdate,end,age,time,ML,AP,MLAP,forearmLength,upperarmLength,TrainingSide,Location";
         string data = $"{date},{name},{hospitalId},{startDate},{endDate},{age},{totalDuration},{ML},{AP},{MLAP},{upperArmLength},{foreArmLength},{trainingSide},CMCV";
-        string directoryPath = Path.Combine(Application.dataPath, "data", hospitalId, "data");
+        string directoryPath = Path.Combine(Application.dataPath, "data", AppData.Instance.userID, "data");
         string datapath = Path.Combine(directoryPath, "configdata.csv");
 
         // Ensure directory exists

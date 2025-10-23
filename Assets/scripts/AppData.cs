@@ -11,7 +11,7 @@ public partial class AppData
     public static AppData Instance => _instance.Value;
 
 
-    static public readonly string COMPort = "COM50"; //1-35//2-30//3-32//4-50
+    static public readonly string COMPort = "COM32"; //1-35//2-30//3-32//4-50
 
     // Robot Connection Alive Variables.
     static public float MARS_WATCHDOG_TIMEOUT = 2.0f; //seconds
