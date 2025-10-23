@@ -57,7 +57,7 @@ public class getConfig : MonoBehaviour
         if (File.Exists(configFilePath))
         {
             //Debug.Log("Logged in");
-            SceneManager.LoadScene("welcomeScene");
+            SceneManager.LoadScene("MAIN");
         }
     }
 }

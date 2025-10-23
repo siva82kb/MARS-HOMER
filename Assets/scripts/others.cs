@@ -7,7 +7,6 @@ using UnityEngine;
 using System.IO;
 using System.Text;
 using System.Numerics;
-using UnityEngine;
 
 
 public static class MarsDefs
@@ -55,12 +54,14 @@ public class MarsUserData
     public int limb { get { return rightArm ? 1 : 2; } }
 
     public float trainingPlaneAngle { get; private set; } = 0f; // In degrees
+    public string errorStatus { get; private set; } = null; // In degrees
+
     public ArmWeight armWeight { get; private set; } = null;
 
     public Dictionary<string, float> moveTimePrsc { get; private set; } // Prescribed movement time
     public Dictionary<string, float> moveTimeCurr { get; private set; } // Current movement time
     public Dictionary<string, float> moveTimePrev { get; private set; } // Previous movement time 
-
+    private String[] ERRORSTATUS = new string[] { "RESOLVED", "NOTRESOLVED"};
     // Total movement times.
     public float totalMoveTimePrsc
     {
@@ -112,6 +113,10 @@ public class MarsUserData
         // Read parse the training plane data if it exists.
         if (!File.Exists(DataManager.trainingPlaneFile)) DataManager.CreateTrainingPlaneFile(this.userID, "MARS", GetDeviceLocation());
         readParseTrainingPlaneData(DataManager.trainingPlaneFile);
+        
+         // Read parse the training plane data if it exists.
+        if (!File.Exists(DataManager.errorLogFile)) DataManager.CreateErrorLogFile(this.userID, "MARS", GetDeviceLocation());
+        readErrorLogData(DataManager.errorLogFile);
 
         // Read the arm weight data if it exists.
         if (!File.Exists(DataManager.armWeightFile)) DataManager.CreateArmWeightFile(this.userID, "MARS", GetDeviceLocation());
@@ -191,6 +196,13 @@ public class MarsUserData
         DataRow lastRow = dTrainPlane.Rows[dTrainPlane.Rows.Count - 1];
         trainingPlaneAngle = float.Parse(lastRow.Field<string>("TrainingPlaneAngle"));
     }
+    private void readErrorLogData(string errorLogFile)
+    {
+        DataTable dErrorLog = DataManager.loadCSV(errorLogFile);
+        if (dErrorLog.Rows.Count == 0) return;
+        DataRow lastRow = dErrorLog.Rows[dErrorLog.Rows.Count - 1];
+        errorStatus = lastRow.Field<string>("Status");
+    }
 
     public void writeUpdateTrainingPlaneData(float tpAngle)
     {
@@ -201,6 +213,30 @@ public class MarsUserData
         {
             string _dtstr = DateTime.Now.ToString(DataManager.DATETIMEFORMAT);
             writer.WriteLine($"{_dtstr},{tpAngle}");
+        }
+    }
+    public void writeUpdateErrorLogData(String error)
+    {
+        // Create the file if it does not exist.
+        if (!File.Exists(DataManager.errorLogFile)) DataManager.CreateErrorLogFile(userID, "MARS", GetDeviceLocation());
+        // Append the new training plane angle to the file.
+        using (var writer = new StreamWriter(DataManager.errorLogFile, true, Encoding.UTF8))
+        {
+            string _dtstr = DateTime.Now.ToString(DataManager.DATETIMEFORMAT);
+             string trialNo = AppData.Instance.selectedMovement == null 
+            ? "null" 
+            : AppData.Instance.selectedMovement.trialNumberDay.ToString();
+
+            writer.WriteLine(
+                $"{_dtstr}," +
+                $"{AppData.Instance.userData.hospNumber}," +
+                $"{AppData.Instance.currentSessionNumber}," +
+                $"{trialNo}," +
+                $"{AppLogger.currentScene}," +
+                $"{AppLogger.currentMovement}," +
+                $"{error}," +
+                $"{ERRORSTATUS[1]}"
+            );
         }
     }
 
@@ -263,6 +299,7 @@ public class MarsUserData
         if (ArmWeight.ArmWeightFileExists())
         {
             var aw = new ArmWeight(readFromFile: true);
+
             if (!aw.isAssessmentComplete) return false;
             return Mathf.Abs(aw.trainingPlaneAngle - AppData.Instance.userData.trainingPlaneAngle) <= MarsDefs.TRAINING_PLANE_ANGLE_THRESHOLD;
         }
@@ -280,6 +317,15 @@ public class MarsUserData
         DateTime awDate = DateTime.ParseExact(aw.datetime, DataManager.DATETIMEFORMAT, CultureInfo.InvariantCulture);
         TimeSpan duration = DateTime.Now.Date - awDate.Date;
         return (int)duration.TotalDays;
+    }
+    public bool isErrorOccurred()
+    {
+        if (errorStatus == null) return false;
+        if (errorStatus.ToUpper() ==  ERRORSTATUS[1])
+        {
+            return true;
+        }
+        return false;
     }
 
     public int[] readCummulativeHitsMissesForGameMovement(string gameName, string movementName)

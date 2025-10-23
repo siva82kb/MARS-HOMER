@@ -26,18 +26,26 @@ public class DataManager : MonoBehaviour
     public static string trainingPlanePath { get; private set; }
     public static string gamePath { get; private set; }
     public static string logPath { get; private set; }
+    public static string errorLogPath { get; private set; }
 
     public static string sessionFile { get; private set; }
     public static string configFile;
     private static readonly string configFileName = "configdata.csv";
     public static string trainingPlaneFile;
     public static string armWeightFile;
+    public static string errorLogFile;
+
     private static readonly string armWeightFileName = "armweight.csv";
     private static readonly string trainingPlaneFileName = "trainingplane.csv";
+    private static readonly string errorLogFileName = "errorLog.csv";
+
     public static string romFile;
     private static readonly string romFileName = "rom.csv";
     public static string[] TRAININGPLANEFILEHEADER = new string[] {
         "DateTime", "TrainingPlaneAngle"
+    };
+     public static string[] ERRORLOGFILEHEADER = new string[] {
+        "DateTime", "HospitalID","SessionNumber","TrialNumberDay","Scene","Movement","Error","Status"
     };
     public static string[] ARMWEIGHTFILEHEADER = new string[] {
         "DateTime", "TrainingPlaneAngle",
@@ -88,7 +96,6 @@ public class DataManager : MonoBehaviour
     public static string GetRomRawFileName(string movement, string datetime) => FixPath(Path.Combine(romPath, $"romraw-{movement}-{datetime.Replace(" ", "_").Replace(":", "-")}.csv"));
     public static string GetArmWeightRawFileName(string datetime) => FixPath(Path.Combine(armWeightPath, $"armweightraw-{datetime.Replace(" ", "_").Replace(":", "-")}.csv"));
     public static string GetTrialRawDataFileName(int sessNo, int trialNo, string game, string movement) => FixPath(Path.Combine(rawPath, $"raw-sess{sessNo:D2}-trial{trialNo:D3}-{game}-{movement}.csv"));
-
     public static void CreateFileStructure(string userID)
     {
         // Update the user ID path. If the userID is empty, do nothing.
@@ -101,6 +108,9 @@ public class DataManager : MonoBehaviour
         rawPath = userPath + "/rawdata";
         gamePath = userPath + "/game";
         logPath = userPath + "/applog";
+        //eror Log File
+        errorLogPath = userPath + "/errorlog";
+        errorLogFile = errorLogPath + $"/{errorLogFileName}";
         // Training Plane
         trainingPlanePath = userPath + "/trainingplane";
         trainingPlaneFile = trainingPlanePath + $"/{trainingPlaneFileName}";
@@ -116,6 +126,8 @@ public class DataManager : MonoBehaviour
         Directory.CreateDirectory(rawPath);
         Directory.CreateDirectory(gamePath);
         Directory.CreateDirectory(logPath);
+        Directory.CreateDirectory(errorLogPath);
+
         Debug.Log("Directory created at: " + userPath);
     }
 
@@ -154,6 +166,24 @@ public class DataManager : MonoBehaviour
                 writer.WriteLine(string.Join(",", header));
             }
             AppLogger.LogWarning($"{trainingPlaneFileName} file not found. Created one.");
+        }
+    }
+
+     public static void CreateErrorLogFile(string userID, string device, string location, string[] header = null)
+    {
+        // Ensure the TrainingPlanes.csv file has headers if it doesn't exist
+        if (!File.Exists(errorLogFile))
+        {
+            header ??= ERRORLOGFILEHEADER;
+            using (var writer = new StreamWriter(errorLogFile, false, Encoding.UTF8))
+            {
+                // Write the preheader details
+                writer.WriteLine($":Location: {location}");
+                writer.WriteLine($":Device: {device}");
+                writer.WriteLine($":User: {userID}");
+                writer.WriteLine(string.Join(",", header));
+            }
+            AppLogger.LogWarning($"{errorLogFileName} file not found. Created one.");
         }
     }
 

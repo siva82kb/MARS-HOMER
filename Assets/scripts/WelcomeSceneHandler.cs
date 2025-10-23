@@ -23,18 +23,22 @@ public class welcomeSceneHandler : MonoBehaviour
     private DaySummary[] daySummaries;
     public static bool changeScene = false;
     public readonly string nextScene = "ROBOTCALIB";
-
     public bool attachMarsButtonEvent = false;
 
     // Start is called before the first frame update
     void Start()
     {
+        if (!Directory.Exists(DataManager.basePath)) 
+        {
+            SceneManager.LoadScene("GETCONFIG");
+            return;
+        }
         // Initialize AppData
         AppData.Instance.Initialize(SceneManager.GetActiveScene().name);
 
         // Check if the directory exists
         if (!Directory.Exists(DataManager.basePath)) Directory.CreateDirectory(DataManager.basePath);
-        if (!File.Exists(DataManager.configFile)) SceneManager.LoadScene("CONFIG");
+        // if (!File.Exists(DataManager.configFile)) SceneManager.LoadScene("CONFIG");
 
         AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);
         AppLogger.LogInfo($"'{SceneManager.GetActiveScene().name}' scene started.");
@@ -65,8 +69,16 @@ public class welcomeSceneHandler : MonoBehaviour
 
     public void OnMarsButtonReleased()
     {
-        AppLogger.LogInfo("Mars button released.");
-        changeScene = true;
+        if (AppData.Instance.userData.isErrorOccurred())
+        {
+             AppLogger.LogError("Error Occured. Need to address it. check the error log file");
+        }
+        else
+        {
+            AppLogger.LogInfo("Mars button released.");
+            changeScene = true;
+        }
+        
     }
 
     private void LoadTargetScene()

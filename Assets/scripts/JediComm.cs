@@ -66,6 +66,7 @@ public static class JediComm
 
     static public void Disconnect()
     {
+        ConnectToRobot.isMARS = false;
         stop = true;
         if (serPort.IsOpen)
         {
@@ -109,6 +110,7 @@ public static class JediComm
             }
             catch (TimeoutException)
             {
+                ConnectToRobot.isMARS = false;
                 continue;
             }
 
