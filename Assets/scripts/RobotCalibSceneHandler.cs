@@ -119,7 +119,7 @@ public class RobotCalibrationSceneHandler : MonoBehaviour
                     AppLogger.LogInfo($"MARS angle inside the limit of {MarsComm.CALIB_ANGLE_LIMIT} | {MarsComm.imuAngle1:F2}, {MarsComm.imuAngle2:F2}, {MarsComm.imuAngle3:F2}, {MarsComm.imuAngle4:F2}.");
                 }
                 instructionText.text = "Press the MARS Button when ready.";
-                instructionText.color = new Color32(202, 108, 0, 255);
+                instructionText.color = new Color32(42,55 ,46, 255);
             }
         }
     }

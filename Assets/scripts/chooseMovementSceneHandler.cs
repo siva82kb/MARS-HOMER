@@ -4,11 +4,8 @@ using TMPro;
 using UnityEngine.SceneManagement;
 using System.Collections;
 using System.IO;
-using System;
-using UnityEngine.Rendering.Universal;
-using static SetUpMars;
-using System.Web;
-using System.Runtime.CompilerServices;
+using UnityEngine.EventSystems;
+
 
 
 public class MovementSceneHandler : MonoBehaviour
@@ -23,7 +20,7 @@ public class MovementSceneHandler : MonoBehaviour
     public Text armWeightText;
 
     public static float initialAngle;
-    private string nextScene;
+    private string nextScene = "";
     //flags
     private static bool changeScene = false;
     private bool toggleSelected = false;
@@ -99,17 +96,15 @@ public class MovementSceneHandler : MonoBehaviour
         // or training plane selection.
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.A))
         {
-            if (nextScene == "")
+            if (aromAssessmentScene != "")
             {
-                message.text = "Please select the movement first.";
-                changeScene = false;
-            }
-            else
-            {
+              
                 // Go the next assessment scene based on the selected movement.
                 nextScene = aromAssessmentScene;
                 changeScene = true;
             }
+           
+
         }
         else if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.T))
         {

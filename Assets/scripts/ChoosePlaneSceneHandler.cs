@@ -21,8 +21,8 @@ public class ChoosePlaneSceneHandler : MonoBehaviour
     public Slider sliderTrainPlane;
     public Slider sliderCtrlBound;
     public Button btnDone;
-    private static string FLOAT_FORMAT = "+0.0;-0.0";
-
+    private static string FLOAT_FORMAT = "+0.0;-0.0"; 
+    private static string FLOAT_FORMAT_D = "0.0";
     public readonly string robotCalibScene = "ROBOTCALIB";
     public readonly string nextScene = "CHOOSEMOVE";
     private bool attachMarsButtonEvent = true;
@@ -185,9 +185,9 @@ public class ChoosePlaneSceneHandler : MonoBehaviour
 
             case ChooseTrainingPlaneStates.TEST_TRAINING_PLANES:
                 // Update the current and set training angles.
-                trainPlaneText.text = $"Set: {MarsComm.desired.ToString(FLOAT_FORMAT)} deg | ";
-                trainPlaneText.text += $"Actual: {MarsComm.angle1.ToString(FLOAT_FORMAT)} deg";
-                sliderValueText.text = $"{sliderTrainPlane.value.ToString(FLOAT_FORMAT)} deg";
+                trainPlaneText.text = $"Set: {Mathf.Abs(MarsComm.desired).ToString(FLOAT_FORMAT_D)} deg | ";
+                trainPlaneText.text += $"Actual: {Mathf.Abs(MarsComm.angle1).ToString(FLOAT_FORMAT_D)} deg";
+                sliderValueText.text = $"{Mathf.Abs(sliderTrainPlane.value).ToString(FLOAT_FORMAT_D)} deg";
                 // Check of new training plane angle has been set.
                 if (newTrainingPlaneAngle)
                 {

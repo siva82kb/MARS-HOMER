@@ -181,7 +181,6 @@ public class pongGameController : MonoBehaviour {
     public void RunStateMachine()
     {
         
-
         // Update the trial timer if the game is playing.
         if (isGamePlaying && nTargets > 0) gameTimeLeft -= Time.deltaTime;
         

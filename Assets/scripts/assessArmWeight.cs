@@ -197,6 +197,8 @@ public class AssessArmWeight : MonoBehaviour
         if (currentState != ARMWEIGHT_ASSESS_STATE.WAIT_FOR_TARGET_SELECTION) return;
         if (Input.GetKeyDown(KeyCode.L))
         {
+            if (armWeight.targetAssessmentStatus[(int)ArmWeight.ARMWEIGHT_TARGET.LEFT]) return;
+         
             currentTarget = ArmWeight.ARMWEIGHT_TARGET.LEFT;
             currentTargetObject = leftTarget;
             currentTargetPosition = new Vector3(
@@ -207,6 +209,7 @@ public class AssessArmWeight : MonoBehaviour
         }
         else if (Input.GetKeyDown(KeyCode.R))
         {
+            if (armWeight.targetAssessmentStatus[(int)ArmWeight.ARMWEIGHT_TARGET.RIGHT]) return;
             currentTarget = ArmWeight.ARMWEIGHT_TARGET.RIGHT;
             currentTargetObject = rightTarget;
             currentTargetPosition = new Vector3(
@@ -217,6 +220,7 @@ public class AssessArmWeight : MonoBehaviour
         }
         else if (Input.GetKeyDown(KeyCode.T))
         {
+            if (armWeight.targetAssessmentStatus[(int)ArmWeight.ARMWEIGHT_TARGET.TOP]) return;
             currentTarget = ArmWeight.ARMWEIGHT_TARGET.TOP;
             currentTargetObject = topTarget;
             currentTargetPosition = new Vector3(
@@ -227,6 +231,7 @@ public class AssessArmWeight : MonoBehaviour
         }
         else if (Input.GetKeyDown(KeyCode.B))
         {
+            if (armWeight.targetAssessmentStatus[(int)ArmWeight.ARMWEIGHT_TARGET.BOTTOM]) return;
             currentTarget = ArmWeight.ARMWEIGHT_TARGET.BOTTOM;
             currentTargetObject = bottomTarget;
             currentTargetPosition = new Vector3(
@@ -237,6 +242,7 @@ public class AssessArmWeight : MonoBehaviour
         }
         else if (Input.GetKeyDown(KeyCode.C))
         {
+            if (armWeight.targetAssessmentStatus[(int)ArmWeight.ARMWEIGHT_TARGET.CENTER]) return;
             currentTarget = ArmWeight.ARMWEIGHT_TARGET.CENTER;
             currentTargetObject = centerTarget;
             currentTargetPosition = new Vector3(

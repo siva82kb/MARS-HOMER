@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class connectStatusHandler : MonoBehaviour
@@ -33,7 +34,12 @@ public class connectStatusHandler : MonoBehaviour
 
         statusText = transform.Find("statusText").GetComponent<TextMeshProUGUI>();
         closePanel.onClick.AddListener(delegate { CloseAppLogger(); });
-        if (AppData.Instance.userData.isErrorOccurred()) errorPanel.SetActive(true);
+        if (AppData.Instance != null)return;
+        if (AppData.Instance.userData.isErrorOccurred())
+        {
+            if (SceneManager.GetActiveScene().name == "DIAGNOSTICS") return;
+            errorPanel.SetActive(true);
+        }
     }
 
     // Update is called once per frame
@@ -55,6 +61,7 @@ public class connectStatusHandler : MonoBehaviour
         }
         if (MarsComm.errorStatus != 0 && MarsComm.errorStatus != 1)
         {
+            if (SceneManager.GetActiveScene().name == "DIAGNOSTICS") return;
             errorPanel.SetActive(true);
         }
            

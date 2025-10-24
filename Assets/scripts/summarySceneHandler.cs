@@ -13,12 +13,9 @@ public class summarySceneHandler : MonoBehaviour
     public BarChart barchart;
     public string title;
     private ConcurrentQueue<System.Action> _actionQueue = new ConcurrentQueue<System.Action>();
-
+    private float shutdownTimer = 5f;
     public void Start()
     {
-        MarsComm.sendHeartbeat();
-       
-        MarsComm.OnMarsButtonReleased += onMarsButtonReleased;
         // Inialize the logger
         AppLogger.StartLogging(SceneManager.GetActiveScene().name);
         AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);
@@ -29,12 +26,14 @@ public class summarySceneHandler : MonoBehaviour
 
     void Update()
     {
-        MarsComm.sendHeartbeat();
+        shutdownTimer -= Time.deltaTime;
+        //MarsComm.sendHeartbeat();
        
-        while (_actionQueue.TryDequeue(out var action))
-        {
-            action.Invoke(); // Execute the action
-        }
+        //while (_actionQueue.TryDequeue(out var action))
+        //{
+        //    action.Invoke(); // Execute the action
+        //}
+        if(shutdownTimer<=0)exit();
 
     }
 
@@ -47,9 +46,17 @@ public class summarySceneHandler : MonoBehaviour
         UpdateChartData();
        
     }
+    public void exit()
+    {
+        AppLogger.LogInfo("Disconnected form Mars And Application closed succesfully");
+        Application.Quit();
+        #if UNITY_EDITOR
+                UnityEditor.EditorApplication.isPlaying = false; // Stop play mode if in editor
+        #endif
+    }
     public void quit()
     {
-        AppLogger.LogInfo("Mars button released.");
+        //AppLogger.LogInfo("Mars button released.");
         // Enqueue the disconnect and quit actions
         _actionQueue.Enqueue(() =>
         {
@@ -63,12 +70,7 @@ public class summarySceneHandler : MonoBehaviour
         });
 
     }
-    //To disconnect the Robot 
-    public void onMarsButtonReleased()
-    {
-        quit();
-    }
-
+  
     //To initialize the barchart with whole data of moveTime per day
     public void initializeChart()
     {
@@ -141,14 +143,11 @@ public class summarySceneHandler : MonoBehaviour
         barchart.RefreshAllComponent();
         AppLogger.LogInfo("chart updated successfully");
     }
-    private void OnDestroy()
-    {
-        MarsComm.OnMarsButtonReleased -= onMarsButtonReleased;
-    }
+   
     private void OnApplicationQuit()
     {
 
         Application.Quit();
-        JediComm.Disconnect();
+      
     }
 }

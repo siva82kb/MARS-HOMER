@@ -32,6 +32,7 @@ public class SetUpMars : MonoBehaviour
     public SETUPMARS currentState = SETUPMARS.IDLE;
 
     private const float TARGET_REACH_ERROR = 5.0f; // Degrees
+    private const float ARM_WEIGHT_ERROR = 5.0f;  //  Force
 
     // Start is called before the first frame update
     void Start()
@@ -74,7 +75,7 @@ public class SetUpMars : MonoBehaviour
     public void runStateMachine()
     {
         if (currentState == SETUPMARS.DONE) return;
-        statusTxt.text = $"{MarsComm.angle1:F2} deg | {MarsComm.force:F2} N";
+        statusTxt.text = $"{Mathf.Abs(MarsComm.angle1):F2} deg | {Mathf.Abs(MarsComm.force):F2} N";
         switch (currentState)
         {
             case SETUPMARS.IDLE:
@@ -128,7 +129,7 @@ public class SetUpMars : MonoBehaviour
                 }
                 break;
             case SETUPMARS.SETDEACTIVATEMODE:
-                if (MarsComm.force > 2)
+                if (MarsComm.force > ARM_WEIGHT_ERROR)
                 {
                     instructionTxt.text = "Please Detach your Limb From Mars";
                 }
@@ -138,24 +139,27 @@ public class SetUpMars : MonoBehaviour
                 }
                 break;
             case SETUPMARS.DEACTIVATE:
-                if (MarsComm.target == 0)
-                {
-                    instructionTxt.text = "Deativating Mars From TraingPlaneAngle TO  - 0 - ";
-                    // Check if the target has been reached.
-                    if (Mathf.Abs(MarsComm.angle1 - MarsComm.target) < 2)
-                    {
-                        AppLogger.LogInfo($"Deativating Mars From TraingPlaneAngle TO Zero  : {MarsComm.angle1}");
-                        currentState = SETUPMARS.DONE;
-                        instructionTxt.text = "";
-                        AppLogger.LogInfo($"Switching  Scene to {summaryScene}");
-                        SceneManager.LoadScene(summaryScene);
-                       
-                    }
-                }
-                else
-                {
-                    MarsComm.setControlTarget(0);
-                }
+                //if (MarsComm.target == 0)
+                //{
+                //    instructionTxt.text = "Deativating Mars From TraingPlaneAngle TO  - 0 - ";
+                //    // Check if the target has been reached.
+                //    if (Mathf.Abs(MarsComm.angle1 - MarsComm.target) < 2)
+                //    {
+                //        AppLogger.LogInfo($"Deativating Mars From TraingPlaneAngle TO Zero  : {MarsComm.angle1}");
+                //        currentState = SETUPMARS.DONE;
+                //        instructionTxt.text = "";
+                //        AppLogger.LogInfo($"Switching  Scene to {summaryScene}");
+                //        SceneManager.LoadScene(summaryScene);
+
+                //    }
+                //}
+                //else
+                //{
+                //    MarsComm.setControlTarget(0);
+                //}
+                AppLogger.LogInfo($"Deativating Mars");
+                JediComm.Disconnect();
+                SceneManager.LoadScene(summaryScene);
                 break;
         }
     }
@@ -187,9 +191,9 @@ public class SetUpMars : MonoBehaviour
                 }
                 break;
             case SETUPMARS.SETDEACTIVATEMODE:
-                if(MarsComm.force > 2)
+                if(MarsComm.force > ARM_WEIGHT_ERROR)
                 {
-                    AppLogger.LogInfo($"Limb is not Attached with Mars  FORCE - {MarsComm.force}"); 
+                    AppLogger.LogInfo($"Limb is Attached with Mars  FORCE - {MarsComm.force}"); 
                 }
                 else
                 {
