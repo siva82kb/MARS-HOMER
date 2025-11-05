@@ -42,11 +42,16 @@ public class AssessArmWeight : MonoBehaviour
     private int exitButtonPressCount = 0;
 
     private bool changeScene = false;
-
+    private bool updateTargetFlag = false;
     // Arm weight assessment statemachine variables
     private enum ARMWEIGHT_ASSESS_STATE
     {
         INIT,
+        RIGHT,
+        LEFT,
+        TOP,
+        BOTTOM,
+        CENTER,
         WAIT_FOR_TARGET_SELECTION,
         MOVING_TO_TARGET,
         IN_TARGET,
@@ -172,7 +177,7 @@ public class AssessArmWeight : MonoBehaviour
         updateCurrentEpPosition();
 
         // Read and handle keyboard input.
-        handleKeyboardInput();
+        autoUpdateArmWeightTarget();
 
         // Run the statemachine.
         runArmWeightAssessStateMachine();
@@ -191,11 +196,11 @@ public class AssessArmWeight : MonoBehaviour
         }
     }
 
-    private void handleKeyboardInput()
+    private void autoUpdateArmWeightTarget()
     {
-        // Respond only when the state is WAIT_FOR_TARGET_SELECTION
-        if (currentState != ARMWEIGHT_ASSESS_STATE.WAIT_FOR_TARGET_SELECTION) return;
-        if (Input.GetKeyDown(KeyCode.L))
+        // Respond only when the  UpdateTargetFlag is true
+        if (!updateTargetFlag) return;
+        if (currentState == ARMWEIGHT_ASSESS_STATE.LEFT)
         {
             if (armWeight.targetAssessmentStatus[(int)ArmWeight.ARMWEIGHT_TARGET.LEFT]) return;
          
@@ -207,7 +212,7 @@ public class AssessArmWeight : MonoBehaviour
                 mlapArom.leftAdjusted.x
             );
         }
-        else if (Input.GetKeyDown(KeyCode.R))
+        else if (currentState == ARMWEIGHT_ASSESS_STATE.RIGHT)
         {
             if (armWeight.targetAssessmentStatus[(int)ArmWeight.ARMWEIGHT_TARGET.RIGHT]) return;
             currentTarget = ArmWeight.ARMWEIGHT_TARGET.RIGHT;
@@ -218,7 +223,7 @@ public class AssessArmWeight : MonoBehaviour
                 mlapArom.rightAdjusted.x
             );
         }
-        else if (Input.GetKeyDown(KeyCode.T))
+        else if (currentState == ARMWEIGHT_ASSESS_STATE.TOP)
         {
             if (armWeight.targetAssessmentStatus[(int)ArmWeight.ARMWEIGHT_TARGET.TOP]) return;
             currentTarget = ArmWeight.ARMWEIGHT_TARGET.TOP;
@@ -229,7 +234,7 @@ public class AssessArmWeight : MonoBehaviour
                 mlapArom.topAdjusted.x
             );
         }
-        else if (Input.GetKeyDown(KeyCode.B))
+        else if (currentState == ARMWEIGHT_ASSESS_STATE.BOTTOM)
         {
             if (armWeight.targetAssessmentStatus[(int)ArmWeight.ARMWEIGHT_TARGET.BOTTOM]) return;
             currentTarget = ArmWeight.ARMWEIGHT_TARGET.BOTTOM;
@@ -240,7 +245,7 @@ public class AssessArmWeight : MonoBehaviour
                 mlapArom.bottomAdjusted.x
             );
         }
-        else if (Input.GetKeyDown(KeyCode.C))
+        else if (currentState == ARMWEIGHT_ASSESS_STATE.CENTER)
         {
             if (armWeight.targetAssessmentStatus[(int)ArmWeight.ARMWEIGHT_TARGET.CENTER]) return;
             currentTarget = ArmWeight.ARMWEIGHT_TARGET.CENTER;
@@ -278,8 +283,16 @@ public class AssessArmWeight : MonoBehaviour
                 break;
             case ARMWEIGHT_ASSESS_STATE.WAIT_FOR_TARGET_SELECTION:
                 instructionText.text = "Select a target by pressing L, R, T, B, or C.";
+                if (currentTarget == ArmWeight.ARMWEIGHT_TARGET.NONE) currentState = ARMWEIGHT_ASSESS_STATE.TOP;
+                if (currentTarget == ArmWeight.ARMWEIGHT_TARGET.TOP) currentState = ARMWEIGHT_ASSESS_STATE.RIGHT;
+                if (currentTarget == ArmWeight.ARMWEIGHT_TARGET.RIGHT) currentState = ARMWEIGHT_ASSESS_STATE.BOTTOM;
+                if (currentTarget == ArmWeight.ARMWEIGHT_TARGET.BOTTOM) currentState = ARMWEIGHT_ASSESS_STATE.LEFT;
+                if (currentTarget == ArmWeight.ARMWEIGHT_TARGET.LEFT) currentState = ARMWEIGHT_ASSESS_STATE.CENTER;
+                updateTargetFlag = true;
                 break;
             case ARMWEIGHT_ASSESS_STATE.MOVING_TO_TARGET:
+                if (currentTarget == ArmWeight.ARMWEIGHT_TARGET.NONE) return;
+                updateTargetFlag = false;
                 instructionText.text = $"Moving to {currentTarget} target.";
                 // Check if the robot has reached the target.
                 if (Mathf.Abs(MarsComm.epPosInThePlane.x - currentTargetPosition.x) < 0.5 * TARGET_SIZE &&
@@ -366,8 +379,9 @@ public class AssessArmWeight : MonoBehaviour
                 }
                 else
                 {
+                 
                     currentState = ARMWEIGHT_ASSESS_STATE.WAIT_FOR_TARGET_SELECTION;
-                    currentTarget = ArmWeight.ARMWEIGHT_TARGET.NONE;
+                    //currentTarget = ArmWeight.ARMWEIGHT_TARGET.NONE;
                     currentTargetObject = null;
                     currentTargetPosition = Vector3.zero;
                     stateStartTime = Time.time;
@@ -376,6 +390,7 @@ public class AssessArmWeight : MonoBehaviour
                 }
                 break;
             case ARMWEIGHT_ASSESS_STATE.ALL_DONE:
+                updateTargetFlag = false;
                 instructionText.text = "Assessment complete. Press the MARS button to save and exit the scene.";
                 break;
         }

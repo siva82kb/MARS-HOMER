@@ -11,7 +11,7 @@ public partial class AppData
     public static AppData Instance => _instance.Value;
 
 
-    static public readonly string COMPort = "COM32"; //1-35//2-30//3-32//4-50
+    static public readonly string COMPort = "COM8"; //1-35//2-30//3-32//4-50
 
     // Robot Connection Alive Variables.
     static public float MARS_WATCHDOG_TIMEOUT = 2.0f; //seconds
@@ -153,11 +153,6 @@ public partial class AppData
         }
         AppLogger.LogInfo($"Connected to MARS @ {COMPort}.");       
         AppLogger.LogInfo($"MARS SensorStream started.");
-    }
-
-    public void InitializeRobotDiagnostics()
-    {
-        ConnectToRobot.Connect(COMPort);
     }
 
     public void setUser(string user)

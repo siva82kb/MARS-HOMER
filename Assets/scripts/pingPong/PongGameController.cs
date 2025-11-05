@@ -10,7 +10,7 @@ public class pongGameController : MonoBehaviour {
 
     public static pongGameController Instance;
 
-    GameObject[] pauseObjects, finishObjects;
+    GameObject[] finishObjects;
 	public BoundController rightBound;
 	public BoundController leftBound;
     public Text timerTxt, pointCounter;
@@ -24,6 +24,7 @@ public class pongGameController : MonoBehaviour {
     public AudioClip[] audioClips; // winlevel loose
     public GameObject reminderPanel;
     public GameObject pauseImage;
+    public GameObject startImage;
     public int enemyScore, playerScore;
     public float gameTimeLeft,
                 eventDelayTimer,
@@ -81,11 +82,11 @@ public class pongGameController : MonoBehaviour {
     public bool isBallSpawned { get; private set; } = false;
     public bool isBallHitted { get; private set; } = false;
     public bool isBallMissed { get; private set; } = false;
-    public bool restartGame = false;
+    public bool restartGame { get; private set; } = false;
+
     public bool isGamePlaying => gameState == GameStates.MOVE
             || gameState == GameStates.SPAWNBALL
             || gameState == GameStates.SUCCESS
-            || gameState == GameStates.FAILURE
             || gameState == GameStates.FAILURE
             ;
                
@@ -96,7 +97,7 @@ public class pongGameController : MonoBehaviour {
     {
         MarsComm.sendHeartbeat();
         // Get the objects to show/hide on pausing or finishing the game.
-        pauseObjects = GameObject.FindGameObjectsWithTag("ShowOnPause");
+       
 		finishObjects = GameObject.FindGameObjectsWithTag("ShowOnFinish");
         hideFinished();
 
@@ -105,6 +106,9 @@ public class pongGameController : MonoBehaviour {
 
         // Read session data.
         AppData.Instance.userData.readParseSessionData(DataManager.sessionFile);
+
+        // Initialize the game GUI.
+        startImage.SetActive(true);
 
         // Initialize the game speed controller.
         initializeGameSpeedController();
@@ -115,6 +119,15 @@ public class pongGameController : MonoBehaviour {
         if (isRequiredTrialsCompleted) reminderPanel.SetActive(true);
         else reminderPanel.SetActive(false);
 
+        //switch the Player based on TrainingSide
+        if (AppData.Instance.userData.limb == 2)
+        {
+            GameObject player = GameObject.FindGameObjectWithTag("Player");
+            GameObject Enemy = GameObject.FindGameObjectWithTag("Enemy");
+            player.transform.position = new Vector3(-6, 0, 0);
+            Enemy.transform.position = new Vector3(6, 0, 0);
+        }
+
         // Attach event handler for Mars button release.
         MarsComm.OnMarsButtonReleased += onMarsButtonReleased;
     }
@@ -123,12 +136,12 @@ public class pongGameController : MonoBehaviour {
     {
         MarsComm.sendHeartbeat();
         // Check if the game is paused or to be paused/resumed.
-        if (isGamePaused) pauseGame();
-        else if (gameState == GameStates.PAUSED) resumeGame();
+        if (isGamePaused && gameState != GameStates.PAUSED) pauseGame();
+        else if (!isGamePaused && gameState == GameStates.PAUSED) resumeGame();
         // Update the point counter.
         if (isGamePlaying)
         {
-            pointCounter.text = enemyScore + "\t\t\t" + playerScore;
+            pointCounter.text = AppData.Instance.userData.limb == 1?enemyScore + "\t\t\t" + playerScore: playerScore + "\t\t\t" + enemyScore;
             timerTxt.text = "Time:" + Mathf.CeilToInt(gameTimeLeft).ToString() + "s";
         }
 
@@ -165,7 +178,7 @@ public class pongGameController : MonoBehaviour {
         if (isGamePlaying)
         {
             playerGamePosition = GameObject.FindGameObjectWithTag("Player").transform.position;
-             target = GameObject.FindGameObjectWithTag("Target");
+            target = GameObject.FindGameObjectWithTag("Target");
             if (target == null)
             {
                 targetGamePosition = null;
@@ -189,11 +202,11 @@ public class pongGameController : MonoBehaviour {
         switch (gameState)
         {
             case GameStates.WAITING:
-                showPaused();
+              
                 if (isGameStarted) gameState = GameStates.START;
                 break;
             case GameStates.START:
-                hidePaused();
+               
                 startGame();
                 break;
             case GameStates.SPAWNBALL:
@@ -244,10 +257,10 @@ public class pongGameController : MonoBehaviour {
         nTargets = 0;
         nSuccess = 0;
         nFailure = 0;
-
+        
         // Trial Time
         gameTimeLeft = gameDuration;
-        
+        startImage.SetActive(false);
         // Spawing the ball.
         gameState = GameStates.SPAWNBALL;
         gameSpeed = AppData.Instance.selectedGame.gameSpeed;
@@ -272,11 +285,9 @@ public class pongGameController : MonoBehaviour {
     
     private void pauseGame()
     {
-        _prevGameState = gameState;
         gameState = GameStates.PAUSED;
-        isGamePaused = true;
         pauseImage.SetActive(isGamePaused);
-        showPaused();
+       
         exitBtn.SetActive(false);
         Time.timeScale = 0;
     }
@@ -319,9 +330,8 @@ public class pongGameController : MonoBehaviour {
     private void resumeGame()
     {
         gameState = _prevGameState;
-        isGamePaused = false;
         Time.timeScale = 1;
-        hidePaused();
+      
         pauseImage.SetActive(isGamePaused);
         exitBtn.SetActive(true);
     }
@@ -363,6 +373,7 @@ public class pongGameController : MonoBehaviour {
         else if (gameState != GameStates.STOP)
         {
             // Pause the game if it is currently playing.
+            //pausegame = true;
             isGamePaused = !isGamePaused;
             return;
         }
@@ -382,21 +393,21 @@ public class pongGameController : MonoBehaviour {
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
-    public void showPaused()
-    {
-        foreach(GameObject g in pauseObjects)
-        {
-            g.SetActive(true);
-        }
-    }
+ //   public void showPaused()
+ //   {
+ //       foreach(GameObject g in pauseObjects)
+ //       {
+ //           g.SetActive(true);
+ //       }
+ //   }
 
-	public void hidePaused()
-	{
-		foreach(GameObject g in pauseObjects)
-		{
-			g.SetActive(false);
-		}
-	}
+	//public void hidePaused()
+	//{
+	//	foreach(GameObject g in pauseObjects)
+	//	{
+	//		g.SetActive(false);
+	//	}
+	//}
 
 	public void showFinished()
     {

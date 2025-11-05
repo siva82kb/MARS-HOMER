@@ -63,7 +63,10 @@ public class OneTimeConfig : MonoBehaviour
         }
         return 0; 
     }
-
+    public void onExitClicked()
+    {
+        SceneManager.LoadScene("LOGIN");
+    }
     public void saveConfig()
     {
         if (string.IsNullOrWhiteSpace(nameField.text) ||

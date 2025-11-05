@@ -22,7 +22,7 @@ public class BallController : MonoBehaviour {
 		ballSpeed = pongGameController.Instance.gameSpeed;
 
 		// Moving ball in initial direction and adding speed
-		rigidBody2D.velocity = new Vector2(-1, 1) * ballSpeed;
+		rigidBody2D.velocity = new Vector2( -1 , 1) * ballSpeed;
 	}
 
     void Update()
@@ -52,7 +52,7 @@ public class BallController : MonoBehaviour {
 			float y = launchAngle(transform.position, col.transform.position, col.collider.bounds.size.y);
 			
 			// Set enc1 and speed
-			Vector2 dir = new Vector2(1, y).normalized;
+			Vector2 dir = new Vector2(AppData.Instance.userData.limb == 1 ? 1 : -1, y).normalized;
 			rigidBody2D.velocity = dir * ballSpeed * 1.5F;
 
 			// Predict where it will reach player's side (x = +6)
@@ -66,7 +66,7 @@ public class BallController : MonoBehaviour {
             float y = launchAngle(transform.position, col.transform.position, col.collider.bounds.size.y);
 			pongGameController.Instance.targetEndPointPosition = Vector3.zero;
 			// Set enc1 and speed
-			Vector2 dir = new Vector2(-1, y).normalized;
+			Vector2 dir = new Vector2(AppData.Instance.userData.limb == 1 ? -1 : 1, y).normalized;
 			rigidBody2D.velocity = dir * ballSpeed * 1.5F;
 		}
 	}

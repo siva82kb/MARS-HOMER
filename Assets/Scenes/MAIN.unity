@@ -1726,15 +1726,15 @@ MonoBehaviour:
       m_Calls: []
   m_text: Press Mars button to start calibration
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: f666b5c38796ca041a3efb56a1777b0e, type: 2}
-  m_sharedMaterial: {fileID: 5242021674067494518, guid: f666b5c38796ca041a3efb56a1777b0e, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: ca5966076cf49f24c83ee3371d17e45c, type: 2}
+  m_sharedMaterial: {fileID: -7097730531163402118, guid: ca5966076cf49f24c83ee3371d17e45c, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4281216061
-  m_fontColor: {r: 0.23921569, g: 0.17254902, b: 0.18039216, a: 1}
+    rgba: 4278190080
+  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -2340,8 +2340,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 336, y: -14}
-  m_SizeDelta: {x: 550.2207, y: 144.42}
+  m_AnchoredPosition: {x: 681, y: -14}
+  m_SizeDelta: {x: 949.7092, y: 144.42}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &879349574
 MonoBehaviour:
@@ -2400,7 +2400,7 @@ MonoBehaviour:
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 512
   m_textAlignment: 65535
-  m_characterSpacing: 0
+  m_characterSpacing: 14.48
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
@@ -3519,7 +3519,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1459548040
 RectTransform:
   m_ObjectHideFlags: 0

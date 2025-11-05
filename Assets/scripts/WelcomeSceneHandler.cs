@@ -28,12 +28,14 @@ public class welcomeSceneHandler : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        if (!Directory.Exists(DataManager.basePath)) 
+        //Debug.Log($"{Directory.Exists(Path.Combine(Application.dataPath, "data"))},{Path.Combine(Application.dataPath, "data")}");
+        if (!Directory.Exists(Path.Combine(Application.dataPath, "data"))|| Directory.GetDirectories(DataManager.basePath).Length == 0)
         {
+          
             SceneManager.LoadScene("GETCONFIG");
             return;
         }
-        // Initialize AppData
+        //Initialize AppData
         AppData.Instance.Initialize(SceneManager.GetActiveScene().name);
 
         // Check if the directory exists
@@ -126,6 +128,6 @@ public class welcomeSceneHandler : MonoBehaviour
     private void OnApplicationQuit()
     {
         Application.Quit();
-        //JediComm.Disconnect();
+       
     }
 }

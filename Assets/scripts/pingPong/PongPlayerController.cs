@@ -23,6 +23,11 @@ public class PongPlayerController : MonoBehaviour
     public static float yEndPointMax;
     public static float yEndPointMid;
     public static float yEndPointRange;
+    //Robot endpoint X limits
+    public static float xEndPointMin;
+    public static float xEndPointMax;
+    public static float xEndPointMid;
+    public static float xEndPointRange;
     public static int LIMBSCALE;
 
     static float topBound = 3.6F;
@@ -70,6 +75,9 @@ public class PongPlayerController : MonoBehaviour
             yEndPointMax = currRom.topAdjusted.y;
             yEndPointMid = (yEndPointMin + yEndPointMax) / 2.0f;
             yEndPointRange = yEndPointMax - yEndPointMin;
+
+            xEndPointMin = currRom.leftAdjusted.x;
+            xEndPointMax = currRom.rightAdjusted.x;
         }
 
         LIMBSCALE = (AppData.Instance.userData == null || AppData.Instance.userData.rightArm) ? -1 : 1;
@@ -79,7 +87,10 @@ public class PongPlayerController : MonoBehaviour
     void FixedUpdate()
     {
         if (!isInitialized) return;
-        updatePlayerPosition();
+        Debug.Log(MarsComm.epPosInThePlane.x);
+        //restrict the player to move only on required x-axis
+        //if (Mathf.Clamp(MarsComm.epPosInThePlane.z, xEndPointMin, xEndPointMax) == MarsComm.epPosInThePlane.z)
+            updatePlayerPosition();
     }
 
     private void OnCollisionEnter2D(Collision2D collision)

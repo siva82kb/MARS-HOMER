@@ -80,6 +80,7 @@ public partial class AppData
         WriteTrialDataToRawDataFile();
         MarsComm.OnNewMarsData -= OnNewMarsDataDataLogging;
         trialRawDataFile = null;
+        awsManager.changeUploadStatus(awsManager.status[0]);
     }
 
     private void WriteTrialToSessionsFile()

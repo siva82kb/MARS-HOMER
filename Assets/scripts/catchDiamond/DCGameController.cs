@@ -227,6 +227,7 @@ public class DCGameController : MonoBehaviour
                 {
                     if (target != null) return;
                     // Spawn the new target.
+                    clearObjects();
                     SpawnDiamond();
                     nTargets++;
                     eventDelayTimer = 0.5f;
@@ -238,7 +239,7 @@ public class DCGameController : MonoBehaviour
                     if (eventDelayTimer <= 0f)
                     {
                         reachTimeLeft = reachDuration;
-                        Debug.Log(reachDuration + "reach");
+                        //Debug.Log(reachDuration + "reach");
                         runOnce = false;
                         gameState = GameStates.WAITFORCATCH;
                     }
@@ -284,12 +285,13 @@ public class DCGameController : MonoBehaviour
                     isSuccess = false;
                     gameState = isTimeUp ? GameStates.STOP : GameStates.SPAWNDIAMOND;
                     // Clean up the target and related objects.
-                    if (target != null) Destroy(target);
-                    if (targetGlitter != null) Destroy(targetGlitter);
-                    if (targetBubble != null) Destroy(targetBubble);
-                    if (catchGlitter != null) Destroy(catchGlitter);
-                    if (successTimer != null) Destroy(successTimer);
-                    if (targetTimer != null) Destroy(targetTimer);
+                    //if (target != null) Destroy(target);
+                    //if (targetGlitter != null) Destroy(targetGlitter);
+                    //if (targetBubble != null) Destroy(targetBubble);
+                    //if (catchGlitter != null) Destroy(catchGlitter);
+                    //if (successTimer != null) Destroy(successTimer);
+                    //if (targetTimer != null) Destroy(targetTimer);
+                    clearObjects();
                     runOnce = false;
                 }
                 break;
@@ -330,7 +332,15 @@ public class DCGameController : MonoBehaviour
         }
         if (catchGlitter != null) catchGlitter.Stop(true);
     }
-
+    public void clearObjects()
+    {
+        if (target != null) Destroy(target);
+        if (targetGlitter != null) Destroy(targetGlitter);
+        if (targetBubble != null) Destroy(targetBubble);
+        if (catchGlitter != null) Destroy(catchGlitter);
+        if (successTimer != null) Destroy(successTimer);
+        if (targetTimer != null) Destroy(targetTimer);
+    }
     public void SpawnDiamond()
     {
         // Generate the new target

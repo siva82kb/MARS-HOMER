@@ -44,7 +44,8 @@ public class EnemyController : MonoBehaviour {
 		ballRig2D = ball.GetComponent<Rigidbody2D>();
 
 		// Checking x direction of the ball
-		if (ballRig2D.velocity.x < 0)
+		
+		if (AppData.Instance.userData.limb == 1?ballRig2D.velocity.x < 0: ballRig2D.velocity.x > 0)
 		{
 			// Checking y direction of ball
 			if (ball.position.y < this.transform.position.y - .3F)

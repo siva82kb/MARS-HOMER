@@ -32,6 +32,7 @@ public class MovementSceneHandler : MonoBehaviour
     private readonly string armWeightScene = "ARMWEIGHT";
     private readonly string marsSetUp = "MARSSETUP";
     private readonly string exitScene = "SUMMARY";
+    private readonly string assessAp = "ASSESSAP";
 
     private readonly string assessmentSceneML = "AROMML";
     private readonly string assessmentSceneAP = "AROMAP";
@@ -137,6 +138,12 @@ public class MovementSceneHandler : MonoBehaviour
                 changeScene = true;
             }
             
+        }
+        else if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Y))
+        {
+            nextScene = assessAp;
+            changeScene = true;
+
         }
 
         //Check if a scene change is needed.

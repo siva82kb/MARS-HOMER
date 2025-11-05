@@ -40,7 +40,6 @@ public class DataManager : MonoBehaviour
     private static readonly string errorLogFileName = "errorLog.csv";
 
     public static string romFile;
-    private static readonly string romFileName = "rom.csv";
     public static string[] TRAININGPLANEFILEHEADER = new string[] {
         "DateTime", "TrainingPlaneAngle"
     };
@@ -91,6 +90,9 @@ public class DataManager : MonoBehaviour
     };
     public static string DATETIMEFORMAT = "yyyy-MM-dd HH:mm:ss";
 
+    //AWS related
+    public static string GetUploadStatusFile = @"C:/DeviceSetups/Mars/uploadStatus.txt";
+  
     // Functions to generate file names.
     public static string GetRomFileName(string movement) => FixPath(Path.Combine(romPath, $"{movement}-rom.csv"));
     public static string GetRomRawFileName(string movement, string datetime) => FixPath(Path.Combine(romPath, $"romraw-{movement}-{datetime.Replace(" ", "_").Replace(":", "-")}.csv"));

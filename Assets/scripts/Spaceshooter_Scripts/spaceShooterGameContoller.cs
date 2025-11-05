@@ -183,7 +183,7 @@ public class SpaceShooterGameContoller : MonoBehaviour
         else if (!isGamePaused && gameState == GameStates.PAUSED) ResumeGame();
 
         // Update Timer (show remaining time)
-        timerText.text = $"Time Left: {Mathf.CeilToInt(gameTimeLeft)}s";
+        timerText.text = $"TIMER:{Mathf.CeilToInt(gameTimeLeft)}s";
 
         // Track Restart
         if (changeScene && gameState == GameStates.STOP)

@@ -327,7 +327,45 @@ public class MarsUserData
         }
         return false;
     }
+    public void ReadFile()
+    {
+        if (!File.Exists(DataManager.GetUploadStatusFile))
+        {
+            Debug.LogError("File not found: " + DataManager.GetUploadStatusFile);
+            return;
+        }
 
+        string[] lines = File.ReadAllLines(DataManager.GetUploadStatusFile);
+        string status;
+
+        foreach (string line in lines)
+        {
+            if (string.IsNullOrWhiteSpace(line)) continue;
+
+            string[] parts = line.Split(',');
+
+            if (parts.Length > 1)
+            {
+                status = parts[1].Trim(); // second column
+              
+
+                if (status == "upload_needed")
+                {
+                    // dataStatus.text = "Upload needed";
+                    Debug.Log("Upload is needed!");
+                }
+                else if (status == "no_upload")
+                {
+                    // dataStatus.text = "No upload required";
+                    Debug.Log("No upload required.");
+                }
+                else
+                {
+                    Debug.Log("Unknown status: " + status);
+                }
+            }
+        }
+    }
     public int[] readCummulativeHitsMissesForGameMovement(string gameName, string movementName)
     {
         // Get the last row for the given game.
@@ -1125,6 +1163,7 @@ public class ArmWeight
     }
 
 }
+
 
 public static class Miscellaneous
 {

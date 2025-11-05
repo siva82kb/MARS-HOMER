@@ -27,12 +27,7 @@ public class summarySceneHandler : MonoBehaviour
     void Update()
     {
         shutdownTimer -= Time.deltaTime;
-        //MarsComm.sendHeartbeat();
-       
-        //while (_actionQueue.TryDequeue(out var action))
-        //{
-        //    action.Invoke(); // Execute the action
-        //}
+     
         if(shutdownTimer<=0)exit();
 
     }
@@ -48,29 +43,11 @@ public class summarySceneHandler : MonoBehaviour
     }
     public void exit()
     {
-        AppLogger.LogInfo("Disconnected form Mars And Application closed succesfully");
-        Application.Quit();
-        #if UNITY_EDITOR
-                UnityEditor.EditorApplication.isPlaying = false; // Stop play mode if in editor
-        #endif
+        AppLogger.LogInfo("Disconnected form Mars And Switch scene to DataUploading");
+        SceneManager.LoadScene("DATAUPLOADING");
+        
     }
-    public void quit()
-    {
-        //AppLogger.LogInfo("Mars button released.");
-        // Enqueue the disconnect and quit actions
-        _actionQueue.Enqueue(() =>
-        {
-
-            AppLogger.LogInfo("Disconnected form Mars And Application closed succesfully");
-            JediComm.Disconnect();
-            Application.Quit();
-            #if UNITY_EDITOR
-                        UnityEditor.EditorApplication.isPlaying = false; // Stop play mode if in editor
-            #endif
-        });
-
-    }
-  
+    
     //To initialize the barchart with whole data of moveTime per day
     public void initializeChart()
     {
