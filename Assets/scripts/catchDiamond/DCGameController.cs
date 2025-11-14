@@ -134,6 +134,7 @@ public class DCGameController : MonoBehaviour
 
     void Update()
     {
+        MarsComm.sendHeartbeat();
         // Update the gameTimeLeft and score text.
         if (isGamePlaying)
         {
@@ -453,6 +454,8 @@ public class DCGameController : MonoBehaviour
         {
             gameOver();
         }
+        isGamePaused = false;
+        Time.timeScale = 1f;
         SceneManager.LoadScene("CHOOSEMOVE");
     }
 }

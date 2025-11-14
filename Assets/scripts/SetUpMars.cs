@@ -58,11 +58,12 @@ public class SetUpMars : MonoBehaviour
         }
         //Handle Deactivate Mars
         if (AppData.Instance.userData.trainingPlaneAngle == 0) return;
-        if (MarsComm.CONTROLTYPE[MarsComm.controlType] == "POSITION"&& MarsComm.target == AppData.Instance.userData.trainingPlaneAngle)
+        if (MarsComm.CONTROLTYPE[MarsComm.controlType] == "POSITION")
         {
-            AppLogger.LogInfo("Mars set to Deactivate Mode");
+            AppLogger.LogInfo("MARS set to Deactivate Mode");
             currentState = SETUPMARS.SETDEACTIVATEMODE;
         }
+       
     }
 
     // Update is called once per frame
@@ -79,12 +80,12 @@ public class SetUpMars : MonoBehaviour
         switch (currentState)
         {
             case SETUPMARS.IDLE:
-                instructionTxt.text = "Press Mars Button To Activate Mars";
+                instructionTxt.text = "Press MARS Button To Activate";
                 if (MarsComm.CONTROLTYPE[MarsComm.controlType] != "POSITION")
                     MarsComm.setControlType("POSITION");
                 break;
             case SETUPMARS.ACTIVATE:
-                instructionTxt.text = "Mars getting Ready...";
+                instructionTxt.text = "........";
                 if (MarsComm.CONTROLTYPE[MarsComm.controlType] == "POSITION")
                 {
                     if (MarsComm.target == -90)
@@ -104,11 +105,11 @@ public class SetUpMars : MonoBehaviour
             case SETUPMARS.ATTACHARM:
                 if (MarsComm.force > MarsComm.ARM_WEIGHT_THRESHOLD)
                 {
-                    instructionTxt.text = "Press Mars Button To Set TrainigPlane Angle";
+                    instructionTxt.text = "Press MARS Button To Set TrainigPlane Angle";
                 }
                 else
                 {
-                    instructionTxt.text = "Please Attach your Limb with Mars";
+                    instructionTxt.text = "Please Attach your Limb with MARS";
                 }
                 break;
             case SETUPMARS.SETTRAININGPLANEANGLE:
@@ -131,32 +132,14 @@ public class SetUpMars : MonoBehaviour
             case SETUPMARS.SETDEACTIVATEMODE:
                 if (MarsComm.force > ARM_WEIGHT_ERROR)
                 {
-                    instructionTxt.text = "Please Detach your Limb From Mars";
+                    instructionTxt.text = "Please Detach your Limb From MARS";
                 }
                 else
                 {
-                    instructionTxt.text = "Press Mars Button To Deactivate Mars";
+                    instructionTxt.text = "Press MARS Button To Deactivate";
                 }
                 break;
             case SETUPMARS.DEACTIVATE:
-                //if (MarsComm.target == 0)
-                //{
-                //    instructionTxt.text = "Deativating Mars From TraingPlaneAngle TO  - 0 - ";
-                //    // Check if the target has been reached.
-                //    if (Mathf.Abs(MarsComm.angle1 - MarsComm.target) < 2)
-                //    {
-                //        AppLogger.LogInfo($"Deativating Mars From TraingPlaneAngle TO Zero  : {MarsComm.angle1}");
-                //        currentState = SETUPMARS.DONE;
-                //        instructionTxt.text = "";
-                //        AppLogger.LogInfo($"Switching  Scene to {summaryScene}");
-                //        SceneManager.LoadScene(summaryScene);
-
-                //    }
-                //}
-                //else
-                //{
-                //    MarsComm.setControlTarget(0);
-                //}
                 AppLogger.LogInfo($"Deativating Mars");
                 JediComm.Disconnect();
                 SceneManager.LoadScene(summaryScene);
@@ -176,7 +159,7 @@ public class SetUpMars : MonoBehaviour
         switch (currentState)
         {
             case SETUPMARS.IDLE:
-                AppLogger.LogInfo("Setting Mars Position @ -90");
+                AppLogger.LogInfo("Setting MARS Position @ -90");
                 currentState = SETUPMARS.ACTIVATE;
                 break;
             case SETUPMARS.ATTACHARM:
@@ -187,13 +170,13 @@ public class SetUpMars : MonoBehaviour
                 }
                 else
                 {
-                    AppLogger.LogInfo($"Set Mars Position @ TrainingAngle - {AppData.Instance.userData.trainingPlaneAngle}");
+                    AppLogger.LogInfo($"Set MARS Position @ TrainingAngle - {AppData.Instance.userData.trainingPlaneAngle}");
                 }
                 break;
             case SETUPMARS.SETDEACTIVATEMODE:
                 if(MarsComm.force > ARM_WEIGHT_ERROR)
                 {
-                    AppLogger.LogInfo($"Limb is Attached with Mars  FORCE - {MarsComm.force}"); 
+                    AppLogger.LogInfo($"Limb is Attached with MARS  FORCE - {MarsComm.force}"); 
                 }
                 else
                 {

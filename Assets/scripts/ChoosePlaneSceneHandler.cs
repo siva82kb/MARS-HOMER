@@ -22,7 +22,7 @@ public class ChoosePlaneSceneHandler : MonoBehaviour
     public Slider sliderCtrlBound;
     public Button btnDone;
     private static string FLOAT_FORMAT = "+0.0;-0.0"; 
-    private static string FLOAT_FORMAT_D = "0.0";
+    private static string FLOAT_FORMAT_D = "0";
     public readonly string robotCalibScene = "ROBOTCALIB";
     public readonly string nextScene = "CHOOSEMOVE";
     private bool attachMarsButtonEvent = true;
@@ -116,6 +116,7 @@ public class ChoosePlaneSceneHandler : MonoBehaviour
         sliderTrainPlane.onValueChanged.AddListener(delegate { OnTrainPlaneSliderValueChanged(); });
         // Attach call back for the done button.
         btnDone.onClick.AddListener(() => {
+            if (currentState == ChooseTrainingPlaneStates.TEST_TRAINING_PLANES) return;
             AppLogger.LogInfo($"Done button pressed. Leaving abruptly.");
             SceneManager.LoadScene(nextScene); 
         });

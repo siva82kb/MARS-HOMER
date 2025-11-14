@@ -280,6 +280,7 @@ public class pongGameController : MonoBehaviour {
         }
         timerTxt.text = "Time: 0s";
         // Set game over state
+       
         isGameFinished = true;
     }
     

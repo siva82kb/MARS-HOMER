@@ -44,9 +44,24 @@ public class summarySceneHandler : MonoBehaviour
     public void exit()
     {
         AppLogger.LogInfo("Disconnected form Mars And Switch scene to DataUploading");
-        SceneManager.LoadScene("DATAUPLOADING");
-        
-    }
+        try
+        {
+            AppLogger.LogInfo("Disconnected form Mars And Application closed succesfully");
+            Application.Quit();
+            // Process.Start("shutdown", "/s /t 0");
+            #if UNITY_EDITOR
+                        UnityEditor.EditorApplication.isPlaying = false;
+            #endif
+            // Process.Start("shutdown", "/s /t 0");
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError("Failed to shutdown: " + ex.Message);
+        }
+    
+    //SceneManager.LoadScene("DATAUPLOADING");
+
+}
     
     //To initialize the barchart with whole data of moveTime per day
     public void initializeChart()

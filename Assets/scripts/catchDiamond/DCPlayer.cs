@@ -130,7 +130,7 @@ public class DCPlayer : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        
         if (DCGameController.Instance.target != null)
             GetComponent<SpriteRenderer>().flipX = !DCGameController.Instance.target.GetComponent<SpriteRenderer>().flipX;
         if (!debug) return;
@@ -205,7 +205,7 @@ public class DCPlayer : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (DCGameController.Instance.gameState != DCGameController.GameStates.FAILURE)
+        if (DCGameController.Instance.gameState != DCGameController.GameStates.FAILURE && DCGameController.Instance.gameState != DCGameController.GameStates.SUCCESS)
             DCGameController.Instance.SetPlayerIn();
     }
 

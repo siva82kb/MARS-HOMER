@@ -391,7 +391,7 @@ public class AssessArmWeight : MonoBehaviour
                 break;
             case ARMWEIGHT_ASSESS_STATE.ALL_DONE:
                 updateTargetFlag = false;
-                instructionText.text = "Assessment complete. Press the MARS button to save and exit the scene.";
+                instructionText.text = "Press MARS button to save.";
                 break;
         }
     }

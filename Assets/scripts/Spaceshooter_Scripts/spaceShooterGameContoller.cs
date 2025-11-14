@@ -96,6 +96,7 @@ public class SpaceShooterGameContoller : MonoBehaviour
 
     private void Awake()
     {
+        MarsComm.sendHeartbeat();
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
     }
@@ -366,6 +367,9 @@ public class SpaceShooterGameContoller : MonoBehaviour
         {
             gameOver();
         }
+        gameState = GameStates.DONE;
+        isGamePaused = false;
+        Time.timeScale = 1f;
         SceneManager.LoadScene("CHOOSEMOVE");
     }
     

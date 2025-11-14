@@ -37,7 +37,7 @@ public class connectStatusHandler : MonoBehaviour
         if (AppData.Instance != null)return;
         if (AppData.Instance.userData.isErrorOccurred())
         {
-            if (SceneManager.GetActiveScene().name == "DIAGNOSTICS") return;
+            //if (SceneManager.GetActiveScene().name == "DIAGNOSTICS") return;
             errorPanel.SetActive(true);
         }
     }
