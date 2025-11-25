@@ -13,6 +13,7 @@ public class DirectMoving : MonoBehaviour {
     //moving the object with the defined speed
     private void Update()
     {
+        if (!SpaceShooterGameContoller.Instance.IsGamePlaying()) return;
         transform.Translate(Vector3.up * speed * Time.deltaTime); 
     }
 }

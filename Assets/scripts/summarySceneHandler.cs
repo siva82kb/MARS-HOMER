@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -14,6 +15,15 @@ public class summarySceneHandler : MonoBehaviour
     public string title;
     private ConcurrentQueue<System.Action> _actionQueue = new ConcurrentQueue<System.Action>();
     private float shutdownTimer = 5f;
+    public TextMeshProUGUI ssCummulativeScoreTxt;
+    public TextMeshProUGUI ppCummulativeScoreTxt;
+    public TextMeshProUGUI DcCummulativeScoreTxt;
+    public TextMeshProUGUI ssCurrentScoreTxt;
+    public TextMeshProUGUI ppCurrentScoreTxt;
+    public TextMeshProUGUI DCCurrentScoreTxt;
+    public GameObject SSstar;
+    public GameObject PPstar;
+    public GameObject DCstar;
     public void Start()
     {
         // Inialize the logger
@@ -22,6 +32,7 @@ public class summarySceneHandler : MonoBehaviour
         AppLogger.LogInfo($"{SceneManager.GetActiveScene().name} scene started.");
         title = "summary";
         initializeChart();
+        updateScores();
     }
 
     void Update()
@@ -31,7 +42,33 @@ public class summarySceneHandler : MonoBehaviour
         if(shutdownTimer<=0)exit();
 
     }
+    public void updateScores()
+    {
+        int[] scores,cuScore;
 
+
+        //SpaceShooter Game Data
+        scores = MarsGameDefs.Spaceshooter.GetScores();
+        cuScore = MarsGameDefs.Spaceshooter.GetCummulativeScores();
+        ssCummulativeScoreTxt.text = $"{cuScore[1].ToString("D4")}";
+        ssCurrentScoreTxt.text = $"{scores[1].ToString("D3")}/{scores[0].ToString("D3")}";
+        if (MarsGameDefs.Spaceshooter.IsAchievedToday()) SSstar.GetComponent<Image>().color = Color.white ;
+
+        //PingPong Game Data
+        scores = MarsGameDefs.PingPong.GetScores();
+        cuScore = MarsGameDefs.PingPong.GetCummulativeScores();
+        ppCummulativeScoreTxt.text = $"{cuScore[1].ToString("D4")}";
+        ppCurrentScoreTxt.text = $"{scores[1].ToString("D3")}/{scores[0].ToString("D3")}";
+        if(MarsGameDefs.PingPong.IsAchievedToday())PPstar.GetComponent<Image>().color = Color.white;
+
+        //DiamondCatcher Game Data
+        scores = MarsGameDefs.DiamondCatcher.GetScores();
+        cuScore = MarsGameDefs.DiamondCatcher.GetCummulativeScores();
+        DcCummulativeScoreTxt.text = $"{cuScore[1].ToString("D4")}";
+        DCCurrentScoreTxt.text = $"{scores[1].ToString("D3")} / {scores[0].ToString("D3")}";
+        if(MarsGameDefs.DiamondCatcher.IsAchievedToday())DCstar.GetComponent<Image>().color = Color.white;
+       
+    }
     // To load the data for a specific movement into the bar graph.
     public void selectedMovements(Button button)
     {

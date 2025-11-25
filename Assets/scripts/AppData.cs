@@ -11,7 +11,7 @@ public partial class AppData
     public static AppData Instance => _instance.Value;
 
 
-    static public readonly string COMPort = "COM32"; //1-35//2-30//3-32//4-50//h7-left-8//h7-right-10
+    static public readonly string COMPort = "COM35"; //1-35//2-30//3-32//4-50//5-53//6-59//7-61/h7-left-8//h7-right-10
 
     // Robot Connection Alive Variables.
     static public float MARS_WATCHDOG_TIMEOUT = 2.0f; //seconds
@@ -42,7 +42,9 @@ public partial class AppData
     private const float SPEED_REDUCTION_FACTOR_MAX = 0.995f; // Reduce by 0.5%
     private const float SPEED_INCREASE_FACTOR_MIN = 1.005f; // Increase by 0.5%
     private const float SPEED_INCREASE_FACTOR_MAX = 1.025f; // Increase by 2.5%
-    public float GetReachSpeedAdaptationRate(float successRate, float currentReachSpeed)
+    public float 
+        
+        GetReachSpeedAdaptationRate(float successRate, float currentReachSpeed)
     {
         float _normspeed = (currentReachSpeed - MarsGameDefs.MIN_REACH_SPEED) / (MarsGameDefs.MAX_REACH_SPEED - MarsGameDefs.MIN_REACH_SPEED);
         if (successRate < LOW_SUCCESS_RATE)
@@ -189,7 +191,11 @@ public partial class AppData
 
         // Read the cummulative hits and misses from the session data.
         int[] cuScores = Instance.userData.readCummulativeHitsMissesForGameMovement(game, selectedMovement?.name);
-        
+
+        //Read the Cummulative stars from the session data
+        int[] starCount = Instance.userData.readStarCounts(game);
+        Debug.Log($"{starCount[0]}/{starCount[1]}stars");
+
         // Set the selected game.
         selectedGame = new MarsGame(gName: game,
                                     mName: selectedMovement?.name,
@@ -198,7 +204,9 @@ public partial class AppData
                                     arom: selectedMovement?.currentArom,
                                     gCuTargets: cuScores[0],
                                     gCuHits: cuScores[1],
-                                    gCuMisses: cuScores[2]);
+                                    gCuMisses: cuScores[2],
+                                    gCuStars: starCount[0],
+                                    TodayStars: starCount[1]);
         AppLogger.SetCurrentGame(selectedGame.name);
         AppLogger.LogInfo($"Selected game '{selectedGame.name}'. Reach speed: {selectedGame.reachSpeed}m/s, Cummulative targets: {selectedGame.cummulativeTargets}, Cummulative hits: {selectedGame.cummulativeHits}, Cummulative misses: {selectedGame.cummulativeMisses}.");
     }

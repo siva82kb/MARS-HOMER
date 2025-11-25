@@ -105,7 +105,8 @@ public class SetUpMars : MonoBehaviour
             case SETUPMARS.ATTACHARM:
                 if (MarsComm.force > MarsComm.ARM_WEIGHT_THRESHOLD)
                 {
-                    instructionTxt.text = "Press MARS Button To Set TrainigPlane Angle";
+                    instructionTxt.text = $"Press MARS Button To Set TrainigPlane\n" +
+                                          $"-- {Mathf.Abs(AppData.Instance.userData.trainingPlaneAngle).ToString("F0")} --";
                 }
                 else
                 {
@@ -113,7 +114,7 @@ public class SetUpMars : MonoBehaviour
                 }
                 break;
             case SETUPMARS.SETTRAININGPLANEANGLE:
-                instructionTxt.text = "Setting TrainingPlaneAngle";
+                instructionTxt.text = $"Setting TrainingPlaneAngle : {Mathf.Abs(AppData.Instance.userData.trainingPlaneAngle).ToString("F0")}";
                 if (MarsComm.target != AppData.Instance.userData.trainingPlaneAngle)
                     MarsComm.setControlTarget(AppData.Instance.userData.trainingPlaneAngle);
                 if (MarsComm.target == AppData.Instance.userData.trainingPlaneAngle)

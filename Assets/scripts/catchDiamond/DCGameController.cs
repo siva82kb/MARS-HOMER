@@ -46,8 +46,15 @@ public class DCGameController : MonoBehaviour
     public AudioClip playerOut;
     public AudioClip TargetFailed;
     public TextMeshProUGUI cummulativeScoreTxt;
-
-
+    public GameObject celebrationPanle;
+    public TextMeshProUGUI scoreComparisonTxt;
+    public TextMeshProUGUI yesterdayScoreTxt;
+    public TextMeshProUGUI todayScoreTxt;
+    public TextMeshProUGUI starCount;
+    public GameObject GameOverStar;
+    public int _starCount;
+    private int[] scores;
+    private bool restart = false;
     // UI Canvas
     public Canvas uiCanvas;
     
@@ -130,6 +137,14 @@ public class DCGameController : MonoBehaviour
         
         // Attach event handler to Mars button release event.
         MarsComm.OnMarsButtonReleased += onMarsButtonReleased;
+        updateStarCount();
+        scores = MarsGameDefs.DiamondCatcher.GetScores();
+        Debug.Log($"{scores[0]}/{scores[1]}");
+        AppLogger.LogInfo($"scores - yesterDayScore:{scores[1]} | TodayScore{scores[0]}");
+    }
+    public void updateStarCount()
+    {
+        starCount.text = $"{AppData.Instance.selectedGame.cummulativeStars.ToString("D2")}";
     }
 
     void Update()
@@ -149,12 +164,15 @@ public class DCGameController : MonoBehaviour
         {
             gameSpeedControl.SetActive(!gameSpeedControl.activeSelf);
         }
+        if (restart) {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            restart = false;
+        }
     }
 
     private void FixedUpdate()
     {
-        MarsComm.sendHeartbeat();
-
+      
         // Run the statemachine
         RunStateMachine();
         
@@ -285,13 +303,6 @@ public class DCGameController : MonoBehaviour
                     isFailure = false;
                     isSuccess = false;
                     gameState = isTimeUp ? GameStates.STOP : GameStates.SPAWNDIAMOND;
-                    // Clean up the target and related objects.
-                    //if (target != null) Destroy(target);
-                    //if (targetGlitter != null) Destroy(targetGlitter);
-                    //if (targetBubble != null) Destroy(targetBubble);
-                    //if (catchGlitter != null) Destroy(catchGlitter);
-                    //if (successTimer != null) Destroy(successTimer);
-                    //if (targetTimer != null) Destroy(targetTimer);
                     clearObjects();
                     runOnce = false;
                 }
@@ -300,7 +311,7 @@ public class DCGameController : MonoBehaviour
                 gameOver();
                 break;
             case GameStates.DONE:
-                SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+               
                 break;
         }
     }
@@ -382,7 +393,8 @@ public class DCGameController : MonoBehaviour
         //To restart
         if (gameState == GameStates.STOP && isGameFinished)
         {
-            gameState = GameStates.DONE;
+            //gameState = GameStates.DONE;
+            restart = true;
         }
 
     }
@@ -411,15 +423,31 @@ public class DCGameController : MonoBehaviour
 
         if (!isGameFinished)
         {
-            gameOverPanel.SetActive(true);
+           
             //cal gameTime
             int gametime = (int)gameDuration - (int)gameTimeLeft;
             AppData.Instance.gameTime = gametime < gameDuration ? gametime : gameDuration;
-          
-            //stop trail
-            AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
-            cummulativeScoreTxt.text = $"{AppData.Instance.selectedGame.cummulativeHits:D4}";
+            // Stop the current game trial
+            if ((scores[0] + nSuccess) > scores[1] && !AppData.Instance.selectedGame.isAchievedToday())
+            {
+                AppData.Instance.selectedGame.updateCummulativeStars();
+                celebrationPanle.SetActive(true);
+            }
 
+            gameOverPanel.SetActive(!celebrationPanle.gameObject.activeSelf);
+            AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
+
+            if (gameOverPanel.gameObject.activeSelf)
+            {
+                GameOverStar.SetActive(AppData.Instance.selectedGame.isAchievedToday());
+                yesterdayScoreTxt.text = $"{scores[1]:D4}";
+                todayScoreTxt.text = $"{(scores[0] + nSuccess):D4}";
+            }
+            if (celebrationPanle.gameObject.activeSelf)
+            {
+                updateStarCount();
+                scoreComparisonTxt.text = $"{(scores[0]+nSuccess):D3}";
+            }
 
         }
         isGameFinished = true; // Set game over state 

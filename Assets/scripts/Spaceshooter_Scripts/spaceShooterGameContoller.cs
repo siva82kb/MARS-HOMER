@@ -7,6 +7,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 
 public class SpaceShooterGameContoller : MonoBehaviour
@@ -17,8 +18,9 @@ public class SpaceShooterGameContoller : MonoBehaviour
     private readonly string robotCalibScene = "ROBOTCALIB";
     private readonly string marsSetUp = "MARSSETUP";
     public readonly string moveSelect = "CHOOSEMOVE";
-
+    private int[] scores;
     public GameObject gameOverPanel;
+  
     public TextMeshProUGUI timerText;
     public TextMeshProUGUI scoreText;
     public GameObject gameSpeedControl;
@@ -27,7 +29,14 @@ public class SpaceShooterGameContoller : MonoBehaviour
     public float smoothFactor = 5f;
     public GameObject newSpaceshipPanel;
     public GameObject reminderPanel;
-    public TextMeshProUGUI cummulativeHitTxt;
+    public GameObject celebrationPanle;
+    public TextMeshProUGUI scoreComparisonTxt;
+    public TextMeshProUGUI yesterdayScoreTxt;
+    public TextMeshProUGUI todayScoreTxt;
+    public TextMeshProUGUI starCount;
+    public GameObject GameOverStar;
+    public int _starCount;
+    
     public bool Levelunlocked = false;
 
     private float gameTimeLeft;
@@ -104,7 +113,7 @@ public class SpaceShooterGameContoller : MonoBehaviour
     void Start()
     {
         MarsComm.sendHeartbeat();
-        
+
         // Initialize AppData if needed
         if (AppData.Instance.userData == null)
         {
@@ -149,7 +158,7 @@ public class SpaceShooterGameContoller : MonoBehaviour
             // Initialize the game speed controller.
             initializeGameSpeedController();
             gameSpeedControl.SetActive(false);
-            
+
             // Initialize the game GUI.
             startImage.SetActive(true);
             PauseImage.SetActive(false);
@@ -169,8 +178,16 @@ public class SpaceShooterGameContoller : MonoBehaviour
 
             AppLogger.LogInfo("Space Shooter Game initialized.");
         }
+        //AppData.Instance.reloadSessionDetails();
+        updateStarCount();
+        scores = MarsGameDefs.Spaceshooter.GetScores();
+        Debug.Log($"{scores[0]}/{scores[1]}");
+        AppLogger.LogInfo($"scores - yesterDayScore:{scores[1]} | TodayScore{scores[0]}");
     }
- 
+    public void updateStarCount()
+    {
+        starCount.text = $"{AppData.Instance.selectedGame.cummulativeStars.ToString("D2")}";
+    }
     // Update is called once per frame
     void Update()
     {
@@ -264,7 +281,7 @@ public class SpaceShooterGameContoller : MonoBehaviour
                     targetGamePosition = gTarget;
                     targetEndPointPosition = new Vector3(
                         0,
-                        0,
+                        SSPlayerController.unityYToRobotY(gTarget.y),
                         SSPlayerController.unityXToRobotZ(gTarget.x)
                     );  // I do not like how we are doing this, and how conversions are handled in general.
                     AsteroidFall.instance.SetFallSpeed(AppData.Instance.selectedGame.gameSpeed);
@@ -350,10 +367,27 @@ public class SpaceShooterGameContoller : MonoBehaviour
             int gametime = (int)(gameDuration - gameTimeLeft);
             AppData.Instance.gameTime = gametime;
             // Stop the current game trial
+            if ((scores[0] + nSuccess) > scores[1] && !AppData.Instance.selectedGame.isAchievedToday())
+            {
+                AppData.Instance.selectedGame.updateCummulativeStars();
+                celebrationPanle.SetActive(true);
+            }
+            
+            gameOverPanel.SetActive(!celebrationPanle.gameObject.activeSelf);
             AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
-
-            gameOverPanel.SetActive(true);
-            if (gameOverPanel.gameObject.activeSelf) cummulativeHitTxt.text = $"{AppData.Instance.selectedGame.cummulativeHits:D4}";
+            
+            if (gameOverPanel.gameObject.activeSelf)
+            {
+                GameOverStar.SetActive(AppData.Instance.selectedGame.isAchievedToday());
+                yesterdayScoreTxt.text = $"{scores[1]:D4}";
+                todayScoreTxt.text = $"{(scores[0]+nSuccess):D4}";
+            }
+            if (celebrationPanle.gameObject.activeSelf)
+            {
+                updateStarCount();
+                scoreComparisonTxt.text = $"{(scores[0] + nSuccess).ToString("D3")}";
+            }
+          
             AppLogger.LogInfo($"Space Shooter Game Over. Time: {gametime}s | Targets: {nTargets} | Hits: {nSuccess} | Misses: {nFailure}");
         }
         timerText.text = "Time: 0s";
@@ -396,6 +430,7 @@ public class SpaceShooterGameContoller : MonoBehaviour
 
         // Remove game over and start panel.
         gameOverPanel.SetActive(false);
+        celebrationPanle.SetActive(false);
         startImage.SetActive(false);
     }
 

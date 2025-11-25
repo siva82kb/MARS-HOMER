@@ -12,6 +12,8 @@ public class SSPlayerController : MonoBehaviour
     public static float xScreenMin, yScreenMin, xScreenMax, yScreenMax;
     public static float xScreenMidPoint;
     public static float xScreenRange;
+    public static float yScreenMidPoint;
+    public static float yScreenRange;
     float  zEndPoint;
     float xPoint;
     private float smoothSpeed = 20f;
@@ -22,9 +24,15 @@ public class SSPlayerController : MonoBehaviour
     public static float zEndPointMid;
     public static float zEndPointRange;
     public static int LIMBSCALE;
-
+    // Robot endpoint Y limits
+    public static float yEndPointMin;
+    public static float yEndPointMax;
+    public static float yEndPointMid;
+    public static float yEndPointRange;
     public static float robotZToUnityX(float z) => LIMBSCALE * (xScreenMidPoint + xScreenRange * (z - zEndPointMid) / zEndPointRange);
     public static float unityXToRobotZ(float x) => ((x / LIMBSCALE) - xScreenMidPoint) * (zEndPointRange / xScreenRange) + zEndPointMid;
+    public static float unityYToRobotY(float y) =>
+           ((y / LIMBSCALE) - yScreenMidPoint) * (yEndPointRange / yScreenRange) + yEndPointMid;
 
     private void Awake()
     {
@@ -45,7 +53,8 @@ public class SSPlayerController : MonoBehaviour
         // Compute midpoints and ranges
         xScreenMidPoint = (xScreenMin + xScreenMax) / 2.0f;
         xScreenRange = xScreenMax - xScreenMin;
-
+        yScreenMidPoint = (yScreenMin + yScreenMax) / 2.0f;
+        yScreenRange = yScreenMax - yScreenMin;
         // // Get the audio source component
         // audioSource = GetComponent<AudioSource>();
 
@@ -65,6 +74,10 @@ public class SSPlayerController : MonoBehaviour
             zEndPointMax = AppData.Instance.selectedMovement.currentArom.rightAdjusted.x;
             zEndPointMid = (zEndPointMin + zEndPointMax) / 2.0f;
             zEndPointRange = zEndPointMax - zEndPointMin;
+            yEndPointMin = AppData.Instance.selectedMovement.currentArom.bottomAdjusted.y;
+            yEndPointMax = AppData.Instance.selectedMovement.currentArom.topAdjusted.y;
+            yEndPointMid = (yEndPointMin + yEndPointMax) / 2.0f;
+            yEndPointRange = yEndPointMax - yEndPointMin;
         }
         // Set the appropriate scale
         LIMBSCALE = (AppData.Instance.userData == null || AppData.Instance.userData.rightArm) ? -1 : 1;

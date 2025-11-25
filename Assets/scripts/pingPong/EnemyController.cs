@@ -20,7 +20,7 @@ public class EnemyController : MonoBehaviour {
 	void Start()
 	{
 		// Continously Invokes Move every x seconds (values may differ)
-		InvokeRepeating("Move", .02F, .02F);
+		//InvokeRepeating("Move", .02F, .02F);
 	}
 	
     private void OnCollisionEnter2D(Collision2D collision)

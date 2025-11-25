@@ -45,7 +45,7 @@ public class MovementSceneHandler : MonoBehaviour
 
     void Start()
     {
-        MarsComm.sendHeartbeat();
+        //MarsComm.sendHeartbeat();
     
         // Initialize AppData if needed
         if (AppData.Instance.userData == null)
@@ -53,7 +53,7 @@ public class MovementSceneHandler : MonoBehaviour
             AppData.Instance.Initialize(SceneManager.GetActiveScene().name);
         }
 
-        // Check if the directory exists
+        //Check if the directory exists
         if (!Directory.Exists(DataManager.basePath)) Directory.CreateDirectory(DataManager.basePath);
         if (!File.Exists(DataManager.configFile)) SceneManager.LoadScene("CONFIG");
 
@@ -365,7 +365,7 @@ public class MovementSceneHandler : MonoBehaviour
     
     IEnumerator LoadSummaryScene()
     {
-        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(marsSetUp);
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync("SUMMARY");
         while (!asyncLoad.isDone)
         {
             yield return null;

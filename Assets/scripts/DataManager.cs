@@ -66,6 +66,7 @@ public class DataManager : MonoBehaviour
         "SuccessRate", "MoveTime",
         "CurrentTargets", "CurrentHits", "CurrentMisses",
         "CummulativeTargets", "CummulativeHits", "CummulativeMisses",
+        "currentStar","CummulativeStars",
         "RawDataFileName"
     };
     // Raw data header.

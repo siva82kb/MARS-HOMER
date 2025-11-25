@@ -37,6 +37,15 @@ public class pongGameController : MonoBehaviour {
     public int nSuccess = 0;
     public int nFailure = 0;
 
+    public GameObject celebrationPanle;
+    public TextMeshProUGUI scoreComparisonTxt;
+    public TextMeshProUGUI yesterdayScoreTxt;
+    public TextMeshProUGUI todayScoreTxt;
+    public TextMeshProUGUI starCount;
+    public GameObject GameOverStar;
+    public int _starCount;
+    private int[] scores;
+
     // Target and player positions
     public Vector3? targetPosition { get; private set; }
     public Vector3 playerPosition { get; private set; }
@@ -125,11 +134,19 @@ public class pongGameController : MonoBehaviour {
             GameObject player = GameObject.FindGameObjectWithTag("Player");
             GameObject Enemy = GameObject.FindGameObjectWithTag("Enemy");
             player.transform.position = new Vector3(-6, 0, 0);
-            Enemy.transform.position = new Vector3(6, 0, 0);
+            Enemy.transform.position = new Vector3(8, 0, 0);
         }
 
         // Attach event handler for Mars button release.
         MarsComm.OnMarsButtonReleased += onMarsButtonReleased;
+        updateStarCount();
+        scores = MarsGameDefs.PingPong.GetScores();
+        Debug.Log($"{scores[0]}/{scores[1]}");
+        AppLogger.LogInfo($"scores - yesterDayScore:{scores[1]} | TodayScore{scores[0]}");
+    }
+    public void updateStarCount()
+    {
+        starCount.text = $"{AppData.Instance.selectedGame.cummulativeStars.ToString("D2")}";
     }
 
     void Update()
@@ -187,6 +204,10 @@ public class pongGameController : MonoBehaviour {
             else
             {
                 targetGamePosition =  target.transform.position;
+                targetEndPointPosition = new Vector3(0, 
+                                                     PongPlayerController.unityYToRobotY(target.transform.position.y), 
+                                                     PongPlayerController.unityXToRobotZ(target.transform.position.x)
+                                                     );
             }
         }
     }
@@ -273,10 +294,31 @@ public class pongGameController : MonoBehaviour {
             // Compute game time
             int gameTime = (int)(gameDuration - gameTimeLeft);
             AppData.Instance.gameTime = gameTime;
+            // Stop the current game trial
+            if ((scores[0] + nSuccess) > scores[1] && !AppData.Instance.selectedGame.isAchievedToday())
+            {
+                AppData.Instance.selectedGame.updateCummulativeStars();
+                celebrationPanle.SetActive(true);
+            }
+
             AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
-            showFinished();
-            cummulativeScoreTxt.text = $"{AppData.Instance.selectedGame.cummulativeHits:D4}";
-            AppLogger.LogInfo($"PingPong Game Over. Time: {gameTime}s | Targets: {nTargets} | Hits: {nSuccess} | Misses: {nFailure}");
+
+            if (!celebrationPanle.gameObject.activeSelf)
+            {
+                showFinished();
+                GameOverStar.SetActive(AppData.Instance.selectedGame.isAchievedToday());
+                yesterdayScoreTxt.text = $"{scores[1]:D4}";
+                todayScoreTxt.text = $"{(scores[0] + nSuccess):D4}";
+            }
+            if (celebrationPanle.gameObject.activeSelf)
+            {
+                updateStarCount();
+                scoreComparisonTxt.text = $"{(scores[0] + nSuccess).ToString("D3")}";
+            }
+            //AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
+            //showFinished();
+            //cummulativeScoreTxt.text = $"{AppData.Instance.selectedGame.cummulativeHits:D4}";
+            //AppLogger.LogInfo($"PingPong Game Over. Time: {gameTime}s | Targets: {nTargets} | Hits: {nSuccess} | Misses: {nFailure}");
         }
         timerTxt.text = "Time: 0s";
         // Set game over state

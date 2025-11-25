@@ -80,6 +80,7 @@ public partial class AppData
         WriteTrialDataToRawDataFile();
         MarsComm.OnNewMarsData -= OnNewMarsDataDataLogging;
         trialRawDataFile = null;
+        Instance.selectedGame.resetstarCount();
         awsManager.changeUploadStatus(awsManager.status[0]);
     }
 
@@ -109,6 +110,8 @@ public partial class AppData
             $"{selectedGame.cummulativeTargets}",                   // CummulativeTargets
             $"{selectedGame.cummulativeHits}",                      // CummulativeHits
             $"{selectedGame.cummulativeMisses}",                    // CummulativeMisses
+            $"{selectedGame.currentStar}",                         // CurrentStarcounts
+            $"{selectedGame.cummulativeStars}",                     // CummulativeStarCounts
             $"{trialRawDataFile.Split('/').Last()}"                 // RawDataFileName
         };
 

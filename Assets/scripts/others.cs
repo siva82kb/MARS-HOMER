@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
@@ -7,6 +7,7 @@ using UnityEngine;
 using System.IO;
 using System.Text;
 using System.Numerics;
+using static UnityEngine.Rendering.DebugUI.Table;
 
 
 public static class MarsDefs
@@ -327,45 +328,7 @@ public class MarsUserData
         }
         return false;
     }
-    public void ReadFile()
-    {
-        if (!File.Exists(DataManager.GetUploadStatusFile))
-        {
-            Debug.LogError("File not found: " + DataManager.GetUploadStatusFile);
-            return;
-        }
-
-        string[] lines = File.ReadAllLines(DataManager.GetUploadStatusFile);
-        string status;
-
-        foreach (string line in lines)
-        {
-            if (string.IsNullOrWhiteSpace(line)) continue;
-
-            string[] parts = line.Split(',');
-
-            if (parts.Length > 1)
-            {
-                status = parts[1].Trim(); // second column
-              
-
-                if (status == "upload_needed")
-                {
-                    // dataStatus.text = "Upload needed";
-                    Debug.Log("Upload is needed!");
-                }
-                else if (status == "no_upload")
-                {
-                    // dataStatus.text = "No upload required";
-                    Debug.Log("No upload required.");
-                }
-                else
-                {
-                    Debug.Log("Unknown status: " + status);
-                }
-            }
-        }
-    }
+    
     public int[] readCummulativeHitsMissesForGameMovement(string gameName, string movementName)
     {
         // Get the last row for the given game.
@@ -386,6 +349,94 @@ public class MarsUserData
         };
         AppLogger.LogInfo($"Cummulative hits and misses for game '{gameName}' and '{movementName}' updated. Targets: {cuScores[0]} | Hits: {cuScores[1]} | Misses: {cuScores[2]}.");
         return cuScores;
+    }
+
+    public int[] readStarCounts(string gameName)
+    {
+        var lastRow = dTableSession.AsEnumerable().LastOrDefault();
+        if (lastRow == null) return new int[] { 0, 0 };
+        int cummulativeStarCounts = Convert.ToInt32(lastRow.Field<string>("CummulativeStars"));
+       
+        DateTime today = DateTime.Today;
+      
+        var currentStarCount = dTableSession.AsEnumerable()
+                                  .Where(row => DateTime.ParseExact(row.Field<string>(DATETIME).Trim(), DataManager.DATETIMEFORMAT, CultureInfo.InvariantCulture).Date == today.Date &&
+                                         row.Field<string>("GameName") == gameName
+                                         )
+                                  .Sum(row => Convert.ToInt32(row["currentStar"]));
+
+        return new int[] { cummulativeStarCounts, currentStarCount };
+    }
+    public int[] getLastTwoDifferentDatesScore(String gameName)
+    {
+        AppData.Instance.reloadSessionDetails();
+        var table = AppData.Instance.userData.dTableSession;
+
+        if (table == null || table.Rows.Count == 0)
+            return new[] { 0, 0 };
+
+       
+        //if it is a new day then only get last date data
+        var lastRow = table.Rows[table.Rows.Count - 1];
+        DateTime lastDate = DateTime.ParseExact(lastRow.Field<string>(DATETIME),DataManager.DATETIMEFORMAT,CultureInfo.InvariantCulture);
+        Debug.Log($"{lastDate}");
+    
+        //confirms only lastDate and Today data Comparison
+        if (lastDate.Date != DateTime.Today.Date)
+        {
+            int score = GetScoreForDate(lastDate, gameName);
+            return new[] { 0,score}; 
+        }
+
+        //collect all dates
+        List<DateTime> allDates = new List<DateTime>();
+
+        foreach (var row in table.AsEnumerable())
+        {
+            string dateStr = row.Field<string>(DATETIME);
+
+            if (DateTime.TryParseExact(
+                    dateStr,
+                    DataManager.DATETIMEFORMAT,
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.None,
+                    out DateTime dt))
+            {
+                allDates.Add(dt.Date);
+            }
+        }
+
+        if (allDates.Count == 0)
+            return new[] { 0, 0 };
+
+        var distinctDates = allDates
+            .Distinct()
+            .OrderByDescending(d => d)
+            .Take(2)
+            .ToList();
+
+        // If there is only ONE unique date:
+        if (distinctDates.Count == 1)
+            return new[] { GetScoreForDate(distinctDates[0],gameName), 0 };
+
+        DateTime date1 = distinctDates[0]; // today date
+        DateTime date2 = distinctDates[1]; // yesterday date
+
+        int score1 = GetScoreForDate(date1, gameName);
+        int score2 = GetScoreForDate(date2, gameName);
+        Debug.Log($"{score1},{score2} from getfuntion");
+        return new[] { score1, score2 };
+    }
+
+    private int GetScoreForDate(DateTime targetDate,String gameName)
+    {
+        var table = AppData.Instance.userData.dTableSession;
+        int total = AppData.Instance.userData.dTableSession.AsEnumerable()
+              .Where(row => DateTime.ParseExact(row.Field<string>(DATETIME), DataManager.DATETIMEFORMAT, CultureInfo.InvariantCulture).Date == targetDate.Date &&
+                     row.Field<string>("GameName") == gameName
+                     )
+              .Sum(row => Convert.ToInt32(row["CurrentHits"]));
+        return total;
     }
 
     public float readReachSpeedForGameMovement(string gameName, string movementName)
@@ -566,7 +617,7 @@ public static class MarsGameDefs
         public const float BOTTOMLIMIT = -3.85f;
 
         // Game duration
-        public const float GAMEDURATION = 60f; // seconds
+        public const float GAMEDURATION = 10f; // seconds
 
         // Space ship firing constants.
         public const float FIRING_INTERVAL = 0.25f;
@@ -587,6 +638,28 @@ public static class MarsGameDefs
             AppLogger.LogInfo($"Computing game speed for Space Shooter. Reach Speed: {reachSpeed} | AROM Limits: ({arom.rightAdjusted.x}, {arom.leftAdjusted.x}) | Reach Duration: {reachDuration} | Screen Limits: ({RIGHTLIMIT}, {LEFTLIMIT}) | Game Speed: {gameSpeed}");
             return gameSpeed;
         }
+        //Game Achievement Data
+        public static int[] GetScores()
+        {
+            return AppData.Instance.userData.getLastTwoDifferentDatesScore("SS");
+        }
+
+        public static int[] GetStarsCount()
+        {
+            return AppData.Instance.userData.readStarCounts("SS");
+        }
+
+        public static int[] GetCummulativeScores()
+        {
+            return AppData.Instance.userData.readCummulativeHitsMissesForGameMovement("SS", "ML");
+        }
+
+        public static bool IsAchievedToday()
+        {
+            var starsCount = GetStarsCount();
+            return starsCount[1] > 0;
+        }
+      
     }
 
     // PingPong specific definitions
@@ -599,7 +672,7 @@ public static class MarsGameDefs
         public const float BOTTOMLIMIT = -5.5f;
 
         // Game duration
-        public const float GAMEDURATION = 60f; // seconds
+        public const float GAMEDURATION = 10f; // seconds
 
         public static float GetReachDuration(float reachSpeed, MarsArom arom)
         {
@@ -607,7 +680,7 @@ public static class MarsGameDefs
             reachSpeed = Math.Clamp(reachSpeed, MIN_REACH_SPEED, MAX_REACH_SPEED);
             return Math.Abs((arom.topAdjusted.y - arom.bottomAdjusted.y) / reachSpeed);
         }
-        
+
         public static float GetGameSpeed(float reachSpeed, MarsArom arom)
         {
             // Find the duration for the given speed.
@@ -617,6 +690,28 @@ public static class MarsGameDefs
             AppLogger.LogInfo($"Computing game speed for Ping Pong. Reach Speed: {reachSpeed} | AROM Limits: ({arom.topAdjusted.y}, {arom.bottomAdjusted.y}) | Reach Duration: {reachDuration} | Screen Limits: ({TOPLIMIT}, {BOTTOMLIMIT}) | Game Speed: {gameSpeed}");
             return gameSpeed;
         }
+        //Game Achievement Data
+        public static int[] GetScores()
+        {
+            return AppData.Instance.userData.getLastTwoDifferentDatesScore("PP");
+        }
+
+        public static int[] GetStarsCount()
+        {
+            return AppData.Instance.userData.readStarCounts("PP");
+        }
+
+        public static int[] GetCummulativeScores()
+        {
+            return AppData.Instance.userData.readCummulativeHitsMissesForGameMovement("PP", "AP");
+        }
+
+        public static bool IsAchievedToday()
+        {
+            var starsCount = GetStarsCount();
+            return starsCount[1] > 0;
+        }
+       
     }
 
     // DiamondCatcher specific definitions
@@ -629,7 +724,7 @@ public static class MarsGameDefs
         public const float BOTTOMLIMIT = -4.0f;
 
         // Game duration
-        public const float GAMEDURATION = 60f;  // seconds
+        public const float GAMEDURATION = 10f;  // seconds
 
         // Target reach hold time.
         public const float TARGET_IN_TIME = 1f; // seconds
@@ -652,6 +747,28 @@ public static class MarsGameDefs
             AppLogger.LogInfo($"Computing game speed for Diamond Catcher. Reach Speed: {reachSpeed} | AROM Limits: H({arom.rightAdjusted.x}, {arom.leftAdjusted.x}) V({arom.topAdjusted.y}, {arom.bottomAdjusted.y}) | Reach Duration: {reachDuration} | Screen Limits: H({RIGHTLIMIT}, {LEFTLIMIT}) V({TOPLIMIT}, {BOTTOMLIMIT}) | Game Speed: {gameSpeed}");
             return gameSpeed;
         }
+        //Game Achievement Data
+        public static int[] GetScores()
+        {
+            return AppData.Instance.userData.getLastTwoDifferentDatesScore("DC");
+        }
+
+        public static int[] GetStarsCount()
+        {
+            return AppData.Instance.userData.readStarCounts("DC");
+        }
+
+        public static int[] GetCummulativeScores()
+        {
+            return AppData.Instance.userData.readCummulativeHitsMissesForGameMovement("DC", "MLAP");
+        }
+
+        public static bool IsAchievedToday()
+        {
+            var starsCount = GetStarsCount();
+            return starsCount[1] > 0;
+        }
+        
     }
 }
 
@@ -679,8 +796,11 @@ public class MarsGame
     public int cummulativeTargets { get; private set; } = 0;
     public int cummulativeHits { get; private set; } = 0;
     public int cummulativeMisses { get; private set; } = 0;
+    public int cummulativeStars {  get; private set; } = 0;
+    public int currentStar {  get; private set; } = 0;
+    public int todayStar {  get; private set; } = 0;
 
-    public MarsGame(string gName, string mName, float rSpeed, float gDuration, MarsArom arom, int gCuTargets, int gCuHits, int gCuMisses)
+    public MarsGame(string gName, string mName, float rSpeed, float gDuration, MarsArom arom, int gCuTargets, int gCuHits, int gCuMisses, int gCuStars, int TodayStars)
     {
         name = gName?.ToUpper() ?? string.Empty;
         movement = mName?.ToUpper() ?? string.Empty;
@@ -690,6 +810,9 @@ public class MarsGame
         cummulativeTargets = gCuTargets;
         cummulativeHits = gCuHits;
         cummulativeMisses = gCuMisses;
+        cummulativeStars = gCuStars;
+        todayStar = TodayStars;
+
     }
 
     public void ResetCummulativeScore()
@@ -699,6 +822,26 @@ public class MarsGame
         cummulativeMisses = 0;
     }
 
+    //Give star once they Achieved yesterday Score
+    public void updateCummulativeStars()
+    {
+       
+        cummulativeStars++;
+        currentStar = 1;
+        todayStar += currentStar;
+    }
+    //Reset the trailStar Count
+    public void resetstarCount()
+    {
+        currentStar = 0;
+    }
+   
+    //To check if they achieved Today  or not
+    public bool isAchievedToday()
+    {
+        return todayStar > 0 ;
+    }
+    
     public void UpdateTargetsHitsMisses(int targets, int hits, int misses)
     {
         currentTargets = targets;
