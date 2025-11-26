@@ -94,10 +94,7 @@ public class PongPlayerController : MonoBehaviour
     void FixedUpdate()
     {
         if (!isInitialized) return;
-       
-        //restrict the player to move only on required x-axis
-        //if (Mathf.Clamp(MarsComm.epPosInThePlane.z, xEndPointMin, xEndPointMax) == MarsComm.epPosInThePlane.z)
-            updatePlayerPosition();
+        updatePlayerPosition();
     }
 
     private void OnCollisionEnter2D(Collision2D collision)

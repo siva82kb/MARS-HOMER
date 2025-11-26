@@ -116,7 +116,7 @@ public class ChoosePlaneSceneHandler : MonoBehaviour
         sliderTrainPlane.onValueChanged.AddListener(delegate { OnTrainPlaneSliderValueChanged(); });
         // Attach call back for the done button.
         btnDone.onClick.AddListener(() => {
-            if (currentState == ChooseTrainingPlaneStates.TEST_TRAINING_PLANES) return;
+            if (currentState != ChooseTrainingPlaneStates.ALL_DONE) return;
             AppLogger.LogInfo($"Done button pressed. Leaving abruptly.");
             SceneManager.LoadScene(nextScene); 
         });

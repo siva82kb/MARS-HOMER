@@ -2465,7 +2465,7 @@ Transform:
   m_GameObject: {fileID: 1078288470}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 8, y: 0.0325, z: 0}
+  m_LocalPosition: {x: -8, y: 0.0325, z: 0}
   m_LocalScale: {x: 0.11518001, y: 0.9773022, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2547,7 +2547,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1186809748117878175, guid: 3f5b5b39d3788944d96dbeb999d2d057, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4525276600625715635, guid: 3f5b5b39d3788944d96dbeb999d2d057, type: 3}
       propertyPath: m_fontSize
@@ -2683,7 +2683,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6866859414541603453, guid: 3f5b5b39d3788944d96dbeb999d2d057, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6925711611548856451, guid: 3f5b5b39d3788944d96dbeb999d2d057, type: 3}
       propertyPath: m_Name
@@ -3682,8 +3682,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 50
-  m_fontSizeBase: 50
+  m_fontSize: 73
+  m_fontSizeBase: 73
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18

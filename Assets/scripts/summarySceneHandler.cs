@@ -26,6 +26,7 @@ public class summarySceneHandler : MonoBehaviour
     public GameObject DCstar;
     public void Start()
     {
+        
         // Inialize the logger
         AppLogger.StartLogging(SceneManager.GetActiveScene().name);
         AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);
@@ -33,15 +34,19 @@ public class summarySceneHandler : MonoBehaviour
         title = "summary";
         initializeChart();
         updateScores();
+      
+
     }
 
     void Update()
     {
+       
         shutdownTimer -= Time.deltaTime;
-     
-        if(shutdownTimer<=0)exit();
+
+        if (shutdownTimer <= 0) exit();
 
     }
+   
     public void updateScores()
     {
         int[] scores,cuScore;
@@ -86,19 +91,19 @@ public class summarySceneHandler : MonoBehaviour
             AppLogger.LogInfo("Disconnected form Mars And Application closed succesfully");
             Application.Quit();
             // Process.Start("shutdown", "/s /t 0");
-            #if UNITY_EDITOR
-                        UnityEditor.EditorApplication.isPlaying = false;
-            #endif
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+#endif
             // Process.Start("shutdown", "/s /t 0");
         }
         catch (System.Exception ex)
         {
             Debug.LogError("Failed to shutdown: " + ex.Message);
         }
-    
-    //SceneManager.LoadScene("DATAUPLOADING");
 
-}
+        //SceneManager.LoadScene("DATAUPLOADING");
+
+    }
     
     //To initialize the barchart with whole data of moveTime per day
     public void initializeChart()

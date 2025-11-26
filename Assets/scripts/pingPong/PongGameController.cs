@@ -128,7 +128,7 @@ public class pongGameController : MonoBehaviour {
         if (isRequiredTrialsCompleted) reminderPanel.SetActive(true);
         else reminderPanel.SetActive(false);
 
-        //switch the Player based on TrainingSide
+        //switch the Player based on TrainingSide is Left
         if (AppData.Instance.userData.limb == 2)
         {
             GameObject player = GameObject.FindGameObjectWithTag("Player");

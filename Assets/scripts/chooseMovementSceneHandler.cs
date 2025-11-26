@@ -365,7 +365,7 @@ public class MovementSceneHandler : MonoBehaviour
     
     IEnumerator LoadSummaryScene()
     {
-        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync("SUMMARY");
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(marsSetUp);
         while (!asyncLoad.isDone)
         {
             yield return null;
