@@ -53,16 +53,17 @@ public class connectStatusHandler : MonoBehaviour
         level = SystemInfo.batteryLevel;      // 0.0 – 1.0   OR -1 if unsupported
         status = SystemInfo.batteryStatus;
 
-        
+        //if level below 30% it show the indication to connect charger
         if (level < 0.3 && !errorPanel.gameObject.activeSelf && status != BatteryStatus.Charging)// 30% Battery Level Threshold
         {
             errorPanel.SetActive(true);
             AppLogger.LogInfo($"Error Below BatteryLevel   | level : {SystemInfo.batteryLevel * 100}%");
             errorTxt.text = $"Battery Low{level * 100}%Please Connect the Charger";
         }
+        //if Battery connected after the indication shown, Indication disappear Dynamically
         if(status == BatteryStatus.Charging && level <= 0.3 && errorPanel.gameObject.activeSelf && MarsComm.errorStatus != 0 && MarsComm.errorStatus != 1)
         {
-            AppLogger.LogInfo($"close Automatically when device connect with charger | status : {status}");
+            AppLogger.LogInfo($"closed dynamically when device connect with charger | status : {status}");
             errorPanel.SetActive(!errorPanel.gameObject.activeSelf);
         }
 
@@ -92,12 +93,14 @@ public class connectStatusHandler : MonoBehaviour
    
     private void CloseAppLogger()
     {
-        if( status == BatteryStatus.Charging && errorPanel.gameObject.activeSelf)
+        //Optional To close the Connect charger Indication
+        if( status == BatteryStatus.Charging && errorPanel.gameObject.activeSelf && MarsComm.errorStatus != 0 && MarsComm.errorStatus != 1)
         {
             AppLogger.LogInfo($"Closing by pressing close Button  | status : {status}");
             errorPanel.SetActive(false);
             return;
         }
+        //Ensure while running Game ,the log file should closed Properly
         if (SpaceShooterGameContoller.Instance != null)
         {
             if (SpaceShooterGameContoller.Instance.IsGamePlaying())
