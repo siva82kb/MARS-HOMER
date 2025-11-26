@@ -365,6 +365,8 @@ public class pongGameController : MonoBehaviour {
     {
         if (gameState != GameStates.WAITING && gameState != GameStates.STOP)
         {
+            Time.timeScale = 1;
+            isPaused = false;
             gameOver();
         }
         SceneManager.LoadScene("CHOOSEMOVE");

@@ -14,8 +14,10 @@ public class connectStatusHandler : MonoBehaviour
     private GameObject loading;
     public Button closePanel;
     public GameObject errorPanel;
+    public TextMeshProUGUI errorTxt;
     private TextMeshProUGUI statusText;
-
+    BatteryStatus status ;
+    float level;
     void Awake()
     {
         // Subscribe to shutdown events once per instance
@@ -29,6 +31,7 @@ public class connectStatusHandler : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+
         connectStatus = GetComponent<Image>(); // Uncomment if connectStatus is on the same GameObject
         loading = transform.Find("loading").gameObject; // Assuming loading is a child GameObject
 
@@ -37,14 +40,33 @@ public class connectStatusHandler : MonoBehaviour
         if (AppData.Instance != null)return;
         if (AppData.Instance.userData.isErrorOccurred())
         {
-            //if (SceneManager.GetActiveScene().name == "DIAGNOSTICS") return;
+            if (SceneManager.GetActiveScene().name == "DIAGNOSTICS") return;
             errorPanel.SetActive(true);
         }
+        AppLogger.LogInfo($"Starting Device with a Battery level of  | level : {SystemInfo.batteryLevel*100}%");
+       
     }
 
     // Update is called once per frame
     void Update()
     {
+        level = SystemInfo.batteryLevel;      // 0.0 – 1.0   OR -1 if unsupported
+        status = SystemInfo.batteryStatus;
+
+        
+        if (level < 0.3 && !errorPanel.gameObject.activeSelf && status != BatteryStatus.Charging)// 30% Battery Level Threshold
+        {
+            errorPanel.SetActive(true);
+            AppLogger.LogInfo($"Error Below BatteryLevel   | level : {SystemInfo.batteryLevel * 100}%");
+            errorTxt.text = $"Battery Low{level * 100}%Please Connect the Charger";
+        }
+        if(status == BatteryStatus.Charging && level <= 0.3 && errorPanel.gameObject.activeSelf && MarsComm.errorStatus != 0 && MarsComm.errorStatus != 1)
+        {
+            AppLogger.LogInfo($"close Automatically when device connect with charger | status : {status}");
+            errorPanel.SetActive(!errorPanel.gameObject.activeSelf);
+        }
+
+        
         // Update connection status
         if (ConnectToRobot.isMARS)
         {
@@ -61,13 +83,46 @@ public class connectStatusHandler : MonoBehaviour
         }
         if (MarsComm.errorStatus != 0 && MarsComm.errorStatus != 1)
         {
-            if (SceneManager.GetActiveScene().name == "DIAGNOSTICS") return;
+            //if (SceneManager.GetActiveScene().name == "DIAGNOSTICS") return;
+            errorTxt.text = "Device has issue. Call the Engineers.";
             errorPanel.SetActive(true);
         }
            
     }
+   
     private void CloseAppLogger()
     {
+        if( status == BatteryStatus.Charging && errorPanel.gameObject.activeSelf)
+        {
+            AppLogger.LogInfo($"Closing by pressing close Button  | status : {status}");
+            errorPanel.SetActive(false);
+            return;
+        }
+        if (SpaceShooterGameContoller.Instance != null)
+        {
+            if (SpaceShooterGameContoller.Instance.IsGamePlaying())
+            {
+                SpaceShooterGameContoller.Instance.onClickExit();
+
+            }
+        }
+        if(pongGameController.Instance != null)
+        {
+            if (pongGameController.Instance.isGamePlaying)
+            {
+                pongGameController.Instance.ExitGame();
+               
+            }
+        }
+        if(DCGameController.Instance != null)
+        {
+            if (DCGameController.Instance.isGamePlaying)
+            {
+
+                DCGameController.Instance.onClickExit();
+            }
+        }
+      
         JediComm.Disconnect();
         AppLogger.StopLogging();
         MarsCommLogger.StopLogging();
@@ -76,8 +131,6 @@ public class connectStatusHandler : MonoBehaviour
             #if UNITY_EDITOR
                         UnityEditor.EditorApplication.isPlaying = false; // Stop play mode if in editor
             #endif
-        //Need to change
-        //MarsAanLogger.StopLogging();
-
+      
     }
 }
