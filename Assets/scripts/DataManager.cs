@@ -87,7 +87,8 @@ public class DataManager : MonoBehaviour
         "GamePlayerX", "GamePlayerY",
         "GameTargetX", "GameTargetY",
         "GameState",
-        "Annotation"
+        "Annotation",
+        "FrameRate"
     };
     public static string DATETIMEFORMAT = "yyyy-MM-dd HH:mm:ss";
 

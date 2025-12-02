@@ -165,7 +165,7 @@ public class AssessArmWeight : MonoBehaviour
 
     void Update()
     {
-        MarsComm.sendHeartbeat();
+        //MarsComm.sendHeartbeat();
 
         // Update UI.
         if (currentState == ARMWEIGHT_ASSESS_STATE.ALL_DONE)

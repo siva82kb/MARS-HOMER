@@ -91,7 +91,7 @@ public class MovementSceneHandler : MonoBehaviour
 
     void Update()
     {
-        MarsComm.sendHeartbeat();
+        //MarsComm.sendHeartbeat();
         
         // Check if the magic key combination is pressed for AROM assessment 
         // or training plane selection.
@@ -154,29 +154,7 @@ public class MovementSceneHandler : MonoBehaviour
         }
     }
 
-    public class idle
-    {
-        float previosAngle;
-        bool istarted;
-        float timer = 500;
-        public void checkMarsIde()
-        {
-            if (istarted == false) return;
-            timer -= Time.deltaTime;
-         
-            if (previosAngle == MarsComm.angle1 && MarsComm.force > 10)
-            {
-
-            }
-            previosAngle = MarsComm.angle1;
-        }
-        public void reset()
-        {
-            istarted = false;
-            timer = 500;
-        }
-    }
-
+   
     private void UpdateMovementToggleButtons()
     {
         foreach (Transform child in movementSelectGroup.transform)

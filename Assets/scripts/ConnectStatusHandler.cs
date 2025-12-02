@@ -16,14 +16,22 @@ public class connectStatusHandler : MonoBehaviour
     public GameObject errorPanel;
     public TextMeshProUGUI errorTxt;
     private TextMeshProUGUI statusText;
+
+    //BatteryLevelCheck
     BatteryStatus status ;
     float level;
+
+    //Idle check
+    float previosAngle;
+    bool istarted;
+    float timer = 60;
+
     void Awake()
     {
         // Subscribe to shutdown events once per instance
         Application.quitting += CloseAppLogger; //for Exe file
         AppDomain.CurrentDomain.ProcessExit += (_, __) => CloseAppLogger(); // for external crash like OS Crash
-
+  
         #if UNITY_EDITOR
                 EditorApplication.quitting += CloseAppLogger; //for editor
         #endif
@@ -31,7 +39,6 @@ public class connectStatusHandler : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
         connectStatus = GetComponent<Image>(); // Uncomment if connectStatus is on the same GameObject
         loading = transform.Find("loading").gameObject; // Assuming loading is a child GameObject
 
@@ -47,6 +54,8 @@ public class connectStatusHandler : MonoBehaviour
        
     }
 
+ 
+
     // Update is called once per frame
     void Update()
     {
@@ -54,23 +63,34 @@ public class connectStatusHandler : MonoBehaviour
         status = SystemInfo.batteryStatus;
 
         //if level below 30% it show the indication to connect charger
-        if (level < 0.3 && !errorPanel.gameObject.activeSelf && status != BatteryStatus.Charging)// 30% Battery Level Threshold
+        if (level <= 0.3
+            && !errorPanel.gameObject.activeSelf
+            && status != BatteryStatus.Charging 
+            && !AppData.NeedToDeacitaveMars)// 30% Battery Level Threshold
         {
             errorPanel.SetActive(true);
             AppLogger.LogInfo($"Error Below BatteryLevel   | level : {SystemInfo.batteryLevel * 100}%");
-            errorTxt.text = $"Battery Low{level * 100}%Please Connect the Charger";
+            errorTxt.text = $"Battery Low{level * 100}%Please Connect the Charger\nor click Close ,To Deactivate Device";
         }
+
         //if Battery connected after the indication shown, Indication disappear Dynamically
-        if(status == BatteryStatus.Charging && level <= 0.3 && errorPanel.gameObject.activeSelf && MarsComm.errorStatus != 0 && MarsComm.errorStatus != 1)
+        if(status == BatteryStatus.Charging 
+            && level <= 0.3
+            && errorPanel.gameObject.activeSelf 
+            && MarsComm.errorStatus<=1
+            &&!AppData.NeedToDeacitaveMars)
         {
-            AppLogger.LogInfo($"closed dynamically when device connect with charger | status : {status}");
+            AppLogger.LogInfo($"Error Panel closed dynamically when device connect with charger | status : {status}");
             errorPanel.SetActive(!errorPanel.gameObject.activeSelf);
         }
 
-        
+        //Check if Device is in use
+        if (MarsComm.CONTROLTYPE[MarsComm.controlType] == "POSITION")checkMarsIdle();
+
         // Update connection status
         if (ConnectToRobot.isMARS)
         {
+            MarsComm.sendHeartbeat();
             connectStatus.color = Color.green;
             loading.SetActive(false);
             statusText.text = $"{MarsComm.version}\n[{MarsComm.frameRate:F1}Hz]";
@@ -84,48 +104,97 @@ public class connectStatusHandler : MonoBehaviour
         }
         if (MarsComm.errorStatus != 0 && MarsComm.errorStatus != 1)
         {
-            //if (SceneManager.GetActiveScene().name == "DIAGNOSTICS") return;
+            if (SceneManager.GetActiveScene().name == "DIAGNOSTICS") return;
             errorTxt.text = "Device has issue. Call the Engineers.";
             errorPanel.SetActive(true);
         }
            
     }
-   
+    //check Device Idle by Angle 1 and Force values
+    public void checkMarsIdle()
+    {
+        //countDown
+        if (istarted&&!errorPanel.gameObject.activeSelf) timer -= Time.deltaTime;
+
+
+        if (previosAngle == MarsComm.angle1 && MarsComm.force < 10 )
+        {
+
+            if (!istarted && !errorPanel.gameObject.activeSelf) start();
+           
+        }
+        else
+        {
+            if (istarted) reset();
+            Debug.Log("reset");
+        }
+        previosAngle = MarsComm.angle1;
+
+        if (timer < 0 && !errorPanel.gameObject.activeSelf)
+        {
+            AppLogger.LogInfo("Device is in Idle");
+            errorTxt.text = "Device is in Idle !.. Please Deactivate Device";
+            errorPanel.SetActive(true);
+        }
+    }
+    public void reset()
+    {
+        istarted = false;
+        timer = 60;
+        if (errorPanel.gameObject.activeSelf) errorPanel.SetActive(false);
+
+    }
+    public void start()
+    {
+        istarted = true;
+    }
+
     private void CloseAppLogger()
     {
-        //Optional To close the Connect charger Indication
-        if( status == BatteryStatus.Charging && errorPanel.gameObject.activeSelf && MarsComm.errorStatus != 0 && MarsComm.errorStatus != 1)
-        {
-            AppLogger.LogInfo($"Closing by pressing close Button  | status : {status}");
-            errorPanel.SetActive(false);
-            return;
-        }
         //Ensure while running Game ,the log file should closed Properly
         if (SpaceShooterGameContoller.Instance != null)
         {
-            if (SpaceShooterGameContoller.Instance.IsGamePlaying())
+            if (SpaceShooterGameContoller.Instance.isGameStarted)
             {
                 SpaceShooterGameContoller.Instance.onClickExit();
 
+
             }
         }
-        if(pongGameController.Instance != null)
+        if (pongGameController.Instance != null)
         {
-            if (pongGameController.Instance.isGamePlaying)
+            if (pongGameController.Instance.isGameStarted)
             {
                 pongGameController.Instance.ExitGame();
-               
+
+
             }
         }
-        if(DCGameController.Instance != null)
+        if (DCGameController.Instance != null)
         {
-            if (DCGameController.Instance.isGamePlaying)
+            if (DCGameController.Instance.isGameStarted)
             {
 
                 DCGameController.Instance.onClickExit();
+
             }
         }
-      
+
+        //To close the battery power Indication, if there is no power ,we immediatly deactivate the device
+        if ( status != BatteryStatus.Charging && errorPanel.gameObject.activeSelf && MarsComm.errorStatus <= 1)
+        {
+            AppLogger.LogInfo($"Error Panel Closing by pressing close Button  | status : {status}");
+            errorPanel.SetActive(false);
+            
+            if (MarsComm.CONTROLTYPE[MarsComm.controlType] == "POSITION")
+            {
+                AppData.NeedToDeacitaveMars = true;
+                SceneManager.LoadScene("MARSSETUP");
+                return;
+            }
+           
+        }
+       
         JediComm.Disconnect();
         AppLogger.StopLogging();
         MarsCommLogger.StopLogging();
@@ -136,4 +205,7 @@ public class connectStatusHandler : MonoBehaviour
             #endif
       
     }
+   
+       
+
 }

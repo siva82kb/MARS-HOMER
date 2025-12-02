@@ -11,7 +11,7 @@ public partial class AppData
     public static AppData Instance => _instance.Value;
 
 
-    static public readonly string COMPort = "COM30"; //1-35//2-30//3-32//4-50//5-53//6-59//7-61//10-64/h7-left-8//h7-right-10
+    static public readonly string COMPort = "COM4"; //1-35//2-30//3-32//4-50//5-53//6-6//7-4//10-64/h7-left-8//h7-right-10
 
     // Robot Connection Alive Variables.
     static public float MARS_WATCHDOG_TIMEOUT = 2.0f; //seconds
@@ -32,6 +32,7 @@ public partial class AppData
             _isMARSConnectionAlive = value;
         }
     }
+    static public bool NeedToDeacitaveMars = false;
 
     /*
      * GAME ADAPTATION CONSTANTS
@@ -42,9 +43,7 @@ public partial class AppData
     private const float SPEED_REDUCTION_FACTOR_MAX = 0.995f; // Reduce by 0.5%
     private const float SPEED_INCREASE_FACTOR_MIN = 1.005f; // Increase by 0.5%
     private const float SPEED_INCREASE_FACTOR_MAX = 1.025f; // Increase by 2.5%
-    public float 
-        
-        GetReachSpeedAdaptationRate(float successRate, float currentReachSpeed)
+    public float GetReachSpeedAdaptationRate(float successRate, float currentReachSpeed)
     {
         float _normspeed = (currentReachSpeed - MarsGameDefs.MIN_REACH_SPEED) / (MarsGameDefs.MAX_REACH_SPEED - MarsGameDefs.MIN_REACH_SPEED);
         if (successRate < LOW_SUCCESS_RATE)

@@ -84,7 +84,7 @@ public class DiagnosticSceneHandler : MonoBehaviour
     private void Update()
     {
         // MARS heartbeat
-        MarsComm.sendHeartbeat();
+        //MarsComm.sendHeartbeat();
 
         // Display device data
         DisplayDeviceData();

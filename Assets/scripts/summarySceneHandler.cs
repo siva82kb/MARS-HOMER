@@ -91,9 +91,9 @@ public class summarySceneHandler : MonoBehaviour
             AppLogger.LogInfo("Disconnected form Mars And Application closed succesfully");
             Application.Quit();
             // Process.Start("shutdown", "/s /t 0");
-#if UNITY_EDITOR
-            UnityEditor.EditorApplication.isPlaying = false;
-#endif
+            #if UNITY_EDITOR
+               UnityEditor.EditorApplication.isPlaying = false;
+            #endif
             // Process.Start("shutdown", "/s /t 0");
         }
         catch (System.Exception ex)

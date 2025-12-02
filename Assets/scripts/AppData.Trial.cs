@@ -211,7 +211,8 @@ public partial class AppData
             rawDataString.Append($"{_targetGamePos.x},");                           // GameTargetX
             rawDataString.Append($"{_targetGamePos.y},");                           // GameTargetY
             rawDataString.Append($"{GetGameState()},");                             // GameState
-            rawDataString.Append($"{AppData.Instance.annotation}");                 // Annotation
+            rawDataString.Append($"{AppData.Instance.annotation},");                 // Annotation
+            rawDataString.Append($"{MarsComm.frameRate}");                          // frameRate
             rawDataString.Append("\n");
         }
     }
