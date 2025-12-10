@@ -134,7 +134,7 @@ public class pongGameController : MonoBehaviour {
             GameObject player = GameObject.FindGameObjectWithTag("Player");
             GameObject Enemy = GameObject.FindGameObjectWithTag("Enemy");
             player.transform.position = new Vector3(-6, 0, 0);
-            Enemy.transform.position = new Vector3(8, 0, 0);
+            Enemy.transform.position = new Vector3(7, 0, 0);
         }
 
         // Attach event handler for Mars button release.

@@ -116,9 +116,8 @@ public class dataUpload : MonoBehaviour
 
     void RunPythonUploader()
     {
-        string pythonScriptPath = @"C:/pythonscripts/uploadToAWSM.pyw";
-        // string pythonExecutionPath = @"C:/Users/Homer 6/AppData/Local/Programs/Python/Python313/pythonw.exe";
-        string pythonExecutionPath = @"C:/Users/gokul/AppData/Local/Programs/Python/Python313/pythonw.exe";
+        string pythonScriptPath = awsManager.pythonScriptPath;
+        string pythonExecutionPath = awsManager.pythonExecutionPath;
 
         if (!File.Exists(pythonScriptPath))
         {
@@ -211,11 +210,11 @@ public class dataUpload : MonoBehaviour
         {
             AppLogger.LogInfo("Disconnected form Mars And Application closed succesfully");
             Application.Quit();
-            // Process.Start("shutdown", "/s /t 0");
-#if UNITY_EDITOR
-            UnityEditor.EditorApplication.isPlaying = false;
-#endif
-            // Process.Start("shutdown", "/s /t 0");
+            //Process.Start("shutdown", "/s /t 0");
+            #if UNITY_EDITOR
+                        UnityEditor.EditorApplication.isPlaying = false;
+            #endif
+            Process.Start("shutdown", "/s /t 0");
         }
         catch (System.Exception ex)
         {

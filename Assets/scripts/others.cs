@@ -42,6 +42,7 @@ public class MarsUserData
     public const string DATETIME = "DateTime";
     public const string HOSPITALNUMBER = "HospitalNumber";
     public const string STARTEDATEH = "StartDate";
+    public const string ENDDATEH = "EndDate";
     public const string TRAININGSIDE = "TrainingSide";
 
     public bool isExceeded { get; private set; }
@@ -51,6 +52,7 @@ public class MarsUserData
     public string userID { get; private set; }
     public string hospNumber { get; private set; }
     public DateTime startDate { get; private set; }
+    public DateTime endDate { get; private set; }
     public bool rightArm { private set; get; }
     public int limb { get { return rightArm ? 1 : 2; } }
 
@@ -170,6 +172,7 @@ public class MarsUserData
         hospNumber = lastRow.Field<string>(HOSPITALNUMBER);
         rightArm = lastRow.Field<string>(TRAININGSIDE).ToUpper() == "RIGHT";
         startDate = DateTime.ParseExact(lastRow.Field<string>(STARTEDATEH), "dd-MM-yyyy", CultureInfo.InvariantCulture);
+        endDate = DateTime.ParseExact(lastRow.Field<string>(ENDDATEH), "dd-MM-yyyy", CultureInfo.InvariantCulture);
         moveTimePrsc = createMoveTimeDictionary();
         for (int i = 0; i < MarsDefs.Movements.Length; i++)
         {

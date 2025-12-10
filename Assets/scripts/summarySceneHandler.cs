@@ -1,4 +1,5 @@
-
+﻿
+using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -11,7 +12,8 @@ using XCharts.Runtime;
 
 public class summarySceneHandler : MonoBehaviour
 {
-    public BarChart barchart;
+
+    public LineChart lineChart;
     public string title;
     private ConcurrentQueue<System.Action> _actionQueue = new ConcurrentQueue<System.Action>();
     private float shutdownTimer = 5f;
@@ -85,100 +87,119 @@ public class summarySceneHandler : MonoBehaviour
     }
     public void exit()
     {
-        AppLogger.LogInfo("Disconnected form Mars And Switch scene to DataUploading");
+
         try
         {
             AppLogger.LogInfo("Disconnected form Mars And Application closed succesfully");
             Application.Quit();
             // Process.Start("shutdown", "/s /t 0");
-            #if UNITY_EDITOR
-               UnityEditor.EditorApplication.isPlaying = false;
-            #endif
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+#endif
             // Process.Start("shutdown", "/s /t 0");
         }
         catch (System.Exception ex)
         {
             Debug.LogError("Failed to shutdown: " + ex.Message);
         }
+        //AppLogger.LogInfo("Disconnected form Mars And Switch scene to DataUploading");
 
         //SceneManager.LoadScene("DATAUPLOADING");
 
     }
-    
-    //To initialize the barchart with whole data of moveTime per day
+
+  
     public void initializeChart()
     {
-  
         SessionDataHandler.MovTimePerDay();
-        // Get or add the BarChart component
-        barchart = gameObject.GetComponent<BarChart>();
-        if (barchart == null)
+
+        lineChart = gameObject.GetComponent<LineChart>();
+        if (lineChart == null)
         {
-            barchart = gameObject.AddComponent<BarChart>();
-            barchart.Init();
+            lineChart = gameObject.AddComponent<LineChart>();
+            lineChart.Init();
         }
 
-        // Set chart title and tooltip visibility
-        barchart.EnsureChartComponent<Title>().show = true;
-        barchart.EnsureChartComponent<Title>().text = title;
+        // Title
+        var titleComp = lineChart.EnsureChartComponent<Title>();
+        titleComp.show = true;
+        titleComp.text = title;
 
-        barchart.EnsureChartComponent<Tooltip>().show = true;
-        barchart.EnsureChartComponent<Legend>().show = true;
+        // Tooltip & Legend
+        lineChart.EnsureChartComponent<Tooltip>().show = true;
+        lineChart.EnsureChartComponent<Legend>().show = true;
 
-        // Ensure x and y axes are created
-        var xAxis = barchart.EnsureChartComponent<XAxis>();
-        var yAxis = barchart.EnsureChartComponent<YAxis>();
+        // Axes
+        var xAxis = lineChart.EnsureChartComponent<XAxis>();
+        var yAxis = lineChart.EnsureChartComponent<YAxis>();
+
         xAxis.show = true;
         yAxis.show = true;
-        xAxis.type = Axis.AxisType.Category; // Set x-axis type to Category
-        yAxis.type = Axis.AxisType.Value; // Set y-axis type to Value
-        yAxis.min = 0; // Make sure bars start from the y=0 line
-        yAxis.max = SessionDataHandler.moveTimeData.Max(); // You can adjust the maximum value as needed
 
-        // Set zoom properties
-        var dataZoom = barchart.EnsureChartComponent<DataZoom>();
+        xAxis.type = Axis.AxisType.Category;
+        yAxis.type = Axis.AxisType.Value;
+
+        // Fixed Y-axis limit 0 - 100
+        yAxis.min = 0;
+        yAxis.max = 100;
+
+       
+
+        // Enable zoom
+        var dataZoom = lineChart.EnsureChartComponent<DataZoom>();
         dataZoom.enable = true;
         dataZoom.supportInside = true;
         dataZoom.supportSlider = true;
         dataZoom.start = 0;
         dataZoom.end = 100;
-        AppLogger.LogInfo("chart initialized successfully");
+
         UpdateChartData();
     }
 
-    //To update chart with data
     public void UpdateChartData()
     {
-        if (barchart == null)
-        {
-            
-            return;
-        }
-        barchart.RemoveData();
-        barchart.EnsureChartComponent<Title>().text = title;
-        barchart.AddSerie<Bar>();
-        // Update the x-axis data
-        var xAxis = barchart.GetChartComponent<XAxis>();
-        xAxis.data.Clear();
-        foreach (string date in SessionDataHandler.dateData)
-        {
-            xAxis.data.Add(date); // Add x-axis labels (dates)
-        }
+        if (lineChart == null) return;
 
-        // Update the y-axis data (movement time)
-        var yAxis = barchart.GetChartComponent<YAxis>();
-        yAxis.data.Clear();
-      
+        lineChart.RemoveData();
+        lineChart.EnsureChartComponent<Title>().text = title;
+
+        lineChart.AddSerie<Line>();
+
+        var xAxis = lineChart.GetChartComponent<XAxis>();
+        xAxis.data.Clear();
+
+        DateTime today = DateTime.Today;
+
+        //foreach (string date in SessionDataHandler.dateData)
+        //{
+        //    xAxis.data.Add(date); // Add x-axis labels (dates)
+        //}
         for (int i = 0; i < SessionDataHandler.dateData.Length; i++)
         {
-            float yValue = SessionDataHandler.moveTimeData[i];
-            barchart.AddData(0, yValue);
+            string dateStr = SessionDataHandler.dateData[i];
+            xAxis.data.Add(dateStr);   // Always show labels
+
+            // Parse date
+            DateTime entryDate = DateTime.Parse(dateStr);
+
+            if (entryDate > today)
+            {
+                // Add empty value → line breaks here
+                lineChart.AddData(0, null);
+            }
+            else
+            {
+                // Add actual data
+                float value = SessionDataHandler.moveTimeData[i];
+                lineChart.AddData(0, value);
+            }
         }
-        barchart.RefreshAllComponent();
-        AppLogger.LogInfo("chart updated successfully");
+
+        lineChart.RefreshAllComponent();
     }
-   
-    private void OnApplicationQuit()
+
+
+private void OnApplicationQuit()
     {
 
         Application.Quit();

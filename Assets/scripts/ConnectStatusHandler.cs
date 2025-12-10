@@ -101,6 +101,7 @@ public class connectStatusHandler : MonoBehaviour
             connectStatus.color = Color.red;
             loading.SetActive(true);
             statusText.text = "Not connected";
+
         }
         if (MarsComm.errorStatus != 0 && MarsComm.errorStatus != 1)
         {
@@ -110,14 +111,14 @@ public class connectStatusHandler : MonoBehaviour
         }
            
     }
-    //check Device Idle by Angle 1 and Force values
+    //check Device Idle by Angle 2 and Force values
     public void checkMarsIdle()
     {
         //countDown
         if (istarted&&!errorPanel.gameObject.activeSelf) timer -= Time.deltaTime;
 
 
-        if (previosAngle == MarsComm.angle1 && MarsComm.force < 10 )
+        if (previosAngle == MarsComm.angle2 && MarsComm.force < 10 )
         {
 
             if (!istarted && !errorPanel.gameObject.activeSelf) start();
@@ -126,9 +127,9 @@ public class connectStatusHandler : MonoBehaviour
         else
         {
             if (istarted) reset();
-            Debug.Log("reset");
+            //Debug.Log("reset");
         }
-        previosAngle = MarsComm.angle1;
+        previosAngle = MarsComm.angle2;
 
         if (timer < 0 && !errorPanel.gameObject.activeSelf)
         {
@@ -180,8 +181,8 @@ public class connectStatusHandler : MonoBehaviour
             }
         }
 
-        //To close the battery power Indication, if there is no power ,we immediatly deactivate the device
-        if ( status != BatteryStatus.Charging && errorPanel.gameObject.activeSelf && MarsComm.errorStatus <= 1)
+        //To close the battery power Indication, if there is no power ,we immediatly deactivate the device or Incase of Idle also we deactivate device
+        if ( errorPanel.gameObject.activeSelf && MarsComm.errorStatus <= 1)
         {
             AppLogger.LogInfo($"Error Panel Closing by pressing close Button  | status : {status}");
             errorPanel.SetActive(false);

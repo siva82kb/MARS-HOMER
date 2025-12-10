@@ -142,6 +142,7 @@ public class SetUpMars : MonoBehaviour
                 break;
             case SETUPMARS.DEACTIVATE:
                 AppLogger.LogInfo($"Deativating Mars");
+
                 JediComm.Disconnect();
                 SceneManager.LoadScene(summaryScene);
                 break;
