@@ -86,6 +86,7 @@ public partial class AppData
 
     private void WriteTrialToSessionsFile()
     {
+        
         // Build the trial row.
         string[] trialRow = new string[] {
             $"{currentSessionNumber}",                              // SessionNumber
@@ -94,7 +95,8 @@ public partial class AppData
             $"{selectedMovement.trialNumberSession}",               // TrialNumberSession
             trialStartTime.ToString(DataManager.DATETIMEFORMAT),    // TrialStartTime
             trialStopTime?.ToString(DataManager.DATETIMEFORMAT),    // TrialStopTime
-            trialRawDataFile.Split("/data/")[1],                    // TrialRawDataFile
+            trialRawDataFile.Split("/data/")[1],
+            // null,                    // TrialRawDataFile
             $"{selectedMovement.name}",                             // Movement
             $"{userData.trainingPlaneAngle}",                       // TrainingPlaneAngle
             $"{selectedGame.name}",                                 // Game  
@@ -336,6 +338,10 @@ public partial class AppData
                 return DCGameController.Instance != null
                     ? DCGameController.Instance.playerGamePosition
                     : Vector3.zero;
+            case "TT":
+                return FlappyGameControl.Instance != null
+                    ? FlappyGameControl.Instance.playerGamePosition
+                    : Vector3.zero;
 
             default:
                 return Vector3.zero;
@@ -360,6 +366,10 @@ public partial class AppData
             case "DC":
                 return DCGameController.Instance != null
                     ? DCGameController.Instance.targetGamePosition ?? Vector3.zero
+                    : Vector3.zero;
+            case "TT":
+                return FlappyGameControl.Instance != null
+                    ? FlappyGameControl.Instance.targetGamePosition ?? Vector3.zero
                     : Vector3.zero;
 
             default:
@@ -386,6 +396,10 @@ public partial class AppData
                 return DCGameController.Instance != null
                     ? DCGameController.Instance.targetEndPointPosition ?? Vector3.zero
                     : Vector3.zero;
+            case "TT":
+                return FlappyGameControl.Instance != null
+                    ? FlappyGameControl.Instance.targetEndPointPosition ?? Vector3.zero
+                    : Vector3.zero;
 
             default:
                 return Vector3.zero;
@@ -407,6 +421,10 @@ public partial class AppData
         else if (selectedGame.name == "DC")
         {
             return DCGameController.Instance != null ? DCGameController.Instance.gameState.ToString() : "";
+        }
+        else if (selectedGame.name == "TT")
+        {
+            return FlappyGameControl.Instance != null ? FlappyGameControl.Instance.gameState.ToString() : "";
         }
         return "";
     }

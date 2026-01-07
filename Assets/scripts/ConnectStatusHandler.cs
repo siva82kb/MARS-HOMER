@@ -59,7 +59,7 @@ public class connectStatusHandler : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        level = SystemInfo.batteryLevel;      // 0.0 – 1.0   OR -1 if unsupported
+        level = SystemInfo.batteryLevel;      // 0.0 ï¿½ 1.0   OR -1 if unsupported
         status = SystemInfo.batteryStatus;
 
         //if level below 30% it show the indication to connect charger
@@ -169,6 +169,13 @@ public class connectStatusHandler : MonoBehaviour
                 pongGameController.Instance.ExitGame();
 
 
+            }
+        }
+        if (FlappyGameControl.Instance != null)
+        {
+            if (FlappyGameControl.Instance.isGameStarted)
+            {
+                FlappyGameControl.Instance.ExitGame();
             }
         }
         if (DCGameController.Instance != null)

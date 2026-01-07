@@ -143,7 +143,8 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      pngwing.com (1)_0: 4954345118388884524
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

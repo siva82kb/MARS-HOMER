@@ -555,9 +555,9 @@ public class MarsMovement
 // Mars Game definitions
 public static class MarsGameDefs
 {
-    public static readonly string[] GAMES = new string[] { "SS", "PP", "DC" };
-    public static readonly string[] GAME_SCENES = new string[] { "SS", "PP", "DC" };
-    public static readonly string[] GAMEFULLNAMES = new string[] { "Space Shooter", "Ping Pong", "Diamond Catcher" };
+    public static readonly string[] GAMES = new string[] { "SS", "PP", "DC" ,"TT"};
+    public static readonly string[] GAME_SCENES = new string[] { "SS", "PP", "DC","TT" };
+    public static readonly string[] GAMEFULLNAMES = new string[] { "Space Shooter", "Ping Pong", "Diamond Catcher","Tuk Tuk" };
     
     // Reach duration are used to compute the games speeds. These are the durations
     // set for reaching from one extreme of the AROM to the other extreme.
@@ -570,14 +570,17 @@ public static class MarsGameDefs
     {
         { "SS", new float[] { Spaceshooter.LEFTLIMIT, Spaceshooter.RIGHTLIMIT, Spaceshooter.BOTTOMLIMIT, Spaceshooter.TOPLIMIT } },
         { "PP", new float[] { PingPong.LEFTLIMIT, PingPong.RIGHTLIMIT, PingPong.BOTTOMLIMIT, PingPong.TOPLIMIT } },
-        { "DC", new float[] { DiamondCatcher.LEFTLIMIT, DiamondCatcher.RIGHTLIMIT, DiamondCatcher.BOTTOMLIMIT, DiamondCatcher.TOPLIMIT } }
+        { "DC", new float[] { DiamondCatcher.LEFTLIMIT, DiamondCatcher.RIGHTLIMIT, DiamondCatcher.BOTTOMLIMIT, DiamondCatcher.TOPLIMIT } },
+        { "TT", new float[] { TukTuk.LEFTLIMIT, TukTuk.RIGHTLIMIT, TukTuk.BOTTOMLIMIT, TukTuk.TOPLIMIT } },
+
     };
 
     public static Dictionary<string, float> GAMEDURATION = new Dictionary<string, float>()
     {
         { "SS", Spaceshooter.GAMEDURATION },
         { "PP", PingPong.GAMEDURATION },
-        { "DC", DiamondCatcher.GAMEDURATION }
+        { "DC", DiamondCatcher.GAMEDURATION },
+        {"TT", TukTuk.GAMEDURATION}
     };
 
     public static float GetGameSpeedForGame(string game, float reachSpeed, MarsArom arom)
@@ -590,6 +593,8 @@ public static class MarsGameDefs
                 return PingPong.GetGameSpeed(reachSpeed, arom);
             case "DC":
                 return DiamondCatcher.GetGameSpeed(reachSpeed, arom);
+            case "TT":
+                return TukTuk.GetGameSpeed(reachSpeed, arom);
             default:
                 throw new Exception($"Invalid game name '{game}'");
         }
@@ -605,6 +610,8 @@ public static class MarsGameDefs
                 return PingPong.GetReachDuration(reachSpeed, arom);
             case "DC":
                 return DiamondCatcher.GetReachDuration(reachSpeed, arom);
+            case "TT":
+                return TukTuk.GetReachDuration(reachSpeed, arom);
             default:
                 throw new Exception($"Invalid game name '{game}'");
         }
@@ -707,6 +714,60 @@ public static class MarsGameDefs
         public static int[] GetCummulativeScores()
         {
             return AppData.Instance.userData.readCummulativeHitsMissesForGameMovement("PP", "AP");
+        }
+
+        public static bool IsAchievedToday()
+        {
+            var starsCount = GetStarsCount();
+            return starsCount[1] > 0;
+        }
+       
+    }
+
+
+    // TukTuk Specific Definitions
+     public static class TukTuk
+    {
+        // Screen limit constants
+        public const float LEFTLIMIT = -7f;
+        public const float RIGHTLIMIT = 7f;
+       
+        public const float TOPLIMIT = 6f;
+        public const float BOTTOMLIMIT = -3f;
+
+        // Game duration
+        public const float GAMEDURATION = 60f; // seconds
+
+        public static float GetReachDuration(float reachSpeed, MarsArom arom)
+        {
+            // Find the duration for the given speed.
+            reachSpeed = Math.Clamp(reachSpeed, MIN_REACH_SPEED, MAX_REACH_SPEED);
+            return Math.Abs((arom.topAdjusted.y - arom.bottomAdjusted.y) / reachSpeed);
+        }
+
+        public static float GetGameSpeed(float reachSpeed, MarsArom arom)
+        {
+            // Find the duration for the given speed.
+            reachSpeed = Math.Clamp(reachSpeed, MIN_REACH_SPEED, MAX_REACH_SPEED);
+            float reachDuration = GetReachDuration(reachSpeed, arom);
+            float gameSpeed = Math.Abs((TOPLIMIT - BOTTOMLIMIT) / reachDuration);
+            AppLogger.LogInfo($"Computing game speed for Tuk-Tuk. Reach Speed: {reachSpeed} | AROM Limits: ({arom.topAdjusted.y}, {arom.bottomAdjusted.y}) | Reach Duration: {reachDuration} | Screen Limits: ({TOPLIMIT}, {BOTTOMLIMIT}) | Game Speed: {gameSpeed}");
+            return gameSpeed;
+        }
+        //Game Achievement Data
+        public static int[] GetScores()
+        {
+            return AppData.Instance.userData.getLastTwoDifferentDatesScore("TT");
+        }
+
+        public static int[] GetStarsCount()
+        {
+            return AppData.Instance.userData.readStarCounts("TT");
+        }
+
+        public static int[] GetCummulativeScores()
+        {
+            return AppData.Instance.userData.readCummulativeHitsMissesForGameMovement("TT", "AP");
         }
 
         public static bool IsAchievedToday()
