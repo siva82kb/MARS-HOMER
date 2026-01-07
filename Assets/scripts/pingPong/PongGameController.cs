@@ -386,7 +386,7 @@ public class pongGameController : MonoBehaviour {
         isBallHitted = false;
         isBallMissed = false;
         nTargets++;
-        Debug.Log(nTargets);
+        //Debug.Log(nTargets);
         enemyScore++;
     }
 

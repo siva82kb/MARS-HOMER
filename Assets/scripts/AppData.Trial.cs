@@ -341,6 +341,10 @@ public partial class AppData
             case "TT":
                 return FlappyGameControl.Instance != null
                     ? FlappyGameControl.Instance.playerGamePosition
+                     : Vector3.zero;
+            case "TW":
+                return TWGameController.Instance != null
+                    ? TWGameController.Instance.playerGamePosition
                     : Vector3.zero;
 
             default:
@@ -372,6 +376,10 @@ public partial class AppData
                     ? FlappyGameControl.Instance.targetGamePosition ?? Vector3.zero
                     : Vector3.zero;
 
+            case "TW":
+                return TWGameController.Instance != null
+                    ? TWGameController.Instance.targetGamePosition ?? Vector3.zero
+                    : Vector3.zero;
             default:
                 return Vector3.zero;
         }
@@ -401,6 +409,10 @@ public partial class AppData
                     ? FlappyGameControl.Instance.targetEndPointPosition ?? Vector3.zero
                     : Vector3.zero;
 
+            case "TW":
+                return TWGameController.Instance != null
+                    ? TWGameController.Instance.targetEndPointPosition ?? Vector3.zero
+                    : Vector3.zero;
             default:
                 return Vector3.zero;
         }
@@ -426,7 +438,11 @@ public partial class AppData
         {
             return FlappyGameControl.Instance != null ? FlappyGameControl.Instance.gameState.ToString() : "";
         }
-        return "";
+        else if(selectedGame.name == "TW")
+        {
+            return TWGameController.Instance != null ? TWGameController.Instance.gameState.ToString() : "";
+        }
+         return "";
     }
 
     public void reloadSessionDetails() => Instance.userData.readParseSessionData(DataManager.sessionFile);

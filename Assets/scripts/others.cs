@@ -370,7 +370,7 @@ public class MarsUserData
 
         return new int[] { cummulativeStarCounts, currentStarCount };
     }
-    public int[] getLastTwoDifferentDatesScore(String gameName)
+    public int[] getLastDatesScore(String gameName)
     {
         AppData.Instance.reloadSessionDetails();
         var table = AppData.Instance.userData.dTableSession;
@@ -383,12 +383,12 @@ public class MarsUserData
         var lastRow = table.Rows[table.Rows.Count - 1];
         DateTime lastDate = DateTime.ParseExact(lastRow.Field<string>(DATETIME),DataManager.DATETIMEFORMAT,CultureInfo.InvariantCulture);
         Debug.Log($"{lastDate}");
-    
+
         //confirms only lastDate and Today data Comparison
         if (lastDate.Date != DateTime.Today.Date)
         {
             int score = GetScoreForDate(lastDate, gameName);
-            return new[] { 0,score}; 
+            return new[] { 0, score };
         }
 
         //collect all dates
@@ -555,9 +555,9 @@ public class MarsMovement
 // Mars Game definitions
 public static class MarsGameDefs
 {
-    public static readonly string[] GAMES = new string[] { "SS", "PP", "DC" ,"TT"};
-    public static readonly string[] GAME_SCENES = new string[] { "SS", "PP", "DC","TT" };
-    public static readonly string[] GAMEFULLNAMES = new string[] { "Space Shooter", "Ping Pong", "Diamond Catcher","Tuk Tuk" };
+    public static readonly string[] GAMES = new string[] { "SS", "PP", "DC", "TW","TT" };
+    public static readonly string[] GAME_SCENES = new string[] { "SS", "PP", "DC", "TW","TT" };
+    public static readonly string[] GAMEFULLNAMES = new string[] { "Space Shooter", "Ping Pong", "Diamond Catcher","Table Wiping" ,"Tuk Tuk" };
     
     // Reach duration are used to compute the games speeds. These are the durations
     // set for reaching from one extreme of the AROM to the other extreme.
@@ -572,7 +572,7 @@ public static class MarsGameDefs
         { "PP", new float[] { PingPong.LEFTLIMIT, PingPong.RIGHTLIMIT, PingPong.BOTTOMLIMIT, PingPong.TOPLIMIT } },
         { "DC", new float[] { DiamondCatcher.LEFTLIMIT, DiamondCatcher.RIGHTLIMIT, DiamondCatcher.BOTTOMLIMIT, DiamondCatcher.TOPLIMIT } },
         { "TT", new float[] { TukTuk.LEFTLIMIT, TukTuk.RIGHTLIMIT, TukTuk.BOTTOMLIMIT, TukTuk.TOPLIMIT } },
-
+        { "TW", new float[] { TableWiping.LEFTLIMIT, TableWiping.RIGHTLIMIT, TableWiping.BOTTOMLIMIT, TableWiping.TOPLIMIT } }
     };
 
     public static Dictionary<string, float> GAMEDURATION = new Dictionary<string, float>()
@@ -580,7 +580,8 @@ public static class MarsGameDefs
         { "SS", Spaceshooter.GAMEDURATION },
         { "PP", PingPong.GAMEDURATION },
         { "DC", DiamondCatcher.GAMEDURATION },
-        {"TT", TukTuk.GAMEDURATION}
+        {"TT", TukTuk.GAMEDURATION},
+        {"TW", TableWiping.GAMEDURATION },
     };
 
     public static float GetGameSpeedForGame(string game, float reachSpeed, MarsArom arom)
@@ -651,7 +652,7 @@ public static class MarsGameDefs
         //Game Achievement Data
         public static int[] GetScores()
         {
-            return AppData.Instance.userData.getLastTwoDifferentDatesScore("SS");
+            return AppData.Instance.userData.getLastDatesScore("SS");
         }
 
         public static int[] GetStarsCount()
@@ -703,7 +704,7 @@ public static class MarsGameDefs
         //Game Achievement Data
         public static int[] GetScores()
         {
-            return AppData.Instance.userData.getLastTwoDifferentDatesScore("PP");
+            return AppData.Instance.userData.getLastDatesScore("PP");
         }
 
         public static int[] GetStarsCount()
@@ -757,7 +758,7 @@ public static class MarsGameDefs
         //Game Achievement Data
         public static int[] GetScores()
         {
-            return AppData.Instance.userData.getLastTwoDifferentDatesScore("TT");
+            return AppData.Instance.userData.getLastDatesScore("TT");
         }
 
         public static int[] GetStarsCount()
@@ -788,7 +789,7 @@ public static class MarsGameDefs
         public const float BOTTOMLIMIT = -4.0f;
 
         // Game duration
-        public const float GAMEDURATION = 60f;  // seconds
+        public const float GAMEDURATION = 10f;  // seconds
 
         // Target reach hold time.
         public const float TARGET_IN_TIME = 1f; // seconds
@@ -814,7 +815,7 @@ public static class MarsGameDefs
         //Game Achievement Data
         public static int[] GetScores()
         {
-            return AppData.Instance.userData.getLastTwoDifferentDatesScore("DC");
+            return AppData.Instance.userData.getLastDatesScore("DC");
         }
 
         public static int[] GetStarsCount()
@@ -834,6 +835,42 @@ public static class MarsGameDefs
         }
         
     }
+    public static class TableWiping
+    {
+        // Screen limit constants
+        public const float LEFTLIMIT = -8.5f;
+        public const float RIGHTLIMIT = 8.5f;
+        public const float TOPLIMIT = 4.5f;
+        public const float BOTTOMLIMIT = -5.5f;
+
+        // Game duration
+        public const float GAMEDURATION = 10f;  // seconds
+
+
+       
+        //Game Achievement Data
+        public static int[] GetScores()
+        {
+            return AppData.Instance.userData.getLastDatesScore("TW");
+        }
+
+        public static int[] GetStarsCount()
+        {
+            return AppData.Instance.userData.readStarCounts("TW");
+        }
+
+        public static int[] GetCummulativeScores()
+        {
+            return AppData.Instance.userData.readCummulativeHitsMissesForGameMovement("TW", "MLAP");
+        }
+
+        public static bool IsAchievedToday()
+        {
+            var starsCount = GetStarsCount();
+            return starsCount[1] > 0;
+        }
+
+    }
 }
 
 // Class representing MARS games.
@@ -847,6 +884,7 @@ public class MarsGame
         set
         {
             _reachSpeed = Math.Clamp(value, MarsGameDefs.MIN_REACH_SPEED, MarsGameDefs.MAX_REACH_SPEED);
+            if (this.name == "TW") return;
             gameSpeed = arom != null ? MarsGameDefs.GetGameSpeedForGame(name, _reachSpeed, arom) : 0f;
             AppLogger.LogInfo($"Reach speed for game '{name}' and movement '{movement}' set to {_reachSpeed} (Game speed: {gameSpeed}).");
         }

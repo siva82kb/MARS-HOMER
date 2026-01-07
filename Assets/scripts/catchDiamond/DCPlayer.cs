@@ -150,13 +150,14 @@ public class DCPlayer : MonoBehaviour
     private float robotToUnityX(float z) => LIMBSCALE * (xScreenMidPoint + xScreenRange * (z - zEndPointMid) / zEndPointRange);
     private float robotToUnityY(float y) => yScreenMidPoint + yScreenRange * (y - yEndPointMid) / yEndPointRange;
 
-    public (UnityEngine.Vector2 endPointTarget, UnityEngine.Vector2 gameTarget) GenerateNextRandomTarget()
+    public  (UnityEngine.Vector2 endPointTarget, UnityEngine.Vector2 gameTarget) GenerateNextRandomTarget()
     {
         // Generate current target selection so that there is less than 100% overlap with previous target selection.
         GenerateNewTargetSelection(1f);
 
         // Generate perturbed scalars for convex combination.
         GenerateScalarsForConvexCombination();
+        Debug.Log(AppData.Instance.selectedMovement.currentArom);
 
         // Target in the robot/task space.
         UnityEngine.Vector2 endPointTarget = alphas[0] * AppData.Instance.selectedMovement.currentArom.topAdjusted

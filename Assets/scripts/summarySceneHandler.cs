@@ -20,12 +20,15 @@ public class summarySceneHandler : MonoBehaviour
     public TextMeshProUGUI ssCummulativeScoreTxt;
     public TextMeshProUGUI ppCummulativeScoreTxt;
     public TextMeshProUGUI DcCummulativeScoreTxt;
+    public TextMeshProUGUI TWCummulativeScoreTxt;
     public TextMeshProUGUI ssCurrentScoreTxt;
     public TextMeshProUGUI ppCurrentScoreTxt;
     public TextMeshProUGUI DCCurrentScoreTxt;
+    public TextMeshProUGUI TWCurrentScoreTxt;
     public GameObject SSstar;
     public GameObject PPstar;
     public GameObject DCstar;
+    public GameObject TWstar;
     public void Start()
     {
         
@@ -34,8 +37,9 @@ public class summarySceneHandler : MonoBehaviour
         AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);
         AppLogger.LogInfo($"{SceneManager.GetActiveScene().name} scene started.");
         title = "summary";
-        initializeChart();
         updateScores();
+        initializeChart();
+       
       
 
     }
@@ -53,7 +57,7 @@ public class summarySceneHandler : MonoBehaviour
     {
         int[] scores,cuScore;
 
-
+        AppLogger.LogInfo(" started score updateding");
         //SpaceShooter Game Data
         scores = MarsGameDefs.Spaceshooter.GetScores();
         cuScore = MarsGameDefs.Spaceshooter.GetCummulativeScores();
@@ -74,7 +78,16 @@ public class summarySceneHandler : MonoBehaviour
         DcCummulativeScoreTxt.text = $"{cuScore[1].ToString("D4")}";
         DCCurrentScoreTxt.text = $"{scores[1].ToString("D3")} / {scores[0].ToString("D3")}";
         if(MarsGameDefs.DiamondCatcher.IsAchievedToday())DCstar.GetComponent<Image>().color = Color.white;
-       
+        AppLogger.LogInfo(" score updated succesfully");
+
+        //TableWipping Game Data
+        scores = MarsGameDefs.TableWiping.GetScores();
+        cuScore = MarsGameDefs.TableWiping.GetCummulativeScores();
+        TWCummulativeScoreTxt.text = $"{cuScore[1].ToString("D4")}";
+        TWCurrentScoreTxt.text = $"{scores[1].ToString("D3")} / {scores[0].ToString("D3")}";
+        if (MarsGameDefs.TableWiping.IsAchievedToday()) TWstar.GetComponent<Image>().color = Color.white;
+        AppLogger.LogInfo(" score updated succesfully");
+
     }
     // To load the data for a specific movement into the bar graph.
     public void selectedMovements(Button button)
@@ -88,23 +101,23 @@ public class summarySceneHandler : MonoBehaviour
     public void exit()
     {
 
-        //        try
-        //        {
-        //            AppLogger.LogInfo("Disconnected form Mars And Application closed succesfully");
-        //            Application.Quit();
-        //            // Process.Start("shutdown", "/s /t 0");
-        //#if UNITY_EDITOR
-        //            UnityEditor.EditorApplication.isPlaying = false;
-        //#endif
-        //            // Process.Start("shutdown", "/s /t 0");
-        //        }
-        //        catch (System.Exception ex)
-        //        {
-        //            Debug.LogError("Failed to shutdown: " + ex.Message);
-        //        }
-        AppLogger.LogInfo("Disconnected form Mars And Switch scene to DataUploading");
+        try
+        {
+            AppLogger.LogInfo("Disconnected form Mars And Application closed succesfully");
+            Application.Quit();
+            // Process.Start("shutdown", "/s /t 0");
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+#endif
+            // Process.Start("shutdown", "/s /t 0");
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError("Failed to shutdown: " + ex.Message);
+        }
+        //AppLogger.LogInfo("Disconnected form Mars And Switch scene to DataUploading");
 
-        SceneManager.LoadScene("DATAUPLOADING");
+        //SceneManager.LoadScene("DATAUPLOADING");
 
     }
 
@@ -160,8 +173,11 @@ public class summarySceneHandler : MonoBehaviour
     {
         if (lineChart == null) return;
 
+        AppLogger.LogInfo("linechart is not null");
+
         lineChart.RemoveData();
         lineChart.EnsureChartComponent<Title>().text = title;
+        AppLogger.LogInfo("linechart clearing unwanted data");
 
         lineChart.AddSerie<Line>();
 
@@ -170,13 +186,12 @@ public class summarySceneHandler : MonoBehaviour
 
         DateTime today = DateTime.Today;
 
-        //foreach (string date in SessionDataHandler.dateData)
-        //{
-        //    xAxis.data.Add(date); // Add x-axis labels (dates)
-        //}
+        AppLogger.LogInfo($"todayDate{today}");
+
         for (int i = 0; i < SessionDataHandler.dateData.Length; i++)
         {
             string dateStr = SessionDataHandler.dateData[i];
+            AppLogger.LogInfo($"Inside for loop {dateStr}");
             xAxis.data.Add(dateStr);   // Always show labels
 
             // Parse date
@@ -184,17 +199,21 @@ public class summarySceneHandler : MonoBehaviour
 
             if (entryDate > today)
             {
+                AppLogger.LogInfo($"if true {entryDate}{today}");
                 // Add empty value → line breaks here
                 lineChart.AddData(0, null);
             }
             else
             {
+
                 // Add actual data
+               
                 float value = SessionDataHandler.moveTimeData[i];
+                AppLogger.LogInfo($"if false {SessionDataHandler.moveTimeData[i]} ");
                 lineChart.AddData(0, value);
             }
         }
-
+        AppLogger.LogInfo("DataUpdated successfully");
         lineChart.RefreshAllComponent();
     }
 
