@@ -332,6 +332,7 @@ public class DCGameController : MonoBehaviour
         // Initialize the gameTimeLeft for being inside the target.
         insideTargetTimer = 0;
     }
+    //need to add sound......
 
     public void SetPlayerOut()
     {

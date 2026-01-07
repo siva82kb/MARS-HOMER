@@ -336,6 +336,10 @@ public partial class AppData
                 return DCGameController.Instance != null
                     ? DCGameController.Instance.playerGamePosition
                     : Vector3.zero;
+            case "TW":
+                return TWGameController.Instance != null
+                    ? TWGameController.Instance.playerGamePosition
+                    : Vector3.zero;
 
             default:
                 return Vector3.zero;
@@ -361,7 +365,10 @@ public partial class AppData
                 return DCGameController.Instance != null
                     ? DCGameController.Instance.targetGamePosition ?? Vector3.zero
                     : Vector3.zero;
-
+            case "TW":
+                return TWGameController.Instance != null
+                    ? TWGameController.Instance.targetGamePosition ?? Vector3.zero
+                    : Vector3.zero;
             default:
                 return Vector3.zero;
         }
@@ -386,7 +393,10 @@ public partial class AppData
                 return DCGameController.Instance != null
                     ? DCGameController.Instance.targetEndPointPosition ?? Vector3.zero
                     : Vector3.zero;
-
+            case "TW":
+                return TWGameController.Instance != null
+                    ? TWGameController.Instance.targetEndPointPosition ?? Vector3.zero
+                    : Vector3.zero;
             default:
                 return Vector3.zero;
         }
@@ -408,7 +418,11 @@ public partial class AppData
         {
             return DCGameController.Instance != null ? DCGameController.Instance.gameState.ToString() : "";
         }
-        return "";
+        else if(selectedGame.name == "TW")
+        {
+            return TWGameController.Instance != null ? TWGameController.Instance.gameState.ToString() : "";
+        }
+         return "";
     }
 
     public void reloadSessionDetails() => Instance.userData.readParseSessionData(DataManager.sessionFile);

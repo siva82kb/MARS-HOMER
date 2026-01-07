@@ -286,6 +286,7 @@ public static class AppLogger
         {
             return null;
         }
+        Debug.Log(DataManager.logPath);
         if (!Directory.Exists(DataManager.logPath))
         {
             Directory.CreateDirectory(DataManager.logPath);

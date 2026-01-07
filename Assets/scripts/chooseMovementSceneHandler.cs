@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
 using System.Collections;
 using System.IO;
 using UnityEngine.EventSystems;
+using Unity.VisualScripting;
 
 
 
@@ -12,6 +13,7 @@ public class MovementSceneHandler : MonoBehaviour
 {
     //ui related variables
     public GameObject movementSelectGroup;
+    public GameObject ChooseGamePanel;
     public Text message;
     public Text additionalMessage;
     public Text mlAromText;
@@ -217,8 +219,12 @@ public class MovementSceneHandler : MonoBehaviour
                 // Selected movement and game name.
                 AppData.Instance.SetMovement(child.name);
                 Debug.Log($"Selected movement: {child.name}");
-                Debug.Log($"Game: {MarsGameDefs.GAMES[MarsDefs.getMovementIndex(child.name)]}");
-                AppData.Instance.SetGame(MarsGameDefs.GAMES[MarsDefs.getMovementIndex(child.name)]);
+                if(child.name != "MLAP")
+                {
+                    Debug.Log($"Game: {MarsGameDefs.GAMES[MarsDefs.getMovementIndex(child.name)]}");
+                    AppData.Instance.SetGame(MarsGameDefs.GAMES[MarsDefs.getMovementIndex(child.name)]);
+                }
+               
                 // Check if assessment is done or if the correct assessment is available, 
                 // else the next scene will be the corresponding assessment scene.
                 bool noAssessAvailable = AppData.Instance.selectedMovement.currentArom == null;
@@ -252,6 +258,14 @@ public class MovementSceneHandler : MonoBehaviour
                                           AppData.Instance.selectedMovement.name == "AP" ? assessmentSceneAP :
                                           AppData.Instance.selectedMovement.name == "MLAP" ? assessmentSceneMLAP : "";
                     // Next is the game scene.
+                    if(child.name == "MLAP")
+                    {
+                            //open chooseGamePanel
+                            ChooseGamePanel.SetActive(true);
+                            additionalMessage.text = "";
+                            return;
+
+                    }
                     nextScene = MarsGameDefs.GAME_SCENES[MarsDefs.getMovementIndex(child.name)];
                     message.text = "Press Mars Button to start game";
                     additionalMessage.text = "";
@@ -266,6 +280,25 @@ public class MovementSceneHandler : MonoBehaviour
                 break;
             }
         }
+    }
+    public void onClickTW()
+    {
+        AppData.Instance.SetGame(MarsGameDefs.GAMES[3]);
+        AppLogger.LogInfo($"Selected movement ({AppData.Instance.selectedMovement.name}) and game ({AppData.Instance.selectedGame})");
+        nextScene = MarsGameDefs.GAME_SCENES[3];
+        changeScene = true;
+    }
+    public void onClickDC()
+    {
+        AppData.Instance.SetGame(MarsGameDefs.GAMES[2]);
+        AppLogger.LogInfo($"Selected movement ({AppData.Instance.selectedMovement.name}) and game ({AppData.Instance.selectedGame})");
+        nextScene = MarsGameDefs.GAME_SCENES[2];
+        changeScene = true;
+
+    }
+    public void onClickClose()
+    {
+        if(ChooseGamePanel.activeSelf)ChooseGamePanel.SetActive(false); 
     }
 
     private void updateAssessmentStatusText()
