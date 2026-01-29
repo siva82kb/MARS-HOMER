@@ -10,8 +10,8 @@ public class AsteroidSpawner : MonoBehaviour
     public static AsteroidSpawner Instance;
     public GameObject asteroidPrefab;
     public Transform spawnArea;
-
-    // public float spawnInterval = 5f;
+    private CircleCollider2D collider;
+  
     public const float spawnY = 6f;
 
     public GameObject currentAsteroid;
@@ -19,8 +19,9 @@ public class AsteroidSpawner : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+       
     }
-
+    
     public Vector3 SpawnAsteroid(float xMin, float xMax)
     {
         if (currentAsteroid != null)
@@ -34,7 +35,9 @@ public class AsteroidSpawner : MonoBehaviour
         Vector3 spawnPosition = new Vector3(randomX, spawnY, 0f);
 
         // Instantiate the asteroid prefab 
-        currentAsteroid = Instantiate(asteroidPrefab, spawnPosition, Quaternion.identity);     
+        currentAsteroid = Instantiate(asteroidPrefab, spawnPosition, Quaternion.identity);
+        collider = currentAsteroid.GetComponent<CircleCollider2D>();
+        Debug.Log(collider.bounds.min.y+"colliderminy");
         return spawnPosition;
     }
 }

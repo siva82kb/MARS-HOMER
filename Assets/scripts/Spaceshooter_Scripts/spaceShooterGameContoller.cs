@@ -38,7 +38,7 @@ public class SpaceShooterGameContoller : MonoBehaviour
     public int _starCount;
     
     public bool Levelunlocked = false;
-
+    public float targetTime;
     private float gameTimeLeft;
     public static bool changeScene = false;
     private float eventDelayTimer = 0f; 
@@ -178,7 +178,7 @@ public class SpaceShooterGameContoller : MonoBehaviour
 
             AppLogger.LogInfo("Space Shooter Game initialized.");
         }
-        //AppData.Instance.reloadSessionDetails();
+        
         updateStarCount();
         scores = MarsGameDefs.Spaceshooter.GetScores();
         Debug.Log($"{scores[0]}/{scores[1]}");
@@ -285,13 +285,14 @@ public class SpaceShooterGameContoller : MonoBehaviour
                         SSPlayerController.unityXToRobotZ(gTarget.x)
                     );  // I do not like how we are doing this, and how conversions are handled in general.
                     AsteroidFall.instance.SetFallSpeed(AppData.Instance.selectedGame.gameSpeed);
+                    AsteroidFall.instance.setFallTime(AppData.Instance.selectedGame.reachTime);
                     nTargets++;
                     eventDelayTimer = 0.05f;
                     runOnce = true;
                 }
                 else
                 {
-                    eventDelayTimer -= Time.deltaTime;
+                    eventDelayTimer -= Time.fixedDeltaTime;
                     if (eventDelayTimer <= 0f)
                     {
                         gameState = GameStates.MOVE;
@@ -300,15 +301,21 @@ public class SpaceShooterGameContoller : MonoBehaviour
                 }
                 break;
             case GameStates.MOVE:
+                targetTime += Time.fixedDeltaTime;
                 if (isSuccess)
                 {
+                    //Debug.Log($"{targetTime}targetTime");
                     gameState = GameStates.SUCCESS;
                     eventDelayTimer = 0.05f;
+                    targetTime = 0f;
                 }
                 if (isFailure)
                 {
+                    
+                    Debug.Log($"{targetTime}targetTime");
                     gameState = GameStates.FAILURE;
                     eventDelayTimer = 0.05f;
+                    targetTime = 0f;
                 }
                 break;
             case GameStates.PAUSED:
@@ -426,7 +433,7 @@ public class SpaceShooterGameContoller : MonoBehaviour
 
         // Set game duration.
         gameTimeLeft = gameDuration;
-        AppLogger.LogInfo($"Space Shooter Game started for movement '{AppData.Instance.selectedMovement.name}'. Game Speed: {AppData.Instance.selectedGame.gameSpeed} | Duration: {gameDuration}s");
+        AppLogger.LogInfo($"Space Shooter Game started for movement '{AppData.Instance.selectedMovement.name}'. Game Speed: {AppData.Instance.selectedGame.reachTime} | Duration: {gameDuration}s");
 
         // Remove game over and start panel.
         gameOverPanel.SetActive(false);
@@ -463,7 +470,7 @@ public class SpaceShooterGameContoller : MonoBehaviour
     {
         float _rs = AppData.Instance.selectedGame.reachSpeed;
         AppData.Instance.selectedGame.reachSpeed = _rs + (increase ? MarsGameDefs.REACH_SPEED_DELTA : -MarsGameDefs.REACH_SPEED_DELTA);
-        AppData.Instance.annotation = $"RS:{AppData.Instance.selectedGame.reachSpeed:F3},GS:{AppData.Instance.selectedGame.gameSpeed:F3}";
+        AppData.Instance.annotation = $"RS:{AppData.Instance.selectedGame.reachSpeed:F3} | GS:{AppData.Instance.selectedGame.reachTime:F3}";
     }
   
     private void OnApplicationQuit()

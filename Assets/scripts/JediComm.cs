@@ -55,7 +55,7 @@ public static class JediComm
             }
             catch (Exception ex)
             {
-                Debug.Log("exception: " + ex);
+                AppLogger.LogError("exception: " + ex);
             }
             // Create a new thread to read the serial port data.
             reader = new Thread(serialreaderthread);
@@ -149,7 +149,7 @@ public static class JediComm
             }
             else
             {
-                Debug.Log("Data Error. The number of data packets cannot be 255.");
+               AppLogger.LogError("Data Error. The number of data packets cannot be 255.");
                 return false;
             }
         }

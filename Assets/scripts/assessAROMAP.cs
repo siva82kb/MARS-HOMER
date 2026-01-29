@@ -53,7 +53,7 @@ public class AssessROMAP : MarsAssessAROM
     }
     protected override void Update()
     {
-        //MarsComm.sendHeartbeat();
+        MarsComm.sendHeartbeat();
         base.Update();
 
         // Check if its time to change scene.

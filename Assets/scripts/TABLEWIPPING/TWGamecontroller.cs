@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Security.Policy;
 using TMPro;
+using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Audio;
@@ -56,13 +57,14 @@ public class TWGameController : MonoBehaviour
     private float insideTargetTimer = 0f;
     public int[] scores;
     private bool restart = false;
-
+    public float scrubSize { get; private set; }
+    public float GameParameter {  get; private set; }//Scrub size the real world
     public Vector3 playerGamePosition { get; private set; }
     public Vector3? targetGamePosition { get; private set; }
     public Vector3? targetEndPointPosition { get; private set; }
    
     public bool debug;
-
+    public float PPUarea = 0.0001f;//ppu is 100
     // Game score related variables.
     public int nTargets = 0;
     public int nSuccess = 0;
@@ -121,6 +123,7 @@ public class TWGameController : MonoBehaviour
         if (debug){
             AppData.Instance.Initialize(SceneManager.GetActiveScene().name);
             AppData.Instance.SetMovement("MLAP");
+            AppData.Instance.SetGame("TW");
         }
 
         initUI();
@@ -140,7 +143,14 @@ public class TWGameController : MonoBehaviour
         scores = MarsGameDefs.TableWiping.GetScores();
         Debug.Log($"{scores[0]}/{scores[1]}");
         AppLogger.LogInfo($"scores - yesterDayScore:{scores[1]} | TodayScore{scores[0]}");
+
+        //Get the Scrub Size
+      
+        Debug.Log($"{AppData.Instance.userData.GetLastPlayedDateAndStarsForGame("TW").gameParameter}-" +
+                  $"{AppData.Instance.userData.GetLastPlayedDateAndStarsForGame("TW").totalStars}-" +
+                  $"{AppData.Instance.userData.GetLastPlayedDateAndStarsForGame("TW").date}");
     }
+   
     public void updateStarCount()
     {
         starCount.text = $"{AppData.Instance.selectedGame.cummulativeStars.ToString("D2")}";
@@ -148,7 +158,7 @@ public class TWGameController : MonoBehaviour
 
     public void Update()
     {
-        TWPlayer.instance.OnDrawGizmos(lr);
+        //TWPlayer.instance.OndrawGizmos(lr);
        
 
         // Check of the game speed controller is to be shown.
@@ -187,16 +197,16 @@ public class TWGameController : MonoBehaviour
             playerGamePosition = GameObject.FindGameObjectWithTag("Player").transform.position;
             if (target == null)
             {
-                targetEndPointPosition = null;
                 targetGamePosition = null;
+                targetEndPointPosition = null;
             }
             else
             {
-                // Target game position.
-                targetObject = target.gameObject;
-                targetGamePosition = targetObject != null ? targetObject.transform.position : null;
-                // Target endpoint position.
-                targetEndPointPosition = targetObject != null ? targetEndPointPosition : null;
+                targetGamePosition = target.transform.position;
+                targetEndPointPosition = new Vector3(0,
+                                                     TWPlayer.instance.unityYToRobotY(target.transform.position.y),
+                                                     TWPlayer.instance.unityXToRobotZ(target.transform.position.x)
+                                                     );
             }
         }
     }
@@ -277,7 +287,10 @@ public class TWGameController : MonoBehaviour
         }
         isGameFinished = true; // Set game over state 
     }
+    public void AdaptScrubSize()
+    {
 
+    }
     public void startGame()
     {
         // Hide the reminder panel.
@@ -297,6 +310,22 @@ public class TWGameController : MonoBehaviour
         gameDuration = MarsGameDefs.GAMEDURATION["TW"];
         gameTimeLeft = gameDuration;
         isGameStarted = true;
+
+        //Define Srrub size
+        float unityWidth = MarsGameDefs.TableWiping.RIGHTLIMIT - MarsGameDefs.TableWiping.LEFTLIMIT;
+        float unityHeight = MarsGameDefs.TableWiping.TOPLIMIT - MarsGameDefs.TableWiping.BOTTOMLIMIT;
+
+        float robotWidth = TWPlayer.instance.zEndPointMax - TWPlayer.instance.zEndPointMin;
+        float robotHeight = TWPlayer.instance.yEndPointMax - TWPlayer.instance.yEndPointMin;
+
+        float areaScale = (robotWidth / unityWidth) *
+                          (robotHeight / unityHeight);
+
+        GameParameter = MarsGameDefs.TableWiping.MIN_SCRUB_SIZE;
+        scrubSize = math.sqrt((GameParameter / areaScale) / PPUarea);
+        
+
+
         if (debug) return;
         // Start the next new Trail
         AppData.Instance.StartNewTrial();
@@ -319,6 +348,11 @@ public void RunStateMachine()
         timerTxt.text = $"TIME : {(int)gameTimeLeft}";
         // Check if time is up.
         bool isTimeUp = gameTimeLeft < 0;
+        if (isTimeUp)
+        {
+            clearObject();
+            gameState = GameStates.STOP;
+        }
         switch (gameState)
         {
             case GameStates.WAITING:
@@ -376,23 +410,12 @@ public void RunStateMachine()
                             gameState = GameStates.SUCCESS;
                         }
                     }
-                    //gameState = GameStates.FAILURE;
+                   
                 }
-                break;
-            case GameStates.PLAYERIN:
-                // Increment time.               
-               
-                //Update in target animation.
-              
-                break;
-            case GameStates.PLAYEREXIT:
-                gameState = GameStates.WAITFORCLEAN;
-                insideTargetTimer = 0f;
                 break;
             case GameStates.PAUSED:
                 break;
             case GameStates.SUCCESS:
-            case GameStates.FAILURE:
                 eventDelayTimer -= Time.deltaTime;
                 if (eventDelayTimer <= 0f)
                 {
@@ -421,11 +444,9 @@ public void RunStateMachine()
 
         Vector3 spawnPos = new Vector3(gTarget.x, gTarget.y, 0);
 
-
         // Instantiate the target
-        target = Instantiate(size == StainSize.Big ? bigStains[Random.Range(0,bigStains.Length)] :targetPrefabS, spawnPos, Quaternion.identity);
+        target = Instantiate(size == StainSize.Big ? bigStains[UnityEngine.Random.Range(0,bigStains.Length)] :targetPrefabS, spawnPos, Quaternion.identity);
        
-        //money.SetActive(false);
         // Get SpriteRenderer
         SpriteRenderer sr = target.GetComponent<SpriteRenderer>();
         if (sr == null) return;
@@ -433,7 +454,7 @@ public void RunStateMachine()
         // Assign random sprite
         if ( size == StainSize.Small && stainSprites.Length > 0)
         {
-            sr.sprite = stainSprites[Random.Range(0, stainSprites.Length)];
+            sr.sprite = stainSprites[UnityEngine.Random.Range(0, stainSprites.Length)];
         }
 
     }

@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices.ComTypes;
+using UnityEngine.SceneManagement;
 using static AppData;
 
 public static class SessionDataHandler
@@ -12,7 +13,7 @@ public static class SessionDataHandler
 
     public static float[] moveTimeData;
     public static string[] dateData;
-    public static string DATEFORMAT = "dd/MM";
+    public static string DATEFORMAT = "dd/MM/yyyy";
 
     //SESSION FILE  HEADER FORMAT AND DATETIME FORMAT
     public static string DATEFORMAT_INFILE = "yyyy-MM-dd HH:mm:ss";
@@ -27,6 +28,7 @@ public static class SessionDataHandler
     //CALCULATE MOVETIME PER DAY FOR ALL MOVEMENTS
     public static void MovTimePerDay()
     {
+       
         // 1. Group sessions by DATE and compute total movetime
         var movTimePerDay = AppData.Instance.userData.dTableSession.AsEnumerable()
             .GroupBy(row => DateTime.ParseExact(

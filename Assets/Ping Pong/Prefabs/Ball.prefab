@@ -151,9 +151,9 @@ Rigidbody2D:
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_Interpolate: 0
+  m_Interpolate: 1
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 4
 --- !u!114 &11442392
 MonoBehaviour:
@@ -167,7 +167,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5dafb5e2703634ad9b47a339d8d47af1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 1.5
+  ballSpeed: 0
   audioClips:
   - {fileID: 8300000, guid: 63c01d1291017a744a7e380f85a00f4e, type: 3}
   - {fileID: 8300000, guid: 38f962c72ea9fb4478cf3ffe25be3e1b, type: 3}

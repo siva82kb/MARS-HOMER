@@ -32,8 +32,8 @@ public class PongPlayerController : MonoBehaviour
     public static float zEndPointRange;
     public static int LIMBSCALE;
 
-    static float topBound = 3.6F;
-    static float bottomBound = -3.6F;
+    static float topBound = 4F;
+    static float bottomBound = -4F;
     public static float playSize;
 
     float yPoint, yEndPoint;

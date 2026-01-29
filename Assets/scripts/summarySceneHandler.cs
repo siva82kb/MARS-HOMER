@@ -21,17 +21,25 @@ public class summarySceneHandler : MonoBehaviour
     public TextMeshProUGUI ppCummulativeScoreTxt;
     public TextMeshProUGUI DcCummulativeScoreTxt;
     public TextMeshProUGUI TWCummulativeScoreTxt;
+    public TextMeshProUGUI TTCummulativeScoreTxt;
+    public TextMeshProUGUI MCCummulativeScoreTxt;
     public TextMeshProUGUI ssCurrentScoreTxt;
     public TextMeshProUGUI ppCurrentScoreTxt;
     public TextMeshProUGUI DCCurrentScoreTxt;
     public TextMeshProUGUI TWCurrentScoreTxt;
+    public TextMeshProUGUI TTCurrentScoreTxt;
+    public TextMeshProUGUI MCCurrentScoreTxt;
     public GameObject SSstar;
     public GameObject PPstar;
     public GameObject DCstar;
     public GameObject TWstar;
+    public GameObject TTstar;
+    public GameObject MCstar;
     public void Start()
     {
-        
+        ////debug mode
+        //AppData.Instance.Initialize(SceneManager.GetActiveScene().name);
+
         // Inialize the logger
         AppLogger.StartLogging(SceneManager.GetActiveScene().name);
         AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);
@@ -39,8 +47,6 @@ public class summarySceneHandler : MonoBehaviour
         title = "summary";
         updateScores();
         initializeChart();
-       
-      
 
     }
 
@@ -86,6 +92,24 @@ public class summarySceneHandler : MonoBehaviour
         TWCummulativeScoreTxt.text = $"{cuScore[1].ToString("D4")}";
         TWCurrentScoreTxt.text = $"{scores[1].ToString("D3")} / {scores[0].ToString("D3")}";
         if (MarsGameDefs.TableWiping.IsAchievedToday()) TWstar.GetComponent<Image>().color = Color.white;
+        AppLogger.LogInfo(" score updated succesfully");
+
+        //TUK-TUK Game Data
+        scores = MarsGameDefs.TukTuk.GetScores();
+        cuScore = MarsGameDefs.TukTuk.GetCummulativeScores();
+        TTCummulativeScoreTxt.text = $"{cuScore[1].ToString("D4")}";
+        TTCurrentScoreTxt.text = $"{scores[1].ToString("D3")} / {scores[0].ToString("D3")}";
+        if (MarsGameDefs.TukTuk.IsAchievedToday()) TTstar.GetComponent<Image>().color = Color.white;
+        AppLogger.LogInfo(" score updated succesfully");
+
+        //Match Drop Game Data
+        scores = MarsGameDefs.MatchCatch.GetScores();
+        cuScore = MarsGameDefs.MatchCatch.GetCummulativeScores();
+        Debug.Log(scores[0].ToString()+","+scores[1].ToString());
+        Debug.Log(cuScore[1].ToString());
+        MCCummulativeScoreTxt.text = $"{cuScore[1].ToString("D4")}";
+        MCCurrentScoreTxt.text = $"{scores[1].ToString("D3")} / {scores[0].ToString("D3")}";
+        if (MarsGameDefs.MatchCatch.IsAchievedToday()) MCstar.GetComponent<Image>().color = Color.white;
         AppLogger.LogInfo(" score updated succesfully");
 
     }
@@ -186,20 +210,22 @@ public class summarySceneHandler : MonoBehaviour
 
         DateTime today = DateTime.Today;
 
-        AppLogger.LogInfo($"todayDate{today}");
+       
 
         for (int i = 0; i < SessionDataHandler.dateData.Length; i++)
         {
+           
             string dateStr = SessionDataHandler.dateData[i];
-            AppLogger.LogInfo($"Inside for loop {dateStr}");
-            xAxis.data.Add(dateStr);   // Always show labels
 
             // Parse date
             DateTime entryDate = DateTime.Parse(dateStr);
 
+            // Always show labels in the formate of date/Month
+            xAxis.data.Add(entryDate.ToString("dd/MM"));
+
             if (entryDate > today)
             {
-                AppLogger.LogInfo($"if true {entryDate}{today}");
+               
                 // Add empty value → line breaks here
                 lineChart.AddData(0, null);
             }
@@ -207,10 +233,9 @@ public class summarySceneHandler : MonoBehaviour
             {
 
                 // Add actual data
-               
                 float value = SessionDataHandler.moveTimeData[i];
-                AppLogger.LogInfo($"if false {SessionDataHandler.moveTimeData[i]} ");
                 lineChart.AddData(0, value);
+
             }
         }
         AppLogger.LogInfo("DataUpdated successfully");

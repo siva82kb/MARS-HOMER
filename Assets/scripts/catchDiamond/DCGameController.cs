@@ -113,7 +113,7 @@ public class DCGameController : MonoBehaviour
     public Vector3? targetEndPointPosition { get; private set; }
     public float gameDuration = MarsGameDefs.GAMEDURATION["DC"];
     public bool gameSpeedChanged { get; private set; } = false;
-    private float reachDuration;
+    public float reachDuration;
     public bool debug;
     private void Awake() => Instance = this;
     
@@ -127,7 +127,7 @@ public class DCGameController : MonoBehaviour
         initializeGameSpeedController();
         gameSpeedControl.SetActive(false);
         // Compute reach duration.
-        reachDuration = MarsGameDefs.GetReachDurationForGame("DC", AppData.Instance.selectedGame.reachSpeed, AppData.Instance.selectedGame.arom);
+       
         AppLogger.LogInfo($"Reach duration for game 'DC' with reach speed {AppData.Instance.selectedGame.reachSpeed} m/s is {reachDuration} seconds.");
 
         // Check if the required amount fo trials for the selected movement has been completed today.
@@ -183,16 +183,16 @@ public class DCGameController : MonoBehaviour
             playerGamePosition = GameObject.FindGameObjectWithTag("Player").transform.position;
             if (target == null)
             {
-                targetEndPointPosition = null;
                 targetGamePosition = null;
+                targetEndPointPosition = null;
             }
             else
             {
-                // Target game position.
-                targetObject = target.gameObject;
-                targetGamePosition = targetObject != null ? targetObject.transform.position : null;
-                // Target endpoint position.
-                targetEndPointPosition = targetObject != null ? targetEndPointPosition : null;
+                targetGamePosition = target.transform.position;
+                targetEndPointPosition = new Vector3(0,
+                                                     DCPlayer.instance.unityYToRobotY(target.transform.position.y),
+                                                     DCPlayer.instance.unityXToRobotZ(target.transform.position.x)
+                                                     );
             }
         }
     }
@@ -212,14 +212,15 @@ public class DCGameController : MonoBehaviour
             gsc.increaseButton.onClick.AddListener(() => changeGameSpeed(true));
 
         // Set the initial game speed
-        gsc.gameSpeedText.text = $"{AppData.Instance.selectedGame.gameSpeed:F2}";
+        gsc.gameSpeedText.text = $"{AppData.Instance.selectedGame.reachTime:F2}";
     }
 
     public void changeGameSpeed(bool increase)
     {
         float _rs = AppData.Instance.selectedGame.reachSpeed;
         AppData.Instance.selectedGame.reachSpeed = _rs + (increase ? MarsGameDefs.REACH_SPEED_DELTA : -MarsGameDefs.REACH_SPEED_DELTA);
-        AppData.Instance.annotation = $"RS:{AppData.Instance.selectedGame.reachSpeed:F3},GS:{AppData.Instance.selectedGame.gameSpeed:F3}";
+        AppData.Instance.annotation = $"RS:{AppData.Instance.selectedGame.reachSpeed:F3} GS:{AppData.Instance.selectedGame.reachTime:F3}";
+        
         gameSpeedChanged = true;
     }
     
@@ -248,6 +249,8 @@ public class DCGameController : MonoBehaviour
                     // Spawn the new target.
                     clearObjects();
                     SpawnDiamond();
+                    //Game Speed [Determine the time required for the ROM to reach the target using its current speed.]
+                    reachDuration = AppData.Instance.selectedGame.reachTime;
                     nTargets++;
                     eventDelayTimer = 0.5f;
                     runOnce = true;
@@ -472,7 +475,7 @@ public class DCGameController : MonoBehaviour
         startImage.SetActive(false);
         gameDuration = MarsGameDefs.GAMEDURATION["DC"];
         gameTimeLeft = gameDuration;
-
+       
         // Start the next new Trail
         AppData.Instance.StartNewTrial();
     }

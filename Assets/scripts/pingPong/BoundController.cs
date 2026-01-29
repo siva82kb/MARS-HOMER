@@ -22,6 +22,7 @@ public class BoundController : MonoBehaviour {
 			if ((AppData.Instance.userData.limb == 1) ? other.gameObject.GetComponent<Rigidbody2D>().velocity.x > 0 : other.gameObject.GetComponent<Rigidbody2D>().velocity.x < 0)
             {
 				playAudio(1);
+				Debug.Log($"{other.gameObject.GetComponent<Rigidbody2D>().velocity.x > 0}/{other.gameObject.GetComponent<Rigidbody2D>().velocity.x < 0}");
 				pongGameController.Instance.BallMissed();
 			}
 			else

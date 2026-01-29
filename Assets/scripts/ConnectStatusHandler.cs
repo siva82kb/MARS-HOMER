@@ -22,18 +22,20 @@ public class connectStatusHandler : MonoBehaviour
     float level;
 
     //Idle check
-    float previosAngle;
+    float previousAngle2;
+    float previousAngle3;
+    float previousAngle4;
     bool istarted;
     float timer = 60;
 
     void Awake()
     {
         // Subscribe to shutdown events once per instance
-        Application.quitting += CloseAppLogger; //for Exe file
-        AppDomain.CurrentDomain.ProcessExit += (_, __) => CloseAppLogger(); // for external crash like OS Crash
+        Application.quitting += CloseApploggQuit; //for Exe file
+        AppDomain.CurrentDomain.ProcessExit += (_, __) => closeApploggCrash(); // for external crash like OS Crash
   
         #if UNITY_EDITOR
-                EditorApplication.quitting += CloseAppLogger; //for editor
+                EditorApplication.quitting += CloseApploggQuit; //for editor
         #endif
     }
     // Start is called before the first frame update
@@ -43,7 +45,7 @@ public class connectStatusHandler : MonoBehaviour
         loading = transform.Find("loading").gameObject; // Assuming loading is a child GameObject
 
         statusText = transform.Find("statusText").GetComponent<TextMeshProUGUI>();
-        closePanel.onClick.AddListener(delegate { CloseAppLogger(); });
+        closePanel.onClick.AddListener(delegate { closeApploggErrorPanelCloseBtn(); });
         if (AppData.Instance != null)return;
         if (AppData.Instance.userData.isErrorOccurred())
         {
@@ -90,7 +92,6 @@ public class connectStatusHandler : MonoBehaviour
         // Update connection status
         if (ConnectToRobot.isMARS)
         {
-            MarsComm.sendHeartbeat();
             connectStatus.color = Color.green;
             loading.SetActive(false);
             statusText.text = $"{MarsComm.version}\n[{MarsComm.frameRate:F1}Hz]";
@@ -118,18 +119,29 @@ public class connectStatusHandler : MonoBehaviour
         if (istarted&&!errorPanel.gameObject.activeSelf) timer -= Time.deltaTime;
 
 
-        if (previosAngle == MarsComm.angle2 && MarsComm.force < 10 )
+        if (previousAngle2 == MarsComm.angle2 &&
+            previousAngle3 == MarsComm.angle3 &&
+            previousAngle4 == MarsComm.angle4 &&
+            MarsComm.force < 10 )
         {
 
-            if (!istarted && !errorPanel.gameObject.activeSelf) start();
-           
+            if (!istarted && !errorPanel.gameObject.activeSelf) istarted = true;
+
+
         }
         else
         {
-            if (istarted) reset();
-            //Debug.Log("reset");
+            if (istarted)
+            {
+                istarted = false;
+                timer = 60;
+                if (errorPanel.gameObject.activeSelf) errorPanel.SetActive(false);
+            }
+           
         }
-        previosAngle = MarsComm.angle2;
+        previousAngle2 = MarsComm.angle2;
+        previousAngle3 = MarsComm.angle3;
+        previousAngle4 = MarsComm.angle4;
 
         if (timer < 0 && !errorPanel.gameObject.activeSelf)
         {
@@ -138,27 +150,31 @@ public class connectStatusHandler : MonoBehaviour
             errorPanel.SetActive(true);
         }
     }
-    public void reset()
+    private void CloseApploggQuit()
     {
-        istarted = false;
-        timer = 60;
-        if (errorPanel.gameObject.activeSelf) errorPanel.SetActive(false);
-
+        AppLogger.LogInfo($"CloseAppLogger Trigger on Quit function");
+        CloseAppLogger();
     }
-    public void start()
+    private void closeApploggCrash()
     {
-        istarted = true;
+        AppLogger.LogInfo($"CloseAppLogger Trigger on ApplicationCrash");
+        CloseAppLogger();
     }
-
+    private void closeApploggErrorPanelCloseBtn()
+    {
+        AppLogger.LogInfo($"CloseAppLogger Trigger on Error Panel Close Button");
+        CloseAppLogger();
+    }
     private void CloseAppLogger()
     {
+        AppLogger.LogInfo($"closingApplogger SceneName : {SceneManager.GetActiveScene().name}");
         //Ensure while running Game ,the log file should closed Properly
         if (SpaceShooterGameContoller.Instance != null)
         {
             if (SpaceShooterGameContoller.Instance.isGameStarted)
             {
+               
                 SpaceShooterGameContoller.Instance.onClickExit();
-
 
             }
         }
@@ -167,7 +183,6 @@ public class connectStatusHandler : MonoBehaviour
             if (pongGameController.Instance.isGameStarted)
             {
                 pongGameController.Instance.ExitGame();
-
 
             }
         }
@@ -187,7 +202,6 @@ public class connectStatusHandler : MonoBehaviour
 
             }
         }
-
         //To close the battery power Indication, if there is no power ,we immediatly deactivate the device or Incase of Idle also we deactivate device
         if ( errorPanel.gameObject.activeSelf && MarsComm.errorStatus <= 1)
         {
@@ -202,7 +216,7 @@ public class connectStatusHandler : MonoBehaviour
             }
            
         }
-       
+        AppLogger.LogInfo($"Statement faild [errorPanel.gameObject.activeSelf && MarsComm.errorStatus <= 1 : {errorPanel.gameObject.activeSelf && MarsComm.errorStatus <= 1}]");
         JediComm.Disconnect();
         AppLogger.StopLogging();
         MarsCommLogger.StopLogging();

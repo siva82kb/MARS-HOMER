@@ -84,7 +84,7 @@ public class ChoosePlaneSceneHandler : MonoBehaviour
 
     void Update()
     {
-        //MarsComm.sendHeartbeat();
+        MarsComm.sendHeartbeat();
 
         // Wait for a second before doing anything.
         if (Time.timeSinceLevelLoad < 0.25) return;

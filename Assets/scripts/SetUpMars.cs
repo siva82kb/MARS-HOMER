@@ -37,7 +37,7 @@ public class SetUpMars : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        //MarsComm.sendHeartbeat();
+        MarsComm.sendHeartbeat();
         MarsComm.OnMarsButtonReleased += OnMarsButtonReleased;
         // Initialize AppData if needed
         if (AppData.Instance.userData == null)
@@ -69,7 +69,7 @@ public class SetUpMars : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //MarsComm.sendHeartbeat();
+        MarsComm.sendHeartbeat();
         updateGUI();
         runStateMachine();
     }

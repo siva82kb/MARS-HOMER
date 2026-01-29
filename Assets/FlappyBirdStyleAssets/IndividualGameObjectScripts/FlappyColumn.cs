@@ -19,11 +19,12 @@ public class FlappyColumn : MonoBehaviour
     {
         prevSpawnTime += Time.deltaTime;
     }
-    private void OnTriggerExit2D(Collider2D collision)
+    private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.tag == "Player" && collision.GetComponent<BirdControl>() != null && prevSpawnTime > 1)
         {
             prevSpawnTime = 0;
+            FlappyGameControl.Instance.BallCaught();
             FlappyGameControl.Instance.BirdScored();
         }
 

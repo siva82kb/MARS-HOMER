@@ -54,7 +54,7 @@ public class welcomeSceneHandler : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //MarsComm.sendHeartbeat();
+        MarsComm.sendHeartbeat();
         // Attach event listener for Mars button release
         if (!attachMarsButtonEvent && Time.timeSinceLevelLoad > 1)
         {

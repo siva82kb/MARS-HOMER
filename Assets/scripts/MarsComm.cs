@@ -308,6 +308,7 @@ public static class MarsComm
         int i;
         if (payloadCount == 0)
         {
+            AppLogger.LogError($"Incomming Data not Found payloadCount:{payloadCount}");
             return;
         }
         Array.Copy(currentStateData, previousStateData, currentStateData.Length);

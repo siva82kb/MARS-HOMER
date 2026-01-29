@@ -1,6 +1,7 @@
 using UnityEngine;
 using static TWGameController;
 using XCharts.Runtime;
+using TMPro;
 
 public class TWPlayer : MonoBehaviour
 {
@@ -12,25 +13,25 @@ public class TWPlayer : MonoBehaviour
     public static float xScreenMidPoint, yScreenMidPoint;
     public static float xScreenRange, yScreenRange;
     // Robot endpoint
-    float yEndPoint, zEndPoint;
+    public float yEndPoint, zEndPoint;
     float xPoint, yPoint;
-
+    public TextMeshProUGUI co_ordinates;
     public Vector3 lastPosition;
-
+    private SpriteRenderer clothsprite;
     public Vector2 x1;
     public Vector2 x2;
     public Vector2 y1;
     public Vector2 y2;
 
     // Robot AROM limits values.
-    public static float zEndPointMin;
-    public static float zEndPointMax;
-    public static float zEndPointMid;
-    public static float zEndPointRange;
-    public static float yEndPointMin;
-    public static float yEndPointMax;
-    public static float yEndPointMid;
-    public static float yEndPointRange;
+    public float zEndPointMin;
+    public float zEndPointMax;
+    public float zEndPointMid;
+    public float zEndPointRange;
+    public float yEndPointMin;
+    public float yEndPointMax;
+    public float yEndPointMid;
+    public float yEndPointRange;
     public int LIMBSCALE;
 
     //UI related Variables
@@ -49,7 +50,7 @@ public class TWPlayer : MonoBehaviour
     void Start()
     {
         lastPosition = transform.position;
-
+        clothsprite = GetComponent<SpriteRenderer>();   
         // Initialize the robot to screen mapping variables.
         Initialize();
 
@@ -99,6 +100,7 @@ public class TWPlayer : MonoBehaviour
         }
         // Set the appropriate scale
         LIMBSCALE = (AppData.Instance.userData == null || AppData.Instance.userData.rightArm) ? -1 : 1;
+        clothsprite.flipX = AppData.Instance.userData.rightArm;
     }
     private void FixedUpdate()
     {
@@ -107,6 +109,7 @@ public class TWPlayer : MonoBehaviour
         yEndPoint = endPoint.y;
         zEndPoint = endPoint.z;
 
+        //co_ordinates.text = $"{zEndPoint}/{yEndPoint}";
         Vector3 targetPosition = new Vector3(
             Mathf.Clamp(robotToUnityX(endPoint.z), xScreenMin, xScreenMax),
             Mathf.Clamp(robotToUnityY(endPoint.y), yScreenMin, yScreenMax),
@@ -126,6 +129,8 @@ public class TWPlayer : MonoBehaviour
     }
     private float robotToUnityX(float z) => LIMBSCALE * (xScreenMidPoint + xScreenRange * (z - zEndPointMid) / zEndPointRange);
     private float robotToUnityY(float y) => yScreenMidPoint + yScreenRange * (y - yEndPointMid) / yEndPointRange;
+    public float unityYToRobotY(float y) => ((y / LIMBSCALE) - yScreenMidPoint) * (yEndPointRange / yScreenRange) + yEndPointMid;
+    public float unityXToRobotZ(float x) => ((x / LIMBSCALE) - xScreenMidPoint) * (zEndPointRange / xScreenRange) + zEndPointMid;
 
     public (UnityEngine.Vector2 endPointTarget, UnityEngine.Vector2 gameTarget) GenerateNextRandomTarget()
     {
@@ -203,7 +208,7 @@ public class TWPlayer : MonoBehaviour
         // Update previous target selection.
         prevTargetSelection = (float[])currTargetSelection.Clone();
     }
-    public void OnDrawGizmos(LineRenderer lr)
+    public void OndrawGizmos(LineRenderer lr)
     {
         if (AppData.Instance == null) return;
 

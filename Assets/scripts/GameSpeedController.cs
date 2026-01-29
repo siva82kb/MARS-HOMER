@@ -30,7 +30,7 @@ public class GameSpeedController : MonoBehaviour
         // Only if the game object is active
         if (gameObject.activeSelf)
         {
-            gameSpeed = AppData.Instance.selectedGame.gameSpeed;
+            gameSpeed = AppData.Instance.selectedGame.reachTime;
             gameSpeedText.text = $"{gameSpeed:F2}";
         }
     }

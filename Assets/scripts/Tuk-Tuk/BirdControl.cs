@@ -6,12 +6,14 @@ using UnityEngine.UI;
 
 public class BirdControl : MonoBehaviour
 {
+    public static BirdControl Instance;
     public static Rigidbody2D rb2d;
     public Image life;
     public FlappyGameControl FGC;
 
     public MarsArom currRom;
 
+    public CapsuleCollider2D playercollider;
     public bool isInitialized { get; private set; } = false;
 
     // Screen boundaries
@@ -34,9 +36,9 @@ public class BirdControl : MonoBehaviour
     public static int LIMBSCALE;
     
     float yPoint, yEndPoint;
-    public static float unityYToRobotY(float y) =>((y / LIMBSCALE) - yScreenMidPoint) * (yEndPointRange / yScreenRange) + yEndPointMid;
-    public static float robotYToUnityY(float y) =>(yScreenMidPoint + yScreenRange * (y - yEndPointMid) / yEndPointRange);
-    public static float unityXToRobotZ(float x) => ((x / LIMBSCALE) - xScreenMidPoint) * (zEndPointRange / xScreenRange) + zEndPointMid;
+    public  float unityYToRobotY(float y) =>((y / LIMBSCALE) - yScreenMidPoint) * (yEndPointRange / yScreenRange) + yEndPointMid;
+    public  float robotYToUnityY(float y) =>(yScreenMidPoint + yScreenRange * (y - yEndPointMid) / yEndPointRange);
+    public float unityXToRobotZ(float x) => ((x / LIMBSCALE) - xScreenMidPoint) * (zEndPointRange / xScreenRange) + zEndPointMid;
 
 
 
@@ -65,20 +67,18 @@ public class BirdControl : MonoBehaviour
 
     public GameObject player;
 
+    private void Awake()
+    {
+        Instance = this;
+    }
     void Start()
     {
-        // PLAYSIZE = Camera.main.orthographicSize * Camera.main.aspect;
-        // float fullHeight = Camera.main.orthographicSize * 2f; // Full camera height in world units
-        // PLAYSIZE = fullHeight * 0.8f; // 80% of the camera height
-        // startTime = 0;
-        // endTime = 0;
-        // currentLife = 0;
-
-                playSize = topBound - bottomBound;
+      
+        playSize = topBound - bottomBound;
         currRom = AppData.Instance.selectedMovement.currentArom;
 
         // Get screen limits for the Pong (PP) scene
-        screenBounds = MarsGameDefs.SCREEN_LIMITS["PP"];
+        screenBounds = MarsGameDefs.SCREEN_LIMITS["TT"];
         xScreenMin = screenBounds[0];
         xScreenMax = screenBounds[1];
         yScreenMin = screenBounds[2];
@@ -101,8 +101,8 @@ public class BirdControl : MonoBehaviour
         }
         else
         {
-            zEndPointMin = AppData.Instance.selectedMovement.currentArom.leftAdjusted.x;
-            zEndPointMax = AppData.Instance.selectedMovement.currentArom.rightAdjusted.x;
+            zEndPointMin = currRom.leftAdjusted.x;
+            zEndPointMax = currRom.rightAdjusted.x;
             zEndPointMid = (zEndPointMin + zEndPointMax) / 2.0f;
             zEndPointRange = zEndPointMax - zEndPointMin;
             yEndPointMin = currRom.bottomAdjusted.y;
@@ -112,21 +112,15 @@ public class BirdControl : MonoBehaviour
 
            
         }
+        LIMBSCALE = (AppData.Instance.userData == null || AppData.Instance.userData.rightArm) ? -1 : 1;
         rb2d = GetComponent<Rigidbody2D>();
         isInitialized = true;
 
-        // MovementTracker.Initialize(this, this.transform.position);
+        playSize = playercollider.bounds.max.x;
 
-        Time.timeScale = 0f;
-        // Set current AROM and PROM.
-        
-    }
-    void Update()
-    {
-        if(FGC.isGameStarted && !FGC.isGamePaused && !FGC.isGameFinished) Time.timeScale=1f;
 
-        // MovementTracker.UpdatePosition(this.transform.position);
     }
+ 
     void FixedUpdate()
     {
         if (startTime < 2)
@@ -177,18 +171,9 @@ public class BirdControl : MonoBehaviour
         }
     }
 
-        private void updatePlayerPosition()
+    private void updatePlayerPosition()
     {
-        if (Mathf.Abs(MarsComm.angle1) <= (Mathf.Abs(MovementSceneHandler.initialAngle) - 20))
-        {
-            // inactive state → yellow
-            player.GetComponent<SpriteRenderer>().color = new Color32(255, 255, 0, 255);
-            return;
-        }
-
-        // active → green
-        // player.GetComponent<SpriteRenderer>().color = new Color32(0, 255, 0, 255);
-
+       
         // Get Y position from robot
         endPoint = MarsComm.epPosInThePlane;
         yEndPoint = endPoint.y;
@@ -215,8 +200,5 @@ public class BirdControl : MonoBehaviour
         else if (transform.position.y < bottomBound)
             transform.position = new Vector3(transform.position.x, bottomBound, 0);
     }
-    // public float AngleToScreen(float angle) =>  (-3f + (angle - aprom[0]) * (PLAYSIZE) / (aprom[1] - aprom[0]));
-
-
-
+   
 }

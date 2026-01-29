@@ -58,6 +58,7 @@ public class pongGameController : MonoBehaviour {
     private  GameObject target;
 
     private bool gameSpeedChanged = false;
+    public float targetTime;
 
     //pong game events and related variables.
     public enum GameStates
@@ -81,7 +82,7 @@ public class pongGameController : MonoBehaviour {
         {
             _prevGameState = _gameState;
             _gameState = value;
-            AppLogger.LogInfo($"Game state changed from {_prevGameState} to {_gameState}.");
+            //AppLogger.LogInfo($"Game state changed from {_prevGameState} to {_gameState}.");
         }
     }
 
@@ -234,6 +235,7 @@ public class pongGameController : MonoBehaviour {
                 gameState = GameStates.MOVE;
                 break;
             case GameStates.MOVE:
+                targetTime += Time.fixedDeltaTime;
                 if (isBallHitted)
                 {
                     gameState = GameStates.SUCCESS;
@@ -315,10 +317,7 @@ public class pongGameController : MonoBehaviour {
                 updateStarCount();
                 scoreComparisonTxt.text = $"{(scores[0] + nSuccess).ToString("D3")}";
             }
-            //AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
-            //showFinished();
-            //cummulativeScoreTxt.text = $"{AppData.Instance.selectedGame.cummulativeHits:D4}";
-            //AppLogger.LogInfo($"PingPong Game Over. Time: {gameTime}s | Targets: {nTargets} | Hits: {nSuccess} | Misses: {nFailure}");
+            
         }
         timerTxt.text = "Time: 0s";
         // Set game over state
@@ -357,7 +356,7 @@ public class pongGameController : MonoBehaviour {
     {
         float _rs = AppData.Instance.selectedGame.reachSpeed;
         AppData.Instance.selectedGame.reachSpeed = _rs + (increase ? MarsGameDefs.REACH_SPEED_DELTA : -MarsGameDefs.REACH_SPEED_DELTA);
-        AppData.Instance.annotation = $"RS:{AppData.Instance.selectedGame.reachSpeed:F3},GS:{AppData.Instance.selectedGame.gameSpeed:F3}";
+        AppData.Instance.annotation = $"RS:{AppData.Instance.selectedGame.reachSpeed:F3} | GS:{AppData.Instance.selectedGame.reachTime:F3}";
         gameSpeedChanged = true;
     }
 
@@ -383,6 +382,8 @@ public class pongGameController : MonoBehaviour {
 
     public void BallReturned()
     {
+        //Debug.Log($"{targetTime} targetTime");
+        targetTime = 0;
         isBallHitted = false;
         isBallMissed = false;
         nTargets++;
@@ -392,6 +393,8 @@ public class pongGameController : MonoBehaviour {
 
     public void BallHitted()
     {
+        Debug.Log($"{targetTime} targetTime");
+        targetTime = 0;
         isBallHitted = true;
         isBallMissed = false;
         nSuccess++;

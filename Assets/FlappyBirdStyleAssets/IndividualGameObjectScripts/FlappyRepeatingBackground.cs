@@ -21,7 +21,7 @@ public class FlappyRepeatingBackground : MonoBehaviour
         {
             RepositionBackgound();
         }}
-        else Debug.Log("not repeating Background");
+      
 
     }
     private void RepositionBackgound()

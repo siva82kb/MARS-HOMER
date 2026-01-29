@@ -22,7 +22,6 @@ public class FlappyGameControl : MonoBehaviour
     // public ProgressBar timerObject;
 
     bool birdDied = false;
-    bool skipFirstPoint = false;
     public bool gameOver = false;
     public float scrollSpeed = 0f;
     private int score;
@@ -67,11 +66,10 @@ public class FlappyGameControl : MonoBehaviour
     private  GameObject target;
     private float PLAYSIZE;
     private float triaTimeLeft;
-    
+    private float targetTime;
     public int nTargets = 0;
     public int nSuccess = 0;
     public int nFailure = 0;
-    private string prevScene = "CHGAME";
      public Text status, gameSpeedViewer;
     public enum GameStates
     {
@@ -86,13 +84,18 @@ public class FlappyGameControl : MonoBehaviour
         DONE
     }
     private GameStates _gameState;
+
+    private GameStates _prevGameState = GameStates.WAITING;
     public GameStates gameState
     {
         get => _gameState;
-        private set => _gameState = value;
-    }
-    private GameStates _prevGameState = GameStates.WAITING;
+        private set
+        {
+            _prevGameState = _gameState;
+            _gameState = value;
 
+        }
+    }
     // Bunch of event flags
     public bool isGameStarted { get; private set; } = false;
     public bool isGameFinished { get; private set; } = false;
@@ -107,7 +110,7 @@ public class FlappyGameControl : MonoBehaviour
     public bool isTargetHit { get; private set; } = false;
     public bool isTargetMissed { get; private set; } = false;
     public bool restartGame { get; private set; } = false;
-
+   
 
     // Target and player positions.
     private float[] arom;
@@ -220,7 +223,7 @@ public class FlappyGameControl : MonoBehaviour
     {
         float _rs = AppData.Instance.selectedGame.reachSpeed;
         AppData.Instance.selectedGame.reachSpeed = _rs + (increase ? MarsGameDefs.REACH_SPEED_DELTA : -MarsGameDefs.REACH_SPEED_DELTA);
-        AppData.Instance.annotation = $"RS:{AppData.Instance.selectedGame.reachSpeed:F3},GS:{AppData.Instance.selectedGame.gameSpeed:F3}";
+        AppData.Instance.annotation = $"RS:{AppData.Instance.selectedGame.reachSpeed:F3} | GS:{AppData.Instance.selectedGame.reachTime:F3}";
         gameSpeedChanged = true;
     }
     
@@ -260,20 +263,15 @@ public class FlappyGameControl : MonoBehaviour
     void Update()
     {
         MarsComm.sendHeartbeat();
-        Debug.Log($"is Game started {isGameStarted}");
+      
 
         if (isGamePaused && gameState != GameStates.PAUSED) pauseGame();
         else if (!isGamePaused && gameState == GameStates.PAUSED) resumeGame();
-            // Debug.Log($"Timer1:{(int)triaTimeLeft}s");
-            // Debug.Log($"TimerS:{(int)nSuccess}s");
+           
         
-        if (isGamePlaying)
-        {
-            Debug.Log($"Timer2:{(int)triaTimeLeft}s");
-            Debug.Log($"TimerY:{(int)nSuccess}s");
-            timeLeftText.text = $"Timer:{(int)triaTimeLeft}s";
-            ScoreText.text = $"Score:{nSuccess}";
-        }
+            
+        ScoreText.text = $"Score:{nSuccess}";
+        
 
         // Check if the game is to be restarted.
         if (restartGame)
@@ -312,7 +310,7 @@ public class FlappyGameControl : MonoBehaviour
     }
     void FixedUpdate()
     {
-        Debug.Log($" col GS: {gameState}");
+        
         // Handle the current game state.
         RunGameStateMachine();
 
@@ -328,11 +326,13 @@ public class FlappyGameControl : MonoBehaviour
             }
             else
             {
-                targetGamePosition =  target.transform.position;
-                targetEndPointPosition = new Vector3(0, 
-                                                     PongPlayerController.unityYToRobotY(target.transform.position.y), 
-                                                     PongPlayerController.unityXToRobotZ(target.transform.position.x)
+                targetGamePosition = target.transform.position;
+
+                targetEndPointPosition = new Vector3(0,
+                                                     BirdControl.Instance.unityYToRobotY(target.transform.position.y),
+                                                     BirdControl.Instance.unityXToRobotZ(target.transform.position.x)
                                                      );
+               
             }
         }
         prevSpawnTime += Time.deltaTime;
@@ -355,34 +355,19 @@ public class FlappyGameControl : MonoBehaviour
     public void decreaseGameSpeed()
     {
 
-        // string mech = PlutoComm.MECHANISMS[PlutoComm.mechanism];
-        // bool isFME = mech == "FME1" || mech == "FME2";
-
-        // if ((isFME && gameSpeed <= 1.0f) || (!isFME && gameSpeed <= 10.0f)) return;
-
-        // gameSpeed -= 1.0f;
-        // gsc.gameSpeedText.text = $"{(int)gameSpeed}";
-
         UpdateScrollSpeed();
-        // AppLogger.LogInfo($"{AppData.Instance.selectedGameName}'s game speed decreased to {gameSpeed} and the Scroll Speed is {scrollSpeed}");
-
-
+       
     }
     private void UpdateScrollSpeed()
     {
         // Use finer scaling for scroll speed at lower increments
-        float scrollFactor =  0.05f;
-        scrollSpeed = -2f - (scrollFactor * gameSpeed);
+        float scrollFactor =  1f;
+        scrollSpeed =  - (scrollFactor * gameSpeed);
     }
 
     public void spawnColumn()
     {
-        // float spawnInterval = Mathf.Max(0.5f, 2f - (gameSpeed - 10f) * 0.05f);
-        //     Debug.Log("Column Spawned :");
-        // // if (!gameOver && prevSpawnTime > spawnInterval)
-        // // {
-        //     Debug.Log("Column Spawned 1");
-
+      
             prevSpawnTime = 0;
             targetPos = UnityEngine.Random.Range(-2.5f, 5.5f);
             Debug.Log("Column Spawned 2" + targetPos);
@@ -391,8 +376,9 @@ public class FlappyGameControl : MonoBehaviour
             nTargets++;
             columns[CurrentColumn].transform.position = new Vector3(BirdControl.rb2d.transform.position.x + spawnXposition, targetPos, 0);
             columns[CurrentColumn].tag = "Target";
-            // Debug.Log($"{(BirdControl.rb2d.transform.position.x + spawnXposition, targetPosition, 0)}");
-            if (CurrentColumn == 0)
+             // Debug.Log($"{(BirdControl.rb2d.transform.position.x + spawnXposition, targetPosition, 0)}");
+           
+        if (CurrentColumn == 0)
             {
                 columns[columnPoolSize - 1].tag = "Untagged";
             }
@@ -412,17 +398,7 @@ public class FlappyGameControl : MonoBehaviour
         // }
     }
 
-    public void PauseGame()
-    {
-        _prevGameState = gameState;
-        gameState = GameStates.PAUSED;
-        isGamePaused = true;
-        Time.timeScale = 0;
-        showPaused();
-        // PauseButton.SetActive(false);
-        // ResumeButton.SetActive(true);
-        // ExitButton.SetActive(false);
-    }
+   
     
     public void ExitGame()
     {
@@ -431,15 +407,15 @@ public class FlappyGameControl : MonoBehaviour
             Time.timeScale = 1;
             isGamePaused = false;
             GameOver();
+          
         }
         SceneManager.LoadScene("CHOOSEMOVE");
     }
     private void resumeGame()
     {
         gameState = _prevGameState;
-        Time.timeScale = 1;
-      
-        // pauseImage.SetActive(isGamePaused);
+        Time.timeScale = 1f;
+        pauseImage.SetActive(isGamePaused);
         ExitButton.SetActive(true);
     }
 
@@ -449,7 +425,7 @@ public class FlappyGameControl : MonoBehaviour
         pauseImage.SetActive(isGamePaused);
        
         ExitButton.SetActive(false);
-        Time.timeScale = 0;
+        Time.timeScale = 0f;
     }
 
 
@@ -504,15 +480,16 @@ public class FlappyGameControl : MonoBehaviour
     }
 
     public void BallCaught() {
+        Debug.Log($"{targetTime} targetTime");
         isTargetHit = true;
         isTargetMissed = false;
-            Debug.Log("PointScored");
-        if (skipFirstPoint) nSuccess++;
-        else skipFirstPoint = true; 
+        nSuccess++;
+        
         
     }
 
     public void BallMissed() {
+        Debug.Log($"{targetTime} targetTime");
         isTargetHit = false;
         isTargetMissed = true;
         nFailure++;
@@ -537,11 +514,12 @@ public class FlappyGameControl : MonoBehaviour
         {
             if (!bc.startBlinking )
             {
+               
                 int index = UnityEngine.Random.Range(0, winClip.Length);
                 GetComponent<AudioSource>().clip = winClip[index];
 
                 if (score != 0) GetComponent<AudioSource>().Play();
-                BallCaught();
+                //BallCaught();
             }
             else
             {
@@ -557,13 +535,12 @@ public class FlappyGameControl : MonoBehaviour
 
     public void startGame()
     {
-        // scrollSpeed = -2 - 1 * (0.02f * AppData.Instance.speedData.gameSpeed);
-        //if (AppData.Instance.speedData.gameSpeed > 38f) gameSpeed = 38.0f;
-                startImage.SetActive(false);
+        reminderPanel.SetActive(false);
+        startImage.SetActive(false);
         // Spawing the ball.
         gameSpeed = AppData.Instance.selectedGame.gameSpeed;
-        scrollSpeed = -2f - (0.05f * gameSpeed);
-        
+        UpdateScrollSpeed();
+       
         // Initialize game variables.
         gameDuration = MarsGameDefs.GAMEDURATION[AppData.Instance.selectedGame.name];
 
@@ -572,6 +549,7 @@ public class FlappyGameControl : MonoBehaviour
         nTargets = 0;
         nSuccess = 0;
         nFailure = 0;
+        AppData.Instance.StartNewTrial();
         gameState = GameStates.SPAWNTARGET;
     }
 
@@ -586,7 +564,7 @@ public class FlappyGameControl : MonoBehaviour
     {
         // Run the game timer
         if (isGamePlaying) triaTimeLeft -= Time.deltaTime;
-        Debug.Log(gameState);
+        timeLeftText.text = $"Timer:{(int)triaTimeLeft}s";
         // Act according to the current game state.
         bool isTimeUp = triaTimeLeft <= 0;
         switch (gameState)
@@ -603,6 +581,7 @@ public class FlappyGameControl : MonoBehaviour
             case GameStates.SPAWNTARGET:
                 if (eventDelayTimer <= 0f && !runOnce)
                 {
+                    targetTime = 0;
                     spawnColumn();
                     runOnce = true;
                     eventDelayTimer = 0.05f;
@@ -617,6 +596,7 @@ public class FlappyGameControl : MonoBehaviour
                 }               
                 break;
             case GameStates.MOVE:
+                targetTime += Time.deltaTime;
                 // Wait for the user to success or fail.
                 if (isTargetHit) gameState = GameStates.SUCCESS;
                 if (isTargetMissed || isTimeUp ) gameState = GameStates.FAILURE;
@@ -634,6 +614,7 @@ public class FlappyGameControl : MonoBehaviour
              
                 break;
             case GameStates.PAUSED:
+                Debug.Log(triaTimeLeft);
                 break;
             case GameStates.STOP:
                 // Trial complete.
@@ -660,7 +641,7 @@ public class FlappyGameControl : MonoBehaviour
 
             if (!celebrationPanel.gameObject.activeSelf)
             {
-                showFinished();
+                gameOverPanel.SetActive(true);
                 GameOverStar.SetActive(AppData.Instance.selectedGame.isAchievedToday());
                 yesterdayScoreTxt.text = $"{scores[1]:D4}";
                 todayScoreTxt.text = $"{(scores[0] + nSuccess):D4}";

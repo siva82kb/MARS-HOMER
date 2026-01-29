@@ -11,7 +11,7 @@ public partial class AppData
     public static AppData Instance => _instance.Value;
 
 
-    static public readonly string COMPort = "COM6"; //1-35//2-30//3-32//4-50//5-53//6-6//7-4//10-64/h7-left-8//h7-right-10
+    static public readonly string COMPort = "COM24"; //1-35//2-30//3-32//4-50//5-53//6-6//7-4//10-64/h7-left-8//h7-right-10//10-8
 
     // Robot Connection Alive Variables.
     static public float MARS_WATCHDOG_TIMEOUT = 2.0f; //seconds
@@ -90,7 +90,7 @@ public partial class AppData
     public string trainingSide => userData?.limb != null ? MarsComm.LIMBTYPE[userData.limb] : MarsComm.LIMBTYPE[0];
 
     // An annotation integer for scenes to set annotation it the raw data.
-    public string annotation = "";
+    public string annotation { get; set; } = "";
 
     public void Initialize(string scene)
     {

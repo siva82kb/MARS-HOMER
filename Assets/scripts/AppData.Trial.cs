@@ -78,7 +78,7 @@ public partial class AppData
         
         // Stop Raw and AAN real-time data logging.
         WriteTrialDataToRawDataFile();
-        MarsComm.OnNewMarsData -= OnNewMarsDataDataLogging;
+        MarsComm.OnNewMarsData -= OnNewMarsRawDataLogging;
         trialRawDataFile = null;
         Instance.selectedGame.resetstarCount();
         awsManager.changeUploadStatus(awsManager.status[0]);
@@ -95,14 +95,12 @@ public partial class AppData
             $"{selectedMovement.trialNumberSession}",               // TrialNumberSession
             trialStartTime.ToString(DataManager.DATETIMEFORMAT),    // TrialStartTime
             trialStopTime?.ToString(DataManager.DATETIMEFORMAT),    // TrialStopTime
-            trialRawDataFile.Split("/data/")[1],
-            // null,                    // TrialRawDataFile
+            trialRawDataFile.Split("/data/")[1],                    // TrialRawDataFile
             $"{selectedMovement.name}",                             // Movement
             $"{userData.trainingPlaneAngle}",                       // TrainingPlaneAngle
             $"{selectedGame.name}",                                 // Game  
-            null,                                                   // GameParameter
             $"{selectedGame.reachSpeed}",                           // ReachSpeed
-            $"{selectedGame.gameSpeed}",                            // GameSpeed
+            $"{selectedGame.reachTime}",                            // GameParameter
             $"{selectedGame.gameDuration}",                         // GameDuration
             $"{successRate}",                                       // SuccessRate
             Instance.gameTime.ToString(),                           // GameTime
@@ -112,7 +110,7 @@ public partial class AppData
             $"{selectedGame.cummulativeTargets}",                   // CummulativeTargets
             $"{selectedGame.cummulativeHits}",                      // CummulativeHits
             $"{selectedGame.cummulativeMisses}",                    // CummulativeMisses
-            $"{selectedGame.currentStar}",                         // CurrentStarcounts
+            $"{selectedGame.currentStar}",                          // CurrentStarcounts
             $"{selectedGame.cummulativeStars}",                     // CummulativeStarCounts
             $"{trialRawDataFile.Split('/').Last()}"                 // RawDataFileName
         };
@@ -161,12 +159,13 @@ public partial class AppData
         });
         rawDataString.AppendLine($":RobotLimits: {_limitstr}");
         rawDataString.AppendLine(string.Join(",", DataManager.RAWFILEHEADER));
-
+        //Make annotation empty
+        AppData.Instance.annotation = "";
         // Attach the event handler for data logging.
-        MarsComm.OnNewMarsData += OnNewMarsDataDataLogging;
+        MarsComm.OnNewMarsData += OnNewMarsRawDataLogging;
     }
  
-    public void OnNewMarsDataDataLogging()
+    public void OnNewMarsRawDataLogging()
     {
         lock (rawDataLock)
         {
@@ -189,10 +188,6 @@ public partial class AppData
             rawDataString.Append($"{MarsComm.angle2},");                            // MarsAngle2
             rawDataString.Append($"{MarsComm.angle3},");                            // MarsAngle3
             rawDataString.Append($"{MarsComm.angle4},");                            // MarsAngle4
-            rawDataString.Append($"{MarsComm.imuAngle1},");                         // ImuMarsAngle1
-            rawDataString.Append($"{MarsComm.imuAngle2},");                         // ImuMarsAngle2
-            rawDataString.Append($"{MarsComm.imuAngle3},");                         // ImuMarsAngle3
-            rawDataString.Append($"{MarsComm.imuAngle4},");                         // ImuMarsAngle4
             rawDataString.Append($"{MarsComm.force},");                             // Force
             rawDataString.Append($"{MarsComm.target},");                            // Target
             rawDataString.Append($"{MarsComm.desired},");                           // Desired
@@ -213,8 +208,8 @@ public partial class AppData
             rawDataString.Append($"{_targetGamePos.x},");                           // GameTargetX
             rawDataString.Append($"{_targetGamePos.y},");                           // GameTargetY
             rawDataString.Append($"{GetGameState()},");                             // GameState
-            rawDataString.Append($"{AppData.Instance.annotation},");                 // Annotation
-            rawDataString.Append($"{MarsComm.frameRate}");                          // frameRate
+            rawDataString.Append($"{AppData.Instance.annotation},");                // Annotation
+            rawDataString.Append($"{GetMiscellaneous()}");                          // Miscellaneous //Target Reach Time only for Ping-Pong Game
             rawDataString.Append("\n");
         }
     }
@@ -254,7 +249,7 @@ public partial class AppData
         rawDataString.AppendLine(string.Join(",", DataManager.RAWFILEHEADER));
 
         // Attach the event handler for data logging.
-        MarsComm.OnNewMarsData += OnNewMarsDataDataLogging;
+        MarsComm.OnNewMarsData += OnNewMarsRawDataLogging;
     }
 
     public void StopRawDataAromDataLogging()
@@ -275,7 +270,7 @@ public partial class AppData
             rawDataString.Clear();
             rawDataString = null;
         }
-        MarsComm.OnNewMarsData -= OnNewMarsDataDataLogging;
+        MarsComm.OnNewMarsData -= OnNewMarsRawDataLogging;
         trialAromDataFile = null;
     }
     
@@ -294,7 +289,7 @@ public partial class AppData
         rawDataString.AppendLine(string.Join(",", DataManager.RAWFILEHEADER));
 
         // Attach the event handler for data logging.
-        MarsComm.OnNewMarsData += OnNewMarsDataDataLogging;
+        MarsComm.OnNewMarsData += OnNewMarsRawDataLogging;
     }
 
     public void StopRawDataArmWeightDataLogging()
@@ -315,13 +310,13 @@ public partial class AppData
             rawDataString.Clear();
             rawDataString = null;
         }
-        MarsComm.OnNewMarsData -= OnNewMarsDataDataLogging;
+        MarsComm.OnNewMarsData -= OnNewMarsRawDataLogging;
         trialArmWeightDataFile = null;
     }
 
     private Vector3 GetGamePlayerPosition()
     {
-       
+       if(selectedGame == null) return Vector3.zero;
         switch (selectedGame.name)
         {
             case "SS":
@@ -346,6 +341,10 @@ public partial class AppData
                 return TWGameController.Instance != null
                     ? TWGameController.Instance.playerGamePosition
                     : Vector3.zero;
+            case "MC":
+                return MCGameController.Instance != null
+                    ? MCGameController.Instance.playerGamePosition
+                    : Vector3.zero;
 
             default:
                 return Vector3.zero;
@@ -355,6 +354,7 @@ public partial class AppData
 
     private Vector3 GetGameTargetPosition()
     {
+        if (selectedGame == null) return Vector3.zero;
         switch (selectedGame.name)
         {
             case "SS":
@@ -375,10 +375,13 @@ public partial class AppData
                 return FlappyGameControl.Instance != null
                     ? FlappyGameControl.Instance.targetGamePosition ?? Vector3.zero
                     : Vector3.zero;
-
             case "TW":
                 return TWGameController.Instance != null
                     ? TWGameController.Instance.targetGamePosition ?? Vector3.zero
+                    : Vector3.zero;
+            case "MC":
+                return MCGameController.Instance != null
+                    ? MCGameController.Instance.targetGamePosition ?? Vector3.zero
                     : Vector3.zero;
             default:
                 return Vector3.zero;
@@ -388,6 +391,7 @@ public partial class AppData
 
     private Vector3 GetEndPointTargetPosition()
     {
+        if (selectedGame == null) return Vector3.zero;
         switch (selectedGame.name)
         {
             case "SS":
@@ -413,13 +417,45 @@ public partial class AppData
                 return TWGameController.Instance != null
                     ? TWGameController.Instance.targetEndPointPosition ?? Vector3.zero
                     : Vector3.zero;
+            case "MC":
+                return MCGameController.Instance != null
+                    ? MCGameController.Instance.targetEndPointPosition ?? Vector3.zero
+                    : Vector3.zero;
             default:
                 return Vector3.zero;
         }
     }
 
+    //Target Time in Ping pong
+    private string GetMiscellaneous()
+    {
+        if (selectedGame == null) return "";
+        switch (selectedGame.name)
+        {
+            case "SS":
+                return "";
+
+            case "PP":
+                return pongGameController.Instance.targetTime.ToString("F2");
+
+            case "DC":
+                return "";
+            case "TT":
+                return "";
+
+            case "TW":
+                return "";
+
+            case "MC":
+                return "";
+            default:
+                return "";
+        }
+    }
+
     private string GetGameState()
     {
+        if (selectedGame == null) return "";
         //// Get the game state.
         if (selectedGame.name == "SS")
         {
@@ -442,7 +478,11 @@ public partial class AppData
         {
             return TWGameController.Instance != null ? TWGameController.Instance.gameState.ToString() : "";
         }
-         return "";
+        else if (selectedGame.name == "MC")
+        {
+            return MCGameController.Instance != null ? MCGameController.Instance.gameState.ToString() : "";
+        }
+        return "";
     }
 
     public void reloadSessionDetails() => Instance.userData.readParseSessionData(DataManager.sessionFile);

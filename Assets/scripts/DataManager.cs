@@ -62,7 +62,7 @@ public class DataManager : MonoBehaviour
         "SessionNumber", "DateTime",
         "TrialNumberDay", "TrialNumberSession", "TrialStartTime", "TrialStopTime", "TrialRawDataFile",
         "Movement", "TrainingPlaneAngle",
-        "GameName", "GameParameter", "ReachSpeed", "GameSpeed", "GameDuration",
+        "GameName", "ReachSpeed", "GameParameter", "GameDuration",
         "SuccessRate", "MoveTime",
         "CurrentTargets", "CurrentHits", "CurrentMisses",
         "CummulativeTargets", "CummulativeHits", "CummulativeMisses",
@@ -76,7 +76,6 @@ public class DataManager : MonoBehaviour
         "Status", "ControlType", "ErrorStatus",
         "Limb", "Calibration",
         "MarsAngle1", "MarsAngle2", "MarsAngle3", "MarsAngle4",
-        "ImuMarsAngle1", "ImuMarsAngle2", "ImuMarsAngle3", "ImuMarsAngle4",
         "Force",
         "Target", "Desired", "Control",
         "Button",
@@ -88,7 +87,8 @@ public class DataManager : MonoBehaviour
         "GameTargetX", "GameTargetY",
         "GameState",
         "Annotation",
-        "FrameRate"
+        "Miscellaneous"
+
     };
     public static string DATETIMEFORMAT = "yyyy-MM-dd HH:mm:ss";
 

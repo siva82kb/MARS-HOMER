@@ -6,6 +6,7 @@ using System.Collections;
 using System.IO;
 using UnityEngine.EventSystems;
 using Unity.VisualScripting;
+using JetBrains.Annotations;
 
 
 
@@ -20,7 +21,13 @@ public class MovementSceneHandler : MonoBehaviour
     public Text apAromText;
     public Text mlapAromText;
     public Text armWeightText;
-
+    public GameObject gameDC;
+    public GameObject gameTW;
+    public GameObject gameTT;
+    public GameObject gamePP;
+    public GameObject gameSS;
+    public GameObject gameMD;
+ 
     public static float initialAngle;
     private string nextScene = "";
     //flags
@@ -47,7 +54,7 @@ public class MovementSceneHandler : MonoBehaviour
 
     void Start()
     {
-        //MarsComm.sendHeartbeat();
+        MarsComm.sendHeartbeat();
     
         // Initialize AppData if needed
         if (AppData.Instance.userData == null)
@@ -89,11 +96,13 @@ public class MovementSceneHandler : MonoBehaviour
 
         // Update the assessment status text.
         updateAssessmentStatusText();
+        AppLogger.SetCurrentMovement("");
+        AppLogger.SetCurrentGame("");
     }
 
     void Update()
     {
-        //MarsComm.sendHeartbeat();
+        MarsComm.sendHeartbeat();
         
         // Check if the magic key combination is pressed for AROM assessment 
         // or training plane selection.
@@ -219,11 +228,7 @@ public class MovementSceneHandler : MonoBehaviour
                 // Selected movement and game name.
                 AppData.Instance.SetMovement(child.name);
                 Debug.Log($"Selected movement: {child.name}");
-                if(child.name != "MLAP")
-                {
-                    Debug.Log($"Game: {MarsGameDefs.GAMES[MarsDefs.getMovementIndex(child.name)]}");
-                    AppData.Instance.SetGame(MarsGameDefs.GAMES[MarsDefs.getMovementIndex(child.name)]);
-                }
+               
                
                 // Check if assessment is done or if the correct assessment is available, 
                 // else the next scene will be the corresponding assessment scene.
@@ -258,29 +263,36 @@ public class MovementSceneHandler : MonoBehaviour
                                           AppData.Instance.selectedMovement.name == "AP" ? assessmentSceneAP :
                                           AppData.Instance.selectedMovement.name == "MLAP" ? assessmentSceneMLAP : "";
                     // Next is the game scene.
-                    nextScene = MarsGameDefs.GAME_SCENES[MarsDefs.getMovementIndex(child.name)+2];
-                    if(child.name == "MLAP")
-                    {
-                            //open chooseGamePanel
-                            ChooseGamePanel.SetActive(true);
-                            additionalMessage.text = "";
-                            return;
-
-                    }
-                    nextScene = MarsGameDefs.GAME_SCENES[MarsDefs.getMovementIndex(child.name)];
-                    message.text = "Press Mars Button to start game";
+                  
+                    
+                    //open chooseGamePanel
+                    createChooseGamePanel();
+                    message.text = "Please choose the game";
                     additionalMessage.text = "";
+                   
                     }
                    
 
                 }
-               
-                
-                
+
                 AppLogger.LogInfo($"Selected movement ({AppData.Instance.selectedMovement.name}) and game ({AppData.Instance.selectedGame})");
                 break;
             }
         }
+    }
+    public void createChooseGamePanel()
+    {
+        ChooseGamePanel.SetActive(AppData.Instance.selectedMovement!=null);
+        //GAME ICON FOR MLAP
+        gameDC.SetActive(AppData.Instance.selectedMovement.name == "MLAP");
+        gameTW.SetActive(AppData.Instance.selectedMovement.name == "MLAP");
+        //GAME ICON FOR AP
+        gamePP.SetActive(AppData.Instance.selectedMovement.name == "AP");
+        gameTT.SetActive(AppData.Instance.selectedMovement.name == "AP");
+        //GAME ICON FOR ML
+        gameSS.SetActive(AppData.Instance.selectedMovement.name == "ML");
+        gameMD.SetActive(AppData.Instance.selectedMovement.name == "ML");
+
     }
     public void onClickTW()
     {
@@ -297,9 +309,39 @@ public class MovementSceneHandler : MonoBehaviour
         changeScene = true;
 
     }
+    public void onClickTT()
+    {
+        AppData.Instance.SetGame(MarsGameDefs.GAMES[4]);
+        AppLogger.LogInfo($"Selected movement ({AppData.Instance.selectedMovement.name}) and game ({AppData.Instance.selectedGame})");
+        nextScene = MarsGameDefs.GAME_SCENES[4];
+        changeScene = true;
+    }
+    public void onClickPP()
+    {
+        AppData.Instance.SetGame(MarsGameDefs.GAMES[1]);
+        AppLogger.LogInfo($"Selected movement ({AppData.Instance.selectedMovement.name}) and game ({AppData.Instance.selectedGame})");
+        nextScene = MarsGameDefs.GAME_SCENES[1];
+        changeScene = true;
+    }
+    public void onClickSS()
+    {
+        AppData.Instance.SetGame(MarsGameDefs.GAMES[0]);
+        AppLogger.LogInfo($"Selected movement ({AppData.Instance.selectedMovement.name}) and game ({AppData.Instance.selectedGame})");
+        nextScene = MarsGameDefs.GAME_SCENES[0];
+        changeScene = true;
+    }
+    public void onClickMC()
+    {
+        AppData.Instance.SetGame(MarsGameDefs.GAMES[5]);
+        AppLogger.LogInfo($"Selected movement ({AppData.Instance.selectedMovement.name}) and game ({AppData.Instance.selectedGame})");
+        nextScene = MarsGameDefs.GAME_SCENES[5];
+        changeScene = true;
+    }
     public void onClickClose()
     {
-        if(ChooseGamePanel.activeSelf)ChooseGamePanel.SetActive(false); 
+        if(ChooseGamePanel.activeSelf)ChooseGamePanel.SetActive(false);
+        AppLogger.SetCurrentMovement("");
+        AppLogger.SetCurrentGame("");
     }
 
     private void updateAssessmentStatusText()
@@ -386,7 +428,7 @@ public class MovementSceneHandler : MonoBehaviour
    
     public void OnExitButtonClicked()
     {
-        Debug.Log("exitbutton");
+      
         StartCoroutine(LoadSummaryScene());
     }
 
