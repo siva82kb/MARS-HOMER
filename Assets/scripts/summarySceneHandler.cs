@@ -35,16 +35,18 @@ public class summarySceneHandler : MonoBehaviour
     public GameObject TWstar;
     public GameObject TTstar;
     public GameObject MCstar;
+    public GameObject TotalStar;
+    public TextMeshProUGUI totalStarCount;
     public void Start()
     {
-        ////debug mode
+        //debug mode
         //AppData.Instance.Initialize(SceneManager.GetActiveScene().name);
 
         // Inialize the logger
         AppLogger.StartLogging(SceneManager.GetActiveScene().name);
         AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);
         AppLogger.LogInfo($"{SceneManager.GetActiveScene().name} scene started.");
-        title = "summary";
+        title = "Unlock your Potential through Play";
         updateScores();
         initializeChart();
 
@@ -62,14 +64,17 @@ public class summarySceneHandler : MonoBehaviour
     public void updateScores()
     {
         int[] scores,cuScore;
-
+        int [] CumStar = MarsGameDefs.Spaceshooter.GetStarsCount();
         AppLogger.LogInfo(" started score updateding");
+       
         //SpaceShooter Game Data
         scores = MarsGameDefs.Spaceshooter.GetScores();
         cuScore = MarsGameDefs.Spaceshooter.GetCummulativeScores();
         ssCummulativeScoreTxt.text = $"{cuScore[1].ToString("D4")}";
         ssCurrentScoreTxt.text = $"{scores[1].ToString("D3")}/{scores[0].ToString("D3")}";
         if (MarsGameDefs.Spaceshooter.IsAchievedToday()) SSstar.GetComponent<Image>().color = Color.white ;
+        totalStarCount.text = CumStar[0].ToString("D3");
+        if (CumStar[0]>0)TotalStar.GetComponent<Image>().color = Color.white ;  
 
         //PingPong Game Data
         scores = MarsGameDefs.PingPong.GetScores();

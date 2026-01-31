@@ -7,7 +7,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using UnityEngine.UIElements;
+//using UnityEngine.UIElements;
 
 
 public class SpaceShooterGameContoller : MonoBehaviour
@@ -35,6 +35,7 @@ public class SpaceShooterGameContoller : MonoBehaviour
     public TextMeshProUGUI todayScoreTxt;
     public TextMeshProUGUI starCount;
     public GameObject GameOverStar;
+    public GameObject star;
     public int _starCount;
     
     public bool Levelunlocked = false;
@@ -181,6 +182,7 @@ public class SpaceShooterGameContoller : MonoBehaviour
         
         updateStarCount();
         scores = MarsGameDefs.Spaceshooter.GetScores();
+        if (MarsGameDefs.Spaceshooter.IsAchievedToday()) star.GetComponent<Image>().color = Color.white;
         Debug.Log($"{scores[0]}/{scores[1]}");
         AppLogger.LogInfo($"scores - yesterDayScore:{scores[1]} | TodayScore{scores[0]}");
     }
@@ -284,8 +286,9 @@ public class SpaceShooterGameContoller : MonoBehaviour
                         SSPlayerController.unityYToRobotY(gTarget.y),
                         SSPlayerController.unityXToRobotZ(gTarget.x)
                     );  // I do not like how we are doing this, and how conversions are handled in general.
-                    AsteroidFall.instance.SetFallSpeed(AppData.Instance.selectedGame.gameSpeed);
+                    //AsteroidFall.instance.SetFallSpeed(AppData.Instance.selectedGame.gameSpeed);
                     AsteroidFall.instance.setFallTime(AppData.Instance.selectedGame.reachTime);
+                    //AsteroidFall.instance.SetExactFallTime(AppData.Instance.selectedGame.reachTime);
                     nTargets++;
                     eventDelayTimer = 0.05f;
                     runOnce = true;
@@ -458,9 +461,9 @@ public class SpaceShooterGameContoller : MonoBehaviour
 
         // Attach the buttons
         if (gsc.decreaseButton != null)
-            gsc.decreaseButton.onClick.AddListener(() => changeGameSpeed(false));
+            gsc.decreaseButton.onClick.AddListener(() => changeGameSpeed(true));
         if (gsc.increaseButton != null)
-            gsc.increaseButton.onClick.AddListener(() => changeGameSpeed(true));
+            gsc.increaseButton.onClick.AddListener(() => changeGameSpeed(false));
 
         // Set the initial game speed
         gsc.gameSpeedText.text = $"{AppData.Instance.selectedGame.gameSpeed:F2}";

@@ -143,6 +143,7 @@ public class FlappyGameControl : MonoBehaviour
     public TextMeshProUGUI todayScoreTxt;
     public TextMeshProUGUI starCount;
     public GameObject GameOverStar, starLabel;
+    public GameObject star;
     public int _starCount;
     private int[] scores;
     private bool gameSpeedChanged = false;
@@ -213,6 +214,7 @@ public class FlappyGameControl : MonoBehaviour
         updateStarCount();
         scores = MarsGameDefs.TukTuk.GetScores();
         Debug.Log($"{scores[0]}/{scores[1]}");
+
         AppLogger.LogInfo($"scores - yesterDayScore:{scores[1]} | TodayScore{scores[0]}");
 
     }
@@ -247,9 +249,9 @@ public class FlappyGameControl : MonoBehaviour
 
         // Attach the buttons
         if (gsc.decreaseButton != null)
-            gsc.decreaseButton.onClick.AddListener(() => changeGameSpeed(false));
+            gsc.decreaseButton.onClick.AddListener(() => changeGameSpeed(true));
         if (gsc.increaseButton != null)
-            gsc.increaseButton.onClick.AddListener(() => changeGameSpeed(true));
+            gsc.increaseButton.onClick.AddListener(() => changeGameSpeed(false));
 
         // Set the initial game speed
         gsc.gameSpeedText.text = $"{AppData.Instance.selectedGame.gameSpeed:F2}";

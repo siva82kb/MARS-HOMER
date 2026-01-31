@@ -10,12 +10,13 @@ public static class awsManager
 {
     public static string pythonScriptPath = @"C:/pythonscripts/uploadToAWSM.pyw";
          
-    // public static  string pythonExecutionPath = @"C:/Program Files/Python312/pythonw.exe";
-    // public static string pythonExecutionPath = @"C:/Program Files/Python313/pythonw.exe";
+    public static  string pythonExecutionPath = @"C:/Program Files/Python310/pythonw.exe";
+     
+   
 
     // public static  string pythonExecutionPath = @"C:/Users/Homer 7/AppData/Local/Programs/Python313/pythonw.exe";
     // public static string pythonExecutionPath = @"C:/Users/HOMER_10/AppData/Local/Programs/Python314/pythonw.exe"; //D7
-    public static string pythonExecutionPath = @"C:/Users/HOMER_10/AppData/Local/Programs/Python/Python314/pythonw.exe";  //Device-7
+    //public static string pythonExecutionPath = @"C:/Users/HOMER_10/AppData/Local/Programs/Python/Python314/pythonw.exe";  //Device-7
 
     // public static string pythonExecutionPath = @"C:/Users/HOMER_08/AppData/Local/Programs/Python/Python313/pythonw.exe"; //Device -8
     // public static string pythonExecutionPath = @"C:/Users/HOMER_11/AppData/Local/Programs/Python/Python314/pythonw.exe"; //D9

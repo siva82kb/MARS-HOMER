@@ -6,9 +6,12 @@ using TMPro;
 using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.Audio;
 using UnityEngine.SceneManagement;
 using static UnityEngine.GraphicsBuffer;
+using Color = UnityEngine.Color;
+using Image = UnityEngine.UI.Image;
 
 public class TWGameController : MonoBehaviour
 {
@@ -49,6 +52,7 @@ public class TWGameController : MonoBehaviour
     public TextMeshProUGUI todayScoreTxt;
     public TextMeshProUGUI starCount;
     public GameObject GameOverStar;
+    public GameObject star;
     // Other game logic variables.
     private float gameTimeLeft;
     private float gameDuration = 60;
@@ -143,9 +147,10 @@ public class TWGameController : MonoBehaviour
         scores = MarsGameDefs.TableWiping.GetScores();
         Debug.Log($"{scores[0]}/{scores[1]}");
         AppLogger.LogInfo($"scores - yesterDayScore:{scores[1]} | TodayScore{scores[0]}");
+        if (MarsGameDefs.TableWiping.IsAchievedToday()) star.GetComponent<Image>().color = Color.white;
 
         //Get the Scrub Size
-      
+
         Debug.Log($"{AppData.Instance.userData.GetLastPlayedDateAndStarsForGame("TW").gameParameter}-" +
                   $"{AppData.Instance.userData.GetLastPlayedDateAndStarsForGame("TW").totalStars}-" +
                   $"{AppData.Instance.userData.GetLastPlayedDateAndStarsForGame("TW").date}");

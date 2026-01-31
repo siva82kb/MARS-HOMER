@@ -537,6 +537,7 @@ MonoBehaviour:
   todayScoreTxt: {fileID: 129624388}
   starCount: {fileID: 1127944479}
   GameOverStar: {fileID: 949452873}
+  star: {fileID: 1127944480}
   scores: 
   debug: 0
   PPUarea: 0.0001
@@ -1960,6 +1961,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1594482418}
     m_Modifications:
+    - target: {fileID: 6913856432228821840, guid: f589b369b7a47164faecc06de2710b29, type: 3}
+      propertyPath: m_Color.b
+      value: 0.18039216
+      objectReference: {fileID: 0}
+    - target: {fileID: 6913856432228821840, guid: f589b369b7a47164faecc06de2710b29, type: 3}
+      propertyPath: m_Color.g
+      value: 0.18039216
+      objectReference: {fileID: 0}
+    - target: {fileID: 6913856432228821840, guid: f589b369b7a47164faecc06de2710b29, type: 3}
+      propertyPath: m_Color.r
+      value: 0.23137255
+      objectReference: {fileID: 0}
     - target: {fileID: 7542494530352610132, guid: f589b369b7a47164faecc06de2710b29, type: 3}
       propertyPath: m_Name
       value: starlabel
@@ -2077,6 +2090,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &1127944480 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4556757182258585941, guid: f589b369b7a47164faecc06de2710b29, type: 3}
+  m_PrefabInstance: {fileID: 1127944477}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1139178489 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6736922983508021492, guid: e42e9d15d084bbd4f83586ccbea336dc, type: 3}

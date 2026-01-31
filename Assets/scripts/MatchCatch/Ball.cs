@@ -8,29 +8,27 @@ public class Ball : MonoBehaviour
 
     float fallSpeed;
     Rigidbody2D rb;
+    float elapsed, duration;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-
-        float distance =
-            MarsGameDefs.MatchCatch.tarSTARTPOINT -
-            MarsGameDefs.MatchCatch.tarENDPOINT;
-
-        float exactTime = 13f; // seconds to reach basket
-        fallSpeed = distance / exactTime;
+        duration = 3f;
+       
     }
-
+    
     public void setColorIndex(int index)
     {
         this.index = index;
     }
-
-    void FixedUpdate()
+    void Update()
     {
-        rb.velocity = new Vector2(0, -fallSpeed);
 
-        if (rb.position.y <= MarsGameDefs.MatchCatch.BOTTOMLIMIT)
+        elapsed += Time.deltaTime;
+        float t = Mathf.Clamp01(elapsed / duration);
+        float y = Mathf.Lerp(MarsGameDefs.MatchCatch.tarSTARTPOINT, MarsGameDefs.MatchCatch.BOTTOMLIMIT, t);
+        transform.position = new Vector3(transform.position.x, y, transform.position.z);
+        if (transform.position.y <= MarsGameDefs.MatchCatch.BOTTOMLIMIT)
         {
             if (!MCGameController.Instance.isSuccess &&
                 !MCGameController.Instance.isFailure)
@@ -41,6 +39,25 @@ public class Ball : MonoBehaviour
             Destroy(gameObject);
         }
     }
+    //void FixedUpdate()
+    //{
+
+    //    rb.velocity = new Vector2(0, -fallSpeed);
+
+    //    if (rb.position.y <= MarsGameDefs.MatchCatch.BOTTOMLIMIT)
+    //    {
+    //        if (!MCGameController.Instance.isSuccess &&
+    //            !MCGameController.Instance.isFailure)
+    //        {
+    //            MCGameController.Instance.setIsFailure();
+    //        }
+
+    //        Destroy(gameObject);
+    //    }
+
+
+
+    //}
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
@@ -54,6 +71,8 @@ public class Ball : MonoBehaviour
 
         Destroy(gameObject);
     }
+    public void setFallTime(float newTime) => duration = newTime;
+
 
     public void SetExactFallTime(float seconds)
     {

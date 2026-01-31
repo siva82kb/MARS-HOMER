@@ -2424,6 +2424,7 @@ MonoBehaviour:
   todayScoreTxt: {fileID: 6907997844532358334}
   starCount: {fileID: 616066193}
   GameOverStar: {fileID: 1471514100}
+  star: {fileID: 5521133241801880164}
   _starCount: 0
   Levelunlocked: 0
   targetTime: 0
@@ -2655,7 +2656,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8942347141581565567, guid: e89b47ad4db7f77408f42253eac192d6, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 5.82
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8942347141581565567, guid: e89b47ad4db7f77408f42253eac192d6, type: 3}
       propertyPath: m_LocalPosition.z
@@ -3221,6 +3222,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 32406842}
     m_Modifications:
+    - target: {fileID: 6913856432228821840, guid: f589b369b7a47164faecc06de2710b29, type: 3}
+      propertyPath: m_Color.b
+      value: 0.17850474
+      objectReference: {fileID: 0}
+    - target: {fileID: 6913856432228821840, guid: f589b369b7a47164faecc06de2710b29, type: 3}
+      propertyPath: m_Color.g
+      value: 0.17850474
+      objectReference: {fileID: 0}
+    - target: {fileID: 6913856432228821840, guid: f589b369b7a47164faecc06de2710b29, type: 3}
+      propertyPath: m_Color.r
+      value: 0.23018861
+      objectReference: {fileID: 0}
     - target: {fileID: 7542494530352610132, guid: f589b369b7a47164faecc06de2710b29, type: 3}
       propertyPath: m_Name
       value: starlabel
@@ -3314,6 +3327,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f589b369b7a47164faecc06de2710b29, type: 3}
+--- !u!1 &5521133241801880164 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4556757182258585941, guid: f589b369b7a47164faecc06de2710b29, type: 3}
+  m_PrefabInstance: {fileID: 5521133241801880163}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &6907997844532358334 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1876408299158359136, guid: 0f29b2b8d4e33084ab4a8e55048a9f4b, type: 3}

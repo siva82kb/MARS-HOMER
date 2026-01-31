@@ -43,8 +43,10 @@ public class pongGameController : MonoBehaviour {
     public TextMeshProUGUI todayScoreTxt;
     public TextMeshProUGUI starCount;
     public GameObject GameOverStar;
+    public GameObject star;
     public int _starCount;
     private int[] scores;
+    
 
     // Target and player positions
     public Vector3? targetPosition { get; private set; }
@@ -143,6 +145,7 @@ public class pongGameController : MonoBehaviour {
         updateStarCount();
         scores = MarsGameDefs.PingPong.GetScores();
         Debug.Log($"{scores[0]}/{scores[1]}");
+        if (MarsGameDefs.PingPong.IsAchievedToday()) star.GetComponent<Image>().color = Color.white;
         AppLogger.LogInfo($"scores - yesterDayScore:{scores[1]} | TodayScore{scores[0]}");
     }
     public void updateStarCount()
@@ -344,9 +347,9 @@ public class pongGameController : MonoBehaviour {
 
         // Attach the buttons
         if (gsc.decreaseButton != null)
-            gsc.decreaseButton.onClick.AddListener(() => changeGameSpeed(false));
+            gsc.decreaseButton.onClick.AddListener(() => changeGameSpeed(true));
         if (gsc.increaseButton != null)
-            gsc.increaseButton.onClick.AddListener(() => changeGameSpeed(true));
+            gsc.increaseButton.onClick.AddListener(() => changeGameSpeed(false));
 
         // Set the initial game speed
         gsc.gameSpeedText.text = $"{AppData.Instance.selectedGame.gameSpeed:F2}";

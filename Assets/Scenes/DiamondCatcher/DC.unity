@@ -1385,6 +1385,7 @@ MonoBehaviour:
   yesterdayScoreTxt: {fileID: 1602064885}
   todayScoreTxt: {fileID: 262203121}
   starCount: {fileID: 1714003829}
+  star: {fileID: 1714003830}
   GameOverStar: {fileID: 920104806}
   _starCount: 0
   uiCanvas: {fileID: 1636006826}
@@ -1392,6 +1393,7 @@ MonoBehaviour:
   nSuccess: 0
   nFailure: 0
   gameDuration: 10
+  reachDuration: 0
   debug: 0
 --- !u!1 &880395062
 GameObject:
@@ -3028,6 +3030,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1636006827}
     m_Modifications:
+    - target: {fileID: 6913856432228821840, guid: f589b369b7a47164faecc06de2710b29, type: 3}
+      propertyPath: m_Color.b
+      value: 0.18039216
+      objectReference: {fileID: 0}
+    - target: {fileID: 6913856432228821840, guid: f589b369b7a47164faecc06de2710b29, type: 3}
+      propertyPath: m_Color.g
+      value: 0.18039216
+      objectReference: {fileID: 0}
+    - target: {fileID: 6913856432228821840, guid: f589b369b7a47164faecc06de2710b29, type: 3}
+      propertyPath: m_Color.r
+      value: 0.23137255
+      objectReference: {fileID: 0}
     - target: {fileID: 7542494530352610132, guid: f589b369b7a47164faecc06de2710b29, type: 3}
       propertyPath: m_Name
       value: starlabel
@@ -3133,6 +3147,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &1714003830 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4556757182258585941, guid: f589b369b7a47164faecc06de2710b29, type: 3}
+  m_PrefabInstance: {fileID: 1714003827}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1745353834
 GameObject:
   m_ObjectHideFlags: 0

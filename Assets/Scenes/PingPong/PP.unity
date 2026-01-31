@@ -797,8 +797,10 @@ MonoBehaviour:
   todayScoreTxt: {fileID: 210444133}
   starCount: {fileID: 1363253706}
   GameOverStar: {fileID: 862940273}
+  star: {fileID: 1363253707}
   _starCount: 0
   targetObject: {fileID: 0}
+  targetTime: 0
 --- !u!82 &206402967
 AudioSource:
   m_ObjectHideFlags: 0
@@ -3038,6 +3040,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1459912549}
     m_Modifications:
+    - target: {fileID: 6913856432228821840, guid: f589b369b7a47164faecc06de2710b29, type: 3}
+      propertyPath: m_Color.b
+      value: 0.18039216
+      objectReference: {fileID: 0}
+    - target: {fileID: 6913856432228821840, guid: f589b369b7a47164faecc06de2710b29, type: 3}
+      propertyPath: m_Color.g
+      value: 0.18039216
+      objectReference: {fileID: 0}
+    - target: {fileID: 6913856432228821840, guid: f589b369b7a47164faecc06de2710b29, type: 3}
+      propertyPath: m_Color.r
+      value: 0.23137255
+      objectReference: {fileID: 0}
     - target: {fileID: 7542494530352610132, guid: f589b369b7a47164faecc06de2710b29, type: 3}
       propertyPath: m_Name
       value: starlabel
@@ -3155,6 +3169,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &1363253707 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4556757182258585941, guid: f589b369b7a47164faecc06de2710b29, type: 3}
+  m_PrefabInstance: {fileID: 1363253704}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1397215452
 GameObject:
   m_ObjectHideFlags: 0

@@ -3,6 +3,7 @@ using System.Security.Principal;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 
 public class MCGameController : MonoBehaviour
@@ -38,7 +39,7 @@ public class MCGameController : MonoBehaviour
     public TextMeshProUGUI todayScoreTxt;
     public TextMeshProUGUI starCount;
     public GameObject GameOverStar;
-    
+    public GameObject star;
     private float gameTimeLeft;
     public static bool changeScene = false;
     private float eventDelayTimer = 0f;
@@ -148,6 +149,7 @@ public class MCGameController : MonoBehaviour
         updateStarCount();
         scores = MarsGameDefs.MatchCatch.GetScores();
         Debug.Log($"{scores[0]}/{scores[1]}");
+        if (MarsGameDefs.MatchCatch.IsAchievedToday()) star.GetComponent<Image>().color = Color.white;
         AppLogger.LogInfo($"scores - yesterDayScore:{scores[1]} | TodayScore{scores[0]}");
     }
     public void updateStarCount()
@@ -332,7 +334,8 @@ public class MCGameController : MonoBehaviour
             int colorIndex = spriteIndices[i % spriteIndices.Count];
             newBall.GetComponent<SpriteRenderer>().sprite = sprites[colorIndex];
             newBall.GetComponent<Ball>().setColorIndex(colorIndex);
-            newBall.GetComponent<Ball>().SetExactFallTime(AppData.Instance.selectedGame.reachTime);
+           
+            newBall.GetComponent<Ball>().setFallTime(AppData.Instance.selectedGame.reachTime);
             //update targetPosition data
             if (player.Instance.lastColorIndex == colorIndex)
             {
@@ -494,9 +497,9 @@ public class MCGameController : MonoBehaviour
 
         // Attach the buttons
         if (gsc.decreaseButton != null)
-            gsc.decreaseButton.onClick.AddListener(() => changeGameSpeed(false));
+            gsc.decreaseButton.onClick.AddListener(() => changeGameSpeed(true));
         if (gsc.increaseButton != null)
-            gsc.increaseButton.onClick.AddListener(() => changeGameSpeed(true));
+            gsc.increaseButton.onClick.AddListener(() => changeGameSpeed(false));
 
         // Set the initial game speed
         gsc.gameSpeedText.text = $"{AppData.Instance.selectedGame.gameSpeed:F2}";

@@ -2100,7 +2100,6 @@ MonoBehaviour:
   startImage: {fileID: 1650772805}
   PauseImage: {fileID: 1046648682}
   spawnInterval: 2
-  xRange: 7
   ballCurrentColorIndex: 0
   PlayerCurrectColotIndex: 0
   wrong: {fileID: 1207045227}
@@ -2135,6 +2134,7 @@ MonoBehaviour:
   todayScoreTxt: {fileID: 1706979206}
   starCount: {fileID: 1411250194}
   GameOverStar: {fileID: 1728932694}
+  star: {fileID: 1411250195}
   nTargets: 0
   nSuccess: 0
   nFailure: 0
@@ -2584,6 +2584,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 354621940}
     m_Modifications:
+    - target: {fileID: 6913856432228821840, guid: f589b369b7a47164faecc06de2710b29, type: 3}
+      propertyPath: m_Color.b
+      value: 0.18039216
+      objectReference: {fileID: 0}
+    - target: {fileID: 6913856432228821840, guid: f589b369b7a47164faecc06de2710b29, type: 3}
+      propertyPath: m_Color.g
+      value: 0.18039216
+      objectReference: {fileID: 0}
+    - target: {fileID: 6913856432228821840, guid: f589b369b7a47164faecc06de2710b29, type: 3}
+      propertyPath: m_Color.r
+      value: 0.23137255
+      objectReference: {fileID: 0}
     - target: {fileID: 7542494530352610132, guid: f589b369b7a47164faecc06de2710b29, type: 3}
       propertyPath: m_Name
       value: starlabel
@@ -2693,6 +2705,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &1411250195 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4556757182258585941, guid: f589b369b7a47164faecc06de2710b29, type: 3}
+  m_PrefabInstance: {fileID: 1411250192}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1533503163
 GameObject:
   m_ObjectHideFlags: 0
