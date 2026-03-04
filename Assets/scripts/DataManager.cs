@@ -1,9 +1,10 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.IO;
 using System.Data;
 using UnityEngine;
 using System.Text;
+using SimpleJSON;
 
 /*
  * Summary Data Class
@@ -75,7 +76,6 @@ public class DataManager : MonoBehaviour
         "DeviceRunTime", "PacketNumber",
         "Status", "ControlType", "ErrorStatus",
         "Limb", "Calibration",
-        "MarsAngle1", "MarsAngle2", "MarsAngle3", "MarsAngle4",
         "Force",
         "Target", "Desired", "Control",
         "Button",
@@ -94,7 +94,7 @@ public class DataManager : MonoBehaviour
 
     //AWS related
     public static string GetUploadStatusFile = @"C:/DeviceSetups/Mars/uploadStatus.txt";
-  
+   
     // Functions to generate file names.
     public static string GetRomFileName(string movement) => FixPath(Path.Combine(romPath, $"{movement}-rom.csv"));
     public static string GetRomRawFileName(string movement, string datetime) => FixPath(Path.Combine(romPath, $"romraw-{movement}-{datetime.Replace(" ", "_").Replace(":", "-")}.csv"));
@@ -134,7 +134,24 @@ public class DataManager : MonoBehaviour
 
         Debug.Log("Directory created at: " + userPath);
     }
+    public static string getLapConfig()
+    {
+         //Device setup
+         string lapConfigPath = @"C:/lapconfig.json";
+  
 
+        if (!File.Exists(lapConfigPath)) return "";
+
+        var json = JSON.Parse(File.ReadAllText(lapConfigPath));
+
+        var mars = json["mars"];   // 👈 access nested object
+
+        string comport = mars["comport"];
+        string pythonpath = mars["pythonpath"];
+        awsManager.pythonExecutionPath = pythonpath;
+
+        return comport;
+    }
     public static string FixPath(string path) => path.Replace("\\", "/");
 
     public static void CreateSessionFile(string userID, string device, string location, string[] header = null)

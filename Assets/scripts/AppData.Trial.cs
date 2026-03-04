@@ -100,10 +100,10 @@ public partial class AppData
             $"{userData.trainingPlaneAngle}",                       // TrainingPlaneAngle
             $"{selectedGame.name}",                                 // Game  
             $"{selectedGame.reachSpeed}",                           // ReachSpeed
-            $"{selectedGame.reachTime}",                            // GameParameter
+            $"{selectedGame.gameParameter}",                        // GameParameter
             $"{selectedGame.gameDuration}",                         // GameDuration
             $"{successRate}",                                       // SuccessRate
-            Instance.gameTime.ToString(),                           // GameTime
+             Instance.gameTime.ToString(),                           // GameTime
             $"{selectedGame.currentTargets}",                       // CurrentTargets
             $"{selectedGame.currentHits}",                          // CurrentHits
             $"{selectedGame.currentMisses}",                        // CurrentMisses
@@ -184,10 +184,6 @@ public partial class AppData
             rawDataString.Append($"{MarsComm.errorStatus},");                       // ErrorStatus
             rawDataString.Append($"{MarsComm.limb},");                              // Limb
             rawDataString.Append($"{MarsComm.calibration},");                       // Calibration
-            rawDataString.Append($"{MarsComm.angle1},");                            // MarsAngle1
-            rawDataString.Append($"{MarsComm.angle2},");                            // MarsAngle2
-            rawDataString.Append($"{MarsComm.angle3},");                            // MarsAngle3
-            rawDataString.Append($"{MarsComm.angle4},");                            // MarsAngle4
             rawDataString.Append($"{MarsComm.force},");                             // Force
             rawDataString.Append($"{MarsComm.target},");                            // Target
             rawDataString.Append($"{MarsComm.desired},");                           // Desired
@@ -444,7 +440,7 @@ public partial class AppData
                 return "";
 
             case "TW":
-                return "";
+                return TWGameController.Instance.TargetArea;
 
             case "MC":
                 return "";

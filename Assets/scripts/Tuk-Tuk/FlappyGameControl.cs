@@ -225,7 +225,7 @@ public class FlappyGameControl : MonoBehaviour
     {
         float _rs = AppData.Instance.selectedGame.reachSpeed;
         AppData.Instance.selectedGame.reachSpeed = _rs + (increase ? MarsGameDefs.REACH_SPEED_DELTA : -MarsGameDefs.REACH_SPEED_DELTA);
-        AppData.Instance.annotation = $"RS:{AppData.Instance.selectedGame.reachSpeed:F3} | GS:{AppData.Instance.selectedGame.reachTime:F3}";
+        AppData.Instance.annotation = $"RS:{AppData.Instance.selectedGame.reachSpeed:F3} | GS:{AppData.Instance.selectedGame.gameParameter:F3}";
         gameSpeedChanged = true;
     }
     
@@ -249,12 +249,12 @@ public class FlappyGameControl : MonoBehaviour
 
         // Attach the buttons
         if (gsc.decreaseButton != null)
-            gsc.decreaseButton.onClick.AddListener(() => changeGameSpeed(true));
+            gsc.decreaseButton.onClick.AddListener(() => changeGameSpeed(false));
         if (gsc.increaseButton != null)
-            gsc.increaseButton.onClick.AddListener(() => changeGameSpeed(false));
+            gsc.increaseButton.onClick.AddListener(() => changeGameSpeed(true));
 
         // Set the initial game speed
-        gsc.gameSpeedText.text = $"{AppData.Instance.selectedGame.gameSpeed:F2}";
+        //gsc.gameSpeedText.text = $"{AppData.Instance.selectedGame.gameSpeed:F2}";
     }
 
     public void updateStarCount()
@@ -564,11 +564,12 @@ public class FlappyGameControl : MonoBehaviour
 
     private void RunGameStateMachine()
     {
-        // Run the game timer
-        if (isGamePlaying) triaTimeLeft -= Time.deltaTime;
-        timeLeftText.text = $"Timer:{(int)triaTimeLeft}s";
         // Act according to the current game state.
         bool isTimeUp = triaTimeLeft <= 0;
+        // Run the game timer
+        if (isGamePlaying&&!isTimeUp) triaTimeLeft -= Time.deltaTime;
+        timeLeftText.text = $"Timer:{(int)triaTimeLeft}s";
+      
         switch (gameState)
         {
             case GameStates.WAITING:

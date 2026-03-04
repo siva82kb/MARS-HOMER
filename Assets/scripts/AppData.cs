@@ -10,8 +10,9 @@ public partial class AppData
     private static readonly Lazy<AppData> _instance = new Lazy<AppData>(() => new AppData());
     public static AppData Instance => _instance.Value;
 
-
-    static public readonly string COMPort = "COM32"; //1-35//2-30//3-32//4-50//5-53//6-6//7-4//10-64/h7-left-8//h7-right-10//10-8
+    //get from jsonfile
+    static public string COMPort; 
+    public static readonly bool isNRSBuilt = true;  //change for homerBuilt - false
 
     // Robot Connection Alive Variables.
     static public float MARS_WATCHDOG_TIMEOUT = 2.0f; //seconds
@@ -96,7 +97,7 @@ public partial class AppData
     {
         // Set sesstion start time.
         startTime = DateTime.Now;
-
+        COMPort = DataManager.getLapConfig();
         // First check if this is a single user case.
         // Check if the base directory has only one folder.
         if (Directory.GetDirectories(DataManager.basePath).Length == 1)

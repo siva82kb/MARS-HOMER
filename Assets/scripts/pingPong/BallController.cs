@@ -48,12 +48,11 @@ public class BallController : MonoBehaviour {
         if (col.gameObject.tag == "Enemy") 
 		{
 			float y = launchAngle(transform.position, col.transform.position, col.collider.bounds.size.y);
-			
-			// Set enc1 and speed
+		
 			Vector2 dir = new Vector2(AppData.Instance.userData.limb == 1 ? 1 : -1, y).normalized;
 			rigidBody2D.velocity = dir * ballSpeed;
 
-			// Predict where it will reach player's side (x = +6)
+			// Predict where it will reach player's side (x = +6)//Need to check
 			float predictedY = PredictPlayerImpactOnY(playerPos, topWall, bottomWall, bounciness); 
 			pongGameController.Instance.targetEndPointPosition = new Vector3(0f, predictedY, 0f);
 			//Debug.Log("Predicted hit Y on player side: " + predictedY);

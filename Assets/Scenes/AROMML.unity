@@ -931,6 +931,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -197
       objectReference: {fileID: 0}
+    - target: {fileID: 4241860457965326740, guid: 44ace5b3edbeea84e8687574bb5fae65, type: 3}
+      propertyPath: m_Text
+      value: Please wait  Mode is On change
+      objectReference: {fileID: 0}
     - target: {fileID: 4471835589040776516, guid: 44ace5b3edbeea84e8687574bb5fae65, type: 3}
       propertyPath: m_LocalPosition.x
       value: 20.2

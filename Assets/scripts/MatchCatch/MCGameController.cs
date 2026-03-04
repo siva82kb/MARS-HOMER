@@ -220,16 +220,15 @@ public class MCGameController : MonoBehaviour
 
     public void RunStateMachine()
     {
+        //ui feedback
         tick.gameObject.SetActive(isSuccess);
         wrong.gameObject.SetActive(isFailure);
-        bool isGamePlaying = gameState != GameStates.WAITING && gameState != GameStates.PAUSED && gameState != GameStates.STOP;
-        if (isGamePlaying)
-        {
-            scoreText.text = "SCORE:" + nSuccess.ToString();
-            gameTimeLeft -= Time.deltaTime;
-        }
 
+        bool isGamePlaying = gameState != GameStates.WAITING && gameState != GameStates.PAUSED && gameState != GameStates.STOP;
         bool isTimeUp = gameTimeLeft < 0;
+        scoreText.text = "SCORE:" + nSuccess.ToString();
+        if (isGamePlaying&&!isTimeUp)gameTimeLeft -= Time.deltaTime;
+        
         switch (gameState)
         {
             case GameStates.WAITING:
@@ -242,9 +241,24 @@ public class MCGameController : MonoBehaviour
                 runOnce = false;
                 break;
             case GameStates.SPAWNBALLS:
-                SpawnBalls();
-                nTargets++;
-                gameState = GameStates.MOVE;
+                if (!runOnce)
+                {
+                    SpawnBalls();
+                    nTargets++;
+                    eventDelayTimer = 0.05f;
+                    runOnce = true;
+                }
+                else
+                {
+                    eventDelayTimer -= Time.fixedDeltaTime;
+                    if (eventDelayTimer <= 0f)
+                    {
+                        gameState = GameStates.MOVE;
+                        runOnce = false;
+                    }
+
+                }
+
                 break;
                 
             case GameStates.MOVE:
@@ -335,7 +349,7 @@ public class MCGameController : MonoBehaviour
             newBall.GetComponent<SpriteRenderer>().sprite = sprites[colorIndex];
             newBall.GetComponent<Ball>().setColorIndex(colorIndex);
            
-            newBall.GetComponent<Ball>().setFallTime(AppData.Instance.selectedGame.reachTime);
+            newBall.GetComponent<Ball>().setFallTime(AppData.Instance.selectedGame.gameParameter);
             //update targetPosition data
             if (player.Instance.lastColorIndex == colorIndex)
             {
@@ -475,7 +489,7 @@ public class MCGameController : MonoBehaviour
         // Start a new Trail
         if (debug) return;
         AppData.Instance.StartNewTrial();
-        AppLogger.LogInfo($"Space Shooter Game started for movement '{AppData.Instance.selectedMovement.name}'. Game Speed: {AppData.Instance.selectedGame.reachTime} | Duration: {gameDuration}s");
+        AppLogger.LogInfo($"Space Shooter Game started for movement '{AppData.Instance.selectedMovement.name}'. Game Speed: {AppData.Instance.selectedGame.gameParameter} | Duration: {gameDuration}s");
 
        
     }
@@ -497,19 +511,19 @@ public class MCGameController : MonoBehaviour
 
         // Attach the buttons
         if (gsc.decreaseButton != null)
-            gsc.decreaseButton.onClick.AddListener(() => changeGameSpeed(true));
+            gsc.decreaseButton.onClick.AddListener(() => changeGameSpeed(false));
         if (gsc.increaseButton != null)
-            gsc.increaseButton.onClick.AddListener(() => changeGameSpeed(false));
+            gsc.increaseButton.onClick.AddListener(() => changeGameSpeed(true));
 
         // Set the initial game speed
-        gsc.gameSpeedText.text = $"{AppData.Instance.selectedGame.gameSpeed:F2}";
+        //gsc.gameSpeedText.text = $"{AppData.Instance.selectedGame.gameSpeed:F2}";
     }
 
     public void changeGameSpeed(bool increase)
     {
         float _rs = AppData.Instance.selectedGame.reachSpeed;
         AppData.Instance.selectedGame.reachSpeed = _rs + (increase ? MarsGameDefs.REACH_SPEED_DELTA : -MarsGameDefs.REACH_SPEED_DELTA);
-        AppData.Instance.annotation = $"RS:{AppData.Instance.selectedGame.reachSpeed:F3} | GS:{AppData.Instance.selectedGame.reachTime:F3}";
+        AppData.Instance.annotation = $"RS:{AppData.Instance.selectedGame.reachSpeed:F3} | GS:{AppData.Instance.selectedGame.gameParameter:F3}";
     }
 
 

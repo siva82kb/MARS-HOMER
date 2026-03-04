@@ -218,12 +218,13 @@ public class pongGameController : MonoBehaviour {
     
     public void RunStateMachine()
     {
-        
-        // Update the trial timer if the game is playing.
-        if (isGamePlaying && nTargets > 0) gameTimeLeft -= Time.deltaTime;
-        
         // Check if the trial time is up.
         bool isTimeUp = gameTimeLeft < 0;
+
+        // Update the trial timer if the game is playing.
+        if (isGamePlaying && nTargets > 0 && isActiveAndEnabled&&!isTimeUp) gameTimeLeft -= Time.deltaTime;
+        
+       
         switch (gameState)
         {
             case GameStates.WAITING:
@@ -347,19 +348,19 @@ public class pongGameController : MonoBehaviour {
 
         // Attach the buttons
         if (gsc.decreaseButton != null)
-            gsc.decreaseButton.onClick.AddListener(() => changeGameSpeed(true));
+            gsc.decreaseButton.onClick.AddListener(() => changeGameSpeed(false));
         if (gsc.increaseButton != null)
-            gsc.increaseButton.onClick.AddListener(() => changeGameSpeed(false));
+            gsc.increaseButton.onClick.AddListener(() => changeGameSpeed(true));
 
         // Set the initial game speed
-        gsc.gameSpeedText.text = $"{AppData.Instance.selectedGame.gameSpeed:F2}";
+        //gsc.gameSpeedText.text = $"{AppData.Instance.selectedGame.gameSpeed:F2}";
     }
     
     public void changeGameSpeed(bool increase)
     {
         float _rs = AppData.Instance.selectedGame.reachSpeed;
         AppData.Instance.selectedGame.reachSpeed = _rs + (increase ? MarsGameDefs.REACH_SPEED_DELTA : -MarsGameDefs.REACH_SPEED_DELTA);
-        AppData.Instance.annotation = $"RS:{AppData.Instance.selectedGame.reachSpeed:F3} | GS:{AppData.Instance.selectedGame.reachTime:F3}";
+        AppData.Instance.annotation = $"RS:{AppData.Instance.selectedGame.reachSpeed:F3} | GS:{AppData.Instance.selectedGame.gameParameter:F3}";
         gameSpeedChanged = true;
     }
 

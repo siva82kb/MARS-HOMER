@@ -253,13 +253,10 @@ public class SpaceShooterGameContoller : MonoBehaviour
     public void RunStateMachine()
     {
         bool isGamePlaying = gameState != GameStates.WAITING && gameState != GameStates.PAUSED && gameState != GameStates.STOP;
-        if (isGamePlaying)
-        {
-            scoreText.text = "SCORE:" + nSuccess.ToString();
-            gameTimeLeft -= Time.deltaTime;
-        }
+        scoreText.text = "SCORE:" + nSuccess.ToString();
+        bool isTimeUp = gameTimeLeft < 0;
+        if (isGamePlaying&&!isTimeUp) gameTimeLeft -= Time.deltaTime;
 
-        bool isTimeUp = gameTimeLeft < 0; 
         switch (gameState)
         {
             case GameStates.WAITING:
@@ -285,10 +282,9 @@ public class SpaceShooterGameContoller : MonoBehaviour
                         0,
                         SSPlayerController.unityYToRobotY(gTarget.y),
                         SSPlayerController.unityXToRobotZ(gTarget.x)
-                    );  // I do not like how we are doing this, and how conversions are handled in general.
-                    //AsteroidFall.instance.SetFallSpeed(AppData.Instance.selectedGame.gameSpeed);
-                    AsteroidFall.instance.setFallTime(AppData.Instance.selectedGame.reachTime);
-                    //AsteroidFall.instance.SetExactFallTime(AppData.Instance.selectedGame.reachTime);
+                    );
+                    AsteroidFall.instance.setFallTime(AppData.Instance.selectedGame.gameParameter);
+                   
                     nTargets++;
                     eventDelayTimer = 0.05f;
                     runOnce = true;
@@ -436,7 +432,7 @@ public class SpaceShooterGameContoller : MonoBehaviour
 
         // Set game duration.
         gameTimeLeft = gameDuration;
-        AppLogger.LogInfo($"Space Shooter Game started for movement '{AppData.Instance.selectedMovement.name}'. Game Speed: {AppData.Instance.selectedGame.reachTime} | Duration: {gameDuration}s");
+        AppLogger.LogInfo($"Space Shooter Game started for movement '{AppData.Instance.selectedMovement.name}'. Game Speed: {AppData.Instance.selectedGame.gameParameter} | Duration: {gameDuration}s");
 
         // Remove game over and start panel.
         gameOverPanel.SetActive(false);
@@ -461,19 +457,19 @@ public class SpaceShooterGameContoller : MonoBehaviour
 
         // Attach the buttons
         if (gsc.decreaseButton != null)
-            gsc.decreaseButton.onClick.AddListener(() => changeGameSpeed(true));
+            gsc.decreaseButton.onClick.AddListener(() => changeGameSpeed(false));
         if (gsc.increaseButton != null)
-            gsc.increaseButton.onClick.AddListener(() => changeGameSpeed(false));
+            gsc.increaseButton.onClick.AddListener(() => changeGameSpeed(true));
 
         // Set the initial game speed
-        gsc.gameSpeedText.text = $"{AppData.Instance.selectedGame.gameSpeed:F2}";
+        //gsc.gameSpeedText.text = $"{AppData.Instance.selectedGame.gameSpeed:F2}";
     }
     
     public void changeGameSpeed(bool increase)
     {
         float _rs = AppData.Instance.selectedGame.reachSpeed;
         AppData.Instance.selectedGame.reachSpeed = _rs + (increase ? MarsGameDefs.REACH_SPEED_DELTA : -MarsGameDefs.REACH_SPEED_DELTA);
-        AppData.Instance.annotation = $"RS:{AppData.Instance.selectedGame.reachSpeed:F3} | GS:{AppData.Instance.selectedGame.reachTime:F3}";
+        AppData.Instance.annotation = $"RS:{AppData.Instance.selectedGame.reachSpeed:F3} | GS:{AppData.Instance.selectedGame.gameParameter:F3}";
     }
   
     private void OnApplicationQuit()

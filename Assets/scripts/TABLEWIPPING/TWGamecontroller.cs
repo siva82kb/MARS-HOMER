@@ -1,7 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Security.Policy;
+﻿
+
 using TMPro;
 using Unity.Mathematics;
 using Unity.VisualScripting;
@@ -44,7 +42,7 @@ public class TWGameController : MonoBehaviour
     public GameObject moneySprite;
     private GameObject money;
     public AudioClip playerWinAudio;
-   
+
     public TextMeshProUGUI cummulativeScoreTxt;
     public GameObject celebrationPanle;
     public TextMeshProUGUI scoreComparisonTxt;
@@ -53,6 +51,7 @@ public class TWGameController : MonoBehaviour
     public TextMeshProUGUI starCount;
     public GameObject GameOverStar;
     public GameObject star;
+
     // Other game logic variables.
     private float gameTimeLeft;
     private float gameDuration = 60;
@@ -62,18 +61,18 @@ public class TWGameController : MonoBehaviour
     public int[] scores;
     private bool restart = false;
     public float scrubSize { get; private set; }
-    public float GameParameter {  get; private set; }//Scrub size the real world
+    public float GameParameter { get; private set; }//Scrub size the real world
     public Vector3 playerGamePosition { get; private set; }
     public Vector3? targetGamePosition { get; private set; }
     public Vector3? targetEndPointPosition { get; private set; }
-   
+
     public bool debug;
-    public float PPUarea = 0.0001f;//ppu is 100
+    private float PPUarea = 0.0001f;//ppu is 100
     // Game score related variables.
     public int nTargets = 0;
     public int nSuccess = 0;
     public int nFailure = 0;
-
+    public string TargetArea;
     public bool isGameStarted { get; private set; } = false;
     public bool isGameFinished { get; private set; } = false;
     public bool isGamePaused { get; private set; } = false;
@@ -108,7 +107,7 @@ public class TWGameController : MonoBehaviour
         {
             _prevGameState = _gameState;
             _gameState = value;
-           
+
         }
     }
     public enum StainSize
@@ -124,14 +123,15 @@ public class TWGameController : MonoBehaviour
     }
     void Start()
     {
-        if (debug){
+        if (debug)
+        {
             AppData.Instance.Initialize(SceneManager.GetActiveScene().name);
             AppData.Instance.SetMovement("MLAP");
             AppData.Instance.SetGame("TW");
         }
 
         initUI();
-   
+
         lr = GetComponent<LineRenderer>();
         lr.positionCount = 5;
 
@@ -149,13 +149,14 @@ public class TWGameController : MonoBehaviour
         AppLogger.LogInfo($"scores - yesterDayScore:{scores[1]} | TodayScore{scores[0]}");
         if (MarsGameDefs.TableWiping.IsAchievedToday()) star.GetComponent<Image>().color = Color.white;
 
+
         //Get the Scrub Size
 
         Debug.Log($"{AppData.Instance.userData.GetLastPlayedDateAndStarsForGame("TW").gameParameter}-" +
                   $"{AppData.Instance.userData.GetLastPlayedDateAndStarsForGame("TW").totalStars}-" +
                   $"{AppData.Instance.userData.GetLastPlayedDateAndStarsForGame("TW").date}");
     }
-   
+
     public void updateStarCount()
     {
         starCount.text = $"{AppData.Instance.selectedGame.cummulativeStars.ToString("D2")}";
@@ -164,12 +165,12 @@ public class TWGameController : MonoBehaviour
     public void Update()
     {
         //TWPlayer.instance.OndrawGizmos(lr);
-       
+
 
         // Check of the game speed controller is to be shown.
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.G))
         {
-            isGameStarted=true;
+            isGameStarted = true;
         }
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.R))
         {
@@ -184,7 +185,7 @@ public class TWGameController : MonoBehaviour
         MarsComm.sendHeartbeat();
         if (isGamePaused && gameState != GameStates.PAUSED) PauseGame();
         else if (!isGamePaused && gameState == GameStates.PAUSED) ResumeGame();
-       
+
     }
 
     // Update is called once per frame
@@ -212,6 +213,7 @@ public class TWGameController : MonoBehaviour
                                                      TWPlayer.instance.unityYToRobotY(target.transform.position.y),
                                                      TWPlayer.instance.unityXToRobotZ(target.transform.position.x)
                                                      );
+                TargetArea = $"{StainWipe2D.Instance.totalAreaPixels} | {StainWipe2D.Instance.erasedAreaPixels}";
             }
         }
     }
@@ -222,7 +224,7 @@ public class TWGameController : MonoBehaviour
         startImage.SetActive(true);
         PauseImage.SetActive(false);
     }
-        
+
 
     public void onMarsButtonReleased()
     {
@@ -272,6 +274,8 @@ public class TWGameController : MonoBehaviour
             {
                 AppData.Instance.selectedGame.updateCummulativeStars();
                 celebrationPanle.SetActive(true);
+                GameParameter = math.clamp(GameParameter * 0.90f,MarsGameDefs.TableWiping.MIN_SCRUB_SIZE,MarsGameDefs.TableWiping.MAX_SCRUB_SIZE);
+                AppData.Instance.selectedGame.gameParameter = GameParameter;
             }
 
             gameOverPanel.SetActive(!celebrationPanle.gameObject.activeSelf);
@@ -292,10 +296,7 @@ public class TWGameController : MonoBehaviour
         }
         isGameFinished = true; // Set game over state 
     }
-    public void AdaptScrubSize()
-    {
-
-    }
+   
     public void startGame()
     {
         // Hide the reminder panel.
@@ -316,20 +317,39 @@ public class TWGameController : MonoBehaviour
         gameTimeLeft = gameDuration;
         isGameStarted = true;
 
-        //Define Srrub size
+        // Define scrub size
         float unityWidth = MarsGameDefs.TableWiping.RIGHTLIMIT - MarsGameDefs.TableWiping.LEFTLIMIT;
         float unityHeight = MarsGameDefs.TableWiping.TOPLIMIT - MarsGameDefs.TableWiping.BOTTOMLIMIT;
 
         float robotWidth = TWPlayer.instance.zEndPointMax - TWPlayer.instance.zEndPointMin;
         float robotHeight = TWPlayer.instance.yEndPointMax - TWPlayer.instance.yEndPointMin;
 
-        float areaScale = (robotWidth / unityWidth) *
-                          (robotHeight / unityHeight);
+        // m² per Unity unit²
+        float areaScale = (robotHeight / unityHeight) *
+                          (robotWidth / unityWidth);
 
-        GameParameter = MarsGameDefs.TableWiping.MIN_SCRUB_SIZE;
-        scrubSize = math.sqrt((GameParameter / areaScale) / PPUarea);
+        Debug.Log($"AREA SCALE {areaScale}");
+        GameParameter = AppData.Instance.userData.GetLastPlayedDateAndStarsForGame("TW").gameParameter;
+        
+        // Get real-world scrub area (m²)
+       
+        AppData.Instance.selectedGame.gameParameter = GameParameter;
+
+        // Convert real area → Unity area
+        float unityArea = GameParameter / areaScale;
+
+        // Convert Unity area → pixel area
+        float ppu = 100;
+        float pixelArea = unityArea * (ppu*ppu);
         
 
+        // Compute pixel radius
+        scrubSize = Mathf.Sqrt(pixelArea / Mathf.PI);
+
+
+        Debug.Log($"Unity Area: {unityArea}");
+        Debug.Log($"Pixel Area: {pixelArea}");
+        Debug.Log($"Scrub Radius (pixels): {scrubSize}");
 
         if (debug) return;
         // Start the next new Trail
@@ -346,13 +366,13 @@ public class TWGameController : MonoBehaviour
         Time.timeScale = 1f;
         SceneManager.LoadScene("CHOOSEMOVE");
     }
-public void RunStateMachine()
+    public void RunStateMachine()
     {
         // Decrement the gameTimeLeft if game is playing.
-        if (isGamePlaying) gameTimeLeft -= Time.deltaTime;
-        timerTxt.text = $"TIME : {(int)gameTimeLeft}";
-        // Check if time is up.
         bool isTimeUp = gameTimeLeft < 0;
+        timerTxt.text = $"TIME : {(int)gameTimeLeft}";
+        if (isGamePlaying && !isTimeUp) gameTimeLeft -= Time.deltaTime;
+
         if (isTimeUp)
         {
             clearObject();
@@ -362,8 +382,8 @@ public void RunStateMachine()
         {
             case GameStates.WAITING:
                 if (isGameStarted) gameState = GameStates.START;
-              
-               
+
+
                 break;
             case GameStates.START:
                 startGame();
@@ -386,7 +406,7 @@ public void RunStateMachine()
                     eventDelayTimer -= Time.deltaTime;
                     if (eventDelayTimer <= 0f)
                     {
-  
+
                         runOnce = false;
                         gameState = GameStates.WAITFORCLEAN;
                     }
@@ -396,26 +416,28 @@ public void RunStateMachine()
                 if (StainWipe2D.Instance != null)
                 {
                     //Debug.Log($"{StainWipe2D.Instance.erasedPixels}/{StainWipe2D.Instance.totalStainPixels}===={StainWipe2D.Instance.erasedPixels / StainWipe2D.Instance.totalStainPixels}");
-                    if ((StainWipe2D.Instance.erasedPixels / StainWipe2D.Instance.totalStainPixels > 0.95f) && !runOnce) {
-                        money = Instantiate(moneySprite,target.transform.position, Quaternion.identity);
-                      
+                    if ((StainWipe2D.Instance.erasedPixels / StainWipe2D.Instance.totalStainPixels > 0.95f) && !runOnce)
+                    {
+                        money = Instantiate(moneySprite, target.transform.position, Quaternion.identity);
+
                         audioSource.PlayOneShot(playerWinAudio);
                         runOnce = true;
                         eventDelayTimer = 0.5f;
                         return;
-                    }
-                    else if((StainWipe2D.Instance.erasedPixels / StainWipe2D.Instance.totalStainPixels > 0.95f))
+                    }//for Money Animation
+                    else if ((StainWipe2D.Instance.erasedPixels / StainWipe2D.Instance.totalStainPixels > 0.95f))
                     {
                         eventDelayTimer -= Time.deltaTime;
                         if (eventDelayTimer <= 0f)
                         {
                             nSuccess++;
+                            eventDelayTimer = 0.5f;
                             scoreTxt.text = $"SCORE : {nSuccess}";
                             runOnce = false;
                             gameState = GameStates.SUCCESS;
                         }
                     }
-                   
+
                 }
                 break;
             case GameStates.PAUSED:
@@ -439,33 +461,41 @@ public void RunStateMachine()
                 break;
         }
     }
-   
+
     public void spawnStain()
     {
-        // Generate the new target
         (Vector2 epTarget, Vector2 gTarget) = TWPlayer.instance.GenerateNextRandomTarget();
-        Debug.Log(gTarget);
+
         StainSize size = TWPlayer.instance.DecideStainSize(gTarget);
 
-        Vector3 spawnPos = new Vector3(gTarget.x, gTarget.y, 0);
+        target = Instantiate(
+            size == StainSize.Big
+                ? bigStains[UnityEngine.Random.Range(0, bigStains.Length)]
+                : targetPrefabS,
+            Vector3.zero,
+            Quaternion.identity);
 
-        // Instantiate the target
-        target = Instantiate(size == StainSize.Big ? bigStains[UnityEngine.Random.Range(0,bigStains.Length)] :targetPrefabS, spawnPos, Quaternion.identity);
-       
-        // Get SpriteRenderer
         SpriteRenderer sr = target.GetComponent<SpriteRenderer>();
         if (sr == null) return;
 
-        // Assign random sprite
-        if ( size == StainSize.Small && stainSprites.Length > 0)
+        if (size == StainSize.Small && stainSprites.Length > 0)
         {
             sr.sprite = stainSprites[UnityEngine.Random.Range(0, stainSprites.Length)];
         }
 
+        // Get half size
+        float halfWidth = sr.bounds.extents.x;
+        float halfHeight = sr.bounds.extents.y;
+
+        // Clamp position
+        float clampedX = Mathf.Clamp(gTarget.x,  MarsGameDefs.TableWiping.LEFTLIMIT + halfWidth, MarsGameDefs.TableWiping.RIGHTLIMIT  - halfWidth);
+        float clampedY = Mathf.Clamp(gTarget.y, MarsGameDefs.TableWiping.BOTTOMLIMIT + halfHeight, MarsGameDefs.TableWiping.TOPLIMIT - halfHeight);
+
+        target.transform.position = new Vector3(clampedX, clampedY, 0);
     }
     public void SetPlayerIn()
     {
-       audioSourcewipping.Play();   
+        audioSourcewipping.Play();
 
         if (cleaningPartical == null)
         {
@@ -499,7 +529,7 @@ public void RunStateMachine()
         if (cleaningPartical != null)
         {
             Destroy(cleaningPartical.gameObject);
-            cleaningPartical = null; 
+            cleaningPartical = null;
         }
 
         if (target != null)
@@ -512,3 +542,4 @@ public void RunStateMachine()
     }
 
 }
+

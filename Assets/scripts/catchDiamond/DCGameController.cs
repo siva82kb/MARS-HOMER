@@ -209,30 +209,33 @@ public class DCGameController : MonoBehaviour
 
         // Attach the buttons
         if (gsc.decreaseButton != null)
-            gsc.decreaseButton.onClick.AddListener(() => changeGameSpeed(true));
+            gsc.decreaseButton.onClick.AddListener(() => changeGameSpeed(false));
         if (gsc.increaseButton != null)
-            gsc.increaseButton.onClick.AddListener(() => changeGameSpeed(false));
+            gsc.increaseButton.onClick.AddListener(() => changeGameSpeed(true));
 
         // Set the initial game speed
-        gsc.gameSpeedText.text = $"{AppData.Instance.selectedGame.reachTime:F2}";
+        //gsc.gameSpeedText.text = $"{AppData.Instance.selectedGame.gameParameter:F2}";
     }
 
     public void changeGameSpeed(bool increase)
     {
         float _rs = AppData.Instance.selectedGame.reachSpeed;
         AppData.Instance.selectedGame.reachSpeed = _rs + (increase ? MarsGameDefs.REACH_SPEED_DELTA : -MarsGameDefs.REACH_SPEED_DELTA);
-        AppData.Instance.annotation = $"RS:{AppData.Instance.selectedGame.reachSpeed:F3} GS:{AppData.Instance.selectedGame.reachTime:F3}";
+        AppData.Instance.annotation = $"RS:{AppData.Instance.selectedGame.reachSpeed:F3} GS:{AppData.Instance.selectedGame.gameParameter:F3}";
         
         gameSpeedChanged = true;
     }
     
     public void RunStateMachine()
     {
-        // Decrement the gameTimeLeft if game is playing.
-        if (isGamePlaying) gameTimeLeft -= Time.deltaTime;
-
         // Check if time is up.
         bool isTimeUp = gameTimeLeft < 0;
+
+        // Decrement the gameTimeLeft if game is playing.
+        if (isGamePlaying&&!isTimeUp) gameTimeLeft -= Time.deltaTime;
+
+     
+        
         switch (gameState)
         {
             case GameStates.WAITING:
@@ -252,7 +255,7 @@ public class DCGameController : MonoBehaviour
                     clearObjects();
                     SpawnDiamond();
                     //Game Speed [Determine the time required for the ROM to reach the target using its current speed.]
-                    reachDuration = AppData.Instance.selectedGame.reachTime;
+                    reachDuration = AppData.Instance.selectedGame.gameParameter;
                     nTargets++;
                     eventDelayTimer = 0.5f;
                     runOnce = true;

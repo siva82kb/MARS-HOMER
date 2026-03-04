@@ -40,7 +40,7 @@ public class MarsUserData
     public const string MOVEMENT = "Movement";
     public const string MOVETIME = "MoveTime";
     public const string DATETIME = "DateTime";
-    public const string HOSPITALNUMBER = "HospitalNumber";
+    public const string HOMERID = "HomerID";
     public const string STARTEDATEH = "StartDate";
     public const string ENDDATEH = "EndDate";
     public const string TRAININGSIDE = "TrainingSide";
@@ -169,7 +169,7 @@ public class MarsUserData
     {
         dTableConfig = DataManager.loadCSV(configFile);
         DataRow lastRow = dTableConfig.Rows[dTableConfig.Rows.Count - 1];
-        hospNumber = lastRow.Field<string>(HOSPITALNUMBER);
+        hospNumber = lastRow.Field<string>(HOMERID);
         rightArm = lastRow.Field<string>(TRAININGSIDE).ToUpper() == "RIGHT";
         startDate = DateTime.ParseExact(lastRow.Field<string>(STARTEDATEH), "dd-MM-yyyy", CultureInfo.InvariantCulture);
         endDate = DateTime.ParseExact(lastRow.Field<string>(ENDDATEH), "dd-MM-yyyy", CultureInfo.InvariantCulture);
@@ -432,12 +432,11 @@ public class MarsUserData
         //Debug.Log($"{score1},{score2} from getfuntion");
         return new[] { score1, score2 };
     }
-    public (DateTime date, int totalStars, float gameParameter)
-    GetLastPlayedDateAndStarsForGame(string gameName)
+    public (DateTime date, int totalStars, float gameParameter)GetLastPlayedDateAndStarsForGame(string gameName)
     {
-        float DefalutScrubSize = MarsGameDefs.TableWiping.MAX_SCRUB_SIZE;
+        float DefalutScrubarea = MarsGameDefs.TableWiping.MAX_SCRUB_SIZE;
         if (dTableSession == null || dTableSession.Rows.Count == 0)
-            return (DateTime.MinValue, 0,DefalutScrubSize);
+            return (DateTime.MinValue, 0,DefalutScrubarea);
 
         //Get last played row for THIS game
         var lastRowForGame = dTableSession.AsEnumerable()
@@ -468,9 +467,10 @@ public class MarsUserData
             .Sum(row => Convert.ToInt32(row["currentStar"]));
 
         //Get GameParameter  --scrubsize
-        float gameSpeed = Convert.ToSingle(lastRowForGame["GameParameter"]);
+        float areaToErase = Convert.ToSingle(lastRowForGame["GameParameter"]);
+        
 
-        return (lastPlayedDate, totalStars,gameSpeed);
+        return (lastPlayedDate, totalStars,areaToErase == 0 ?DefalutScrubarea:areaToErase);
     }
 
 
@@ -897,8 +897,8 @@ public static class MarsGameDefs
         public const float TOPLIMIT = 4.2f;
         public const float BOTTOMLIMIT = -5f;
 
-        public const float MIN_SCRUB_SIZE = 0.00002f;// area m² ~14 pixel radius
-        public const float MAX_SCRUB_SIZE = 0.0001f; // area m² ~30 Pixel radius
+        public const float MIN_SCRUB_SIZE = 0.0001f; //m2
+        public const float MAX_SCRUB_SIZE = 0.0005f; //m2
         // Game duration
         public const float GAMEDURATION = 60f;  // seconds
 
@@ -989,18 +989,21 @@ public class MarsGame
         get => _reachSpeed;
         set
         {
-            if (this.name == "TW") return;
 
+            if (this.name == "TW") return;
             _reachSpeed = Math.Clamp(value, MarsGameDefs.MIN_REACH_SPEED, MarsGameDefs.MAX_REACH_SPEED);
             //unity target Speed
             gameSpeed = arom != null ? MarsGameDefs.GetGameSpeedForGame(name, _reachSpeed, arom) : 0f;
             //Reach Duration(sec) for Both player and Target  To complete their respected ROM
-            reachTime = arom != null ? MarsGameDefs.GetReachDurationForGame(name, _reachSpeed, arom) : 0f;
+            gameParameter = arom != null ? MarsGameDefs.GetReachDurationForGame(name, _reachSpeed, arom) : 0f;
+
+
             AppLogger.LogInfo($"Reach speed for game '{name}' and movement '{movement}' set to {_reachSpeed} (Game speed: {gameSpeed}).");
         }
     }
+   
     public float gameSpeed { get; private set; }
-    public float reachTime { get; private set; }
+    public float gameParameter { get; set; }
     public float gameDuration { get; set; } = 0f;
     public MarsArom arom { get; private set; } = null;
     public int currentTargets { get; private set; } = 0;

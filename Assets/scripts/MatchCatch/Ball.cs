@@ -39,25 +39,7 @@ public class Ball : MonoBehaviour
             Destroy(gameObject);
         }
     }
-    //void FixedUpdate()
-    //{
-
-    //    rb.velocity = new Vector2(0, -fallSpeed);
-
-    //    if (rb.position.y <= MarsGameDefs.MatchCatch.BOTTOMLIMIT)
-    //    {
-    //        if (!MCGameController.Instance.isSuccess &&
-    //            !MCGameController.Instance.isFailure)
-    //        {
-    //            MCGameController.Instance.setIsFailure();
-    //        }
-
-    //        Destroy(gameObject);
-    //    }
-
-
-
-    //}
+    
 
     private void OnCollisionEnter2D(Collision2D collision)
     {

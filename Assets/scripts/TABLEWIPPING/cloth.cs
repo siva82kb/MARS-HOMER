@@ -98,7 +98,9 @@ public class TWPlayer : MonoBehaviour
             yEndPointMid = (yEndPointMin + yEndPointMax) / 2.0f;
             yEndPointRange = yEndPointMax - yEndPointMin;
         }
-        // Set the appropriate scale
+        //LIMBSCALE = -1;
+        //clothsprite.flipX = true;
+        //Set the appropriate scale
         LIMBSCALE = (AppData.Instance.userData == null || AppData.Instance.userData.rightArm) ? -1 : 1;
         clothsprite.flipX = AppData.Instance.userData.rightArm;
     }
@@ -208,26 +210,6 @@ public class TWPlayer : MonoBehaviour
         // Update previous target selection.
         prevTargetSelection = (float[])currTargetSelection.Clone();
     }
-    public void OndrawGizmos(LineRenderer lr)
-    {
-        if (AppData.Instance == null) return;
-
-        var arom = AppData.Instance.selectedMovement.currentArom;
-        Vector3 top = AppData.Instance.selectedMovement.currentArom.topAdjusted;
-        Vector3 gtop = new Vector3(robotToUnityX(top.x), robotToUnityY(top.y), 0);
-        Vector3 bottom = AppData.Instance.selectedMovement.currentArom.bottomAdjusted;
-        Vector3 gbottom = new Vector3(robotToUnityX(bottom.x), robotToUnityY(bottom.y), 0);
-        Vector3 left = AppData.Instance.selectedMovement.currentArom.leftAdjusted;
-        Vector3 gleft = new Vector3(robotToUnityX(left.x), robotToUnityY(left.y), 0);
-        Vector3 right = AppData.Instance.selectedMovement.currentArom.rightAdjusted;
-        Vector3 gright = new Vector3(robotToUnityX(right.x), robotToUnityY(right.y), 0);
-
-        lr.SetPosition(0, gtop);
-        lr.SetPosition(1, gright);
-        lr.SetPosition(2, gbottom);
-        lr.SetPosition(3, gleft);
-        lr.SetPosition(4, gtop); // close loop
-
-    }
+  
 }
 

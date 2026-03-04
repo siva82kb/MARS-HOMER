@@ -129,28 +129,34 @@ public class summarySceneHandler : MonoBehaviour
     }
     public void exit()
     {
+        if (AppData.isNRSBuilt) {
 
-        try
-        {
-            AppLogger.LogInfo("Disconnected form Mars And Application closed succesfully");
-            Application.Quit();
-            // Process.Start("shutdown", "/s /t 0");
+            try
+            {
+                AppLogger.LogInfo("Disconnected form Mars And Application closed succesfully");
+                Application.Quit();
+                // Process.Start("shutdown", "/s /t 0");
 #if UNITY_EDITOR
-            UnityEditor.EditorApplication.isPlaying = false;
+                UnityEditor.EditorApplication.isPlaying = false;
 #endif
-            // Process.Start("shutdown", "/s /t 0");
+                // Process.Start("shutdown", "/s /t 0");
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError("Failed to shutdown: " + ex.Message);
+            }
+            return;
         }
-        catch (System.Exception ex)
-        {
-            Debug.LogError("Failed to shutdown: " + ex.Message);
-        }
-        //AppLogger.LogInfo("Disconnected form Mars And Switch scene to DataUploading");
 
-        //SceneManager.LoadScene("DATAUPLOADING");
+
+      
+        AppLogger.LogInfo("Disconnected form Mars And Switch scene to DataUploading");
+
+        SceneManager.LoadScene("DATAUPLOADING");
 
     }
 
-  
+
     public void initializeChart()
     {
         SessionDataHandler.MovTimePerDay();

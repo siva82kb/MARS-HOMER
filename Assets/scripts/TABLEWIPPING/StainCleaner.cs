@@ -16,7 +16,13 @@ public class StainWipe2D : MonoBehaviour
     public float erasedPixels;
     public bool isCompleted;
     public float totalpixels;
-    
+    float unityUnitPerPixel;
+    float areaPerPixel;
+    public float totalAreaPixels;
+    public float erasedAreaPixels;
+    public float areaPixels;
+    int eraseCount =0;
+    private bool hasErasedThisEntry = false;
     private void Awake()
     {
         Instance = this;
@@ -52,6 +58,7 @@ public class StainWipe2D : MonoBehaviour
         runtimeTex.Apply();
       
         brushSize = TWGameController.Instance.scrubSize;
+      
         InitializeStain();
        
      
@@ -61,27 +68,39 @@ public class StainWipe2D : MonoBehaviour
             new Vector2(0.5f, 0.5f),
             sprite.pixelsPerUnit
         );
+        float ppu = sr.sprite.pixelsPerUnit;
+        unityUnitPerPixel = 1f / ppu;
+        areaPerPixel = unityUnitPerPixel * unityUnitPerPixel;
+        GetTotalStainArea_M2();
 
     }
 
+    Vector2 lastPos;
 
     void OnTriggerStay2D(Collider2D other)
     {
         if (other.name != "Cloth") return;
-        
-        Vector2 clothPos = other.bounds.center;
-        Erase(clothPos);
 
+        Vector2 clothPos = other.bounds.center;
+
+        if (Vector2.Distance(clothPos, lastPos) > 0.01f) // threshold in Unity units
+        {
+            Erase(clothPos);
+            lastPos = clothPos;
+        }
     }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        hasErasedThisEntry = false;
         TWGameController.Instance.SetPlayerIn();
-        Debug.Log($"{TWPlayer.instance.zEndPoint}/{TWPlayer.instance.yEndPoint}");
+        Debug.Log($"{TWPlayer.instance.zEndPoint}/{TWPlayer.instance.yEndPoint}robotarea_end_points enter");
     }
     private void OnTriggerExit2D(Collider2D collision)
     {
         TWGameController.Instance.SetPlayerOut();
-        Debug.Log($"{TWPlayer.instance.zEndPoint}/{TWPlayer.instance.yEndPoint}");
+        Debug.Log($"{TWPlayer.instance.zEndPoint}/{TWPlayer.instance.yEndPoint}robotarea_end_points exit");
+        eraseCount = 0;
     }
     void InitializeStain()
     {
@@ -96,21 +115,17 @@ public class StainWipe2D : MonoBehaviour
             if (pixels[i].a > 0.01f)
                 totalStainPixels++;
         }
-        GetTotalStainArea_M2();
+       
     }
     public float GetTotalStainArea_M2()
     {
-        float Width, Hight,area;
+        float Width, Hight, area;
         Width = sr.bounds.size.x;
         Hight = sr.bounds.size.y;
-
+        Debug.Log($"{Hight}hight,{Width}width");
         area = (Width * Hight);
-
-        float ppu = sr.sprite.pixelsPerUnit;
-
-        float metersPerPixel = 1f / ppu;
-        float areaPerPixel = metersPerPixel * metersPerPixel;
-
+       
+      
         float baseArea = totalStainPixels * areaPerPixel;
         float baseAreaT = totalpixels * areaPerPixel;
 
@@ -119,18 +134,16 @@ public class StainWipe2D : MonoBehaviour
         float scaledArea = baseArea * scale.x * scale.y;
         float scaledAreaT = baseAreaT*scale.x * scale.y;
 
-        float brusharea =( math.PI * (brushSize * brushSize))*areaPerPixel; // area of the brush
-       
-        Debug.Log($"Base Area: {baseArea} m2 {baseAreaT}m2 | Scaled Area: {scaledArea}m2 {scaledAreaT}m2 | TotalPixels : {totalStainPixels},{totalpixels}| brush area {brusharea}{brushSize}");
-        UnityAreaToRobotArea(scaledArea,area,brusharea,scaledAreaT);
+        Debug.Log($"Base Area: {baseArea}uu {baseAreaT}uu | Scaled Area: {scaledArea}uu {scaledAreaT}uu | TotalPixels : {totalStainPixels},{totalpixels}");
+        UnityAreaToRobotArea(scaledArea,area,scaledAreaT);
         return scaledArea;
     }
-    public float UnityAreaToRobotArea(float unityAreap, float unityarea , float brusharea ,float unityAreaT)
+    public float UnityAreaToRobotArea(float unityAreap, float unityarea ,float unityAreaT)
     {
         float ppu = sr.sprite.pixelsPerUnit;
 
-        float metersPerPixel = 1f / ppu;
-        float areaPerPixel = metersPerPixel * metersPerPixel;
+        float unityUnitPerPixels = 1f / ppu;
+        float areaPerPixel = unityUnitPerPixels * unityUnitPerPixels;
 
         float unityWidth = MarsGameDefs.TableWiping.RIGHTLIMIT - MarsGameDefs.TableWiping.LEFTLIMIT; 
         float unityHeight = MarsGameDefs.TableWiping.TOPLIMIT - MarsGameDefs.TableWiping.BOTTOMLIMIT;  
@@ -140,22 +153,40 @@ public class StainWipe2D : MonoBehaviour
 
         float areaScale = (robotWidth / unityWidth) *
                           (robotHeight / unityHeight);
-       
-        Debug.Log($"robot Area brush {brusharea * areaScale}");
+        totalAreaPixels = unityAreap * areaScale;
         Debug.Log($"Robot Area bound {unityarea * areaScale}");
         Debug.Log($"Robot Area stainpixel {unityAreap * areaScale}");
         Debug.Log($"Robot Area Totalpixel {unityAreaT * areaScale}");
 
-        float brushAreaReal_m2 = 0.00001f; // 0.000025f → 0.0001f
-        Debug.Log($"real world brush to unity{brushAreaReal_m2 / areaScale}");
-        Debug.Log($"real worlt to pixels{math.sqrt((brushAreaReal_m2 / areaScale)/areaPerPixel)}");
 
         return unityAreap * areaScale;
     }
+    public void erasedUnityAreaToRobotArea(float er)
+    {
+        float ppu = sr.sprite.pixelsPerUnit;
 
+        float unityUnitPerPixels = 1f / ppu;
+        float areaPerPixel = unityUnitPerPixels * unityUnitPerPixels;
+
+        float unityWidth = MarsGameDefs.TableWiping.RIGHTLIMIT - MarsGameDefs.TableWiping.LEFTLIMIT;
+        float unityHeight = MarsGameDefs.TableWiping.TOPLIMIT - MarsGameDefs.TableWiping.BOTTOMLIMIT;
+
+        float robotWidth = TWPlayer.instance.zEndPointMax - TWPlayer.instance.zEndPointMin;
+        float robotHeight = TWPlayer.instance.yEndPointMax - TWPlayer.instance.yEndPointMin;
+
+        float areaScale = (robotWidth / unityWidth) *
+                          (robotHeight / unityHeight);
+
+        erasedAreaPixels = er * areaScale;
+        Debug.Log($"erased Aread Pixel{er * areaScale}");
+
+    }
     void Erase(Vector2 worldPos)
     {
         
+        // In Erase() function, add at the top:
+        Debug.Log($"Erase called! Count: {++eraseCount}, brushRadius: {brushSize}");
+
         Sprite sprite = sr.sprite;
         Texture2D tex = runtimeTex;
 
@@ -184,7 +215,7 @@ public class StainWipe2D : MonoBehaviour
                     continue;
 
                 Color c = tex.GetPixel(px, py);
-                if (c.a > 0f)
+                if (c.a > 0.01f)
                 {
                     c.a = 0f;
                     tex.SetPixel(px, py, c);
@@ -192,8 +223,12 @@ public class StainWipe2D : MonoBehaviour
                 }
             }
         }
-
+     
         tex.Apply();
+      
+        Vector3 scale = transform.lossyScale;
+        float area = erasedPixels * areaPerPixel;
+        erasedUnityAreaToRobotArea( area * scale.x * scale.y);
     }
 
 }

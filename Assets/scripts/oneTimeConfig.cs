@@ -1,17 +1,19 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
+using System.Globalization;
 using System.IO;
+
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-
+using SimpleJSON; // Make sure you have SimpleJSON in your project
 public class OneTimeConfig : MonoBehaviour
 {
-    public TMP_InputField nameField;
-    public TMP_InputField ageField;
-    public TMP_InputField hospitalIdField;
+  
+    public TMP_InputField homerIdField;
     public TMP_InputField startDateField;
     public TMP_InputField endDateField;
 
@@ -20,30 +22,330 @@ public class OneTimeConfig : MonoBehaviour
     public TMP_InputField mlapDuration;
     public Button Done;
     public TMP_Dropdown affectedSideDropdown;
+    public TMP_Dropdown LocationDropdown;
+    public TextMeshProUGUI DoneBtnTxt;
 
     public TextMeshProUGUI totalDurationText;
     public string upperArmLength = "250";
     public string foreArmLength = "150";
-    
+
+    // Verification Panel - NEW
+    public GameObject verifyPanel;
+    public GameObject popUpPanel;
+    public GameObject detailsPanel;
+    public TMP_Dropdown verifyLocation;
+    public TMP_InputField HOMERID;
+    public TextMeshProUGUI popUpConfirmationPatientID;
+    public TextMeshProUGUI messageText;
+    public Button popupOk;
+    public Button popupCancel;
+    public Button verifyButton;
+
+    // AWS Configuration - NEW
+    private string awsBucketName = "homerclouds";
+    private string homerDetailsFileName = "homerIdDetails.json";
+    private string awsProfile = "default"; // AWS CLI profile
+
+    // Patient Data - NEW
+    private string currentPatientID;
+    private string currentLocation;
+    private string currentTrainingSide;
     private void Start()
     {
+        // Initialize verification panel (hidden by default)
+        if (verifyPanel != null)
+            verifyPanel.SetActive(false);
+        if (popUpPanel != null)
+            popUpPanel.SetActive(false);
         // Automatically set startDateField and endDateField
         DateTime startDate = DateTime.Now;
         DateTime endDate = startDate.AddDays(30);
+        if (File.Exists(DataManager.configFile))
+        {
+            DataTable configData = DataManager.loadCSV(DataManager.configFile);
 
+            DataRow lastRow = configData.Rows[configData.Rows.Count - 1];
+            string hospNumber = lastRow.Field<string>("HomerID");
+            bool rightHand = lastRow.Field<string>("TrainingSide") == "Right";
+
+            //startDate = DateTime.ParseExact(lastRow.Field<string>("StartDate"), "dd-MM-yyyy", CultureInfo.InvariantCulture);
+            endDate = DateTime.ParseExact(lastRow.Field<string>("endDate"), "dd-MM-yyyy", CultureInfo.InvariantCulture);
+
+            homerIdField.text = hospNumber;
+            affectedSideDropdown.options[affectedSideDropdown.value].text = rightHand ? "Right" : "Left";
+            LocationDropdown.options[LocationDropdown.value].text = lastRow.Field<string>("Location");
+
+            mlDuration.text = lastRow.Field<string>("ML");
+            apDuration.text = lastRow.Field<string>("AP");
+            mlapDuration.text = lastRow.Field<string>("MLAP");
+
+            totalDurationText.text = lastRow.Field<string>("TotalTime");
+            DoneBtnTxt.text = "Login";
+        }
+        else
+        {
+            detailsPanel.SetActive(false);
+            verifyPanel.SetActive(true);
+
+        }
+      
         startDateField.text = startDate.ToString("dd-MM-yyyy");
         endDateField.text = endDate.ToString("dd-MM-yyyy");
         mlDuration.onValueChanged.AddListener(delegate { UpdateTotalDuration(); });
         apDuration.onValueChanged.AddListener(delegate { UpdateTotalDuration(); });
         mlapDuration.onValueChanged.AddListener(delegate { UpdateTotalDuration(); });
         Done.onClick.AddListener(delegate { saveConfig(); });
-      
+        // Add verify button listener - NEW
+        if (verifyButton != null)
+        {
+            verifyButton.onClick.AddListener(OnVerifyButtonClick);
+            Debug.Log($"Verify ButtonInitialized");
+        }
+        if (popupOk != null)
+            popupOk.onClick.AddListener(OnPopupOkClick);
+        if (popupCancel != null)
+            popupCancel.onClick.AddListener(OnPopupCancelClick);
+
     }
+    // Called when verify button is clicked
+    private void OnVerifyButtonClick()
+    {
+        Debug.Log("Verify button clicked");
+
+        if (HOMERID == null)
+        {
+            Debug.LogError("HOMERID is not assigned in the Inspector!");
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(HOMERID.text))
+        {
+            Debug.Log("Homer ID is empty");
+            messageText.text = "Please enter Homer ID";
+            return;
+        }
+
+        Debug.Log($"Homer ID entered: {HOMERID.text}");
+
+        currentPatientID = HOMERID.text;
+        currentLocation = verifyLocation.options[verifyLocation.value].text;
+        //currentTrainingSide = affectedSideDropdown.options[affectedSideDropdown.value].text;
+
+        Debug.Log($"Current Patient ID: {currentPatientID}, Location: {currentLocation}");
+
+        if (homerIdField == null)
+        {
+            Debug.LogError("HOMERID TextMeshProUGUI is not assigned!");
+        }
+        else
+        {
+            homerIdField.text = currentPatientID;
+        }
+
+        if (verifyPanel == null)
+        {
+            Debug.LogError("verifyPanel is not assigned!");
+        }
+        else
+        {
+            verifyPanel.SetActive(true);
+            Debug.Log("Verify panel activated");
+        }
+
+        // Start verification process
+        StartCoroutine(VerifyHomerID(currentPatientID, currentLocation));
+    }
+    // NEW: Coroutine to verify HomerID from AWS
+    private IEnumerator VerifyHomerID(string homerID, string location)
+    {
+        messageText.text = "Verifying HomerID...";
+
+        // Construct S3 path
+        string s3Path = $"s3://{awsBucketName}/{location}/HOCMCV231/Pluto/{homerDetailsFileName}";
+
+        // Download file from S3 using AWS CLI
+        string tempFilePath = Path.Combine(Application.temporaryCachePath, "HomerDetails_temp.json");
+
+        // Use AWS CLI to download the file
+        string arguments = $"s3 cp {s3Path} \"{tempFilePath}\" --profile {awsProfile}";
+
+        System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
+        startInfo.FileName = "aws";
+        startInfo.Arguments = arguments;
+        startInfo.RedirectStandardOutput = true;
+        startInfo.RedirectStandardError = true;
+        startInfo.UseShellExecute = false;
+        startInfo.CreateNoWindow = true;
+
+        using (System.Diagnostics.Process process = new System.Diagnostics.Process())
+        {
+            process.StartInfo = startInfo;
+            process.Start();
+
+            string output = process.StandardOutput.ReadToEnd();
+            string error = process.StandardError.ReadToEnd();
+            process.WaitForExit();
+
+            yield return null;
+
+            if (process.ExitCode != 0)
+            {
+                Debug.LogError($"AWS CLI Error: {error}");
+                messageText.text = "Error connecting to AWS. Check internet connection.";
+                yield break;
+            }
+        }
+
+        // Check if file was downloaded successfully
+        if (File.Exists(tempFilePath))
+        {
+            string jsonContent = File.ReadAllText(tempFilePath);
+            ProcessHomerDetails(jsonContent, homerID);
+
+            // Clean up temp file
+            File.Delete(tempFilePath);
+        }
+        else
+        {
+            messageText.text = $"Could not find HomerDetails for location: {location}";
+        }
+    }
+
+    // NEW: Process the HomerDetails JSON - FIXED VERSION
+    private void ProcessHomerDetails(string jsonContent, string searchHomerID)
+    {
+        var json = JSON.Parse(jsonContent);
+
+        if (json == null || json["details"] == null)
+        {
+            messageText.text = "Invalid HomerDetails format";
+            return;
+        }
+
+        var details = json["details"].AsArray;
+        bool found = false;
+
+        // FIX: Correct way to iterate through JSON array in SimpleJSON
+        for (int i = 0; i < details.Count; i++)
+        {
+            var item = details[i];
+            string homerID = item["homerID"];
+            string hospID = item["hospitalId"];
+            
+            if (homerID == searchHomerID)
+            {
+                if (item["group"] == "unassigned")
+                {
+                    messageText.text = $"{homerID} is in unassigned Group Please wait...PI should Assgin Group";
+                    return;
+                }
+                found = true;
+
+                // Check status for mars
+                var status = item["status"];
+                bool isActive = false;
+
+                if (status != null && !status.IsNull)
+                {
+                    // Check if status is an object with "mars" field
+                    if (status["mars"] != null && !status["mars"].IsNull)
+                    {
+                        isActive = status["mars"].Value.ToLower() == "active";
+                    }
+                    // Check if status is directly a string
+                    else if (status.IsString)
+                    {
+                        isActive = status.Value.ToLower() == "active";
+                    }
+                    // Check if status is an object (like in your JSON structure)
+                    else if (status.IsObject)
+                    {
+                        // Check if "mars" exists in the status object
+                        var marsStatus = status["mars"];
+                        if (marsStatus != null && !marsStatus.IsNull)
+                        {
+                            isActive = marsStatus.Value.ToLower() == "active";
+                        }
+                    }
+                }
+
+                if (isActive)
+                {
+                    // Already activated
+                    messageText.text = $"HomerID {searchHomerID} is already activated. Cannot assign to new patient.";
+                    popUpPanel.SetActive(false);
+                }
+                else
+                {
+                    // Not activated - show popup with patient ID
+                    popUpConfirmationPatientID.text = $"HomerID : {searchHomerID} is assigned to Patient id: {hospID}, Are you sure?";
+                    currentTrainingSide = item["trainingSide"];
+                    messageText.text = "";
+                    popUpPanel.SetActive(true);
+                }
+                break;
+            }
+        }
+
+        if (!found)
+        {
+            messageText.text = $"HomerID {searchHomerID} not found in the system";
+        }
+    }
+
+    // NEW: Called when OK button is clicked in popup
+    private void OnPopupOkClick()
+    {
+        popUpPanel.SetActive(false);
+        verifyPanel.SetActive(false);
+        detailsPanel.SetActive(true);
+        // Set the saved values back to fields
+        homerIdField.text = currentPatientID;
+        affectedSideDropdown.value = GetDropdownIndexForSide(currentTrainingSide);
+        LocationDropdown.value = GetDropdownIndexForLocation(currentLocation);
+
+        // Proceed to configuration scene
+        // saveConfig();
+    }
+
+    // NEW: Called when Cancel button is clicked in popup
+    private void OnPopupCancelClick()
+    {
+        popUpPanel.SetActive(false);
+        verifyPanel.SetActive(true);
+
+        // Clear fields
+        homerIdField.text = "";
+        messageText.text = "Verification cancelled";
+    }
+    // NEW: Helper to get dropdown index for training side
+    private int GetDropdownIndexForSide(string side)
+    {
+        for (int i = 0; i < affectedSideDropdown.options.Count; i++)
+        {
+            if (affectedSideDropdown.options[i].text.ToLower() == side.ToLower())
+                return i;
+        }
+        return 0;
+    }
+
+    // NEW: Helper to get dropdown index for location
+    private int GetDropdownIndexForLocation(string loc)
+    {
+        for (int i = 0; i < verifyLocation.options.Count; i++)
+        {
+            if (verifyLocation.options[i].text.ToLower() == loc.ToLower())
+                return i;
+        }
+        return 0;
+    }
+
     private void Update()
     {
        
        
     }
+
     private void UpdateTotalDuration()
     {
         int totalDuration = 0;
@@ -69,23 +371,19 @@ public class OneTimeConfig : MonoBehaviour
     }
     public void saveConfig()
     {
-        if (string.IsNullOrWhiteSpace(nameField.text) ||
-          string.IsNullOrWhiteSpace(ageField.text) ||
-          string.IsNullOrWhiteSpace(hospitalIdField.text) ||
+        if (string.IsNullOrWhiteSpace(homerIdField.text) ||
           string.IsNullOrWhiteSpace(startDateField.text) ||
           string.IsNullOrWhiteSpace(endDateField.text))
         {
-            Debug.LogError("Name, Age, Hospital ID, Start Date, and End Date fields must not be empty.");
+            Debug.LogError(" HomerID, Start Date, and End Date fields must not be empty.");
             return;
         }
 
-        string date = DateTime.Now.ToString("dd-MM-yyyy");
-        string name = nameField.text;
-        string age = ageField.text;
-        string hospitalId = hospitalIdField.text;
+      
+        string homerId = homerIdField.text;
         string startDate = startDateField.text;
         string endDate = endDateField.text;
-        AppData.Instance.setUser(hospitalId);
+        AppData.Instance.setUser(homerId);
         // Set null to "0".
         string ML = string.IsNullOrEmpty(mlDuration.text) ? "0" : mlDuration.text;
         string AP = string.IsNullOrEmpty(this.apDuration.text) ? "0" : this.apDuration.text;
@@ -94,34 +392,24 @@ public class OneTimeConfig : MonoBehaviour
         string totalDuration = totalDurationText.text;
 
         string trainingSide = affectedSideDropdown.options[affectedSideDropdown.value].text;
-       
-        string headers = "Date,name,HospitalNumber,StartDate,EndDate,age,time,ML,AP,MLAP,forearmLength,upperarmLength,TrainingSide,Location";
-        string data = $"{date},{name},{hospitalId},{startDate},{endDate},{age},{totalDuration},{ML},{AP},{MLAP},{upperArmLength},{foreArmLength},{trainingSide},CMCV";
+        string location = LocationDropdown.options[LocationDropdown.value].text;
+        string group = "Experimental";
+        string headers = "HomerID,StartDate,EndDate,TotalTime,ML,AP,MLAP,ForeArmLength,UpperArmLength,TrainingSide,Location,Group";
+        string data = $"{homerId},{startDate},{endDate},{totalDuration},{ML},{AP},{MLAP},{upperArmLength},{foreArmLength},{trainingSide},{location},{group}";
         string directoryPath = Path.Combine(Application.dataPath, "data", AppData.Instance.userID, "data");
         string datapath = Path.Combine(directoryPath, "configdata.csv");
 
         // Ensure directory exists
         if (!Directory.Exists(directoryPath)) Directory.CreateDirectory(directoryPath);
 
-        // DataManager.CreateFileStructure();
-        if (File.Exists(datapath))
-        {
-            Debug.Log("Configuration File Already Exists. you can't update Here");
-        }
-        else
-        {
+    
             if (!File.Exists(datapath))
             {
                 File.WriteAllText(datapath, headers + Environment.NewLine);
                 Debug.Log("Data saved to CSV: " + datapath);
             }
             File.AppendAllText(datapath, data + Environment.NewLine);
-
-
             SceneManager.LoadScene("MAIN");
 
-        }
-      
-        
     }
 }

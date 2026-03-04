@@ -31,12 +31,27 @@ public class welcomeSceneHandler : MonoBehaviour
         //Debug.Log($"{Directory.Exists(Path.Combine(Application.dataPath, "data"))},{Path.Combine(Application.dataPath, "data")}");
         if (!Directory.Exists(Path.Combine(Application.dataPath, "data"))|| Directory.GetDirectories(DataManager.basePath).Length == 0)
         {
-          
-            SceneManager.LoadScene("GETCONFIG");
+
+            SceneManager.LoadScene("CONFIG");
             return;
         }
+     
+
         //Initialize AppData
         AppData.Instance.Initialize(SceneManager.GetActiveScene().name);
+
+        if (!File.Exists(DataManager.configFile))
+        {
+            SceneManager.LoadScene("CONFIG");
+            return;
+        }
+        if ((DateTime.Today - AppData.Instance.userData.startDate).TotalDays >= 15)
+        {
+            JediComm.Disconnect();
+            AppLogger.StopLogging();
+            MarsCommLogger.StopLogging();
+            SceneManager.LoadScene("CONFIG");
+        }
 
         // Check if the directory exists
         if (!Directory.Exists(DataManager.basePath)) Directory.CreateDirectory(DataManager.basePath);
@@ -55,6 +70,14 @@ public class welcomeSceneHandler : MonoBehaviour
     void Update()
     {
         MarsComm.sendHeartbeat();
+
+        if (Input.GetKey(KeyCode.LeftControl) &&
+           Input.GetKey(KeyCode.LeftShift) &&
+           Input.GetKeyDown(KeyCode.T)) // magic key combo
+        {
+            SceneManager.LoadScene("CONFIG");
+            Debug.Log("Key pressed");
+        }
         // Attach event listener for Mars button release
         if (!attachMarsButtonEvent && Time.timeSinceLevelLoad > 1)
         {

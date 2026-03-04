@@ -2446,13 +2446,13 @@ AudioSource:
   m_audioClip: {fileID: 8300000, guid: 4958f3be71b7c4146b02b5f30e444827, type: 3}
   m_Resource: {fileID: 8300000, guid: 4958f3be71b7c4146b02b5f30e444827, type: 3}
   m_PlayOnAwake: 1
-  m_Volume: 0.1
+  m_Volume: 0.759
   m_Pitch: 1
   Loop: 1
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
-  Priority: 210
+  Priority: 158
   DopplerLevel: 1
   MinDistance: 1
   MaxDistance: 500
@@ -2892,7 +2892,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2899200066755278164, guid: 0eafbb40d6163034b81e62f7871a99d0, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4593699669154928826, guid: 0eafbb40d6163034b81e62f7871a99d0, type: 3}
       propertyPath: m_Pivot.x

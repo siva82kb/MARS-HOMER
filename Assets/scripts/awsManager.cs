@@ -9,18 +9,10 @@ using System.Threading.Tasks;
 public static class awsManager
 {
     public static string pythonScriptPath = @"C:/pythonscripts/uploadToAWSM.pyw";
-         
-    public static  string pythonExecutionPath = @"C:/Program Files/Python310/pythonw.exe";
-     
-   
 
-    // public static  string pythonExecutionPath = @"C:/Users/Homer 7/AppData/Local/Programs/Python313/pythonw.exe";
-    // public static string pythonExecutionPath = @"C:/Users/HOMER_10/AppData/Local/Programs/Python314/pythonw.exe"; //D7
-    //public static string pythonExecutionPath = @"C:/Users/HOMER_10/AppData/Local/Programs/Python/Python314/pythonw.exe";  //Device-7
-
-    // public static string pythonExecutionPath = @"C:/Users/HOMER_08/AppData/Local/Programs/Python/Python313/pythonw.exe"; //Device -8
-    // public static string pythonExecutionPath = @"C:/Users/HOMER_11/AppData/Local/Programs/Python/Python314/pythonw.exe"; //D9
+    public static string pythonExecutionPath;//@"C:/Program Files/Python310/pythonw.exe"; for this laptop
     
+
     public static string filePathUploadStatus = @"C:/DeviceSetups/Mars"; //change according to the device
     public static string filePathAppsetups = @"C:/AppSetups/Mars"; //change according to the device
 
@@ -51,7 +43,6 @@ public static void RunAWSpythonScript()
             Debug.Log("File not found: Python script");
             return;
         }
-
 
         try
         {
@@ -85,8 +76,9 @@ public static void RunAWSpythonScript()
 
     public static void changeUploadStatus(string status){
         string uploadFilePath = Path.Combine(filePathUploadStatus, "uploadStatus.txt");
-            // You don't need `File.Create(...).Dispose()` manually � File.WriteAllText will create/write directly.
-            File.WriteAllText(uploadFilePath, $"{Path.Combine(Application.dataPath,"data", AppData.Instance.userID)},{status},{DeviceName},{AppData.Instance.userData.hospNumber},{AppData.Instance.userData.GetDeviceLocation()}");
+        // You don't need `File.Create(...).Dispose()` manually � File.WriteAllText will create/write directly.
+        Debug.Log($"{AppData.Instance.userData.hospNumber}-awsmanger:{AppData.Instance.userID}");
+        File.WriteAllText(uploadFilePath, $"{Path.Combine(Application.dataPath,"data", AppData.Instance.userID)},{status},{DeviceName},{AppData.Instance.userID},{AppData.Instance.userData.GetDeviceLocation()}");
         
     }
     public static void AppSetups(string hospitalId, string location)
