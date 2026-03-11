@@ -213,7 +213,7 @@ public partial class AppData
     private void WriteTrialDataToRawDataFile()
     {
         AppLogger.LogInfo($"Writing to: {trialRawDataFile}");
-        AppLogger.LogInfo($"File exists before write? {File.Exists(trialRawDataFile)}");
+        
 
         string _dir = Path.GetDirectoryName(trialRawDataFile);
         if (!Directory.Exists(_dir)) Directory.CreateDirectory(_dir);
@@ -227,7 +227,7 @@ public partial class AppData
             rawDataString.Clear();
             rawDataString = null;
         }
-        AppLogger.LogInfo($"File exists before write? {File.Exists(trialRawDataFile)}");
+        
     }
 
     // AROM assessment raw data logging function.
@@ -239,8 +239,9 @@ public partial class AppData
         // Initialize the string builders.
         rawDataString = new StringBuilder();
         // Write pre-header and header information
-        rawDataString.AppendLine($":Device: MARS");
+        rawDataString.AppendLine($":Device  : MARS");
         rawDataString.AppendLine($":Location: {userData.GetDeviceLocation()}");
+        rawDataString.AppendLine($":User    : {userID}");
         rawDataString.AppendLine($":Movement: {selectedMovement.name}");
         rawDataString.AppendLine(string.Join(",", DataManager.RAWFILEHEADER));
 
@@ -281,6 +282,7 @@ public partial class AppData
         // Write pre-header and header information
         rawDataString.AppendLine($":Device: MARS");
         rawDataString.AppendLine($":Location: {userData.GetDeviceLocation()}");
+        rawDataString.AppendLine($":User    : {userID}");
         rawDataString.AppendLine($":Movement: MLAP");
         rawDataString.AppendLine(string.Join(",", DataManager.RAWFILEHEADER));
 

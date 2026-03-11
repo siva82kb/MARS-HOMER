@@ -216,7 +216,7 @@ public class connectStatusHandler : MonoBehaviour
             }
            
         }
-        AppLogger.LogInfo($"Statement faild [errorPanel.gameObject.activeSelf && MarsComm.errorStatus <= 1 : {errorPanel.gameObject.activeSelf && MarsComm.errorStatus <= 1}]");
+       
         JediComm.Disconnect();
         AppLogger.StopLogging();
         MarsCommLogger.StopLogging();

@@ -161,7 +161,7 @@ public class OneTimeConfig : MonoBehaviour
         messageText.text = "Verifying HomerID...";
 
         // Construct S3 path
-        string s3Path = $"s3://{awsBucketName}/{location}/HOCMCV231/Pluto/{homerDetailsFileName}";
+        string s3Path = $"s3://{awsBucketName}/{location}/{homerDetailsFileName}";
 
         // Download file from S3 using AWS CLI
         string tempFilePath = Path.Combine(Application.temporaryCachePath, "HomerDetails_temp.json");

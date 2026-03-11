@@ -54,12 +54,15 @@ public class MovementSceneHandler : MonoBehaviour
 
     void Start()
     {
+        
+
         MarsComm.sendHeartbeat();
     
         // Initialize AppData if needed
         if (AppData.Instance.userData == null)
         {
             AppData.Instance.Initialize(SceneManager.GetActiveScene().name);
+          
         }
 
         //Check if the directory exists
@@ -68,6 +71,9 @@ public class MovementSceneHandler : MonoBehaviour
 
         AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);
         AppLogger.LogInfo($"{SceneManager.GetActiveScene().name} scene started.");
+
+        AppLogger.SetCurrentMovement("");
+        AppLogger.SetCurrentGame("");
 
         // If the robot is not calibrated go to the robot calib scene.
         if (MarsComm.CALIBRATION[MarsComm.calibration] == "NOCALIB")
@@ -96,8 +102,7 @@ public class MovementSceneHandler : MonoBehaviour
 
         // Update the assessment status text.
         updateAssessmentStatusText();
-        AppLogger.SetCurrentMovement("");
-        AppLogger.SetCurrentGame("");
+       
     }
 
     void Update()

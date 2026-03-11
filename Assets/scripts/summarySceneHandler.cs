@@ -65,7 +65,6 @@ public class summarySceneHandler : MonoBehaviour
     {
         int[] scores,cuScore;
         int [] CumStar = MarsGameDefs.Spaceshooter.GetStarsCount();
-        AppLogger.LogInfo(" started score updateding");
        
         //SpaceShooter Game Data
         scores = MarsGameDefs.Spaceshooter.GetScores();
@@ -89,7 +88,7 @@ public class summarySceneHandler : MonoBehaviour
         DcCummulativeScoreTxt.text = $"{cuScore[1].ToString("D4")}";
         DCCurrentScoreTxt.text = $"{scores[1].ToString("D3")} / {scores[0].ToString("D3")}";
         if(MarsGameDefs.DiamondCatcher.IsAchievedToday())DCstar.GetComponent<Image>().color = Color.white;
-        AppLogger.LogInfo(" score updated succesfully");
+      
 
         //TableWipping Game Data
         scores = MarsGameDefs.TableWiping.GetScores();
@@ -97,7 +96,7 @@ public class summarySceneHandler : MonoBehaviour
         TWCummulativeScoreTxt.text = $"{cuScore[1].ToString("D4")}";
         TWCurrentScoreTxt.text = $"{scores[1].ToString("D3")} / {scores[0].ToString("D3")}";
         if (MarsGameDefs.TableWiping.IsAchievedToday()) TWstar.GetComponent<Image>().color = Color.white;
-        AppLogger.LogInfo(" score updated succesfully");
+      
 
         //TUK-TUK Game Data
         scores = MarsGameDefs.TukTuk.GetScores();
@@ -105,7 +104,7 @@ public class summarySceneHandler : MonoBehaviour
         TTCummulativeScoreTxt.text = $"{cuScore[1].ToString("D4")}";
         TTCurrentScoreTxt.text = $"{scores[1].ToString("D3")} / {scores[0].ToString("D3")}";
         if (MarsGameDefs.TukTuk.IsAchievedToday()) TTstar.GetComponent<Image>().color = Color.white;
-        AppLogger.LogInfo(" score updated succesfully");
+ 
 
         //Match Drop Game Data
         scores = MarsGameDefs.MatchCatch.GetScores();
@@ -115,7 +114,7 @@ public class summarySceneHandler : MonoBehaviour
         MCCummulativeScoreTxt.text = $"{cuScore[1].ToString("D4")}";
         MCCurrentScoreTxt.text = $"{scores[1].ToString("D3")} / {scores[0].ToString("D3")}";
         if (MarsGameDefs.MatchCatch.IsAchievedToday()) MCstar.GetComponent<Image>().color = Color.white;
-        AppLogger.LogInfo(" score updated succesfully");
+    
 
     }
     // To load the data for a specific movement into the bar graph.
@@ -208,7 +207,7 @@ public class summarySceneHandler : MonoBehaviour
     {
         if (lineChart == null) return;
 
-        AppLogger.LogInfo("linechart is not null");
+        AppLogger.LogInfo("Linechart is not null");
 
         lineChart.RemoveData();
         lineChart.EnsureChartComponent<Title>().text = title;

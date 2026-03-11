@@ -1198,9 +1198,9 @@ public class MarsArom
                 // Write the pre-header to the file.
                 StringBuilder rawDataString = new StringBuilder();
                 // Write pre-header and header information
-                // rawDataString.AppendLine($":Device: MARS");
-                // rawDataString.AppendLine($":Location: {AppData.Instance.userData.GetDeviceLocation()}");
-                // rawDataString.AppendLine($":Movement: {movement}");
+                //rawDataString.AppendLine($":Device: MARS");
+                //rawDataString.AppendLine($":Location: {AppData.Instance.userData.GetDeviceLocation()}");
+                //rawDataString.AppendLine($":Movement: {movement}");
                 rawDataString.AppendLine(string.Join(",", FILEHEADER));
                 file.Write(rawDataString.ToString());
             }
@@ -1217,7 +1217,7 @@ public class MarsArom
                 leftRaw.x.ToString(), leftRaw.y.ToString(), rightRaw.x.ToString(), rightRaw.y.ToString(),
                 topAdjusted.x.ToString(), topAdjusted.y.ToString(), bottomAdjusted.x.ToString(), bottomAdjusted.y.ToString(),
                 leftAdjusted.x.ToString(), leftAdjusted.y.ToString(), rightAdjusted.x.ToString(), rightAdjusted.y.ToString(),
-                _rawfilename
+                _rawfilename.Split('/').Last()
             }));
         }
     }
@@ -1495,7 +1495,7 @@ public class ArmWeight
                 targetPos[2,0].ToString(), targetPos[2,1].ToString(), actualPos[2,0].ToString(), actualPos[2,1].ToString(), actualForce[2].ToString(),
                 targetPos[3,0].ToString(), targetPos[3,1].ToString(), actualPos[3,0].ToString(), actualPos[3,1].ToString(), actualForce[3].ToString(),
                 targetPos[4,0].ToString(), targetPos[4,1].ToString(), actualPos[4,0].ToString(), actualPos[4,1].ToString(), actualForce[4].ToString(),
-                _rawfilename
+                _rawfilename.Split('/').Last()
             }));
         }
     }

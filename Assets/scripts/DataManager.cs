@@ -97,8 +97,8 @@ public class DataManager : MonoBehaviour
    
     // Functions to generate file names.
     public static string GetRomFileName(string movement) => FixPath(Path.Combine(romPath, $"{movement}-rom.csv"));
-    public static string GetRomRawFileName(string movement, string datetime) => FixPath(Path.Combine(romPath, $"romraw-{movement}-{datetime.Replace(" ", "_").Replace(":", "-")}.csv"));
-    public static string GetArmWeightRawFileName(string datetime) => FixPath(Path.Combine(armWeightPath, $"armweightraw-{datetime.Replace(" ", "_").Replace(":", "-")}.csv"));
+    public static string GetRomRawFileName(string movement, string datetime) => FixPath(Path.Combine(rawPath, $"romraw-{movement}-{datetime.Replace(" ", "_").Replace(":", "-")}.csv"));
+    public static string GetArmWeightRawFileName(string datetime) => FixPath(Path.Combine(rawPath, $"armweightraw-{datetime.Replace(" ", "_").Replace(":", "-")}.csv"));
     public static string GetTrialRawDataFileName(int sessNo, int trialNo, string game, string movement) => FixPath(Path.Combine(rawPath, $"raw-sess{sessNo:D2}-trial{trialNo:D3}-{game}-{movement}.csv"));
     public static void CreateFileStructure(string userID)
     {
@@ -110,7 +110,7 @@ public class DataManager : MonoBehaviour
         sessionPath = userPath + "/sessions";
         romPath = userPath + "/rom";
         rawPath = userPath + "/rawdata";
-        gamePath = userPath + "/game";
+       
         logPath = userPath + "/applog";
         //eror Log File
         errorLogPath = userPath + "/errorlog";
@@ -128,7 +128,6 @@ public class DataManager : MonoBehaviour
         Directory.CreateDirectory(trainingPlanePath);
         Directory.CreateDirectory(armWeightPath);
         Directory.CreateDirectory(rawPath);
-        Directory.CreateDirectory(gamePath);
         Directory.CreateDirectory(logPath);
         Directory.CreateDirectory(errorLogPath);
 
@@ -364,7 +363,7 @@ public static class AppLogger
             if (logWriter != null)
             {
                 string _user = AppData.Instance.userData != null ? AppData.Instance.userData.hospNumber : "";
-                string _msg = $"{DateTime.Now:dd-MM-yyyy HH:mm:ss} {logMsgType,-7} {InBraces(_user),-10} {InBraces(currentScene),-12} {InBraces(currentMovement),-8} {InBraces(currentGame),-8} >> {message}";
+                string _msg = $"{DateTime.Now:dd-MM-yyyy HH:mm:ss} {logMsgType,-7}   {InBraces(_user),-10}     {InBraces(currentScene),-12}   {InBraces(currentMovement),-8}      {InBraces(currentGame),-8} >> {message}";
                 logWriter.WriteLine(_msg);
                 logWriter.Flush();
                 if (DEBUG) Debug.Log(_msg);
