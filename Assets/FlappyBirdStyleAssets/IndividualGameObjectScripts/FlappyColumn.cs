@@ -21,10 +21,12 @@ public class FlappyColumn : MonoBehaviour
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        if (FlappyGameControl.Instance.isTargetMissed)
+            return;
         if (collision.gameObject.tag == "Player" && collision.GetComponent<BirdControl>() != null && prevSpawnTime > 1)
         {
             prevSpawnTime = 0;
-            FlappyGameControl.Instance.BallCaught();
+           
             FlappyGameControl.Instance.BirdScored();
         }
 

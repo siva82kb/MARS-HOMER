@@ -133,6 +133,7 @@ public class BirdControl : MonoBehaviour
         }
         if (!isInitialized) return;
         updatePlayerPosition();
+       
     }
 
     public void SpriteBlinkingEffect()
@@ -163,11 +164,13 @@ public class BirdControl : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
+
         if (collision.gameObject.tag == "TopCollider" || collision.gameObject.tag == "BottomCollider")
         {
+            
             startBlinking = true;
             columnHit = true;
-            Debug.Log("Column hit");
+           
         }
     }
 

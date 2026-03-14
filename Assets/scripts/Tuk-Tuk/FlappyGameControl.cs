@@ -481,7 +481,7 @@ public class FlappyGameControl : MonoBehaviour
         }
     }
 
-    public void BallCaught() {
+    public void targetPass() {
         Debug.Log($"{targetTime} targetTime");
         isTargetHit = true;
         isTargetMissed = false;
@@ -490,7 +490,7 @@ public class FlappyGameControl : MonoBehaviour
         
     }
 
-    public void BallMissed() {
+    public void targetHit() {
         Debug.Log($"{targetTime} targetTime");
         isTargetHit = false;
         isTargetMissed = true;
@@ -509,27 +509,29 @@ public class FlappyGameControl : MonoBehaviour
         {
             gameOver = true;
             score = 0;
-            Debug.Log("not died");
+          
             BirdDied();
         }
         else
         {
-            if (!bc.startBlinking )
+            if (!BirdControl.Instance.startBlinking )
             {
                
                 int index = UnityEngine.Random.Range(0, winClip.Length);
                 GetComponent<AudioSource>().clip = winClip[index];
 
                 if (score != 0) GetComponent<AudioSource>().Play();
-                //BallCaught();
+
+                targetPass();
             }
             else
             {
                 int index = UnityEngine.Random.Range(0, hitClip.Length);
                 GetComponent<AudioSource>().clip = hitClip[index];
                 GetComponent<AudioSource>().Play();
+               
+                targetHit();
 
-                BallMissed();
             }
         }
     }
