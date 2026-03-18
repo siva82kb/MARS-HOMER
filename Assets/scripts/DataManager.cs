@@ -85,7 +85,7 @@ public class DataManager : MonoBehaviour
         "Error", "ErrorDiff", "ErrorSum",
         "GamePlayerX", "GamePlayerY",
         "GameTargetX", "GameTargetY",
-        "GameState",
+        "GameState","TargetNumber","HitNumber","MissNumber",
         "Annotation",
         "Miscellaneous"
 

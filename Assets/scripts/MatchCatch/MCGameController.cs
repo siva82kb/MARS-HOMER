@@ -203,6 +203,18 @@ public class MCGameController : MonoBehaviour
                 targetGamePosition = null;
                 targetEndPointPosition = null;
             }
+            else
+            {
+                targetGamePosition = GameObject.FindGameObjectWithTag("Target").transform.position;
+                targetEndPointPosition = new Vector3
+                (
+                    0,
+                    player.unityYToRobotY(GameObject.FindGameObjectWithTag("Target").transform.position.y),
+                    player.unityXToRobotZ(GameObject.FindGameObjectWithTag("Target").transform.position.x)
+
+                );
+
+            }
         }
     }
     public void initUI()

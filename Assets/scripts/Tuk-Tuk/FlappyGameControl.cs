@@ -380,7 +380,7 @@ public class FlappyGameControl : MonoBehaviour
             columns[CurrentColumn].tag = "Target";
              // Debug.Log($"{(BirdControl.rb2d.transform.position.x + spawnXposition, targetPosition, 0)}");
            
-        if (CurrentColumn == 0)
+            if (CurrentColumn == 0)
             {
                 columns[columnPoolSize - 1].tag = "Untagged";
             }
@@ -397,7 +397,6 @@ public class FlappyGameControl : MonoBehaviour
                 CurrentColumn = 0;
             }
 
-        // }
     }
 
    
@@ -601,10 +600,11 @@ public class FlappyGameControl : MonoBehaviour
                 }               
                 break;
             case GameStates.MOVE:
-                targetTime += Time.deltaTime;
                 // Wait for the user to success or fail.
                 if (isTargetHit) gameState = GameStates.SUCCESS;
-                if (isTargetMissed || isTimeUp ) gameState = GameStates.FAILURE;
+                if (isTargetMissed) gameState = GameStates.FAILURE;
+                if (isTimeUp) gameState = GameStates.STOP;
+                eventDelayTimer = 0.05f;
                 break;
             case GameStates.SUCCESS:
             case GameStates.FAILURE:
@@ -619,7 +619,6 @@ public class FlappyGameControl : MonoBehaviour
              
                 break;
             case GameStates.PAUSED:
-                Debug.Log(triaTimeLeft);
                 break;
             case GameStates.STOP:
                 // Trial complete.

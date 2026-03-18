@@ -65,7 +65,7 @@ public class DiagnosticSceneHandler : MonoBehaviour
     void Start()
     {
         // Connect to the robot.
-        ConnectToRobot.Connect(AppData.COMPort);
+        ConnectToRobot.Connect(DataManager.getLapConfig());
 
         // Initialize UI
         InitializeUI();

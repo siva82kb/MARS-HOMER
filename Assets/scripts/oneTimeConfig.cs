@@ -59,7 +59,8 @@ public class OneTimeConfig : MonoBehaviour
             popUpPanel.SetActive(false);
         // Automatically set startDateField and endDateField
         DateTime startDate = DateTime.Now;
-        DateTime endDate = startDate.AddDays(30);
+        DateTime endDate = startDate.AddDays(28).Date.AddDays(1).AddSeconds(-1);
+        Debug.Log(endDate + "endDate");
         if (File.Exists(DataManager.configFile))
         {
             DataTable configData = DataManager.loadCSV(DataManager.configFile);
@@ -69,8 +70,8 @@ public class OneTimeConfig : MonoBehaviour
             bool rightHand = lastRow.Field<string>("TrainingSide") == "Right";
 
             //startDate = DateTime.ParseExact(lastRow.Field<string>("StartDate"), "dd-MM-yyyy", CultureInfo.InvariantCulture);
-            endDate = DateTime.ParseExact(lastRow.Field<string>("endDate"), "dd-MM-yyyy", CultureInfo.InvariantCulture);
-
+            endDate = DateTime.ParseExact(lastRow.Field<string>("endDate"), "dd-MM-yyyy HH:mm:ss", CultureInfo.InvariantCulture);
+           
             homerIdField.text = hospNumber;
             affectedSideDropdown.options[affectedSideDropdown.value].text = rightHand ? "Right" : "Left";
             LocationDropdown.options[LocationDropdown.value].text = lastRow.Field<string>("Location");
@@ -89,8 +90,8 @@ public class OneTimeConfig : MonoBehaviour
 
         }
       
-        startDateField.text = startDate.ToString("dd-MM-yyyy");
-        endDateField.text = endDate.ToString("dd-MM-yyyy");
+        startDateField.text = startDate.ToString("dd-MM-yyyy HH:mm:ss");
+        endDateField.text = endDate.ToString("dd-MM-yyyy HH:mm:ss");
         mlDuration.onValueChanged.AddListener(delegate { UpdateTotalDuration(); });
         apDuration.onValueChanged.AddListener(delegate { UpdateTotalDuration(); });
         mlapDuration.onValueChanged.AddListener(delegate { UpdateTotalDuration(); });

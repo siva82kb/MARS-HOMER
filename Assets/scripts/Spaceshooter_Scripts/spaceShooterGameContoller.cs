@@ -7,6 +7,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using static UnityEngine.GraphicsBuffer;
 //using UnityEngine.UIElements;
 
 
@@ -103,7 +104,7 @@ public class SpaceShooterGameContoller : MonoBehaviour
     public Vector3? targetGamePosition { get; private set; }
     public Vector3? targetEndPointPosition { get; private set; }
     public GameObject targetObject;
-
+    Vector3 gTarget;
     private void Awake()
     {
         MarsComm.sendHeartbeat();
@@ -240,6 +241,15 @@ public class SpaceShooterGameContoller : MonoBehaviour
                 targetGamePosition = null;
                 targetEndPointPosition = null;
             }
+            else
+            {
+                targetGamePosition = GameObject.FindGameObjectWithTag("Asteroid").transform.position;
+                targetEndPointPosition = new Vector3(
+                0,
+                    SSPlayerController.unityYToRobotY(GameObject.FindGameObjectWithTag("Asteroid").transform.position.y),
+                    SSPlayerController.unityXToRobotZ(GameObject.FindGameObjectWithTag("Asteroid").transform.position.x)
+                );
+            }
         }
     }
 
@@ -272,7 +282,7 @@ public class SpaceShooterGameContoller : MonoBehaviour
                 if (AsteroidSpawner.Instance == null) break;
                 if (!runOnce)
                 {
-                    Vector3 gTarget = AsteroidSpawner.Instance.SpawnAsteroid(
+                    gTarget = AsteroidSpawner.Instance.SpawnAsteroid(
                         xMin: SSPlayerController.xScreenMin,
                         xMax: SSPlayerController.xScreenMax
                     );

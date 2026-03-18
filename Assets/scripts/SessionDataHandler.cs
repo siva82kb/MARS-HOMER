@@ -52,7 +52,7 @@ public static class SessionDataHandler
 
         for (int i = 0; i < totalDays; i++)
         {
-            DateTime current = AppData.Instance.userData.startDate.AddDays(i);
+            DateTime current = AppData.Instance.userData.startDate.AddDays(i).Date;
 
             dateData[i] = current.ToString(DATEFORMAT);
 

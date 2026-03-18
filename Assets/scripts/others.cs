@@ -171,8 +171,8 @@ public class MarsUserData
         DataRow lastRow = dTableConfig.Rows[dTableConfig.Rows.Count - 1];
         hospNumber = lastRow.Field<string>(HOMERID);
         rightArm = lastRow.Field<string>(TRAININGSIDE).ToUpper() == "RIGHT";
-        startDate = DateTime.ParseExact(lastRow.Field<string>(STARTEDATEH), "dd-MM-yyyy", CultureInfo.InvariantCulture);
-        endDate = DateTime.ParseExact(lastRow.Field<string>(ENDDATEH), "dd-MM-yyyy", CultureInfo.InvariantCulture);
+        startDate = DateTime.ParseExact(lastRow.Field<string>(STARTEDATEH), "dd-MM-yyyy HH:mm:ss", CultureInfo.InvariantCulture);
+        endDate = DateTime.ParseExact(lastRow.Field<string>(ENDDATEH), "dd-MM-yyyy HH:ss:mm", CultureInfo.InvariantCulture);
         moveTimePrsc = createMoveTimeDictionary();
         for (int i = 0; i < MarsDefs.Movements.Length; i++)
         {

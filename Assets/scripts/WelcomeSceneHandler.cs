@@ -73,7 +73,7 @@ public class welcomeSceneHandler : MonoBehaviour
 
         if (Input.GetKey(KeyCode.LeftControl) &&
            Input.GetKey(KeyCode.LeftShift) &&
-           Input.GetKeyDown(KeyCode.T)) // magic key combo
+           Input.GetKeyDown(KeyCode.X)) // magic key combo
         {
             SceneManager.LoadScene("CONFIG");
             Debug.Log("Key pressed");

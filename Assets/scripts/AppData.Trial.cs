@@ -204,6 +204,9 @@ public partial class AppData
             rawDataString.Append($"{_targetGamePos.x},");                           // GameTargetX
             rawDataString.Append($"{_targetGamePos.y},");                           // GameTargetY
             rawDataString.Append($"{GetGameState()},");                             // GameState
+            rawDataString.Append($"{GetTargetNumber()},");                          // GameTargetNumber
+            rawDataString.Append($"{GetHitNumber()},");                             // GameHitNumber
+            rawDataString.Append($"{GetMissNumber()},");                            // GameMissNumber
             rawDataString.Append($"{AppData.Instance.annotation},");                // Annotation
             rawDataString.Append($"{GetMiscellaneous()}");                          // Miscellaneous //Target Reach Time only for Ping-Pong Game
             rawDataString.Append("\n");
@@ -482,6 +485,98 @@ public partial class AppData
         }
         return "";
     }
+    private string GetTargetNumber()
+    {
+        if (selectedGame == null) return "";
+        //// Get the game state.
+        if (selectedGame.name == "SS")
+        {
+            return SpaceShooterGameContoller.Instance != null ? SpaceShooterGameContoller.Instance.nTargets.ToString() : "";
+        }
+        else if (selectedGame.name == "PP")
+        {
+            return pongGameController.Instance != null ? pongGameController.Instance.nTargets.ToString() : "";
+        }
 
+        else if (selectedGame.name == "DC")
+        {
+            return DCGameController.Instance != null ? DCGameController.Instance.nTargets.ToString() : "";
+        }
+        else if (selectedGame.name == "TT")
+        {
+            return FlappyGameControl.Instance != null ? FlappyGameControl.Instance.nTargets.ToString() : "";
+        }
+        else if (selectedGame.name == "TW")
+        {
+            return TWGameController.Instance != null ? TWGameController.Instance.nTargets.ToString() : "";
+        }
+        else if (selectedGame.name == "MC")
+        {
+            return MCGameController.Instance != null ? MCGameController.Instance.nTargets.ToString() : "";
+        }
+        return "";
+    }
+    private string GetHitNumber()
+    {
+        if (selectedGame == null) return "";
+        //// Get the game state.
+        if (selectedGame.name == "SS")
+        {
+            return SpaceShooterGameContoller.Instance != null ? SpaceShooterGameContoller.Instance.nSuccess.ToString() : "";
+        }
+        else if (selectedGame.name == "PP")
+        {
+            return pongGameController.Instance != null ? pongGameController.Instance.nSuccess.ToString() : "";
+        }
+
+        else if (selectedGame.name == "DC")
+        {
+            return DCGameController.Instance != null ? DCGameController.Instance.nSuccess.ToString() : "";
+        }
+        else if (selectedGame.name == "TT")
+        {
+            return FlappyGameControl.Instance != null ? FlappyGameControl.Instance.nSuccess.ToString() : "";
+        }
+        else if (selectedGame.name == "TW")
+        {
+            return TWGameController.Instance != null ? TWGameController.Instance.nSuccess.ToString() : "";
+        }
+        else if (selectedGame.name == "MC")
+        {
+            return MCGameController.Instance != null ? MCGameController.Instance.nSuccess.ToString() : "";
+        }
+        return "";
+    }
+    private string GetMissNumber()
+    {
+        if (selectedGame == null) return "";
+        //// Get the game state.
+        if (selectedGame.name == "SS")
+        {
+            return SpaceShooterGameContoller.Instance != null ? SpaceShooterGameContoller.Instance.nFailure.ToString() : "";
+        }
+        else if (selectedGame.name == "PP")
+        {
+            return pongGameController.Instance != null ? pongGameController.Instance.nFailure.ToString() : "";
+        }
+
+        else if (selectedGame.name == "DC")
+        {
+            return DCGameController.Instance != null ? DCGameController.Instance.nFailure.ToString() : "";
+        }
+        else if (selectedGame.name == "TT")
+        {
+            return FlappyGameControl.Instance != null ? FlappyGameControl.Instance.nFailure.ToString() : "";
+        }
+        else if (selectedGame.name == "TW")
+        {
+            return TWGameController.Instance != null ? TWGameController.Instance.nFailure.ToString() : "";
+        }
+        else if (selectedGame.name == "MC")
+        {
+            return MCGameController.Instance != null ? MCGameController.Instance.nFailure.ToString() : "";
+        }
+        return "";
+    }
     public void reloadSessionDetails() => Instance.userData.readParseSessionData(DataManager.sessionFile);
 }

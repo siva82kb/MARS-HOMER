@@ -397,7 +397,7 @@ public class pongGameController : MonoBehaviour {
 
     public void BallHitted()
     {
-        Debug.Log($"{targetTime} targetTime");
+        //Debug.Log($"{targetTime} targetTime");
         targetTime = 0;
         isBallHitted = true;
         isBallMissed = false;

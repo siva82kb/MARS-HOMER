@@ -213,8 +213,10 @@ public class dataUpload : MonoBehaviour
             //Process.Start("shutdown", "/s /t 0");
             #if UNITY_EDITOR
                         UnityEditor.EditorApplication.isPlaying = false;
+            #else
+                Process.Start("shutdown", "/s /t 0");
             #endif
-            Process.Start("shutdown", "/s /t 0");
+
         }
         catch (System.Exception ex)
         {
