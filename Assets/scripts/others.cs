@@ -172,7 +172,7 @@ public class MarsUserData
         hospNumber = lastRow.Field<string>(HOMERID);
         rightArm = lastRow.Field<string>(TRAININGSIDE).ToUpper() == "RIGHT";
         startDate = DateTime.ParseExact(lastRow.Field<string>(STARTEDATEH), "dd-MM-yyyy HH:mm:ss", CultureInfo.InvariantCulture);
-        endDate = DateTime.ParseExact(lastRow.Field<string>(ENDDATEH), "dd-MM-yyyy HH:ss:mm", CultureInfo.InvariantCulture);
+        endDate = DateTime.ParseExact(lastRow.Field<string>(ENDDATEH), "dd-MM-yyyy HH:mm:ss", CultureInfo.InvariantCulture);
         moveTimePrsc = createMoveTimeDictionary();
         for (int i = 0; i < MarsDefs.Movements.Length; i++)
         {
@@ -357,18 +357,25 @@ public class MarsUserData
     public int[] readStarCounts(string gameName)
     {
         var lastRow = dTableSession.AsEnumerable().LastOrDefault();
-        if (lastRow == null) return new int[] { 0, 0 };
+        if (lastRow == null) return new int[] { 0, 0 ,0};
         int cummulativeStarCounts = Convert.ToInt32(lastRow.Field<string>("CummulativeStars"));
-       
         DateTime today = DateTime.Today;
-      
+        DateTime yesterday = today.AddDays(-1);
+
+        // ⭐ Cumulative stars till yesterday (ACROSS ALL mechanisms)
+        int cumulativeStarUntilYesterday = dTableSession.AsEnumerable()
+            .Where(r => DateTime.ParseExact(
+                    r.Field<string>("DateTime"), DataManager.DATETIMEFORMAT, null).Date <= yesterday)
+            .Sum(r => Convert.ToInt32(r["currentStar"]));
+
+       
         var currentStarCount = dTableSession.AsEnumerable()
                                   .Where(row => DateTime.ParseExact(row.Field<string>(DATETIME).Trim(), DataManager.DATETIMEFORMAT, CultureInfo.InvariantCulture).Date == today.Date &&
                                          row.Field<string>("GameName") == gameName
                                          )
                                   .Sum(row => Convert.ToInt32(row["currentStar"]));
 
-        return new int[] { cummulativeStarCounts, currentStarCount };
+        return new int[] { cummulativeStarCounts, currentStarCount ,cumulativeStarUntilYesterday};
     }
     
 

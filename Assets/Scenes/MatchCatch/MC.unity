@@ -2123,6 +2123,11 @@ MonoBehaviour:
   audioSource: {fileID: 1110493739}
   success: {fileID: 8300000, guid: c9d337c156c95b6408f89ddf94829bc1, type: 3}
   failure: {fileID: 8300000, guid: af349055c75622a45952e2dfc4ee048a, type: 3}
+  bgmClip:
+  - {fileID: 8300000, guid: 2f62b13d213c40d4c817f53bec799e71, type: 3}
+  - {fileID: 8300000, guid: ade6a78be5473d3498d57c11cbb0d70e, type: 3}
+  - {fileID: 8300000, guid: d900fa5de51c30343ba374281cb66a31, type: 3}
+  bgAudioSource: {fileID: 1110493740}
   sprites:
   - {fileID: -4487054363909662899, guid: 17db7b4651c44c840b137e1283ea541d, type: 3}
   - {fileID: 8779154283397911993, guid: 17db7b4651c44c840b137e1283ea541d, type: 3}
@@ -2249,8 +2254,8 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 2f62b13d213c40d4c817f53bec799e71, type: 3}
-  m_Resource: {fileID: 8300000, guid: 2f62b13d213c40d4c817f53bec799e71, type: 3}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
   m_Volume: 0.683
   m_Pitch: 1

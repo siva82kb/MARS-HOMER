@@ -39,6 +39,8 @@ public class TWGameController : MonoBehaviour
     private ParticleSystem cleaningPartical;
     public AudioSource audioSource;
     public AudioSource audioSourcewipping;
+    public AudioClip[] bgmClip;
+    public AudioSource bgAudioSource;
     public GameObject moneySprite;
     private GameObject money;
     public AudioClip playerWinAudio;
@@ -354,6 +356,27 @@ public class TWGameController : MonoBehaviour
         if (debug) return;
         // Start the next new Trail
         AppData.Instance.StartNewTrial();
+        
+        // Set bgm based on location
+        switch (AppData.Instance.userData.GetDeviceLocation())
+        {
+            case "Ranipet":
+                bgAudioSource.clip = bgmClip[0];
+                bgAudioSource.Play();
+                break;
+            case "Manipal":
+                bgAudioSource.clip = bgmClip[1];
+                bgAudioSource.Play();
+                break;
+            case "Ludhiana":
+                bgAudioSource.clip = bgmClip[2];
+                bgAudioSource.Play();
+                break;
+            default:
+                bgAudioSource.clip = bgmClip[0];
+                bgAudioSource.Play();
+                break;
+        }
     }
 
     public void onClickExit()

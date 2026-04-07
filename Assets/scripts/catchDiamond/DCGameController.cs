@@ -45,6 +45,8 @@ public class DCGameController : MonoBehaviour
     public AudioClip playerIn;
     public AudioClip playerOut;
     public AudioClip TargetFailed;
+    public AudioClip[] bgmClip;
+    public AudioSource bgAudioSource;
     public TextMeshProUGUI cummulativeScoreTxt;
     public GameObject celebrationPanle;
     public TextMeshProUGUI scoreComparisonTxt;
@@ -483,6 +485,27 @@ public class DCGameController : MonoBehaviour
        
         // Start the next new Trail
         AppData.Instance.StartNewTrial();
+        
+        // Set bgm based on location
+        switch (AppData.Instance.userData.GetDeviceLocation())
+        {
+            case "Ranipet":
+                bgAudioSource.clip = bgmClip[0];
+                bgAudioSource.Play();
+                break;
+            case "Manipal":
+                bgAudioSource.clip = bgmClip[1];
+                bgAudioSource.Play();
+                break;
+            case "Ludhiana":
+                bgAudioSource.clip = bgmClip[2];
+                bgAudioSource.Play();
+                break;
+            default:
+                bgAudioSource.clip = bgmClip[0];
+                bgAudioSource.Play();
+                break;
+        }
     }
 
     public void onClickExit()

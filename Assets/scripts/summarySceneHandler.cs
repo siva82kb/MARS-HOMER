@@ -37,6 +37,7 @@ public class summarySceneHandler : MonoBehaviour
     public GameObject MCstar;
     public GameObject TotalStar;
     public TextMeshProUGUI totalStarCount;
+    public TextMeshProUGUI totalStarCountUntilYesterday;
     public void Start()
     {
         //debug mode
@@ -71,8 +72,17 @@ public class summarySceneHandler : MonoBehaviour
         cuScore = MarsGameDefs.Spaceshooter.GetCummulativeScores();
         ssCummulativeScoreTxt.text = $"{cuScore[1].ToString("D4")}";
         ssCurrentScoreTxt.text = $"{scores[1].ToString("D3")}/{scores[0].ToString("D3")}";
-        if (MarsGameDefs.Spaceshooter.IsAchievedToday()) SSstar.GetComponent<Image>().color = Color.white ;
+        if (MarsGameDefs.Spaceshooter.IsAchievedToday())
+        {
+            if (SSstar.activeSelf)
+            {
+                MCstar.SetActive(true);
+                return;
+            }
+            SSstar.GetComponent<Image>().color = Color.white;
+        }
         totalStarCount.text = CumStar[0].ToString("D3");
+        //totalStarCountUntilYesterday.text = CumStar[2].ToString("D3");
         if (CumStar[0]>0)TotalStar.GetComponent<Image>().color = Color.white ;  
 
         //PingPong Game Data
@@ -80,22 +90,45 @@ public class summarySceneHandler : MonoBehaviour
         cuScore = MarsGameDefs.PingPong.GetCummulativeScores();
         ppCummulativeScoreTxt.text = $"{cuScore[1].ToString("D4")}";
         ppCurrentScoreTxt.text = $"{scores[1].ToString("D3")}/{scores[0].ToString("D3")}";
-        if(MarsGameDefs.PingPong.IsAchievedToday())PPstar.GetComponent<Image>().color = Color.white;
+        if (MarsGameDefs.PingPong.IsAchievedToday())
+        {
+            if (PPstar.activeSelf)
+            {
+                TTstar.SetActive(true);
+                return;
+            }
+            PPstar.GetComponent<Image>().color = Color.white;
+        }
 
         //DiamondCatcher Game Data
         scores = MarsGameDefs.DiamondCatcher.GetScores();
         cuScore = MarsGameDefs.DiamondCatcher.GetCummulativeScores();
         DcCummulativeScoreTxt.text = $"{cuScore[1].ToString("D4")}";
         DCCurrentScoreTxt.text = $"{scores[1].ToString("D3")} / {scores[0].ToString("D3")}";
-        if(MarsGameDefs.DiamondCatcher.IsAchievedToday())DCstar.GetComponent<Image>().color = Color.white;
+        if (MarsGameDefs.DiamondCatcher.IsAchievedToday()) 
+        {
+            if (DCstar.activeSelf)
+            {
+                TWstar.SetActive(true);
+                return;
+            }
+            DCstar.GetComponent<Image>().color = Color.white; 
+        }
       
-
         //TableWipping Game Data
         scores = MarsGameDefs.TableWiping.GetScores();
         cuScore = MarsGameDefs.TableWiping.GetCummulativeScores();
         TWCummulativeScoreTxt.text = $"{cuScore[1].ToString("D4")}";
         TWCurrentScoreTxt.text = $"{scores[1].ToString("D3")} / {scores[0].ToString("D3")}";
-        if (MarsGameDefs.TableWiping.IsAchievedToday()) TWstar.GetComponent<Image>().color = Color.white;
+        if (MarsGameDefs.TableWiping.IsAchievedToday())
+        {
+            if (!DCstar.activeSelf)
+            {
+                DCstar.SetActive(true);
+                return;
+            }
+            TWstar.GetComponent<Image>().color = Color.white;
+        }
       
 
         //TUK-TUK Game Data
@@ -103,17 +136,33 @@ public class summarySceneHandler : MonoBehaviour
         cuScore = MarsGameDefs.TukTuk.GetCummulativeScores();
         TTCummulativeScoreTxt.text = $"{cuScore[1].ToString("D4")}";
         TTCurrentScoreTxt.text = $"{scores[1].ToString("D3")} / {scores[0].ToString("D3")}";
-        if (MarsGameDefs.TukTuk.IsAchievedToday()) TTstar.GetComponent<Image>().color = Color.white;
+        if (MarsGameDefs.TukTuk.IsAchievedToday())
+        {
+            if (!PPstar.activeSelf)
+            {
+                PPstar.SetActive(true);
+                return;
+            }
+            TTstar.GetComponent<Image>().color = Color.white;
+        }
  
 
-        //Match Drop Game Data
+        //Match catch Game Data
         scores = MarsGameDefs.MatchCatch.GetScores();
         cuScore = MarsGameDefs.MatchCatch.GetCummulativeScores();
         Debug.Log(scores[0].ToString()+","+scores[1].ToString());
         Debug.Log(cuScore[1].ToString());
         MCCummulativeScoreTxt.text = $"{cuScore[1].ToString("D4")}";
         MCCurrentScoreTxt.text = $"{scores[1].ToString("D3")} / {scores[0].ToString("D3")}";
-        if (MarsGameDefs.MatchCatch.IsAchievedToday()) MCstar.GetComponent<Image>().color = Color.white;
+        if (MarsGameDefs.MatchCatch.IsAchievedToday())
+        {
+            if (!SSstar.activeSelf)
+            {
+                SSstar.SetActive(true);
+                return;
+            }
+            MCstar.GetComponent<Image>().color = Color.white;
+        }
     
 
     }

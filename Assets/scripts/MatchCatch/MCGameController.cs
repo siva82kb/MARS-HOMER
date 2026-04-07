@@ -31,6 +31,8 @@ public class MCGameController : MonoBehaviour
     public AudioSource audioSource;
     public AudioClip success;
     public AudioClip failure;
+    public AudioClip[] bgmClip;
+    public AudioSource bgAudioSource;
     public Sprite[] sprites;
     public GameObject reminderPanel;
     public GameObject celebrationPanle;
@@ -390,7 +392,7 @@ public class MCGameController : MonoBehaviour
         return false;
     }
 
-    // Simple Fisher–Yates shuffle
+    // Simple Fisherï¿½Yates shuffle
     void ShuffleList<T>(List<T> list)
     {
         for (int i = list.Count - 1; i > 0; i--)
@@ -501,6 +503,28 @@ public class MCGameController : MonoBehaviour
         // Start a new Trail
         if (debug) return;
         AppData.Instance.StartNewTrial();
+        
+        // Set bgm based on location
+        switch (AppData.Instance.userData.GetDeviceLocation())
+        {
+            case "Ranipet":
+                bgAudioSource.clip = bgmClip[0];
+                bgAudioSource.Play();
+                break;
+            case "Manipal":
+                bgAudioSource.clip = bgmClip[1];
+                bgAudioSource.Play();
+                break;
+            case "Ludhiana":
+                bgAudioSource.clip = bgmClip[2];
+                bgAudioSource.Play();
+                break;
+            default:
+                bgAudioSource.clip = bgmClip[0];
+                bgAudioSource.Play();
+                break;
+        }
+        
         AppLogger.LogInfo($"Space Shooter Game started for movement '{AppData.Instance.selectedMovement.name}'. Game Speed: {AppData.Instance.selectedGame.gameParameter} | Duration: {gameDuration}s");
 
        

@@ -2410,6 +2410,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gameOverPanel: {fileID: 258071794}
+  bgmClip:
+  - {fileID: 8300000, guid: 4958f3be71b7c4146b02b5f30e444827, type: 3}
+  - {fileID: 8300000, guid: 55e50aecd389e1a40956439b48d69244, type: 3}
+  - {fileID: 8300000, guid: 55d21b57504d9a248a37445cf4aa56a9, type: 3}
+  bgAudioSource: {fileID: 1916923087}
   timerText: {fileID: 1861666900}
   scoreText: {fileID: 1606839410}
   gameSpeedControl: {fileID: 1388924263745650255}
@@ -2443,8 +2448,8 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 4958f3be71b7c4146b02b5f30e444827, type: 3}
-  m_Resource: {fileID: 8300000, guid: 4958f3be71b7c4146b02b5f30e444827, type: 3}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
   m_Volume: 0.759
   m_Pitch: 1

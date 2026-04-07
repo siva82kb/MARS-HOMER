@@ -777,6 +777,11 @@ MonoBehaviour:
   playerWon: 0
   enemyWon: 0
   audioClips: []
+  bgmClip:
+  - {fileID: 8300000, guid: c73bd41747296a946b55d20adcb8d75e, type: 3}
+  - {fileID: 8300000, guid: 362c33913af23894f93a4da3eda1f68b, type: 3}
+  - {fileID: 8300000, guid: 1d3b878ece8948e44b12b1291a921433, type: 3}
+  bgAudioSource: {fileID: 206402967}
   reminderPanel: {fileID: 1295785101}
   pauseImage: {fileID: 1520255680}
   startImage: {fileID: 1333363799}

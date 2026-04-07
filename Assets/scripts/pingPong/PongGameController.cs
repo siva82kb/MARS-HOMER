@@ -22,6 +22,8 @@ public class pongGameController : MonoBehaviour {
     public bool buttonPressed = false;
     public bool playerWon, enemyWon;
     public AudioClip[] audioClips; // winlevel loose
+    public AudioClip[] bgmClip;
+    public AudioSource bgAudioSource;
     public GameObject reminderPanel;
     public GameObject pauseImage;
     public GameObject startImage;
@@ -278,6 +280,27 @@ public class pongGameController : MonoBehaviour {
 
         // Start the new trial.
         AppData.Instance.StartNewTrial();
+        
+        // Set bgm based on location
+        switch (AppData.Instance.userData.GetDeviceLocation())
+        {
+            case "Ranipet":
+                bgAudioSource.clip = bgmClip[0];
+                bgAudioSource.Play();
+                break;
+            case "Manipal":
+                bgAudioSource.clip = bgmClip[1];
+                bgAudioSource.Play();
+                break;
+            case "Ludhiana":
+                bgAudioSource.clip = bgmClip[2];
+                bgAudioSource.Play();
+                break;
+            default:
+                bgAudioSource.clip = bgmClip[0];
+                bgAudioSource.Play();
+                break;
+        }
         
         // Set the trial duration
         gameDuration = MarsGameDefs.GAMEDURATION[AppData.Instance.selectedGame.name];

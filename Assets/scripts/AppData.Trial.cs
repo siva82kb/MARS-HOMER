@@ -137,6 +137,7 @@ public partial class AppData
         // Write pre-header and header information
         rawDataString.AppendLine($":Device: MARS");
         rawDataString.AppendLine($":Location: {userData.GetDeviceLocation()}");
+        rawDataString.AppendLine($":User    : {userID}");
         rawDataString.AppendLine($":Movement: {selectedMovement.name}");
         rawDataString.AppendLine($":Game: {selectedGame.name}");
         rawDataString.AppendLine($":TrialType: ");

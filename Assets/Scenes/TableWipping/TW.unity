@@ -529,6 +529,11 @@ MonoBehaviour:
   cleaningParticalPrefeb: {fileID: 8678453998360768554, guid: ec44440d993b7904186300b970c9de59, type: 3}
   audioSource: {fileID: 314420974}
   audioSourcewipping: {fileID: 314420975}
+  bgmClip:
+  - {fileID: 8300000, guid: deb89db48fd58e84ba65ae138f3ca601, type: 3}
+  - {fileID: 8300000, guid: 4081894ca79be1c46a2c19b09c5dd34c, type: 3}
+  - {fileID: 8300000, guid: 2f2c0d04eeeb54e43a47400dd62a26a9, type: 3}
+  bgAudioSource: {fileID: 314420976}
   moneySprite: {fileID: 4768637587931265140, guid: 34ea7a38f0f7c114d905aac0c455c595, type: 3}
   playerWinAudio: {fileID: 8300000, guid: 9b2b725e52afdab4aa36126acc7b87ce, type: 3}
   cummulativeScoreTxt: {fileID: 0}

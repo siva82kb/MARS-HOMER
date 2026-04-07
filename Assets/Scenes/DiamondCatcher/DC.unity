@@ -1380,6 +1380,11 @@ MonoBehaviour:
   playerIn: {fileID: 8300000, guid: b923e1bef9c55834195fe93706d2fab3, type: 3}
   playerOut: {fileID: 8300000, guid: 5b02d62bec46ead43a25f6535075c8b8, type: 3}
   TargetFailed: {fileID: 8300000, guid: 8404507c9c1100c4897152ba03193246, type: 3}
+  bgmClip:
+  - {fileID: 8300000, guid: 9e65984d977aab244a7f1ac48d1556e0, type: 3}
+  - {fileID: 8300000, guid: 01ff1c7e1d9d51f4a8d1a08136dcbcdd, type: 3}
+  - {fileID: 8300000, guid: 3f6adaf87897a674183ff204857bcc2a, type: 3}
+  bgAudioSource: {fileID: 758250537}
   cummulativeScoreTxt: {fileID: 262203121}
   celebrationPanle: {fileID: 1745705295}
   scoreComparisonTxt: {fileID: 1745705294}
@@ -1406,8 +1411,8 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 9e65984d977aab244a7f1ac48d1556e0, type: 3}
-  m_Resource: {fileID: 8300000, guid: 9e65984d977aab244a7f1ac48d1556e0, type: 3}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
   m_Volume: 0.782
   m_Pitch: 1

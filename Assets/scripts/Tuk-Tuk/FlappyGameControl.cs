@@ -15,6 +15,9 @@ public class FlappyGameControl : MonoBehaviour
 {
     public AudioClip[] winClip;
     public AudioClip[] hitClip;
+    public AudioClip[] bgmClip;
+    public AudioSource eventAudioSource;
+    public AudioSource bgAudioSource;
     public TextMeshProUGUI ScoreText;
     public static FlappyGameControl Instance { get; private set; }
     public GameObject GameOverText;
@@ -166,7 +169,7 @@ public class FlappyGameControl : MonoBehaviour
 
         float fullHeight = Camera.main.orthographicSize * 2f; // Full camera height in world units
         PLAYSIZE  = fullHeight * 0.8f; // 80% of the camera height
-
+        
     }
 
     private void InitializeGame()
@@ -517,17 +520,17 @@ public class FlappyGameControl : MonoBehaviour
             {
                
                 int index = UnityEngine.Random.Range(0, winClip.Length);
-                GetComponent<AudioSource>().clip = winClip[index];
+                eventAudioSource.clip = winClip[index];
 
-                if (score != 0) GetComponent<AudioSource>().Play();
+                if (score != 0)eventAudioSource.Play();
 
                 targetPass();
             }
             else
             {
                 int index = UnityEngine.Random.Range(0, hitClip.Length);
-                GetComponent<AudioSource>().clip = hitClip[index];
-                GetComponent<AudioSource>().Play();
+                eventAudioSource.clip = hitClip[index];
+                eventAudioSource.Play();
                
                 targetHit();
 
@@ -554,8 +557,30 @@ public class FlappyGameControl : MonoBehaviour
         nFailure = 0;
         AppData.Instance.StartNewTrial();
         gameState = GameStates.SPAWNTARGET;
-    }
 
+        //Set bgm based on location
+        switch (AppData.Instance.userData.GetDeviceLocation())
+        {
+            case "Ranipet":
+                bgAudioSource.clip = bgmClip[0];
+                bgAudioSource.Play();
+                break;
+            case "Manipal":
+                bgAudioSource.clip = bgmClip[1];
+                bgAudioSource.Play();
+                break;
+            case "Ludhiana":
+                bgAudioSource.clip = bgmClip[2];
+                bgAudioSource.Play();
+                break;
+            default:
+                bgAudioSource.clip = bgmClip[0];
+                bgAudioSource.Play();
+                break;
+        }
+
+    }
+    
     public bool IsGamePlaying()
     {
         return gameState != GameStates.WAITING 
