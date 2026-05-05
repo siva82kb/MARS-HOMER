@@ -45,14 +45,7 @@ public class welcomeSceneHandler : MonoBehaviour
             SceneManager.LoadScene("CONFIG");
             return;
         }
-        if ((DateTime.Today - AppData.Instance.userData.startDate).TotalDays >= 15)
-        {
-            JediComm.Disconnect();
-            AppLogger.StopLogging();
-            MarsCommLogger.StopLogging();
-            SceneManager.LoadScene("CONFIG");
-        }
-
+       
         // Check if the directory exists
         if (!Directory.Exists(DataManager.basePath)) Directory.CreateDirectory(DataManager.basePath);
         // if (!File.Exists(DataManager.configFile)) SceneManager.LoadScene("CONFIG");

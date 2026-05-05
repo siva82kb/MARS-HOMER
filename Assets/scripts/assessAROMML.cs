@@ -13,7 +13,7 @@ using System.Runtime.Remoting.Messaging;
 public class AssessROMML : MarsAssessAROM
 {
     // Scenes to change to.
-    private readonly string preScene = "CHOOSEMOVE";
+    private string preScene;
     private readonly string robotCalibScene = "ROBOTCALIB";
     private readonly string marsSetUp = "MARSSETUP";
 
@@ -26,6 +26,8 @@ public class AssessROMML : MarsAssessAROM
 
     protected override void Start()
     {
+        preScene = SceneTransitionManager.GetAssessmentReturnScene();
+
         // Initialize AppData if needed
         if (AppData.Instance.userData == null)
         {

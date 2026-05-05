@@ -77,5 +77,11 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/MatchCatch/MC.unity
     guid: b5099d0684531604690e7ef2b603c7f5
+  - enabled: 1
+    path: Assets/Scenes/PLANMODE.unity
+    guid: c6d3b5057f19b2b47ad555fa17a49ae3
+  - enabled: 1
+    path: Assets/Scenes/SETTIME.unity
+    guid: 68b32ae8d2049f84789b348a91b90c8b
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0

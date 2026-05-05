@@ -169,9 +169,10 @@ public class MarsUserData
     {
         dTableConfig = DataManager.loadCSV(configFile);
         DataRow lastRow = dTableConfig.Rows[dTableConfig.Rows.Count - 1];
+        DataRow firstRow = dTableConfig.Rows[0];
         hospNumber = lastRow.Field<string>(HOMERID);
         rightArm = lastRow.Field<string>(TRAININGSIDE).ToUpper() == "RIGHT";
-        startDate = DateTime.ParseExact(lastRow.Field<string>(STARTEDATEH), "dd-MM-yyyy HH:mm:ss", CultureInfo.InvariantCulture);
+        startDate = DateTime.ParseExact(firstRow.Field<string>(STARTEDATEH), "dd-MM-yyyy HH:mm:ss", CultureInfo.InvariantCulture);
         endDate = DateTime.ParseExact(lastRow.Field<string>(ENDDATEH), "dd-MM-yyyy HH:mm:ss", CultureInfo.InvariantCulture);
         moveTimePrsc = createMoveTimeDictionary();
         for (int i = 0; i < MarsDefs.Movements.Length; i++)

@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using TMPro;
 using UnityEngine;
@@ -175,29 +176,32 @@ public class summarySceneHandler : MonoBehaviour
         UpdateChartData();
        
     }
-    public void exit()
+public void exit()
     {
         if (AppData.isNRSBuilt) {
 
             try
             {
-                AppLogger.LogInfo("Disconnected form Mars And Application closed succesfully");
+                // Create marker file for NRS device setup check
+                string dirPath = "C:/DeviceSetups/Mars";
+                string filePath = Path.Combine(dirPath, "mars_demo_done.txt");
+                Directory.CreateDirectory(dirPath);
+                File.WriteAllText(filePath, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                
+                AppLogger.LogInfo("Created marker file at: " + filePath);
                 Application.Quit();
-                // Process.Start("shutdown", "/s /t 0");
-#if UNITY_EDITOR
-                UnityEditor.EditorApplication.isPlaying = false;
-#endif
-                // Process.Start("shutdown", "/s /t 0");
+                
+                #if UNITY_EDITOR
+                         UnityEditor.EditorApplication.isPlaying = false;
+                #endif
             }
             catch (System.Exception ex)
             {
-                Debug.LogError("Failed to shutdown: " + ex.Message);
+                Debug.LogError("Failed to create marker file: " + ex.Message);
             }
             return;
         }
 
-
-      
         AppLogger.LogInfo("Disconnected form Mars And Switch scene to DataUploading");
 
         SceneManager.LoadScene("DATAUPLOADING");

@@ -9,7 +9,8 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using SimpleJSON; // Make sure you have SimpleJSON in your project
+using SimpleJSON;
+using Unity.VisualScripting; // Make sure you have SimpleJSON in your project
 public class OneTimeConfig : MonoBehaviour
 {
   
@@ -53,10 +54,18 @@ public class OneTimeConfig : MonoBehaviour
     private void Start()
     {
         // Initialize verification panel (hidden by default)
-        if (verifyPanel != null)
-            verifyPanel.SetActive(false);
-        if (popUpPanel != null)
-            popUpPanel.SetActive(false);
+        if (!AppData.isNRSBuilt)
+        {
+            if (verifyPanel != null)
+                verifyPanel.SetActive(false);
+            if (popUpPanel != null)
+                popUpPanel.SetActive(false);
+            homerIdField.readOnly = true;
+            LocationDropdown.interactable = false;
+            affectedSideDropdown.interactable=false;
+          
+        }
+        
         // Automatically set startDateField and endDateField
         DateTime startDate = DateTime.Now;
         DateTime endDate = startDate.AddDays(28).Date.AddDays(1).AddSeconds(-1);
@@ -85,11 +94,15 @@ public class OneTimeConfig : MonoBehaviour
         }
         else
         {
-            detailsPanel.SetActive(false);
-            verifyPanel.SetActive(true);
+            if (!AppData.isNRSBuilt)
+            {
+                detailsPanel.SetActive(false);
+                verifyPanel.SetActive(true);
+            }
+          
 
         }
-      
+       
         startDateField.text = startDate.ToString("dd-MM-yyyy HH:mm:ss");
         endDateField.text = endDate.ToString("dd-MM-yyyy HH:mm:ss");
         mlDuration.onValueChanged.AddListener(delegate { UpdateTotalDuration(); });
@@ -106,6 +119,9 @@ public class OneTimeConfig : MonoBehaviour
             popupOk.onClick.AddListener(OnPopupOkClick);
         if (popupCancel != null)
             popupCancel.onClick.AddListener(OnPopupCancelClick);
+        mlDuration.text = "0";
+        apDuration.text = "0";
+        mlapDuration.text = "0";
 
     }
     // Called when verify button is clicked
@@ -126,6 +142,9 @@ public class OneTimeConfig : MonoBehaviour
             return;
         }
 
+        messageText.text = "Verifying HomerID...";
+        verifyButton.interactable = false;
+        
         Debug.Log($"Homer ID entered: {HOMERID.text}");
 
         currentPatientID = HOMERID.text;
@@ -152,14 +171,14 @@ public class OneTimeConfig : MonoBehaviour
             verifyPanel.SetActive(true);
             Debug.Log("Verify panel activated");
         }
-
+     
         // Start verification process
         StartCoroutine(VerifyHomerID(currentPatientID, currentLocation));
     }
     // NEW: Coroutine to verify HomerID from AWS
     private IEnumerator VerifyHomerID(string homerID, string location)
     {
-        messageText.text = "Verifying HomerID...";
+        
 
         // Construct S3 path
         string s3Path = $"s3://{awsBucketName}/{location}/{homerDetailsFileName}";
@@ -193,6 +212,7 @@ public class OneTimeConfig : MonoBehaviour
             {
                 Debug.LogError($"AWS CLI Error: {error}");
                 messageText.text = "Error connecting to AWS. Check internet connection.";
+                verifyButton.interactable = true;
                 yield break;
             }
         }
@@ -210,6 +230,8 @@ public class OneTimeConfig : MonoBehaviour
         {
             messageText.text = $"Could not find HomerDetails for location: {location}";
         }
+
+        verifyButton.interactable = true;
     }
 
     // NEW: Process the HomerDetails JSON - FIXED VERSION

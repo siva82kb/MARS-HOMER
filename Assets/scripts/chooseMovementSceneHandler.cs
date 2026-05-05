@@ -96,8 +96,7 @@ public class MovementSceneHandler : MonoBehaviour
         UpdateMovementToggleButtons();
         StartCoroutine(DelayedAttachListeners());
 
-        // Clear the message text.
-        message.text = "Please select the movement";
+       
         additionalMessage.text = "";
 
         // Update the assessment status text.
@@ -109,59 +108,70 @@ public class MovementSceneHandler : MonoBehaviour
     {
         MarsComm.sendHeartbeat();
         
-        // Check if the magic key combination is pressed for AROM assessment 
-        // or training plane selection.
-        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.A))
-        {
-            if (aromAssessmentScene != "")
-            {
+        // // Check if the magic key combination is pressed for AROM assessment 
+        // // or training plane selection.
+        // if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.A))
+        // {
+        //     if (aromAssessmentScene != "")
+        //     {
               
-                // Go the next assessment scene based on the selected movement.
-                nextScene = aromAssessmentScene;
-                changeScene = true;
-            }
+        //         // Go the next assessment scene based on the selected movement.
+        //         nextScene = aromAssessmentScene;
+        //         changeScene = true;
+        //     }
            
 
-        }
-        else if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.T))
+        // }
+        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.T))
         {
             // Switch to the training plane scene.
             nextScene = trainingPlaneScene;
             changeScene = true;
         }
-        else if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.W))
-        {
-            if (AppData.Instance.selectedMovement == null || AppData.Instance.selectedMovement.name != "MLAP")
-            {
-                message.text = "Weight assessment available only for MLAP movement.";
-                additionalMessage.text = "";
-                changeScene = false;
-                return;
-            }
+        // if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.W))
+        // {
+        //     if (AppData.Instance.selectedMovement == null || AppData.Instance.selectedMovement.name != "MLAP")
+        //     {
+        //         message.text = "Weight assessment available only for MLAP movement.";
+        //         additionalMessage.text = "";
+        //         changeScene = false;
+        //         return;
+        //     }
 
-            if (AppData.Instance.userData.IsAromAssessmentAvailableForTrainingAngle("MLAP"))
-            {
-                // Switch to the training plane scene.
-                nextScene = armWeightScene;
-                changeScene = true;
-            }
-            else
-            {
-                additionalMessage.text = "MLAP assessment needs to be completed first.";
-                // Switch to the MLAP AROM assessment scene.
-                AppData.Instance.SetMovement("MLAP");
-                nextScene = assessmentSceneMLAP;
-                changeScene = true;
-            }
+        //     if (AppData.Instance.userData.IsAromAssessmentAvailableForTrainingAngle("MLAP"))
+        //     {
+        //         // Switch to the training plane scene.
+        //         nextScene = armWeightScene;
+        //         changeScene = true;
+        //     }
+        //     else
+        //     {
+        //         additionalMessage.text = "MLAP assessment needs to be completed first.";
+        //         // Switch to the MLAP AROM assessment scene.
+        //         AppData.Instance.SetMovement("MLAP");
+        //         nextScene = assessmentSceneMLAP;
+        //         changeScene = true;
+        //     }
             
-        }
-        else if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Y))
+        // }
+        // else if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Y))
+        // {
+        //     nextScene = assessAp;
+        //     changeScene = true;
+
+        // }
+        if (Input.GetKey(KeyCode.LeftControl)&& Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.X))
         {
-            nextScene = assessAp;
-            changeScene = true;
-
+            SceneManager.LoadScene("PLANMODE");
         }
-
+        if(  !AppData.Instance.userData.IsAromAssessmentAvailableForTrainingAngle("ML")&&
+             !AppData.Instance.userData.IsAromAssessmentAvailableForTrainingAngle("AP")&&
+             !AppData.Instance.userData.IsAromAssessmentAvailableForTrainingAngle("MLAP"))
+        {
+            SceneManager.LoadScene("PLANMODE");
+        }
+            
+        
         //Check if a scene change is needed.
         if (changeScene == true && nextScene != "")
         {
@@ -170,7 +180,7 @@ public class MovementSceneHandler : MonoBehaviour
         }
     }
 
-   
+ 
     private void UpdateMovementToggleButtons()
     {
         foreach (Transform child in movementSelectGroup.transform)
@@ -180,6 +190,9 @@ public class MovementSceneHandler : MonoBehaviour
             // Hide the component if it has no prescribed time.
             toggleComponent.interactable = isPrescribed;
             toggleComponent.gameObject.SetActive(isPrescribed);
+            // Clear the message text.
+
+            message.text = isPrescribed?"Please select the movement":"";
             // Update the time trained in the timeLeft component of toggleCompoent.
             Transform timeLeftTransform = toggleComponent.transform.Find("timeLeft");
             if (timeLeftTransform != null)

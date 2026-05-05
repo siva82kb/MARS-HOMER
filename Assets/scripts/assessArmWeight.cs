@@ -22,7 +22,7 @@ public class AssessArmWeight : MonoBehaviour
     public static readonly Vector3 SCREEN_OFFSET = new Vector3(0f, 0f, 0f);
 
     // Scenes to change to.
-    private readonly string preScene = "CHOOSEMOVE";
+    private string preScene;
     private readonly string robotCalibScene = "ROBOTCALIB";
     private readonly string marsSetUp = "MARSSETUP";
     private readonly string mlapAromAssess = "AROMMLAP";
@@ -102,6 +102,8 @@ public class AssessArmWeight : MonoBehaviour
 
     void Start()
     {
+        preScene = SceneTransitionManager.GetAssessmentReturnScene();
+
         // Initialize AppData if needed
         if (AppData.Instance.userData == null)
         {

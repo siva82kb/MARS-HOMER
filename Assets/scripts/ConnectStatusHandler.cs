@@ -21,12 +21,13 @@ public class connectStatusHandler : MonoBehaviour
     BatteryStatus status ;
     float level;
 
-    //Idle check
+//Idle check
     float previousAngle2;
     float previousAngle3;
     float previousAngle4;
     bool istarted;
     float timer = 60;
+    private bool isMarsButtonDisabled = false;
 
     void Awake()
     {
@@ -52,8 +53,10 @@ public class connectStatusHandler : MonoBehaviour
             if (SceneManager.GetActiveScene().name == "DIAGNOSTICS") return;
             errorPanel.SetActive(true);
         }
-        AppLogger.LogInfo($"Starting Device with a Battery level of  | level : {SystemInfo.batteryLevel*100}%");
+AppLogger.LogInfo($"Starting Device with a Battery level of  | level : {SystemInfo.batteryLevel*100}%");
+        
        
+        
     }
 
  
@@ -64,7 +67,7 @@ public class connectStatusHandler : MonoBehaviour
         level = SystemInfo.batteryLevel;      // 0.0 � 1.0   OR -1 if unsupported
         status = SystemInfo.batteryStatus;
 
-        //if level below 30% it show the indication to connect charger
+//if level below 30% it show the indication to connect charger
         if (level <= 0.3
             && !errorPanel.gameObject.activeSelf
             && status != BatteryStatus.Charging 
@@ -73,9 +76,11 @@ public class connectStatusHandler : MonoBehaviour
             errorPanel.SetActive(true);
             AppLogger.LogInfo($"Error Below BatteryLevel   | level : {SystemInfo.batteryLevel * 100}%");
             errorTxt.text = $"Battery Low{level * 100}%Please Connect the Charger\nor click Close ,To Deactivate Device";
+            
+           
         }
 
-        //if Battery connected after the indication shown, Indication disappear Dynamically
+//if Battery connected after the indication shown, Indication disappear Dynamically
         if(status == BatteryStatus.Charging 
             && level <= 0.3
             && errorPanel.gameObject.activeSelf 
@@ -84,6 +89,8 @@ public class connectStatusHandler : MonoBehaviour
         {
             AppLogger.LogInfo($"Error Panel closed dynamically when device connect with charger | status : {status}");
             errorPanel.SetActive(!errorPanel.gameObject.activeSelf);
+            
+          
         }
 
         //Check if Device is in use
@@ -143,13 +150,16 @@ public class connectStatusHandler : MonoBehaviour
         previousAngle3 = MarsComm.angle3;
         previousAngle4 = MarsComm.angle4;
 
-        if (timer < 0 && !errorPanel.gameObject.activeSelf)
+    if (timer < 0 && !errorPanel.gameObject.activeSelf)
         {
             AppLogger.LogInfo("Device is in Idle");
-            errorTxt.text = "Device is in Idle !.. Please Deactivate Device";
+            errorTxt.text = "Device is in Idle !.. Please Deactivate Device Or use Device";
             errorPanel.SetActive(true);
+            
         }
     }
+    
+  
     private void CloseApploggQuit()
     {
         AppLogger.LogInfo($"CloseAppLogger Trigger on Quit function");
