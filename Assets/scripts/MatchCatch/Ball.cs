@@ -44,7 +44,7 @@ public class Ball : MonoBehaviour
     private void OnCollisionEnter2D(Collision2D collision)
     {
         player basket = collision.gameObject.GetComponent<player>();
-        if (basket == null && (MCGameController.Instance.isSuccess || MCGameController.Instance.isFailure)) return;
+        if (basket == null || MCGameController.Instance.isSuccess || MCGameController.Instance.isFailure) return;
 
         if (basket.lastColorIndex == index)
             MCGameController.Instance.setIsSuccess();

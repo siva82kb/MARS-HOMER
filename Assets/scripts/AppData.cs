@@ -12,8 +12,8 @@ public partial class AppData
 
     //get from jsonfile
     static public string COMPort; 
-    public static readonly bool isNRSBuilt = false;  //change to false  for homerBuilt
-
+    public static readonly bool isNRSBuilt = true;  //change to false  for homerBuilt
+    public static bool isErrorPanelActive = false;  //To deactivate MarsButton Action while in error
     // Robot Connection Alive Variables.
     static public float MARS_WATCHDOG_TIMEOUT = 2.0f; //seconds
     static private bool _isMARSConnectionAlive = false;

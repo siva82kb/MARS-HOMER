@@ -56,9 +56,7 @@ public class StainWipe2D : MonoBehaviour
 
         runtimeTex.SetPixels(pixels);
         runtimeTex.Apply();
-      
-        brushSize = TWGameController.Instance.scrubSize;
-      
+
         InitializeStain();
        
      
@@ -72,6 +70,12 @@ public class StainWipe2D : MonoBehaviour
         unityUnitPerPixel = 1f / ppu;
         areaPerPixel = unityUnitPerPixel * unityUnitPerPixel;
         GetTotalStainArea_M2();
+
+        // Compute brush size as a percentage of stain area (AROM-range independent)
+        float clothAreaM2 = AppData.Instance.selectedGame.gameParameter;
+        float ratio = (totalAreaPixels > 0f) ? clothAreaM2 / totalAreaPixels : 0.1f;
+        brushSize = Mathf.Sqrt(ratio * totalStainPixels / Mathf.PI);
+        Debug.Log($"BrushSize (px): {brushSize}, ratio: {ratio}, clothM2: {clothAreaM2}, stainM2: {totalAreaPixels}");
 
     }
 

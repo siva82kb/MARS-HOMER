@@ -228,7 +228,7 @@ public static class MarsComm
     }
     static public float force
     {
-        get => currentSensorData[9];
+        get => (currentSensorData[9]/1000)*9.81f; //gram to newton
     }
     static public float target
     {
@@ -406,6 +406,7 @@ public static class MarsComm
                 // Check if the MARS button has been released.
                 if ((((previousStateData[3] >> 4) & 0x01) == 0) && (((currentStateData[3] >> 4) & 0x01) == 1))
                 {
+                    if (AppData.isErrorPanelActive) return;
                     MarsCommLogger.LogInfo($"MARS Button Released | Time: {runTime:F2}");
                     OnMarsButtonReleased?.Invoke();
                 }

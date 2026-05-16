@@ -43,9 +43,9 @@ public class OneTimeConfig : MonoBehaviour
     public Button verifyButton;
 
     // AWS Configuration - NEW
-    private string awsBucketName = "homerclouds";
-    private string homerDetailsFileName = "homerIdDetails.json";
-    private string awsProfile = "default"; // AWS CLI profile
+    private readonly string awsBucketName = "homerclouds";
+    private readonly string awsProfile = "default";
+
 
     // Patient Data - NEW
     private string currentPatientID;
@@ -125,9 +125,11 @@ public class OneTimeConfig : MonoBehaviour
 
     }
     // Called when verify button is clicked
+
     private void OnVerifyButtonClick()
     {
         Debug.Log("Verify button clicked");
+      
 
         if (HOMERID == null)
         {
@@ -141,8 +143,7 @@ public class OneTimeConfig : MonoBehaviour
             messageText.text = "Please enter Homer ID";
             return;
         }
-
-        messageText.text = "Verifying HomerID...";
+               
         verifyButton.interactable = false;
         
         Debug.Log($"Homer ID entered: {HOMERID.text}");
@@ -175,18 +176,14 @@ public class OneTimeConfig : MonoBehaviour
         // Start verification process
         StartCoroutine(VerifyHomerID(currentPatientID, currentLocation));
     }
-    // NEW: Coroutine to verify HomerID from AWS
+    // Coroutine to verify HomerID: downloads location/patients/{homerID}/{homerID}.json from S3
     private IEnumerator VerifyHomerID(string homerID, string location)
     {
-        
+        messageText.text = "Verifying HomerID...";
+        yield return null;
 
-        // Construct S3 path
-        string s3Path = $"s3://{awsBucketName}/{location}/{homerDetailsFileName}";
-
-        // Download file from S3 using AWS CLI
-        string tempFilePath = Path.Combine(Application.temporaryCachePath, "HomerDetails_temp.json");
-
-        // Use AWS CLI to download the file
+        string s3Path = $"s3://{awsBucketName}/{location.ToLower()}/patients/{homerID}/{homerID}.json";
+        string tempFilePath = Path.Combine(Application.temporaryCachePath, "HomerPatient_temp.json");
         string arguments = $"s3 cp {s3Path} \"{tempFilePath}\" --profile {awsProfile}";
 
         System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
@@ -201,119 +198,60 @@ public class OneTimeConfig : MonoBehaviour
         {
             process.StartInfo = startInfo;
             process.Start();
-
-            string output = process.StandardOutput.ReadToEnd();
             string error = process.StandardError.ReadToEnd();
             process.WaitForExit();
-
-            yield return null;
 
             if (process.ExitCode != 0)
             {
                 Debug.LogError($"AWS CLI Error: {error}");
-                messageText.text = "Error connecting to AWS. Check internet connection.";
+                messageText.text = $"HomerID {homerID} not found.";
                 verifyButton.interactable = true;
                 yield break;
             }
         }
 
-        // Check if file was downloaded successfully
-        if (File.Exists(tempFilePath))
+        if (!File.Exists(tempFilePath))
         {
-            string jsonContent = File.ReadAllText(tempFilePath);
-            ProcessHomerDetails(jsonContent, homerID);
-
-            // Clean up temp file
-            File.Delete(tempFilePath);
-        }
-        else
-        {
-            messageText.text = $"Could not find HomerDetails for location: {location}";
+            messageText.text = $"HomerID {homerID} not found.";
+            verifyButton.interactable = true;
+            yield break;
         }
 
+        string jsonContent = File.ReadAllText(tempFilePath);
+        File.Delete(tempFilePath);
+
+        ProcessPatientDetails(jsonContent, homerID);
         verifyButton.interactable = true;
     }
 
-    // NEW: Process the HomerDetails JSON - FIXED VERSION
-    private void ProcessHomerDetails(string jsonContent, string searchHomerID)
+    // Reads the per-patient JSON: if group is null → unassigned; if "control" → blocked; otherwise show confirmation popup
+    private void ProcessPatientDetails(string jsonContent, string homerID)
     {
         var json = JSON.Parse(jsonContent);
-
-        if (json == null || json["details"] == null)
+        if (json == null)
         {
-            messageText.text = "Invalid HomerDetails format";
+            messageText.text = "Invalid patient data format.";
             return;
         }
 
-        var details = json["details"].AsArray;
-        bool found = false;
-
-        // FIX: Correct way to iterate through JSON array in SimpleJSON
-        for (int i = 0; i < details.Count; i++)
+        var groupNode = json["group"];
+        if (groupNode == null || groupNode.IsNull || string.IsNullOrEmpty(groupNode.Value))
         {
-            var item = details[i];
-            string homerID = item["homerID"];
-            string hospID = item["hospitalId"];
-            
-            if (homerID == searchHomerID)
-            {
-                if (item["group"] == "unassigned")
-                {
-                    messageText.text = $"{homerID} is in unassigned Group Please wait...PI should Assgin Group";
-                    return;
-                }
-                found = true;
-
-                // Check status for mars
-                var status = item["status"];
-                bool isActive = false;
-
-                if (status != null && !status.IsNull)
-                {
-                    // Check if status is an object with "mars" field
-                    if (status["mars"] != null && !status["mars"].IsNull)
-                    {
-                        isActive = status["mars"].Value.ToLower() == "active";
-                    }
-                    // Check if status is directly a string
-                    else if (status.IsString)
-                    {
-                        isActive = status.Value.ToLower() == "active";
-                    }
-                    // Check if status is an object (like in your JSON structure)
-                    else if (status.IsObject)
-                    {
-                        // Check if "mars" exists in the status object
-                        var marsStatus = status["mars"];
-                        if (marsStatus != null && !marsStatus.IsNull)
-                        {
-                            isActive = marsStatus.Value.ToLower() == "active";
-                        }
-                    }
-                }
-
-                if (isActive)
-                {
-                    // Already activated
-                    messageText.text = $"HomerID {searchHomerID} is already activated. Cannot assign to new patient.";
-                    popUpPanel.SetActive(false);
-                }
-                else
-                {
-                    // Not activated - show popup with patient ID
-                    popUpConfirmationPatientID.text = $"HomerID : {searchHomerID} is assigned to Patient id: {hospID}, Are you sure?";
-                    currentTrainingSide = item["trainingSide"];
-                    messageText.text = "";
-                    popUpPanel.SetActive(true);
-                }
-                break;
-            }
+            messageText.text = $"{homerID} is Unassigned. Please wait — PI should assign a group.";
+            return;
         }
 
-        if (!found)
+        if (groupNode.Value.ToLower() == "control")
         {
-            messageText.text = $"HomerID {searchHomerID} not found in the system";
+            messageText.text = $"{homerID} is assigned to the Control group. Cannot enroll in MARS.";
+            return;
         }
+
+        string hospID = json["hospitalID"];
+        currentTrainingSide = json["trainingSide"];
+        popUpConfirmationPatientID.text = $"Homer ID:  {homerID}\nPatient ID:  {hospID}\nTrainingSide: {currentTrainingSide}\n\n\tAre you sure?";
+        messageText.text = "";
+        popUpPanel.SetActive(true);
     }
 
     // NEW: Called when OK button is clicked in popup
@@ -327,8 +265,7 @@ public class OneTimeConfig : MonoBehaviour
         affectedSideDropdown.value = GetDropdownIndexForSide(currentTrainingSide);
         LocationDropdown.value = GetDropdownIndexForLocation(currentLocation);
 
-        // Proceed to configuration scene
-        // saveConfig();
+      
     }
 
     // NEW: Called when Cancel button is clicked in popup

@@ -93,7 +93,7 @@ public class SetTimeSceneHandler : MonoBehaviour
                     mlToggle.interactable = mlAssessmentDone;
                     mlSlider.interactable = mlAssessmentDone;
                     mlSlider.value = mlAssessmentDone ? (mlVal > 0 ? mlVal : 10) : 10;
-                    mlValueText.text = mlAssessmentDone ? (mlVal > 0 ? mlVal.ToString() : "10") : "0";
+                    mlValueText.text = mlAssessmentDone ? (mlVal > 0 ? $"{mlVal} (min)" : "10 (min)") : "0";
                 }
             }
 
@@ -106,7 +106,7 @@ public class SetTimeSceneHandler : MonoBehaviour
                     apToggle.interactable = apAssessmentDone;
                     apSlider.interactable = apAssessmentDone;
                     apSlider.value = apAssessmentDone ? (apVal > 0 ? apVal : 10) : 10;
-                    apValueText.text = apAssessmentDone ? (apVal > 0 ? apVal.ToString() : "10") : "0";
+                    apValueText.text = apAssessmentDone ? (apVal > 0 ? $"{apVal} (min)" : "10 (min)") : "0";
                 }
             }
 
@@ -119,7 +119,7 @@ public class SetTimeSceneHandler : MonoBehaviour
                     mlapToggle.interactable = mlapAssessmentDone;
                     mlapSlider.interactable = mlapAssessmentDone;
                     mlapSlider.value = mlapAssessmentDone ? (mlapVal > 0 ? mlapVal : 10) : 10;
-                    mlapValueText.text = mlapAssessmentDone ? (mlapVal > 0 ? mlapVal.ToString() : "10") : "0";
+                    mlapValueText.text = mlapAssessmentDone ? (mlapVal > 0 ? $"{mlapVal} (min)" : "10 (min)") : "0";
                 }
             }
 
@@ -128,7 +128,7 @@ public class SetTimeSceneHandler : MonoBehaviour
             {
                 mlSlider.interactable = isOn;
                 mlSlider.value = isOn ? 10 : 10;
-                mlValueText.text = isOn ? "10" : "0";
+                mlValueText.text = isOn ? "10 (min)" : "0";
                 UpdateTotalDisplay();
             });
 
@@ -136,7 +136,7 @@ public class SetTimeSceneHandler : MonoBehaviour
             {
                 apSlider.interactable = isOn;
                 apSlider.value = isOn ? 10 : 10;
-                apValueText.text = isOn ? "10" : "0";
+                apValueText.text = isOn ? "10 (min)" : "0";
                 UpdateTotalDisplay();
             });
 
@@ -144,24 +144,24 @@ public class SetTimeSceneHandler : MonoBehaviour
             {
                 mlapSlider.interactable = isOn;
                 mlapSlider.value = isOn ? 10 : 10;
-                mlapValueText.text = isOn ? "10" : "0";
+                mlapValueText.text = isOn ? "10 (min)" : "0";
                 UpdateTotalDisplay();
             });
 
             // Add slider listeners AFTER loading values
             mlSlider.onValueChanged.AddListener(val =>
             {
-                mlValueText.text = ((int)val).ToString();
+                mlValueText.text = $"{(int)val} (min)";
                 UpdateTotalDisplay();
             });
             apSlider.onValueChanged.AddListener(val =>
             {
-                apValueText.text = ((int)val).ToString();
+                apValueText.text = $"{(int)val} (min)";
                 UpdateTotalDisplay();
             });
             mlapSlider.onValueChanged.AddListener(val =>
             {
-                mlapValueText.text = ((int)val).ToString();
+                mlapValueText.text = $"{(int)val} (min)";
                 UpdateTotalDisplay();
             });
 
@@ -170,11 +170,11 @@ public class SetTimeSceneHandler : MonoBehaviour
 
             if (TotalText != null)
             {
-                messageText.text = $"Previous total: {TotalText.text}. Adjust to equal 30.";
+                messageText.text = $"Previous total: {TotalText.text}. Adjust to equal 30 (min).";
             }
             else
             {
-                messageText.text = "Values loaded (Total must equal 30)";
+                messageText.text = "Values loaded (Total must equal 30 min)";
             }
         }
         catch (System.Exception ex)
@@ -193,22 +193,22 @@ public class SetTimeSceneHandler : MonoBehaviour
 
         if (TotalText != null)
         {
-            TotalText.text = total.ToString();
+            TotalText.text = $"{total}";
 
             if (total == 30)
             {
                 TotalText.color = new Color(0f, 0.6f, 0f);
-                messageText.text = "Total is correct (30). Ready to save.";
+                messageText.text = "Total is correct (30 min). Ready to save.";
             }
             else if (total < 30)
             {
                 TotalText.color = new Color(1f, 0.6f, 0f);
-                messageText.text = $"Total is {total}. Need {30 - total} more minutes.";
+                messageText.text = $"Total is {total} (min). Need {30 - total} more minutes.";
             }
             else
             {
                 TotalText.color = new Color(0.85f, 0f, 0f);
-                messageText.text = $"Total is {total}. Remove {total - 30} minutes.";
+                messageText.text = $"Total is {total} (min). Remove {total - 30} minutes.";
             }
         }
     }
@@ -230,7 +230,7 @@ public class SetTimeSceneHandler : MonoBehaviour
 
             if (total != 30)
             {
-                messageText.text = $"Total must be exactly 30 minutes. Current total: {total}";
+                messageText.text = $"Total must be exactly 30 minutes. Current total: {total} (min)";
                 return;
             }
 
@@ -251,7 +251,7 @@ public class SetTimeSceneHandler : MonoBehaviour
 
             // Update start date to today (keep end date from original config)
             DateTime today = DateTime.Now;
-            string todayDateString = today.ToString("yyyy-MM-dd HH:mm:ss");
+            string todayDateString = today.ToString("dd-MM-yyyy HH:mm:ss");
 
             if (startDateIndex >= 0 && startDateIndex < updatedValues.Length)
                 updatedValues[startDateIndex] = todayDateString;

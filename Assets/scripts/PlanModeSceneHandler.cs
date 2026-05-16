@@ -51,7 +51,6 @@ public class PlanModeSceneHandler : MonoBehaviour
             SceneManager.LoadScene(marsSetupScene);
         }
 
-       
         setTimeButton.onClick.AddListener(OnSetTime);
         backButton.onClick.AddListener(OnBack);
 
@@ -155,7 +154,6 @@ public class PlanModeSceneHandler : MonoBehaviour
                 messageText.text = "Unknown movement";
                 return;
         }
-
         changeScene = true;
     }
 

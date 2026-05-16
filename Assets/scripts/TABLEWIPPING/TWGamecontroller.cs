@@ -62,7 +62,6 @@ public class TWGameController : MonoBehaviour
     private float insideTargetTimer = 0f;
     public int[] scores;
     private bool restart = false;
-    public float scrubSize { get; private set; }
     public float GameParameter { get; private set; }//Scrub size the real world
     public Vector3 playerGamePosition { get; private set; }
     public Vector3? targetGamePosition { get; private set; }
@@ -276,10 +275,14 @@ public class TWGameController : MonoBehaviour
             {
                 AppData.Instance.selectedGame.updateCummulativeStars();
                 celebrationPanle.SetActive(true);
-                GameParameter = math.clamp(GameParameter * 0.90f,MarsGameDefs.TableWiping.MIN_SCRUB_SIZE,MarsGameDefs.TableWiping.MAX_SCRUB_SIZE);
+                GameParameter = math.clamp(GameParameter * 0.80f, MarsGameDefs.TableWiping.MIN_SCRUB_SIZE, MarsGameDefs.TableWiping.MAX_SCRUB_SIZE);
                 AppData.Instance.selectedGame.gameParameter = GameParameter;
             }
-
+            //test
+            //Debug.Log("GAMAPARAMETER BEFORE" + GameParameter);
+            //GameParameter = math.clamp(GameParameter * 0.80f, MarsGameDefs.TableWiping.MIN_SCRUB_SIZE, MarsGameDefs.TableWiping.MAX_SCRUB_SIZE);
+            //Debug.Log("GAMAPARAMETER AFTER" + GameParameter);
+            //AppData.Instance.selectedGame.gameParameter = GameParameter;
             gameOverPanel.SetActive(!celebrationPanle.gameObject.activeSelf);
             AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
 
@@ -332,26 +335,8 @@ public class TWGameController : MonoBehaviour
 
         Debug.Log($"AREA SCALE {areaScale}");
         GameParameter = AppData.Instance.userData.GetLastPlayedDateAndStarsForGame("TW").gameParameter;
-        
-        // Get real-world scrub area (m²)
-       
+
         AppData.Instance.selectedGame.gameParameter = GameParameter;
-
-        // Convert real area → Unity area
-        float unityArea = GameParameter / areaScale;
-
-        // Convert Unity area → pixel area
-        float ppu = 100;
-        float pixelArea = unityArea * (ppu*ppu);
-        
-
-        // Compute pixel radius
-        scrubSize = Mathf.Sqrt(pixelArea / Mathf.PI);
-
-
-        Debug.Log($"Unity Area: {unityArea}");
-        Debug.Log($"Pixel Area: {pixelArea}");
-        Debug.Log($"Scrub Radius (pixels): {scrubSize}");
 
         if (debug) return;
         // Start the next new Trail

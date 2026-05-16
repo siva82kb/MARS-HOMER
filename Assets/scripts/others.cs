@@ -442,6 +442,7 @@ public class MarsUserData
     }
     public (DateTime date, int totalStars, float gameParameter)GetLastPlayedDateAndStarsForGame(string gameName)
     {
+        AppData.Instance.reloadSessionDetails();
         float DefalutScrubarea = MarsGameDefs.TableWiping.MAX_SCRUB_SIZE;
         if (dTableSession == null || dTableSession.Rows.Count == 0)
             return (DateTime.MinValue, 0,DefalutScrubarea);
@@ -454,6 +455,7 @@ public class MarsUserData
                     row.Field<string>(DATETIME).Trim(),
                     DataManager.DATETIMEFORMAT,
                     CultureInfo.InvariantCulture))
+            .ThenByDescending(row => Convert.ToInt32(row["TrialNumberSession"]))
             .FirstOrDefault();
 
         if (lastRowForGame == null)
@@ -476,8 +478,7 @@ public class MarsUserData
 
         //Get GameParameter  --scrubsize
         float areaToErase = Convert.ToSingle(lastRowForGame["GameParameter"]);
-        
-
+       
         return (lastPlayedDate, totalStars,areaToErase == 0 ?DefalutScrubarea:areaToErase);
     }
 
@@ -906,7 +907,7 @@ public static class MarsGameDefs
         public const float BOTTOMLIMIT = -5f;
 
         public const float MIN_SCRUB_SIZE = 0.0001f; //m2
-        public const float MAX_SCRUB_SIZE = 0.0005f; //m2
+        public const float MAX_SCRUB_SIZE = 0.0010f; //m2
         // Game duration
         public const float GAMEDURATION = 60f;  // seconds
 

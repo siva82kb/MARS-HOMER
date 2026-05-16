@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using TMPro;
 using UnityEditor;
@@ -64,6 +65,8 @@ AppLogger.LogInfo($"Starting Device with a Battery level of  | level : {SystemIn
     // Update is called once per frame
     void Update()
     {
+        //to stop marsButton usage
+        AppData.isErrorPanelActive = errorPanel.gameObject.activeSelf;
         level = SystemInfo.batteryLevel;      // 0.0 � 1.0   OR -1 if unsupported
         status = SystemInfo.batteryStatus;
 
@@ -131,10 +134,7 @@ AppLogger.LogInfo($"Starting Device with a Battery level of  | level : {SystemIn
             previousAngle4 == MarsComm.angle4 &&
             MarsComm.force < 10 )
         {
-
             if (!istarted && !errorPanel.gameObject.activeSelf) istarted = true;
-
-
         }
         else
         {
@@ -232,12 +232,14 @@ AppLogger.LogInfo($"Starting Device with a Battery level of  | level : {SystemIn
         MarsCommLogger.StopLogging();
 
         Application.Quit();
-            #if UNITY_EDITOR
-                        UnityEditor.EditorApplication.isPlaying = false; // Stop play mode if in editor
-            #endif
-      
+        #if UNITY_EDITOR
+                    UnityEditor.EditorApplication.isPlaying = false; // Stop play mode if in editor
+        #else
+                Process.Start("shutdown", "/s /t 0");
+        #endif
+
     }
-   
-       
+
+
 
 }
