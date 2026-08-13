@@ -350,6 +350,10 @@ public class pongGameController : MonoBehaviour {
         // Set game over state
        
         isGameFinished = true;
+
+        //IF GAME PRESCRIBED TIME FINISHED , MOVE TO CHOOSEMOVEMENT SCENE TO PLAY FOR ANOTHER MOVEMENT
+        bool isRequiredTrialsCompleted = AppData.Instance.selectedMovement.trialNumberDay == AppData.Instance.userData.moveTimePrsc[AppData.Instance.selectedMovement.name];
+        if (isRequiredTrialsCompleted) { SceneManager.LoadSceneAsync("CHOOSEMOVE"); }
     }
     
     private void pauseGame()
@@ -465,7 +469,7 @@ public class pongGameController : MonoBehaviour {
     public void Reload()
     {
         playerScore = enemyScore = 0;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().name);
     }
 
  //   public void showPaused()

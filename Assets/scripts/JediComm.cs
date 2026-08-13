@@ -44,7 +44,7 @@ public static class JediComm
         serPort.WriteTimeout = 250;
     }
 
-    static public void Connect()
+    static public void Connect(bool silent = false)
     {
         stop = false;
         if (serPort.IsOpen == false)
@@ -55,7 +55,8 @@ public static class JediComm
             }
             catch (Exception ex)
             {
-                AppLogger.LogError("exception: " + ex);
+                if (!silent) AppLogger.LogError("Unable to open the serial port. The operation timed out.");
+                return; // don't start reader thread if port failed to open
             }
             // Create a new thread to read the serial port data.
             reader = new Thread(serialreaderthread);
@@ -112,6 +113,14 @@ public static class JediComm
             {
                 ConnectToRobot.isMARS = false;
                 continue;
+            }
+            catch (Exception ex)
+            {
+                // Catches IOException thrown by Windows on physical USB disconnect.
+                // Without this, the thread dies silently and isMARS stays true.
+                ConnectToRobot.isMARS = false;
+                stop = true;
+                Debug.LogError($"Serial reader thread stopped: {ex.Message}");
             }
 
         }

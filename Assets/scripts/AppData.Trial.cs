@@ -13,6 +13,9 @@ using UnityEngine;
  */
 public partial class AppData
 {
+    private int _rawDataFlushCounter = 0;
+    private const int RAW_DATA_FLUSH_INTERVAL = 500; // ~5 seconds at 100Hz
+
     // Trail Detials
     public float gameTime { get; set; } = 0;
     // public float gameSpeed { get => selectedGame.gameSpeed; }
@@ -134,6 +137,7 @@ public partial class AppData
 
         //// Initialize the string builders.
         rawDataString = new StringBuilder();
+        _rawDataFlushCounter = 0;
         // Write pre-header and header information
         rawDataString.AppendLine($":Device: MARS");
         rawDataString.AppendLine($":Location: {userData.GetDeviceLocation()}");
@@ -209,29 +213,58 @@ public partial class AppData
             rawDataString.Append($"{GetHitNumber()},");                             // GameHitNumber
             rawDataString.Append($"{GetMissNumber()},");                            // GameMissNumber
             rawDataString.Append($"{AppData.Instance.annotation},");                // Annotation
-            rawDataString.Append($"{GetMiscellaneous()}");                          // Miscellaneous //Target Reach Time only for Ping-Pong Game
+            rawDataString.Append($"{GetMiscellaneous()},");                          // Miscellaneous //Target Reach Time only for Ping-Pong Game
+            rawDataString.Append($"{MarsComm.angle1},");
+            rawDataString.Append($"{MarsComm.angle2},");
+            rawDataString.Append($"{MarsComm.angle3},");
+            rawDataString.Append($"{MarsComm.angle4}");
+
             rawDataString.Append("\n");
+            if (trialRawDataFile != null && ++_rawDataFlushCounter >= RAW_DATA_FLUSH_INTERVAL)
+                PeriodicFlushRawData();
+        }
+    }
+
+    // Called from within rawDataLock — writes current buffer to disk and resets it.
+    private void PeriodicFlushRawData()
+    {
+        if (trialRawDataFile == null || rawDataString == null) return;
+        string _dir = Path.GetDirectoryName(trialRawDataFile);
+        if (!Directory.Exists(_dir)) Directory.CreateDirectory(_dir);
+        bool _append = File.Exists(trialRawDataFile);
+        using (StreamWriter sw = new StreamWriter(trialRawDataFile, _append, Encoding.UTF8))
+            sw.Write(rawDataString.ToString());
+        rawDataString.Clear();
+        _rawDataFlushCounter = 0;
+    }
+
+    // Safe to call from any scene (e.g. on robot disconnect) — flushes in-flight trial data.
+    public void FlushRawDataToDisk()
+    {
+        lock (rawDataLock)
+        {
+            PeriodicFlushRawData();
         }
     }
 
     private void WriteTrialDataToRawDataFile()
     {
         AppLogger.LogInfo($"Writing to: {trialRawDataFile}");
-        
 
         string _dir = Path.GetDirectoryName(trialRawDataFile);
         if (!Directory.Exists(_dir)) Directory.CreateDirectory(_dir);
 
-        lock (rawDataLock)  // locking
+        lock (rawDataLock)
         {
-            using (StreamWriter sw = new StreamWriter(trialRawDataFile, false, Encoding.UTF8))
+            bool _append = File.Exists(trialRawDataFile);
+            using (StreamWriter sw = new StreamWriter(trialRawDataFile, _append, Encoding.UTF8))
             {
                 sw.Write(rawDataString.ToString());
             }
             rawDataString.Clear();
             rawDataString = null;
+            _rawDataFlushCounter = 0;
         }
-        
     }
 
     // AROM assessment raw data logging function.
@@ -579,5 +612,55 @@ public partial class AppData
         }
         return "";
     }
+    // Returns (targets, hits, misses) from whichever game is currently running.
+    private (int targets, int hits, int misses) GetCurrentGameStats()
+    {
+        if (selectedGame == null) return (1, 0, 0);
+        switch (selectedGame.name)
+        {
+            case "SS": return SpaceShooterGameContoller.Instance != null
+                ? (SpaceShooterGameContoller.Instance.nTargets,
+                   SpaceShooterGameContoller.Instance.nSuccess,
+                   SpaceShooterGameContoller.Instance.nFailure)
+                : (1, 0, 0);
+            case "PP": return pongGameController.Instance != null
+                ? (pongGameController.Instance.nTargets,
+                   pongGameController.Instance.nSuccess,
+                   pongGameController.Instance.nFailure)
+                : (1, 0, 0);
+            case "DC": return DCGameController.Instance != null
+                ? (DCGameController.Instance.nTargets,
+                   DCGameController.Instance.nSuccess,
+                   DCGameController.Instance.nFailure)
+                : (1, 0, 0);
+            case "TT": return FlappyGameControl.Instance != null
+                ? (FlappyGameControl.Instance.nTargets,
+                   FlappyGameControl.Instance.nSuccess,
+                   FlappyGameControl.Instance.nFailure)
+                : (1, 0, 0);
+            case "TW": return TWGameController.Instance != null
+                ? (TWGameController.Instance.nTargets,
+                   TWGameController.Instance.nSuccess,
+                   TWGameController.Instance.nFailure)
+                : (1, 0, 0);
+            case "MC": return MCGameController.Instance != null
+                ? (MCGameController.Instance.nTargets,
+                   MCGameController.Instance.nSuccess,
+                   MCGameController.Instance.nFailure)
+                : (1, 0, 0);
+            default: return (1, 0, 0);
+        }
+    }
+
+    // Called when Bluetooth disconnects mid-game.
+    // Stops the trial using whatever data was recorded so far, then the caller navigates to SUMMARY.
+    public void StopTrialOnDisconnect()
+    {
+        if (trialRawDataFile == null) return;
+        AppLogger.LogWarning("StopTrialOnDisconnect: Bluetooth lost — saving trial data.");
+        var (t, h, m) = GetCurrentGameStats();
+        StopTrial(t, h, m);
+    }
+
     public void reloadSessionDetails() => Instance.userData.readParseSessionData(DataManager.sessionFile);
 }

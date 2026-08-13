@@ -45,19 +45,19 @@ public class BallController : MonoBehaviour {
         // Calculate enc1
         playAudio(0);
         // Tag check
-        if (col.gameObject.tag == "Enemy") 
+        if (col.gameObject.tag == "Enemy")
 		{
 			float y = launchAngle(transform.position, col.transform.position, col.collider.bounds.size.y);
-		
+
 			Vector2 dir = new Vector2(AppData.Instance.userData.limb == 1 ? 1 : -1, y).normalized;
 			rigidBody2D.velocity = dir * ballSpeed;
 
 			// Predict where it will reach player's side (x = +6)//Need to check
-			float predictedY = PredictPlayerImpactOnY(playerPos, topWall, bottomWall, bounciness); 
+			float predictedY = PredictPlayerImpactOnY(playerPos, topWall, bottomWall, bounciness);
 			pongGameController.Instance.targetEndPointPosition = new Vector3(0f, predictedY, 0f);
 			//Debug.Log("Predicted hit Y on player side: " + predictedY);
 		}
-		if (col.gameObject.tag == "Player") 
+		if (col.gameObject.tag == "Player")
 		{
             // Calculate enc1
             float y = launchAngle(transform.position, col.transform.position, col.collider.bounds.size.y);

@@ -294,9 +294,13 @@ public abstract class MarsAssessAROM : MonoBehaviour
         mouseScreenPos.z = 10f;
         Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(mouseScreenPos);
 
-        // Update temporary positions.
-        float _adjustedX = MarsDefs.EPCENTERZ + mouseWorldPos.x * (MarsDefs.EPMAXZ - MarsDefs.EPMINZ) / (OFFSET * SCALEX);
-        float _adjustedY = MarsDefs.EPCENTERY + mouseWorldPos.y * (MarsDefs.EPMAXY - MarsDefs.EPMINY) / SCALEY;
+        // Update temporary positions — clamped to the robot's valid workspace.
+        float _adjustedX = Mathf.Clamp(
+            MarsDefs.EPCENTERZ + mouseWorldPos.x * (MarsDefs.EPMAXZ - MarsDefs.EPMINZ) / (OFFSET * SCALEX),
+            MarsDefs.EPMINZ, MarsDefs.EPMAXZ);
+        float _adjustedY = Mathf.Clamp(
+            MarsDefs.EPCENTERY + mouseWorldPos.y * (MarsDefs.EPMAXY - MarsDefs.EPMINY) / SCALEY,
+            MarsDefs.EPMINY, MarsDefs.EPMAXY);
         switch (aromAdjustState)
         {
             case AROM_ADJUST_STATES.LEFT:
@@ -592,11 +596,31 @@ public abstract class MarsAssessAROM : MonoBehaviour
             }
             else if (Input.GetMouseButtonUp(0))
             {
-                // Assign the new adjusted value and return to NONE state.
-                newMarsArom.setAdjustedAromLeft(tempLeftPos.x, tempLeftPos.y);
-                newMarsArom.setAdjustedAromRight(tempRightPos.x, tempRightPos.y);
-                newMarsArom.setAdjustedAromTop(tempTopPos.x, tempTopPos.y);
-                newMarsArom.setAdjustedAromBottom(tempBottomPos.x, tempBottomPos.y);
+                // Validate boundary ordering before committing: left must be < right, bottom < top.
+                bool _valid = movement switch
+                {
+                    "ML"   => tempLeftPos.x < tempRightPos.x,
+                    "AP"   => tempBottomPos.y < tempTopPos.y,
+                    "MLAP" => tempLeftPos.x < tempRightPos.x && tempBottomPos.y < tempTopPos.y,
+                    _      => true
+                };
+
+                if (_valid)
+                {
+                    newMarsArom.setAdjustedAromLeft(tempLeftPos.x, tempLeftPos.y);
+                    newMarsArom.setAdjustedAromRight(tempRightPos.x, tempRightPos.y);
+                    newMarsArom.setAdjustedAromTop(tempTopPos.x, tempTopPos.y);
+                    newMarsArom.setAdjustedAromBottom(tempBottomPos.x, tempBottomPos.y);
+                }
+                else
+                {
+                    // Snap temp positions back to last valid adjusted values.
+                    tempLeftPos   = newMarsArom.leftAdjusted;
+                    tempRightPos  = newMarsArom.rightAdjusted;
+                    tempTopPos    = newMarsArom.topAdjusted;
+                    tempBottomPos = newMarsArom.bottomAdjusted;
+                    AppLogger.LogWarning("AROM boundary rejected: left >= right or bottom >= top. Reverted.");
+                }
                 _newAdujustState = AROM_ADJUST_STATES.NONE;
             }
         }

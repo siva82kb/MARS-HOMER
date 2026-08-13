@@ -1113,6 +1113,8 @@ public class MarsArom
     private string rawDataFilename;
     public bool isAssessing => rawData != null;
 
+    public bool isNewAromSet = false;
+
     public static bool AromFileExists(string movementName) => File.Exists(DataManager.GetRomFileName(movementName));
 
     // Constructor that reads the file and initializes values based on the mechanism
@@ -1229,6 +1231,7 @@ public class MarsArom
                 _rawfilename.Split('/').Last()
             }));
         }
+        isNewAromSet = true;
     }
 
     private bool ReadFromFile(string movementName)

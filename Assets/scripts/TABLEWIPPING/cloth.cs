@@ -18,10 +18,10 @@ public class TWPlayer : MonoBehaviour
     public TextMeshProUGUI co_ordinates;
     public Vector3 lastPosition;
     private SpriteRenderer clothsprite;
-    public Vector2 x1;
-    public Vector2 x2;
-    public Vector2 y1;
-    public Vector2 y2;
+    public Vector2 x1; // Top corner in game space
+    public Vector2 x2; // Right corner in game space
+    public Vector2 y1; // Bottom corner in game space
+    public Vector2 y2; // Left corner in game space
 
     // Robot AROM limits values.
     public float zEndPointMin;
@@ -103,6 +103,9 @@ public class TWPlayer : MonoBehaviour
         //Set the appropriate scale
         LIMBSCALE = (AppData.Instance.userData == null || AppData.Instance.userData.rightArm) ? -1 : 1;
         clothsprite.flipX = AppData.Instance.userData.rightArm;
+
+        // Convert ROM corners to game space
+        UpdateROMCorners();
     }
     private void FixedUpdate()
     {
@@ -210,6 +213,58 @@ public class TWPlayer : MonoBehaviour
         // Update previous target selection.
         prevTargetSelection = (float[])currTargetSelection.Clone();
     }
-  
+
+    private void UpdateROMCorners()
+    {
+        // Convert ROM corners from robot space to game space
+        if (AppData.Instance.selectedMovement?.currentArom == null) return;
+
+        x1 = new Vector2(robotToUnityX(AppData.Instance.selectedMovement.currentArom.topAdjusted.x),
+                         robotToUnityY(AppData.Instance.selectedMovement.currentArom.topAdjusted.y));
+        x2 = new Vector2(robotToUnityX(AppData.Instance.selectedMovement.currentArom.rightAdjusted.x),
+                         robotToUnityY(AppData.Instance.selectedMovement.currentArom.rightAdjusted.y));
+        y1 = new Vector2(robotToUnityX(AppData.Instance.selectedMovement.currentArom.bottomAdjusted.x),
+                         robotToUnityY(AppData.Instance.selectedMovement.currentArom.bottomAdjusted.y));
+        y2 = new Vector2(robotToUnityX(AppData.Instance.selectedMovement.currentArom.leftAdjusted.x),
+                         robotToUnityY(AppData.Instance.selectedMovement.currentArom.leftAdjusted.y));
+    }
+
+    public void DrawROMQuad(LineRenderer lineRenderer)
+    {
+        // Draw the ROM quad for visualization using the provided LineRenderer
+        if (lineRenderer == null)
+        {
+            AppLogger.LogWarning("LineRenderer is null, cannot draw ROM quad");
+            return;
+        }
+
+        lineRenderer.positionCount = 5;
+        lineRenderer.SetPosition(0, new Vector3(x1.x, x1.y, 0));
+        lineRenderer.SetPosition(1, new Vector3(x2.x, x2.y, 0));
+        lineRenderer.SetPosition(2, new Vector3(y1.x, y1.y, 0));
+        lineRenderer.SetPosition(3, new Vector3(y2.x, y2.y, 0));
+        lineRenderer.SetPosition(4, new Vector3(x1.x, x1.y, 0)); // Close the quad
+
+        Debug.Log($"ROM Quad drawn - Corners: Top({x1.x}, {x1.y}) Right({x2.x}, {x2.y}) Bottom({y1.x}, {y1.y}) Left({y2.x}, {y2.y})");
+    }
+
+    public bool IsPositionWithinROMQuad(Vector2 position)
+    {
+        // Check if position is within ROM quad bounds
+        float minX = Mathf.Min(x1.x, x2.x, y1.x, y2.x);
+        float maxX = Mathf.Max(x1.x, x2.x, y1.x, y2.x);
+        float minY = Mathf.Min(x1.y, x2.y, y1.y, y2.y);
+        float maxY = Mathf.Max(x1.y, x2.y, y1.y, y2.y);
+
+        bool withinBounds = position.x >= minX && position.x <= maxX &&
+                           position.y >= minY && position.y <= maxY;
+
+        if (!withinBounds)
+        {
+            AppLogger.LogWarning($"Stain spawned outside ROM quad! Position: ({position.x}, {position.y}), ROM bounds: X({minX}, {maxX}), Y({minY}, {maxY})");
+        }
+
+        return withinBounds;
+    }
 }
 

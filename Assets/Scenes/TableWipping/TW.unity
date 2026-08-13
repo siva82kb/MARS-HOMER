@@ -574,7 +574,7 @@ LineRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 314420970}
-  m_Enabled: 0
+  m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -610,9 +610,7 @@ LineRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 3
-  m_Positions:
-  - {x: -0, y: 4.0000005, z: 0}
-  - {x: 0, y: 1.2546715, z: 0}
+  m_Positions: []
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 1
@@ -2973,8 +2971,8 @@ RectTransform:
   - {fileID: 1639995178}
   - {fileID: 1255996823}
   - {fileID: 1228552699}
-  - {fileID: 618554173}
   - {fileID: 515983546}
+  - {fileID: 618554173}
   - {fileID: 1124530202}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

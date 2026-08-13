@@ -240,6 +240,7 @@ public class SetTimeSceneHandler : MonoBehaviour
             int apIndex = System.Array.IndexOf(headers, "AP");
             int mlapIndex = System.Array.IndexOf(headers, "MLAP");
             int startDateIndex = System.Array.IndexOf(headers, "StartDate");
+            int totalTimeIndex = System.Array.IndexOf(headers, "TotalTime");
 
             // Update movement times
             if (mlIndex >= 0 && mlIndex < updatedValues.Length)
@@ -248,6 +249,8 @@ public class SetTimeSceneHandler : MonoBehaviour
                 updatedValues[apIndex] = apVal.ToString();
             if (mlapIndex >= 0 && mlapIndex < updatedValues.Length)
                 updatedValues[mlapIndex] = mlapVal.ToString();
+            if(totalTimeIndex>=0 && totalTimeIndex<updatedValues.Length)
+                updatedValues[totalTimeIndex] = total.ToString();
 
             // Update start date to today (keep end date from original config)
             DateTime today = DateTime.Now;
@@ -278,13 +281,12 @@ public class SetTimeSceneHandler : MonoBehaviour
     IEnumerator DelayedLoadScene()
     {
         yield return new WaitForSeconds(1f);
-        SceneTransitionManager.ResetAssessmentReturnScene();
+       
         SceneManager.LoadScene(chooseMoveScene);
     }
 
     void OnBack()
     {
-        SceneTransitionManager.ResetAssessmentReturnScene();
-        SceneManager.LoadScene(chooseMoveScene);
+        SceneManager.LoadScene("PLANMODE");
     }
 }

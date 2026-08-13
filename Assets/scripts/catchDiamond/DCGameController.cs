@@ -169,7 +169,7 @@ public class DCGameController : MonoBehaviour
             gameSpeedControl.SetActive(!gameSpeedControl.activeSelf);
         }
         if (restart) {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().name);
             restart = false;
         }
     }
@@ -462,6 +462,9 @@ public class DCGameController : MonoBehaviour
 
         }
         isGameFinished = true; // Set game over state 
+        //IF GAME PRESCRIBED TIME FINISHED , MOVE TO CHOOSEMOVEMENT SCENE TO PLAY FOR ANOTHER MOVEMENT
+        bool isRequiredTrialsCompleted = AppData.Instance.selectedMovement.trialNumberDay == AppData.Instance.userData.moveTimePrsc[AppData.Instance.selectedMovement.name];
+        if (isRequiredTrialsCompleted) { SceneManager.LoadSceneAsync("CHOOSEMOVE"); }
     }
 
     public void startGame()

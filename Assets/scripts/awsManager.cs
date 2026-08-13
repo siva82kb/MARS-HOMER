@@ -37,13 +37,15 @@ public static class awsManager
 
 public static void RunAWSpythonScript()
 {
-    
-        if (!File.Exists(pythonScriptPath))
-        {
-            Debug.Log("File not found: Python script");
-            return;
-        }
+    if (!File.Exists(pythonScriptPath))
+    {
+        Debug.Log("File not found: Python script");
+        return;
+    }
 
+    // Run off the main thread so Unity is not blocked while the upload runs.
+    Task.Run(() =>
+    {
         try
         {
             Process process = new Process();
@@ -55,19 +57,21 @@ public static void RunAWSpythonScript()
             process.StartInfo.CreateNoWindow = true;
             process.Start();
 
-            string output = process.StandardOutput.ReadToEnd();
-            string error = process.StandardError.ReadToEnd();
+            // Read stdout and stderr in parallel to avoid deadlock when either buffer fills.
+            var stdoutTask = Task.Run(() => process.StandardOutput.ReadToEnd());
+            var stderrTask = Task.Run(() => process.StandardError.ReadToEnd());
             process.WaitForExit();
-            Debug.Log(output);
-            Debug.Log(error);
-           message = output;
-            
+
+            message = stdoutTask.Result;
+            if (!string.IsNullOrEmpty(message)) Debug.Log(message);
+            string error = stderrTask.Result;
+            if (!string.IsNullOrEmpty(error)) Debug.LogWarning(error);
         }
         catch (System.Exception ex)
         {
-            Debug.Log("An error occurred while running the Python script: " + ex.Message);
+            Debug.LogError("An error occurred while running the Python script: " + ex.Message);
         }
-    
+    });
 }
     public static string getmessage()
     {

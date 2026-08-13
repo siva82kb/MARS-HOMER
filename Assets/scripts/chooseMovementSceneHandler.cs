@@ -48,9 +48,10 @@ public class MovementSceneHandler : MonoBehaviour
     private readonly string assessmentSceneMLAP = "AROMMLAP";
     private string aromAssessmentScene = "";
 
-    // Define dark red and green colors
+    // Define dark red, green and orange colors
     private Color darkRed = new Color(0.85f, 0f, 0f);
     private Color darkGreen = new Color(0f, 0.60f, 0f);
+    private Color panelOrange = new Color(1f, 0.55f, 0.1f);
 
     void Start()
     {
@@ -163,6 +164,7 @@ public class MovementSceneHandler : MonoBehaviour
         if (Input.GetKey(KeyCode.LeftControl)&& Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.X))
         {
             SceneManager.LoadScene("PLANMODE");
+
         }
         if(  !AppData.Instance.userData.IsAromAssessmentAvailableForTrainingAngle("ML")&&
              !AppData.Instance.userData.IsAromAssessmentAvailableForTrainingAngle("AP")&&
@@ -186,28 +188,32 @@ public class MovementSceneHandler : MonoBehaviour
         foreach (Transform child in movementSelectGroup.transform)
         {
             Toggle toggleComponent = child.GetComponent<Toggle>();
-            bool isPrescribed = AppData.Instance.userData.moveTimePrsc[toggleComponent.name] > 0;
-            // Hide the component if it has no prescribed time.
-            toggleComponent.interactable = isPrescribed;
-            toggleComponent.gameObject.SetActive(isPrescribed);
-            // Clear the message text.
+            float prescribed = AppData.Instance.userData.moveTimePrsc[toggleComponent.name];
+            bool isPrescribed = prescribed > 0;
 
-            message.text = isPrescribed?"Please select the movement":"";
-            // Update the time trained in the timeLeft component of toggleCompoent.
+            // Hide the component if it has no prescribed time.
+            toggleComponent.gameObject.SetActive(isPrescribed);
+            if (!isPrescribed) continue;
+
+            float todayTime = AppData.Instance.userData.getTodayMoveTimeForMovement(toggleComponent.name);
+            bool isCompleted = todayTime >= prescribed;
+
+            // colour green when the prescribed time has been met.
+            Image panelImage = child.GetComponent<Image>();
+            if (panelImage != null)
+                panelImage.color = isCompleted ? darkGreen : panelOrange;
+
+            message.text = "Please select the movement";
+
+            // Update the time trained in the timeLeft component of toggleComponent.
             Transform timeLeftTransform = toggleComponent.transform.Find("timeLeft");
             if (timeLeftTransform != null)
             {
-                // Get the TextMeshPro component from the timeLeft GameObject
                 TextMeshProUGUI timeLeftText = timeLeftTransform.GetComponent<TextMeshProUGUI>();
                 if (timeLeftText != null)
-                {
-                    // Set the text to your desired value
-                    timeLeftText.text = $"{AppData.Instance.userData.getTodayMoveTimeForMovement(toggleComponent.name)} / {AppData.Instance.userData.moveTimePrsc[toggleComponent.name]} min";
-                }
+                    timeLeftText.text = $"{todayTime} / {prescribed} min";
                 else
-                {
                     Debug.LogError("TextMeshProUGUI component not found in timeLeft GameObject.");
-                }
             }
             else
             {
@@ -259,7 +265,7 @@ public class MovementSceneHandler : MonoBehaviour
                     nextScene = AppData.Instance.selectedMovement.name == "ML" ? assessmentSceneML :
                                 AppData.Instance.selectedMovement.name == "AP" ? assessmentSceneAP :
                                 AppData.Instance.selectedMovement.name == "MLAP" ? assessmentSceneMLAP : "";
-                    message.text = "Press Mars Button to start assessment";
+                    message.text = "Press ARMBO Button to start assessment";
                     additionalMessage.text = noAssessAvailable ? "No previous assessment found. Assessment will be done first." :
                                              trainingPlaneMismatch ? "Training plane angle mismatch. Reassesment will be done first." : "";
 
@@ -268,7 +274,7 @@ public class MovementSceneHandler : MonoBehaviour
                 {
                     if ((trainingPlaneMismatch || AppData.Instance.userData.IsArmWeightAssessmentAvailableForTrainingAngle()== false) && AppData.Instance.selectedMovement.name == "MLAP")
                     {
-                     message.text = "Press Mars Button to start weight assessment";
+                     message.text = "Press ARMBO Button to start weight assessment";
                     additionalMessage.text = !AppData.Instance.userData.IsArmWeightAssessmentAvailableForTrainingAngle() ? "No previous weight assessment found. Assessment will be done first." : "";
                     nextScene = armWeightScene;
 
@@ -432,11 +438,12 @@ public class MovementSceneHandler : MonoBehaviour
     void LoadNextScene()
     {
         AppLogger.LogInfo($"Switching scene to '{nextScene}'.");
-        SceneManager.LoadScene(nextScene);
+        SceneManager.LoadSceneAsync(nextScene);
     }
     
     IEnumerator LoadSummaryScene()
     {
+        
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(marsSetUp);
         while (!asyncLoad.isDone)
         {

@@ -43,7 +43,7 @@ public static class MarsComm
 
     public static readonly int[] SENSORNUMBER = new int[] {
         0,   // Dummy
-        12,  // SENSORSTREAM 
+        12,  // SENSORSTREAM
         0,   // CONTROLPARAM
         17,  // DIAGNOSTICS
     };

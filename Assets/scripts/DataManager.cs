@@ -94,12 +94,14 @@ public class DataManager : MonoBehaviour
 
     //AWS related
     public static string GetUploadStatusFile = @"C:/DeviceSetups/Mars/uploadStatus.txt";
-   
+
+
     // Functions to generate file names.
     public static string GetRomFileName(string movement) => FixPath(Path.Combine(romPath, $"{movement}-rom.csv"));
     public static string GetRomRawFileName(string movement, string datetime) => FixPath(Path.Combine(rawPath, $"romraw-{movement}-{datetime.Replace(" ", "_").Replace(":", "-")}.csv"));
     public static string GetArmWeightRawFileName(string datetime) => FixPath(Path.Combine(rawPath, $"armweightraw-{datetime.Replace(" ", "_").Replace(":", "-")}.csv"));
     public static string GetTrialRawDataFileName(int sessNo, int trialNo, string game, string movement) => FixPath(Path.Combine(rawPath, $"raw-sess{sessNo:D2}-trial{trialNo:D3}-{game}-{movement}.csv"));
+    public static string GetCalibRawFileName(string datetime) => FixPath(Path.Combine(rawPath, $"calibraw-{datetime.Replace(" ", "_").Replace(":", "-")}.csv"));
     public static void CreateFileStructure(string userID)
     {
         // Update the user ID path. If the userID is empty, do nothing.

@@ -222,23 +222,15 @@ public static class ConnectToRobot
     public static bool isMARS = false;
     public static bool isConnected = false;
 
-    public static void Connect(string port)
+    public static void Connect(string port, bool silent = false)
     {
-        _port = port;
-        if (_port == null)
-        {
-            _port = "COM13";
-            JediComm.InitSerialComm(_port);
-        }
-        else
-        {
-            JediComm.InitSerialComm(_port);
-        }
+        _port = port ?? "COM13";
+        JediComm.InitSerialComm(_port);
         if (JediComm.serPort != null)
         {
             if (JediComm.serPort.IsOpen == false)
             {
-                JediComm.Connect();
+                JediComm.Connect(silent);
             }
             isConnected = JediComm.serPort.IsOpen;
         }

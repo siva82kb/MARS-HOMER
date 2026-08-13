@@ -63,6 +63,8 @@ public class OneTimeConfig : MonoBehaviour
             homerIdField.readOnly = true;
             LocationDropdown.interactable = false;
             affectedSideDropdown.interactable=false;
+            
+
           
         }
         
@@ -247,6 +249,13 @@ public class OneTimeConfig : MonoBehaviour
             return;
         }
 
+        var activationDateNode = json["activationDate"];
+        if (activationDateNode != null && !activationDateNode.IsNull && !string.IsNullOrEmpty(activationDateNode.Value))
+        {
+            messageText.text = $"{homerID} is already activated. Cannot create a new account.";
+            return;
+        }
+
         string hospID = json["hospitalID"];
         currentTrainingSide = json["trainingSide"];
         popUpConfirmationPatientID.text = $"Homer ID:  {homerID}\nPatient ID:  {hospID}\nTrainingSide: {currentTrainingSide}\n\n\tAre you sure?";
@@ -352,7 +361,7 @@ public class OneTimeConfig : MonoBehaviour
         string totalDuration = totalDurationText.text;
 
         string trainingSide = affectedSideDropdown.options[affectedSideDropdown.value].text;
-        string location = LocationDropdown.options[LocationDropdown.value].text;
+        string location = LocationDropdown.options[LocationDropdown.value].text.ToLower();
         string group = "Experimental";
         string headers = "HomerID,StartDate,EndDate,TotalTime,ML,AP,MLAP,ForeArmLength,UpperArmLength,TrainingSide,Location,Group";
         string data = $"{homerId},{startDate},{endDate},{totalDuration},{ML},{AP},{MLAP},{upperArmLength},{foreArmLength},{trainingSide},{location},{group}";

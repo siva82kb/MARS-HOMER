@@ -409,7 +409,9 @@ public class SpaceShooterGameContoller : MonoBehaviour
         }
         timerText.text = "Time: 0s";
         // Set game over state
-        isGameFinished = true; 
+        isGameFinished = true;
+        bool isRequiredTrialsCompleted = AppData.Instance.selectedMovement.trialNumberDay == AppData.Instance.userData.moveTimePrsc[AppData.Instance.selectedMovement.name];
+        if (isRequiredTrialsCompleted) { SceneManager.LoadSceneAsync("CHOOSEMOVE"); }
     }
     
     public void onClickExit()
@@ -475,7 +477,7 @@ public class SpaceShooterGameContoller : MonoBehaviour
     {
         string currentSceneName = SceneManager.GetActiveScene().name;
         AppLogger.LogInfo($"The Game is Restarted '{currentSceneName}'.");
-        SceneManager.LoadScene(currentSceneName);
+        SceneManager.LoadSceneAsync(currentSceneName);
     }
 
     private void initializeGameSpeedController()

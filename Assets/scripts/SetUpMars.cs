@@ -14,6 +14,7 @@ public class SetUpMars : MonoBehaviour
     public TMP_Text statusTxt;
     public GameObject marsActivationGIF;
     public GameObject AttachArmGIF;
+    public Button goBackBtn;
    
     public readonly string robotCalibScene = "ROBOTCALIB";
     public readonly string nextScene = "CHOOSEMOVE";
@@ -31,8 +32,8 @@ public class SetUpMars : MonoBehaviour
     }
     public SETUPMARS currentState = SETUPMARS.IDLE;
 
-    private const float TARGET_REACH_ERROR = 5.0f; // Degrees
-    private const float ARM_WEIGHT_ERROR = 5.0f;  //  Force
+    public const float TARGET_REACH_ERROR = 10f; // Degrees
+    private const float ARM_WEIGHT_ERROR = 10f;  //  Force
 
     // Start is called before the first frame update
     void Start()
@@ -56,13 +57,17 @@ public class SetUpMars : MonoBehaviour
         {
             SceneManager.LoadScene(robotCalibScene);
         }
+        
         //Handle Deactivate Mars
         if (AppData.Instance.userData.trainingPlaneAngle == 0) return;
         if (MarsComm.CONTROLTYPE[MarsComm.controlType] == "POSITION")
         {
+            goBackBtn.gameObject.SetActive(true);
+            goBackBtn.onClick.AddListener(onBack);
             AppLogger.LogInfo("MARS set to Deactivate Mode");
             currentState = SETUPMARS.SETDEACTIVATEMODE;
         }
+       
        
     }
 
@@ -70,6 +75,10 @@ public class SetUpMars : MonoBehaviour
     void Update()
     {
         MarsComm.sendHeartbeat();
+        if (!ConnectToRobot.isMARS)
+        {
+            currentState = SETUPMARS.DEACTIVATE;
+        }
         updateGUI();
         runStateMachine();
     }
@@ -110,7 +119,7 @@ public class SetUpMars : MonoBehaviour
                 }
                 else
                 {
-                    instructionTxt.text = "Please Attach your Limb with MARS";
+                    instructionTxt.text = "Please Attach your Hand with MARS";
                 }
                 break;
             case SETUPMARS.SETTRAININGPLANEANGLE:
@@ -122,7 +131,7 @@ public class SetUpMars : MonoBehaviour
                     // Check if the target has been reached.
                     if (Mathf.Abs(MarsComm.angle1 - MarsComm.target) < TARGET_REACH_ERROR)
                     {
-                        AppLogger.LogInfo($"Setting Mars Position @ TrainingAngle {MarsComm.target}deg | Actual : {MarsComm.angle1}deg");
+                        AppLogger.LogInfo($"Setting MARS Position @ TrainingAngle {MarsComm.target}deg | Actual : {MarsComm.angle1}deg");
                         currentState = SETUPMARS.DONE;
                         instructionTxt.text = "";
                         AppLogger.LogInfo($"Switching  Scene to {nextScene}");
@@ -133,7 +142,7 @@ public class SetUpMars : MonoBehaviour
             case SETUPMARS.SETDEACTIVATEMODE:
                 if (MarsComm.force > ARM_WEIGHT_ERROR)
                 {
-                    instructionTxt.text = "Please Detach your Limb From MARS";
+                    instructionTxt.text = "Please Detach your Hand From MARS";
                 }
                 else
                 {
@@ -141,7 +150,7 @@ public class SetUpMars : MonoBehaviour
                 }
                 break;
             case SETUPMARS.DEACTIVATE:
-                AppLogger.LogInfo($"Deativating Mars");
+                AppLogger.LogInfo($"Deativating MARS");
 
                 JediComm.Disconnect();
                 SceneManager.LoadScene(summaryScene);
@@ -167,7 +176,7 @@ public class SetUpMars : MonoBehaviour
             case SETUPMARS.ATTACHARM:
                 if (MarsComm.force > MarsComm.ARM_WEIGHT_THRESHOLD)
                 {
-                    AppLogger.LogInfo($"Limb is not Attached with Mars  FORCE - {MarsComm.force}");
+                    AppLogger.LogInfo($"Limb is not Attached with MARS  FORCE - {MarsComm.force}");
                     currentState = SETUPMARS.SETTRAININGPLANEANGLE;
                 }
                 else
@@ -187,6 +196,12 @@ public class SetUpMars : MonoBehaviour
                 }
                 break;
         }
+    }
+    public void onBack()
+    {
+        if (currentState == SETUPMARS.DEACTIVATE) return;
+        AppLogger.LogInfo($"Switching  Scene to {nextScene}");
+        SceneManager.LoadScene(nextScene);
     }
 
     private void OnDestroy()

@@ -165,8 +165,8 @@ public class TWGameController : MonoBehaviour
 
     public void Update()
     {
-        //TWPlayer.instance.OndrawGizmos(lr);
-
+        // Draw ROM quad for visualization using this controller's LineRenderer
+        //TWPlayer.instance.DrawROMQuad(lr);
 
         // Check of the game speed controller is to be shown.
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.G))
@@ -179,7 +179,7 @@ public class TWGameController : MonoBehaviour
         }
         if (restart)
         {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().name);
             restart = false;
         }
         if (debug) return;
@@ -275,7 +275,7 @@ public class TWGameController : MonoBehaviour
             {
                 AppData.Instance.selectedGame.updateCummulativeStars();
                 celebrationPanle.SetActive(true);
-                GameParameter = math.clamp(GameParameter * 0.80f, MarsGameDefs.TableWiping.MIN_SCRUB_SIZE, MarsGameDefs.TableWiping.MAX_SCRUB_SIZE);
+                GameParameter = math.clamp(GameParameter * 0.90f, MarsGameDefs.TableWiping.MIN_SCRUB_SIZE, MarsGameDefs.TableWiping.MAX_SCRUB_SIZE);
                 AppData.Instance.selectedGame.gameParameter = GameParameter;
             }
             //test
@@ -300,6 +300,9 @@ public class TWGameController : MonoBehaviour
 
         }
         isGameFinished = true; // Set game over state 
+        //IF GAME PRESCRIBED TIME FINISHED , MOVE TO CHOOSEMOVEMENT SCENE TO PLAY FOR ANOTHER MOVEMENT
+        bool isRequiredTrialsCompleted = AppData.Instance.selectedMovement.trialNumberDay == AppData.Instance.userData.moveTimePrsc[AppData.Instance.selectedMovement.name];
+        if (isRequiredTrialsCompleted) { SceneManager.LoadSceneAsync("CHOOSEMOVE"); }
     }
    
     public void startGame()
@@ -495,11 +498,19 @@ public class TWGameController : MonoBehaviour
         float halfWidth = sr.bounds.extents.x;
         float halfHeight = sr.bounds.extents.y;
 
-        // Clamp position
-        float clampedX = Mathf.Clamp(gTarget.x,  MarsGameDefs.TableWiping.LEFTLIMIT + halfWidth, MarsGameDefs.TableWiping.RIGHTLIMIT  - halfWidth);
-        float clampedY = Mathf.Clamp(gTarget.y, MarsGameDefs.TableWiping.BOTTOMLIMIT + halfHeight, MarsGameDefs.TableWiping.TOPLIMIT - halfHeight);
+        // Clamp to ROM bounds instead of static screen limits
+        float romMinX = Mathf.Min(TWPlayer.instance.x1.x, TWPlayer.instance.x2.x, TWPlayer.instance.y1.x, TWPlayer.instance.y2.x);
+        float romMaxX = Mathf.Max(TWPlayer.instance.x1.x, TWPlayer.instance.x2.x, TWPlayer.instance.y1.x, TWPlayer.instance.y2.x);
+        float romMinY = Mathf.Min(TWPlayer.instance.x1.y, TWPlayer.instance.x2.y, TWPlayer.instance.y1.y, TWPlayer.instance.y2.y);
+        float romMaxY = Mathf.Max(TWPlayer.instance.x1.y, TWPlayer.instance.x2.y, TWPlayer.instance.y1.y, TWPlayer.instance.y2.y);
+
+        float clampedX = Mathf.Clamp(gTarget.x, romMinX + halfWidth, romMaxX - halfWidth);
+        float clampedY = Mathf.Clamp(gTarget.y, romMinY + halfHeight, romMaxY - halfHeight);
 
         target.transform.position = new Vector3(clampedX, clampedY, 0);
+
+        // Verify stain is within ROM quad
+        TWPlayer.instance.IsPositionWithinROMQuad(new Vector2(clampedX, clampedY));
     }
     public void SetPlayerIn()
     {
@@ -545,8 +556,12 @@ public class TWGameController : MonoBehaviour
             Destroy(target);
             target = null;
         }
-
-        Destroy(money.gameObject);
+        if(money != null)
+        {
+            Destroy(money.gameObject);
+            money = null;
+        }
+        
     }
 
 }

@@ -1,3 +1,5 @@
+using System;
+using System.Text;
 using System.Text.RegularExpressions;
 using TMPro;
 
@@ -18,6 +20,12 @@ public class RobotCalibrationSceneHandler : MonoBehaviour
     private bool setLimbFlag = true;
     private string _limb;
     private bool buttonPressed;
+    private bool changescene = false;
+
+    // Raw data logging — same pattern as assessment (StringBuilder, lock, bulk write on stop)
+    private StringBuilder _rawDataStr;
+    private readonly object _rawDataLock = new object();
+    private string _calibRawDataFile;
 
     void Start()
     {
@@ -26,7 +34,7 @@ public class RobotCalibrationSceneHandler : MonoBehaviour
 
         // Check if the directory exists
         if (!Directory.Exists(DataManager.basePath)) Directory.CreateDirectory(DataManager.basePath);
-        if (!File.Exists(DataManager.configFile)) SceneManager.LoadScene("CONFIG");
+        if (!File.Exists(DataManager.configFile)) SceneManager.LoadSceneAsync("CONFIG");
 
         AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);
         AppLogger.LogInfo($"{SceneManager.GetActiveScene().name} scene started.");
@@ -40,7 +48,11 @@ public class RobotCalibrationSceneHandler : MonoBehaviour
         // Initialize UI
         statusText.text = "";
         instructionText.text = "";
+
     }
+
+   
+
 
     void Update()
     {
@@ -91,9 +103,14 @@ public class RobotCalibrationSceneHandler : MonoBehaviour
             }
             else
             {
-                AppLogger.LogInfo("Training Plane Angle is set. Going to Choose Move scene.");
-                SceneManager.LoadScene(marsSetupScene);
-                return;
+                if (!changescene)
+                {
+                    AppLogger.LogInfo("Training Plane Angle is set. Going to MARS Controll scene.");
+                    SceneManager.LoadSceneAsync(marsSetupScene);
+                    changescene = true;
+                    return;
+                }
+                
             }
         }
         else
@@ -131,6 +148,7 @@ public class RobotCalibrationSceneHandler : MonoBehaviour
     }
     private void OnDestroy()
     {
+        
         MarsComm.OnMarsButtonReleased -= onMarsButtonReleased;
     }
     private void OnApplicationQuit()

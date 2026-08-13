@@ -36,23 +36,24 @@ public class PlanModeSceneHandler : MonoBehaviour
         }
 
         if (!Directory.Exists(DataManager.basePath)) Directory.CreateDirectory(DataManager.basePath);
-        if (!File.Exists(DataManager.configFile)) SceneManager.LoadScene("CONFIG");
+        if (!File.Exists(DataManager.configFile)) SceneManager.LoadSceneAsync("CONFIG");
 
         AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);
         AppLogger.LogInfo($"{SceneManager.GetActiveScene().name} scene started.");
 
         if (MarsComm.CALIBRATION[MarsComm.calibration] == "NOCALIB")
         {
-            SceneManager.LoadScene(robotCalibScene);
+            SceneManager.LoadSceneAsync(robotCalibScene);
         }
 
         if (MarsComm.CONTROLTYPE[MarsComm.controlType] != "POSITION")
         {
-            SceneManager.LoadScene(marsSetupScene);
+            SceneManager.LoadSceneAsync(marsSetupScene);
         }
 
         setTimeButton.onClick.AddListener(OnSetTime);
         backButton.onClick.AddListener(OnBack);
+
 
         MarsComm.OnMarsButtonReleased += OnMarsButtonReleased;
 
@@ -67,7 +68,8 @@ public class PlanModeSceneHandler : MonoBehaviour
 
         if (changeScene)
         {
-            SceneManager.LoadScene(nextScene);
+            changeScene = false;
+            SceneManager.LoadSceneAsync(nextScene);
         }
     }
 
@@ -159,12 +161,21 @@ public class PlanModeSceneHandler : MonoBehaviour
 
     void OnSetTime()
     {
+        
         nextScene = setTimeScene;
         changeScene = true;
     }
 
     void OnBack()
     {
+        if (AppData.Instance.userData.moveTimePrsc["ML"]==0
+            && AppData.Instance.userData.moveTimePrsc["AP"] == 0
+            && AppData.Instance.userData.moveTimePrsc["MLAP"] == 0
+            )
+        {
+            messageText.text = "Time has not been set yet. set the time.";
+            return;
+        }
         SceneTransitionManager.ResetAssessmentReturnScene();
         nextScene = chooseMoveScene;
         changeScene = true;

@@ -164,7 +164,12 @@ public class MCGameController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-       
+        if (debug) return;
+        MarsComm.sendHeartbeat();
+        // Pause and Resume the game
+        if (isGamePaused && gameState != GameStates.PAUSED) PauseGame();
+        else if (!isGamePaused && gameState == GameStates.PAUSED) ResumeGame();
+
         // Update Timer (show remaining time)
         timerText.text = $"TIMER:{Mathf.CeilToInt(gameTimeLeft)}s";
 
@@ -185,11 +190,7 @@ public class MCGameController : MonoBehaviour
             gameSpeedControl.SetActive(!gameSpeedControl.activeSelf);
         }
 
-        if (debug) return;
-        MarsComm.sendHeartbeat();
-        // Pause and Resume the game
-        if (isGamePaused && gameState != GameStates.PAUSED) PauseGame();
-        else if (!isGamePaused && gameState == GameStates.PAUSED) ResumeGame();
+       
 
 
     }
@@ -466,6 +467,9 @@ public class MCGameController : MonoBehaviour
         timerText.text = "Time: 0s";
         // Set game over state
         isGameFinished = true;
+        //IF GAME PRESCRIBED TIME FINISHED , MOVE TO CHOOSEMOVEMENT SCENE TO PLAY FOR ANOTHER MOVEMENT
+        bool isRequiredTrialsCompleted = AppData.Instance.selectedMovement.trialNumberDay == AppData.Instance.userData.moveTimePrsc[AppData.Instance.selectedMovement.name];
+        if (isRequiredTrialsCompleted) { SceneManager.LoadSceneAsync("CHOOSEMOVE"); }
     }
 
     public void onClickExit()
@@ -534,7 +538,7 @@ public class MCGameController : MonoBehaviour
     {
         string currentSceneName = SceneManager.GetActiveScene().name;
         AppLogger.LogInfo($"The Game is Restarted '{currentSceneName}'.");
-        SceneManager.LoadScene(currentSceneName);
+        SceneManager.LoadSceneAsync(currentSceneName);
     }
 
     private void initializeGameSpeedController()
