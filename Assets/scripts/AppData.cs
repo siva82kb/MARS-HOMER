@@ -81,7 +81,7 @@ public partial class AppData
     private StringBuilder aanExecDataString = null;
     public string userID { get; private set; } = null;
     public float successRate { get; private set; } = 0f;
-
+    public bool PPEasyMode = false;
     /* DO OBJECT CREATION HERE */
     // public string selectedGame { get; private set; } = null;
     public MarsGame selectedGame { get; private set; } = null;

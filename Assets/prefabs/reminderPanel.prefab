@@ -34,8 +34,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.0000211, y: 0.0000038147}
-  m_SizeDelta: {x: 924.4332, y: 119.35}
+  m_AnchoredPosition: {x: 0.000030518, y: 0}
+  m_SizeDelta: {x: 827.6179, y: 187.34}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8717528799836774641
 CanvasRenderer:
@@ -78,7 +78,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "This Movement trial Duration is Over. \nnow, you can try other Movement"
+  m_Text: "Trial duration completed (10/10). \nnow, you can try other Movement"
 --- !u!1 &3354181434329334117
 GameObject:
   m_ObjectHideFlags: 0

@@ -128,10 +128,6 @@ public class pongGameController : MonoBehaviour {
         initializeGameSpeedController();
         gameSpeedControl.SetActive(false);
         
-        // Check if the required amount of trails for the selected movement is completed.
-        bool isRequiredTrialsCompleted = AppData.Instance.selectedMovement.trialNumberDay >= AppData.Instance.userData.moveTimePrsc[AppData.Instance.selectedMovement.name];
-        if (isRequiredTrialsCompleted) reminderPanel.SetActive(true);
-        else reminderPanel.SetActive(false);
 
         //switch the Player based on TrainingSide is Left
         if (AppData.Instance.userData.limb == 2)

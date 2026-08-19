@@ -133,11 +133,6 @@ public class DCGameController : MonoBehaviour
        
         AppLogger.LogInfo($"Reach duration for game 'DC' with reach speed {AppData.Instance.selectedGame.reachSpeed} m/s is {reachDuration} seconds.");
 
-        // Check if the required amount fo trials for the selected movement has been completed today.
-        bool isRequiredTrialsCompleted = AppData.Instance.selectedMovement.trialNumberDay >= AppData.Instance.userData.moveTimePrsc[AppData.Instance.selectedMovement.name];
-        if (isRequiredTrialsCompleted) reminderPanel.SetActive(true);
-        else reminderPanel.SetActive(false);
-        
         // Attach event handler to Mars button release event.
         MarsComm.OnMarsButtonReleased += onMarsButtonReleased;
         updateStarCount();

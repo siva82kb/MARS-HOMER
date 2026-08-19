@@ -136,11 +136,7 @@ public class TWGameController : MonoBehaviour
         lr = GetComponent<LineRenderer>();
         lr.positionCount = 5;
 
-        //read Rom File
-        // Check if the required amount fo trials for the selected movement has been completed today.
-        bool isRequiredTrialsCompleted = AppData.Instance.selectedMovement.trialNumberDay >= AppData.Instance.userData.moveTimePrsc[AppData.Instance.selectedMovement.name];
-        if (isRequiredTrialsCompleted) reminderPanel.SetActive(true);
-        else reminderPanel.SetActive(false);
+       
 
         // Attach event handler to Mars button release event.
         MarsComm.OnMarsButtonReleased += onMarsButtonReleased;

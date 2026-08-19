@@ -17,9 +17,12 @@ public class BallController : MonoBehaviour {
 
 	void Start()
 	{
-        rigidBody2D = this.gameObject.GetComponent<Rigidbody2D>(); 
+        // Ensure wall bouncing works at any speed — Unity's default threshold (1.0)
+        // suppresses bounciness when contact velocity is too low.
+        Physics2D.bounceThreshold = 0.001f;
+
+        rigidBody2D = this.gameObject.GetComponent<Rigidbody2D>();
         ballSpeed = pongGameController.Instance.gameSpeed;
-        // Moving ball in initial direction and adding speed
         rigidBody2D.velocity = (AppData.Instance.userData.limb == 1 ? new Vector2(-1, 1) : new Vector2(1, -1)) * ballSpeed;
     }
 

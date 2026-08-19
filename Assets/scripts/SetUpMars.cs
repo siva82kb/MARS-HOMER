@@ -14,6 +14,7 @@ public class SetUpMars : MonoBehaviour
     public TMP_Text statusTxt;
     public GameObject marsActivationGIF;
     public GameObject AttachArmGIF;
+    public GameObject detachArmGIF;
     public Button goBackBtn;
    
     public readonly string robotCalibScene = "ROBOTCALIB";
@@ -33,7 +34,7 @@ public class SetUpMars : MonoBehaviour
     public SETUPMARS currentState = SETUPMARS.IDLE;
 
     public const float TARGET_REACH_ERROR = 10f; // Degrees
-    private const float ARM_WEIGHT_ERROR = 10f;  //  Force
+    private const float ARM_WEIGHT_ERROR = 15f;  //  Force
 
     // Start is called before the first frame update
     void Start()
@@ -119,7 +120,7 @@ public class SetUpMars : MonoBehaviour
                 }
                 else
                 {
-                    instructionTxt.text = "Please Attach your Hand with MARS";
+                    instructionTxt.text = "Please attach your hand with MARS";
                 }
                 break;
             case SETUPMARS.SETTRAININGPLANEANGLE:
@@ -142,11 +143,11 @@ public class SetUpMars : MonoBehaviour
             case SETUPMARS.SETDEACTIVATEMODE:
                 if (MarsComm.force > ARM_WEIGHT_ERROR)
                 {
-                    instructionTxt.text = "Please Detach your Hand From MARS";
+                    instructionTxt.text = "Please remove your hand from MARS";
                 }
                 else
                 {
-                    instructionTxt.text = "Press MARS Button To Deactivate";
+                    instructionTxt.text = "Press the MARS button to move the robot arm down";
                 }
                 break;
             case SETUPMARS.DEACTIVATE:
@@ -162,7 +163,9 @@ public class SetUpMars : MonoBehaviour
     {
         instructionTxt.gameObject.SetActive(currentState != SETUPMARS.DONE);
         marsActivationGIF.SetActive(currentState == SETUPMARS.IDLE || currentState == SETUPMARS.ACTIVATE);
-        AttachArmGIF.SetActive(currentState == SETUPMARS.ATTACHARM && MarsComm.force < 10);
+        AttachArmGIF.SetActive(currentState == SETUPMARS.ATTACHARM && MarsComm.force < ARM_WEIGHT_ERROR);
+        detachArmGIF.SetActive(currentState==SETUPMARS.SETDEACTIVATEMODE&& MarsComm.force > ARM_WEIGHT_ERROR);
+        
     }
 
     public void OnMarsButtonReleased()

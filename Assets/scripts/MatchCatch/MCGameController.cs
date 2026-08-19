@@ -128,10 +128,6 @@ public class MCGameController : MonoBehaviour
         initUI();
         isGameStarted = false;
        
-        // Check of the required amount of trials for the selected movement is completed.
-        bool isRequiredTrialsCompleted = AppData.Instance.selectedMovement.trialNumberDay >= AppData.Instance.userData.moveTimePrsc[AppData.Instance.selectedMovement.name];
-        if (isRequiredTrialsCompleted) reminderPanel.SetActive(true);
-        else reminderPanel.SetActive(false);
 
         // Get game duration
         gameDuration = MarsGameDefs.GAMEDURATION["MC"];

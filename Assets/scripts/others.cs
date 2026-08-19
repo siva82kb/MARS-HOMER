@@ -161,7 +161,7 @@ public class MarsUserData
 
     public int getCurrentDayOfTraining()
     {
-        TimeSpan duration = DateTime.Now - startDate;
+        TimeSpan duration = DateTime.Now.Date - startDate.Date;
         return (int)duration.TotalDays;
     }
 

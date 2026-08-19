@@ -13,7 +13,7 @@ public class ToggleGameObject : MonoBehaviour
     private void Start()
     {
         // Force default ON
-        toggle.isOn = true;
+        toggle.isOn = AppData.Instance.PPEasyMode;
         ApplyState(toggle.isOn);
 
         toggle.onValueChanged.AddListener(ApplyState);
@@ -22,7 +22,7 @@ public class ToggleGameObject : MonoBehaviour
     private void ApplyState(bool isOn)
     {
         trajON = isOn;
-
+        AppData.Instance.PPEasyMode = isOn;
         if (onImage != null) onImage.SetActive(isOn);
         if (offImage != null) offImage.SetActive(!isOn);
     }
