@@ -7,6 +7,7 @@ using System.Text;
 
 using System.Data;
 using System.Drawing.Drawing2D;
+using System.Diagnostics;
 
 
 
@@ -43,7 +44,7 @@ public static class MarsComm
 
     public static readonly int[] SENSORNUMBER = new int[] {
         0,   // Dummy
-        12,  // SENSORSTREAM 
+        12,  // SENSORSTREAM
         0,   // CONTROLPARAM
         17,  // DIAGNOSTICS
     };
@@ -134,7 +135,8 @@ public static class MarsComm
     static public float runTime { get; private set; }
     static public float prevRunTime { get; private set; }
     private static bool hasErrorLoggedOnce = false;
-
+    private static float lowFrameRateTimer = 0f;
+    private static Stopwatch lowFrameRateStopwatch = new Stopwatch();
 
     public static int GetMarsCodeFromLabel(string[] array, string value)
     {
@@ -228,7 +230,7 @@ public static class MarsComm
     }
     static public float force
     {
-        get => currentSensorData[9];
+        get => (currentSensorData[9]/1000)*9.81f; //gram to newton
     }
     static public float target
     {
@@ -308,6 +310,7 @@ public static class MarsComm
         int i;
         if (payloadCount == 0)
         {
+            AppLogger.LogError($"Incomming Data not Found payloadCount:{payloadCount}");
             return;
         }
         Array.Copy(currentStateData, previousStateData, currentStateData.Length);
@@ -395,16 +398,29 @@ public static class MarsComm
                 {
                     MarsCommLogger.LogWarning($"Frame Rate Low | Frame Rate: {frameRate:F1}Hz | Time: {runTime:F2}");
                     // Set control mode to NONE if framerate is below 20Hz
-                    if (frameRate < 20 && controlType != GetMarsCodeFromLabel(CONTROLTYPE, "NONE"))
+                    
+                    if (frameRate < 20)
                     {
-                        setControlType("NONE");
-                        MarsCommLogger.LogInfo($"FrameRate too low. Setting control to NONE.");
+                        if (!lowFrameRateStopwatch.IsRunning)
+                            lowFrameRateStopwatch.Start();
+
+                        if (lowFrameRateStopwatch.Elapsed.TotalSeconds >= 5.0)// Time Intervel 5 seconds for low frameRate
+                        {
+                            setControlType("NONE");
+                            MarsCommLogger.LogInfo($"FrameRate too low. Setting control to NONE.");
+                            lowFrameRateStopwatch.Reset();
+                        }
+                    }
+                    else
+                    {
+                        lowFrameRateStopwatch.Reset();
                     }
                 }
-
+               
                 // Check if the MARS button has been released.
                 if ((((previousStateData[3] >> 4) & 0x01) == 0) && (((currentStateData[3] >> 4) & 0x01) == 1))
                 {
+                    if (AppData.isErrorPanelActive) return;
                     MarsCommLogger.LogInfo($"MARS Button Released | Time: {runTime:F2}");
                     OnMarsButtonReleased?.Invoke();
                 }
@@ -867,7 +883,7 @@ public static class MarsCommLogger
                 string _msg = $"{DateTime.Now:dd-MM-yyyy HH:mm:ss} {logMsgType,-7} {InBraces(_user),-10} {InBraces(AppLogger.currentScene),-12} {InBraces(AppLogger.currentMovement),-8} {InBraces(AppLogger.currentGame),-8} {InBraces(frate),-8} >> {message}";
                 logWriter.WriteLine(_msg);
                 logWriter.Flush();
-                if (DEBUG) Debug.Log(_msg);
+                if (DEBUG) UnityEngine.Debug.Log(_msg);
             }
         }
     }

@@ -10,8 +10,10 @@ public partial class AppData
     private static readonly Lazy<AppData> _instance = new Lazy<AppData>(() => new AppData());
     public static AppData Instance => _instance.Value;
 
-    static public readonly string COMPort = "COM30"; //1-35//2-30//3-32//4-50
-
+    //get from jsonfile
+    static public string COMPort; 
+    public static readonly bool isNRSBuilt = true;  //change to false  for homerBuilt
+    public static bool isErrorPanelActive = false;  //To deactivate MarsButton Action while in error
     // Robot Connection Alive Variables.
     static public float MARS_WATCHDOG_TIMEOUT = 2.0f; //seconds
     static private bool _isMARSConnectionAlive = false;
@@ -31,6 +33,7 @@ public partial class AppData
             _isMARSConnectionAlive = value;
         }
     }
+    static public bool NeedToDeacitaveMars = false;
 
     /*
      * GAME ADAPTATION CONSTANTS
@@ -78,7 +81,7 @@ public partial class AppData
     private StringBuilder aanExecDataString = null;
     public string userID { get; private set; } = null;
     public float successRate { get; private set; } = 0f;
-
+    public bool PPEasyMode = false;
     /* DO OBJECT CREATION HERE */
     // public string selectedGame { get; private set; } = null;
     public MarsGame selectedGame { get; private set; } = null;
@@ -88,13 +91,13 @@ public partial class AppData
     public string trainingSide => userData?.limb != null ? MarsComm.LIMBTYPE[userData.limb] : MarsComm.LIMBTYPE[0];
 
     // An annotation integer for scenes to set annotation it the raw data.
-    public string annotation = "";
+    public string annotation { get; set; } = "";
 
     public void Initialize(string scene)
     {
         // Set sesstion start time.
         startTime = DateTime.Now;
-
+        COMPort = DataManager.getLapConfig();
         // First check if this is a single user case.
         // Check if the base directory has only one folder.
         if (Directory.GetDirectories(DataManager.basePath).Length == 1)
@@ -105,7 +108,7 @@ public partial class AppData
 
         // Create file structure.
         DataManager.CreateFileStructure(AppData.Instance.userID);
-
+       
         // Start logging.
         string _dtstr = AppLogger.StartLogging(scene);
 
@@ -154,13 +157,9 @@ public partial class AppData
         AppLogger.LogInfo($"MARS SensorStream started.");
     }
 
-    public void InitializeRobotDiagnostics()
-    {
-        ConnectToRobot.Connect(COMPort);
-    }
-
     public void setUser(string user)
     {
+        Debug.Log(user);
         userID = user;
         AppLogger.LogInfo($"User ID set to {userID}.");
     }
@@ -193,7 +192,11 @@ public partial class AppData
 
         // Read the cummulative hits and misses from the session data.
         int[] cuScores = Instance.userData.readCummulativeHitsMissesForGameMovement(game, selectedMovement?.name);
-        
+
+        //Read the Cummulative stars from the session data
+        int[] starCount = Instance.userData.readStarCounts(game);
+        Debug.Log($"{starCount[0]}/{starCount[1]}stars");
+
         // Set the selected game.
         selectedGame = new MarsGame(gName: game,
                                     mName: selectedMovement?.name,
@@ -202,7 +205,9 @@ public partial class AppData
                                     arom: selectedMovement?.currentArom,
                                     gCuTargets: cuScores[0],
                                     gCuHits: cuScores[1],
-                                    gCuMisses: cuScores[2]);
+                                    gCuMisses: cuScores[2],
+                                    gCuStars: starCount[0],
+                                    TodayStars: starCount[1]);
         AppLogger.SetCurrentGame(selectedGame.name);
         AppLogger.LogInfo($"Selected game '{selectedGame.name}'. Reach speed: {selectedGame.reachSpeed}m/s, Cummulative targets: {selectedGame.cummulativeTargets}, Cummulative hits: {selectedGame.cummulativeHits}, Cummulative misses: {selectedGame.cummulativeMisses}.");
     }
@@ -217,23 +222,15 @@ public static class ConnectToRobot
     public static bool isMARS = false;
     public static bool isConnected = false;
 
-    public static void Connect(string port)
+    public static void Connect(string port, bool silent = false)
     {
-        _port = port;
-        if (_port == null)
-        {
-            _port = "COM13";
-            JediComm.InitSerialComm(_port);
-        }
-        else
-        {
-            JediComm.InitSerialComm(_port);
-        }
+        _port = port ?? "COM13";
+        JediComm.InitSerialComm(_port);
         if (JediComm.serPort != null)
         {
             if (JediComm.serPort.IsOpen == false)
             {
-                JediComm.Connect();
+                JediComm.Connect(silent);
             }
             isConnected = JediComm.serPort.IsOpen;
         }

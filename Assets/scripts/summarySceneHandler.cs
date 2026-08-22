@@ -1,8 +1,11 @@
-
+﻿
+using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -10,34 +13,117 @@ using XCharts.Runtime;
 
 public class summarySceneHandler : MonoBehaviour
 {
-    public BarChart barchart;
+    public LineChart lineChart;
     public string title;
     private ConcurrentQueue<System.Action> _actionQueue = new ConcurrentQueue<System.Action>();
+    private float shutdownTimer = 5f;
+    public TextMeshProUGUI ssCummulativeScoreTxt;
+    public TextMeshProUGUI ppCummulativeScoreTxt;
+    public TextMeshProUGUI DcCummulativeScoreTxt;
+    public TextMeshProUGUI TWCummulativeScoreTxt;
+    public TextMeshProUGUI TTCummulativeScoreTxt;
+    public TextMeshProUGUI MCCummulativeScoreTxt;
+    public TextMeshProUGUI ssCurrentScoreTxt;
+    public TextMeshProUGUI ppCurrentScoreTxt;
+    public TextMeshProUGUI DCCurrentScoreTxt;
+    public TextMeshProUGUI TWCurrentScoreTxt;
+    public TextMeshProUGUI TTCurrentScoreTxt;
+    public TextMeshProUGUI MCCurrentScoreTxt;
+    public GameObject SSstar;
+    public GameObject PPstar;
+    public GameObject DCstar;
+    public GameObject TWstar;
+    public GameObject TTstar;
+    public GameObject MCstar;
+    public GameObject TotalStar;
+    public TextMeshProUGUI totalStarCount;
+    public TextMeshProUGUI totalStarCountUntilYesterday;
 
     public void Start()
     {
-        MarsComm.sendHeartbeat();
-       
-        MarsComm.OnMarsButtonReleased += onMarsButtonReleased;
+        //debug mode
+        //AppData.Instance.Initialize(SceneManager.GetActiveScene().name);
+
         // Inialize the logger
         AppLogger.StartLogging(SceneManager.GetActiveScene().name);
         AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);
         AppLogger.LogInfo($"{SceneManager.GetActiveScene().name} scene started.");
-        title = "summary";
+        title = "Unlock your Potential through Play";
+        updateScores();
         initializeChart();
     }
-
     void Update()
     {
-        MarsComm.sendHeartbeat();
-       
-        while (_actionQueue.TryDequeue(out var action))
-        {
-            action.Invoke(); // Execute the action
-        }
+        shutdownTimer -= Time.deltaTime;
+        if (shutdownTimer <= 0) exit();
+    }
+   
+    public void updateScores()
+    {
+        int[] scores, cuScore;
+        // --- Score texts ---
+        scores = MarsGameDefs.Spaceshooter.GetScores();
+        cuScore = MarsGameDefs.Spaceshooter.GetCummulativeScores();
+        ssCummulativeScoreTxt.text = cuScore[1].ToString("D4");
+        ssCurrentScoreTxt.text = $"{scores[1]:D3} / {scores[0]:D3}";
 
+        scores = MarsGameDefs.PingPong.GetScores();
+        cuScore = MarsGameDefs.PingPong.GetCummulativeScores();
+        ppCummulativeScoreTxt.text = cuScore[1].ToString("D4");
+        ppCurrentScoreTxt.text = $"{scores[1]:D3} / {scores[0]:D3}";
+
+        scores = MarsGameDefs.DiamondCatcher.GetScores();
+        cuScore = MarsGameDefs.DiamondCatcher.GetCummulativeScores();
+        DcCummulativeScoreTxt.text = cuScore[1].ToString("D4");
+        DCCurrentScoreTxt.text = $"{scores[1]:D3} / {scores[0]:D3}";
+
+        scores = MarsGameDefs.TableWiping.GetScores();
+        cuScore = MarsGameDefs.TableWiping.GetCummulativeScores();
+        TWCummulativeScoreTxt.text = cuScore[1].ToString("D4");
+        TWCurrentScoreTxt.text = $"{scores[1]:D3} / {scores[0]:D3}";
+
+        scores = MarsGameDefs.TukTuk.GetScores();
+        cuScore = MarsGameDefs.TukTuk.GetCummulativeScores();
+        TTCummulativeScoreTxt.text = cuScore[1].ToString("D4");
+        TTCurrentScoreTxt.text = $"{scores[1]:D3} / {scores[0]:D3}";
+
+        scores = MarsGameDefs.MatchCatch.GetScores();
+        cuScore = MarsGameDefs.MatchCatch.GetCummulativeScores();
+        MCCummulativeScoreTxt.text = cuScore[1].ToString("D4");
+        MCCurrentScoreTxt.text = $"{scores[1]:D3} / {scores[0]:D3}";
+
+        // --- Stars per movement: count achievements, fill in order ---
+        // ML movement: SpaceShooter (star 1) + MatchCatch (star 2)
+        int mlStars = (MarsGameDefs.Spaceshooter.IsAchievedToday() ? 1 : 0)
+                    + (MarsGameDefs.MatchCatch.IsAchievedToday() ? 1 : 0);
+        SetMovementStars(SSstar, MCstar, mlStars);
+
+        // AP movement: PingPong (star 1) + TukTuk (star 2)
+        int apStars = (MarsGameDefs.PingPong.IsAchievedToday() ? 1 : 0)
+                    + (MarsGameDefs.TukTuk.IsAchievedToday() ? 1 : 0);
+        SetMovementStars(PPstar, TTstar, apStars);
+
+        // MLAP movement: DiamondCatcher (star 1) + TableWiping (star 2)
+        int mlapStars = (MarsGameDefs.DiamondCatcher.IsAchievedToday() ? 1 : 0)
+                      + (MarsGameDefs.TableWiping.IsAchievedToday() ? 1 : 0);
+        SetMovementStars(DCstar, TWstar, mlapStars);
+
+        // --- Total stars today ---
+        int totalToday = mlStars + apStars + mlapStars;
+        totalStarCount.text = totalToday.ToString("D3");
+        if (totalToday > 0) TotalStar.GetComponent<Image>().color = Color.white;
+
+        // --- Cumulative stars until last played date (all games, up to yesterday) ---
+        int[] starData = MarsGameDefs.Spaceshooter.GetStarsCount();
+        totalStarCountUntilYesterday.text = starData[2].ToString("D3")+"-->";
     }
 
+    private void SetMovementStars(GameObject star1, GameObject star2, int count)
+    {
+        Color dimColor = new Color32(0x27, 0x22, 0x22, 255);
+        star1.GetComponent<Image>().color = count >= 1 ? Color.white : dimColor;
+        star2.GetComponent<Image>().color = count >= 2 ? Color.white : dimColor;
+    }
     // To load the data for a specific movement into the bar graph.
     public void selectedMovements(Button button)
     {
@@ -45,110 +131,124 @@ public class summarySceneHandler : MonoBehaviour
         SessionDataHandler.SelectedMovement(button.gameObject.name.ToUpper());
         AppLogger.LogInfo($"Selected '{title}'.");
         UpdateChartData();
-       
     }
-    public void quit()
+    public void exit()
     {
-        AppLogger.LogInfo("Mars button released.");
-        // Enqueue the disconnect and quit actions
-        _actionQueue.Enqueue(() =>
-        {
+        if (AppData.isNRSBuilt) {
 
-            AppLogger.LogInfo("Disconnected form Mars And Application closed succesfully");
-            JediComm.Disconnect();
-            Application.Quit();
-            #if UNITY_EDITOR
-                        UnityEditor.EditorApplication.isPlaying = false; // Stop play mode if in editor
-            #endif
-        });
-
-    }
-    //To disconnect the Robot 
-    public void onMarsButtonReleased()
-    {
-        quit();
-    }
-
-    //To initialize the barchart with whole data of moveTime per day
-    public void initializeChart()
-    {
-  
-        SessionDataHandler.MovTimePerDay();
-        // Get or add the BarChart component
-        barchart = gameObject.GetComponent<BarChart>();
-        if (barchart == null)
-        {
-            barchart = gameObject.AddComponent<BarChart>();
-            barchart.Init();
+            try
+            {
+                // Create marker file for NRS device setup check
+                string dirPath = "C:/DeviceSetups/Mars";
+                string filePath = Path.Combine(dirPath, "mars_demo_done.txt");
+                Directory.CreateDirectory(dirPath);
+                File.WriteAllText(filePath, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                
+                AppLogger.LogInfo("Created marker file at: " + filePath);
+                Application.Quit();
+                
+                #if UNITY_EDITOR
+                         UnityEditor.EditorApplication.isPlaying = false;
+                #endif
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError("Failed to create marker file: " + ex.Message);
+            }
+            return;
         }
 
-        // Set chart title and tooltip visibility
-        barchart.EnsureChartComponent<Title>().show = true;
-        barchart.EnsureChartComponent<Title>().text = title;
+        AppLogger.LogInfo("Disconnected form Mars And Switch scene to DataUploading");
 
-        barchart.EnsureChartComponent<Tooltip>().show = true;
-        barchart.EnsureChartComponent<Legend>().show = true;
+        SceneManager.LoadScene("DATAUPLOADING");
 
-        // Ensure x and y axes are created
-        var xAxis = barchart.EnsureChartComponent<XAxis>();
-        var yAxis = barchart.EnsureChartComponent<YAxis>();
+    }
+
+
+    public void initializeChart()
+    {
+        SessionDataHandler.MovTimePerDay();
+        lineChart = gameObject.GetComponent<LineChart>();
+        if (lineChart == null)
+        {
+            lineChart = gameObject.AddComponent<LineChart>();
+            lineChart.Init();
+        }
+        // Title
+        var titleComp = lineChart.EnsureChartComponent<Title>();
+        titleComp.show = true;
+        titleComp.text = title;
+
+        // Tooltip & Legend
+        lineChart.EnsureChartComponent<Tooltip>().show = true;
+        lineChart.EnsureChartComponent<Legend>().show = true;
+
+        // Axes
+        var xAxis = lineChart.EnsureChartComponent<XAxis>();
+        var yAxis = lineChart.EnsureChartComponent<YAxis>();
+
         xAxis.show = true;
         yAxis.show = true;
-        xAxis.type = Axis.AxisType.Category; // Set x-axis type to Category
-        yAxis.type = Axis.AxisType.Value; // Set y-axis type to Value
-        yAxis.min = 0; // Make sure bars start from the y=0 line
-        yAxis.max = SessionDataHandler.moveTimeData.Max(); // You can adjust the maximum value as needed
 
-        // Set zoom properties
-        var dataZoom = barchart.EnsureChartComponent<DataZoom>();
+        xAxis.type = Axis.AxisType.Category;
+        yAxis.type = Axis.AxisType.Value;
+
+        // Fixed Y-axis limit 0 - 100
+        yAxis.min = 0;
+        yAxis.max = 100;
+
+        // Enable zoom
+        var dataZoom = lineChart.EnsureChartComponent<DataZoom>();
         dataZoom.enable = true;
         dataZoom.supportInside = true;
         dataZoom.supportSlider = true;
         dataZoom.start = 0;
         dataZoom.end = 100;
-        AppLogger.LogInfo("chart initialized successfully");
         UpdateChartData();
     }
 
-    //To update chart with data
     public void UpdateChartData()
     {
-        if (barchart == null)
-        {
-            
-            return;
-        }
-        barchart.RemoveData();
-        barchart.EnsureChartComponent<Title>().text = title;
-        barchart.AddSerie<Bar>();
-        // Update the x-axis data
-        var xAxis = barchart.GetChartComponent<XAxis>();
-        xAxis.data.Clear();
-        foreach (string date in SessionDataHandler.dateData)
-        {
-            xAxis.data.Add(date); // Add x-axis labels (dates)
-        }
+        if (lineChart == null) return;
 
-        // Update the y-axis data (movement time)
-        var yAxis = barchart.GetChartComponent<YAxis>();
-        yAxis.data.Clear();
-      
+        AppLogger.LogInfo("Linechart is not null");
+
+        lineChart.RemoveData();
+        lineChart.EnsureChartComponent<Title>().text = title;
+        AppLogger.LogInfo("linechart clearing unwanted data");
+
+        lineChart.AddSerie<Line>();
+
+        var xAxis = lineChart.GetChartComponent<XAxis>();
+        xAxis.data.Clear();
+
+        DateTime today = DateTime.Today;
+
         for (int i = 0; i < SessionDataHandler.dateData.Length; i++)
         {
-            float yValue = SessionDataHandler.moveTimeData[i];
-            barchart.AddData(0, yValue);
+            string dateStr = SessionDataHandler.dateData[i];
+            // Parse date
+            DateTime entryDate = DateTime.Parse(dateStr);
+            // Always show labels in the formate of date/Month
+            xAxis.data.Add(entryDate.ToString("dd/MM"));
+
+            if (entryDate > today)
+            {
+                // Add empty value → line breaks here
+                lineChart.AddData(0, null);
+            }
+            else
+            {
+                // Add actual data
+                float value = SessionDataHandler.moveTimeData[i];
+                lineChart.AddData(0, value);
+            }
         }
-        barchart.RefreshAllComponent();
-        AppLogger.LogInfo("chart updated successfully");
-    }
-    private void OnDestroy()
-    {
-        MarsComm.OnMarsButtonReleased -= onMarsButtonReleased;
+        AppLogger.LogInfo("DataUpdated successfully");
+        lineChart.RefreshAllComponent();
     }
     private void OnApplicationQuit()
     {
-
         Application.Quit();
-        JediComm.Disconnect();
     }
 }

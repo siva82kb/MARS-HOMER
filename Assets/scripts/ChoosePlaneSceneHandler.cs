@@ -9,6 +9,7 @@ using System.IO;
 using System.Collections.Generic;
 
 
+
 public class ChoosePlaneSceneHandler : MonoBehaviour
 {
     //ui related variables
@@ -21,8 +22,8 @@ public class ChoosePlaneSceneHandler : MonoBehaviour
     public Slider sliderTrainPlane;
     public Slider sliderCtrlBound;
     public Button btnDone;
-    private static string FLOAT_FORMAT = "+0.0;-0.0";
-
+    private static string FLOAT_FORMAT = "+0.0;-0.0"; 
+    private static string FLOAT_FORMAT_D = "0";
     public readonly string robotCalibScene = "ROBOTCALIB";
     public readonly string nextScene = "CHOOSEMOVE";
     private bool attachMarsButtonEvent = true;
@@ -37,7 +38,7 @@ public class ChoosePlaneSceneHandler : MonoBehaviour
     private ChooseTrainingPlaneStates currentState = ChooseTrainingPlaneStates.WAIT_FOR_HORIZONTAL_REACH;
     private Dictionary<ChooseTrainingPlaneStates, (string, Color)> instructionDict = new Dictionary<ChooseTrainingPlaneStates, (string, Color)>()
     {
-        { ChooseTrainingPlaneStates.WAIT_FOR_HORIZONTAL_REACH, ("Press the MARS button to move the robot to the horizontal position.", new Color32(202, 108, 0, 255)) },
+        { ChooseTrainingPlaneStates.WAIT_FOR_HORIZONTAL_REACH, ("Moving the robot to the horizontal position. Please wait…", new Color32(202, 108, 0, 255)) },
         { ChooseTrainingPlaneStates.WAIT_FOR_LIMB_ATTACHMENT, ("Attach the user's limb and press the MARS button.", new Color32(202, 108, 0, 255)) },
         { ChooseTrainingPlaneStates.TEST_TRAINING_PLANES, ("Choose the training plane angle and press the Calib button.", new Color32(202, 108, 0, 255)) },
         { ChooseTrainingPlaneStates.ALL_DONE, ("All done. Press the MARS button to start training.", new Color32(202, 108, 0, 255)) },
@@ -59,7 +60,7 @@ public class ChoosePlaneSceneHandler : MonoBehaviour
 
         // Check if the directory exists
         if (!Directory.Exists(DataManager.basePath)) Directory.CreateDirectory(DataManager.basePath);
-        if (!File.Exists(DataManager.configFile)) SceneManager.LoadScene("CONFIG");
+        if (!File.Exists(DataManager.configFile)) SceneManager.LoadSceneAsync("CONFIG");
 
         AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);
         AppLogger.LogInfo($"{SceneManager.GetActiveScene().name} scene started.");
@@ -67,7 +68,7 @@ public class ChoosePlaneSceneHandler : MonoBehaviour
         // IF the robot is not calibrated go to the robot calib scene.
         if (MarsComm.CALIBRATION[MarsComm.calibration] == "NOCALIB")
         {
-            SceneManager.LoadScene(robotCalibScene);
+            SceneManager.LoadSceneAsync(robotCalibScene);
         }
 
         // Initialize UI
@@ -116,10 +117,12 @@ public class ChoosePlaneSceneHandler : MonoBehaviour
         sliderTrainPlane.onValueChanged.AddListener(delegate { OnTrainPlaneSliderValueChanged(); });
         // Attach call back for the done button.
         btnDone.onClick.AddListener(() => {
+            if (currentState == ChooseTrainingPlaneStates.ALL_DONE) return;
             AppLogger.LogInfo($"Done button pressed. Leaving abruptly.");
-            SceneManager.LoadScene(nextScene); 
+            SceneManager.LoadSceneAsync(nextScene); 
         });
-
+        //hide exit button for, first time to set plane
+        btnDone.gameObject.SetActive(AppData.Instance.userData.trainingPlaneAngle != 0);
         // Hide control bound controls.
         tglChangeCtrlBound.interactable = false;
         tglChangeCtrlBound.GameObject().SetActive(false);
@@ -185,9 +188,9 @@ public class ChoosePlaneSceneHandler : MonoBehaviour
 
             case ChooseTrainingPlaneStates.TEST_TRAINING_PLANES:
                 // Update the current and set training angles.
-                trainPlaneText.text = $"Set: {MarsComm.desired.ToString(FLOAT_FORMAT)} deg | ";
-                trainPlaneText.text += $"Actual: {MarsComm.angle1.ToString(FLOAT_FORMAT)} deg";
-                sliderValueText.text = $"{sliderTrainPlane.value.ToString(FLOAT_FORMAT)} deg";
+                trainPlaneText.text = $"Set: {Mathf.Abs(MarsComm.desired).ToString(FLOAT_FORMAT_D)} deg | ";
+                trainPlaneText.text += $"Actual: {Mathf.Abs(MarsComm.angle1).ToString(FLOAT_FORMAT_D)} deg";
+                sliderValueText.text = $"{Mathf.Abs(sliderTrainPlane.value).ToString(FLOAT_FORMAT_D)} deg";
                 // Check of new training plane angle has been set.
                 if (newTrainingPlaneAngle)
                 {

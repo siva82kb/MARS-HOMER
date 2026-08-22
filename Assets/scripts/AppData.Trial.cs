@@ -13,6 +13,9 @@ using UnityEngine;
  */
 public partial class AppData
 {
+    private int _rawDataFlushCounter = 0;
+    private const int RAW_DATA_FLUSH_INTERVAL = 500; // ~5 seconds at 100Hz
+
     // Trail Detials
     public float gameTime { get; set; } = 0;
     // public float gameSpeed { get => selectedGame.gameSpeed; }
@@ -78,12 +81,15 @@ public partial class AppData
         
         // Stop Raw and AAN real-time data logging.
         WriteTrialDataToRawDataFile();
-        MarsComm.OnNewMarsData -= OnNewMarsDataDataLogging;
+        MarsComm.OnNewMarsData -= OnNewMarsRawDataLogging;
         trialRawDataFile = null;
+        Instance.selectedGame.resetstarCount();
+        awsManager.changeUploadStatus(awsManager.status[0]);
     }
 
     private void WriteTrialToSessionsFile()
     {
+        
         // Build the trial row.
         string[] trialRow = new string[] {
             $"{currentSessionNumber}",                              // SessionNumber
@@ -96,18 +102,19 @@ public partial class AppData
             $"{selectedMovement.name}",                             // Movement
             $"{userData.trainingPlaneAngle}",                       // TrainingPlaneAngle
             $"{selectedGame.name}",                                 // Game  
-            null,                                                   // GameParameter
             $"{selectedGame.reachSpeed}",                           // ReachSpeed
-            $"{selectedGame.gameSpeed}",                            // GameSpeed
+            $"{selectedGame.gameParameter}",                        // GameParameter
             $"{selectedGame.gameDuration}",                         // GameDuration
             $"{successRate}",                                       // SuccessRate
-            Instance.gameTime.ToString(),                           // GameTime
+             Instance.gameTime.ToString(),                           // GameTime
             $"{selectedGame.currentTargets}",                       // CurrentTargets
             $"{selectedGame.currentHits}",                          // CurrentHits
             $"{selectedGame.currentMisses}",                        // CurrentMisses
             $"{selectedGame.cummulativeTargets}",                   // CummulativeTargets
             $"{selectedGame.cummulativeHits}",                      // CummulativeHits
             $"{selectedGame.cummulativeMisses}",                    // CummulativeMisses
+            $"{selectedGame.currentStar}",                          // CurrentStarcounts
+            $"{selectedGame.cummulativeStars}",                     // CummulativeStarCounts
             $"{trialRawDataFile.Split('/').Last()}"                 // RawDataFileName
         };
 
@@ -130,9 +137,11 @@ public partial class AppData
 
         //// Initialize the string builders.
         rawDataString = new StringBuilder();
+        _rawDataFlushCounter = 0;
         // Write pre-header and header information
         rawDataString.AppendLine($":Device: MARS");
         rawDataString.AppendLine($":Location: {userData.GetDeviceLocation()}");
+        rawDataString.AppendLine($":User    : {userID}");
         rawDataString.AppendLine($":Movement: {selectedMovement.name}");
         rawDataString.AppendLine($":Game: {selectedGame.name}");
         rawDataString.AppendLine($":TrialType: ");
@@ -155,12 +164,13 @@ public partial class AppData
         });
         rawDataString.AppendLine($":RobotLimits: {_limitstr}");
         rawDataString.AppendLine(string.Join(",", DataManager.RAWFILEHEADER));
-
+        //Make annotation empty
+        AppData.Instance.annotation = "";
         // Attach the event handler for data logging.
-        MarsComm.OnNewMarsData += OnNewMarsDataDataLogging;
+        MarsComm.OnNewMarsData += OnNewMarsRawDataLogging;
     }
  
-    public void OnNewMarsDataDataLogging()
+    public void OnNewMarsRawDataLogging()
     {
         lock (rawDataLock)
         {
@@ -179,14 +189,6 @@ public partial class AppData
             rawDataString.Append($"{MarsComm.errorStatus},");                       // ErrorStatus
             rawDataString.Append($"{MarsComm.limb},");                              // Limb
             rawDataString.Append($"{MarsComm.calibration},");                       // Calibration
-            rawDataString.Append($"{MarsComm.angle1},");                            // MarsAngle1
-            rawDataString.Append($"{MarsComm.angle2},");                            // MarsAngle2
-            rawDataString.Append($"{MarsComm.angle3},");                            // MarsAngle3
-            rawDataString.Append($"{MarsComm.angle4},");                            // MarsAngle4
-            rawDataString.Append($"{MarsComm.imuAngle1},");                         // ImuMarsAngle1
-            rawDataString.Append($"{MarsComm.imuAngle2},");                         // ImuMarsAngle2
-            rawDataString.Append($"{MarsComm.imuAngle3},");                         // ImuMarsAngle3
-            rawDataString.Append($"{MarsComm.imuAngle4},");                         // ImuMarsAngle4
             rawDataString.Append($"{MarsComm.force},");                             // Force
             rawDataString.Append($"{MarsComm.target},");                            // Target
             rawDataString.Append($"{MarsComm.desired},");                           // Desired
@@ -207,29 +209,62 @@ public partial class AppData
             rawDataString.Append($"{_targetGamePos.x},");                           // GameTargetX
             rawDataString.Append($"{_targetGamePos.y},");                           // GameTargetY
             rawDataString.Append($"{GetGameState()},");                             // GameState
-            rawDataString.Append($"{AppData.Instance.annotation}");                 // Annotation
+            rawDataString.Append($"{GetTargetNumber()},");                          // GameTargetNumber
+            rawDataString.Append($"{GetHitNumber()},");                             // GameHitNumber
+            rawDataString.Append($"{GetMissNumber()},");                            // GameMissNumber
+            rawDataString.Append($"{AppData.Instance.annotation},");                // Annotation
+            rawDataString.Append($"{GetMiscellaneous()},");                          // Miscellaneous //Target Reach Time only for Ping-Pong Game
+            rawDataString.Append($"{MarsComm.angle1},");
+            rawDataString.Append($"{MarsComm.angle2},");
+            rawDataString.Append($"{MarsComm.angle3},");
+            rawDataString.Append($"{MarsComm.angle4}");
+
             rawDataString.Append("\n");
+            if (trialRawDataFile != null && ++_rawDataFlushCounter >= RAW_DATA_FLUSH_INTERVAL)
+                PeriodicFlushRawData();
+        }
+    }
+
+    // Called from within rawDataLock — writes current buffer to disk and resets it.
+    private void PeriodicFlushRawData()
+    {
+        if (trialRawDataFile == null || rawDataString == null) return;
+        string _dir = Path.GetDirectoryName(trialRawDataFile);
+        if (!Directory.Exists(_dir)) Directory.CreateDirectory(_dir);
+        bool _append = File.Exists(trialRawDataFile);
+        using (StreamWriter sw = new StreamWriter(trialRawDataFile, _append, Encoding.UTF8))
+            sw.Write(rawDataString.ToString());
+        rawDataString.Clear();
+        _rawDataFlushCounter = 0;
+    }
+
+    // Safe to call from any scene (e.g. on robot disconnect) — flushes in-flight trial data.
+    public void FlushRawDataToDisk()
+    {
+        lock (rawDataLock)
+        {
+            PeriodicFlushRawData();
         }
     }
 
     private void WriteTrialDataToRawDataFile()
     {
         AppLogger.LogInfo($"Writing to: {trialRawDataFile}");
-        AppLogger.LogInfo($"File exists before write? {File.Exists(trialRawDataFile)}");
 
         string _dir = Path.GetDirectoryName(trialRawDataFile);
         if (!Directory.Exists(_dir)) Directory.CreateDirectory(_dir);
 
-        lock (rawDataLock)  // locking
+        lock (rawDataLock)
         {
-            using (StreamWriter sw = new StreamWriter(trialRawDataFile, false, Encoding.UTF8))
+            bool _append = File.Exists(trialRawDataFile);
+            using (StreamWriter sw = new StreamWriter(trialRawDataFile, _append, Encoding.UTF8))
             {
                 sw.Write(rawDataString.ToString());
             }
             rawDataString.Clear();
             rawDataString = null;
+            _rawDataFlushCounter = 0;
         }
-        AppLogger.LogInfo($"File exists before write? {File.Exists(trialRawDataFile)}");
     }
 
     // AROM assessment raw data logging function.
@@ -241,13 +276,14 @@ public partial class AppData
         // Initialize the string builders.
         rawDataString = new StringBuilder();
         // Write pre-header and header information
-        rawDataString.AppendLine($":Device: MARS");
+        rawDataString.AppendLine($":Device  : MARS");
         rawDataString.AppendLine($":Location: {userData.GetDeviceLocation()}");
+        rawDataString.AppendLine($":User    : {userID}");
         rawDataString.AppendLine($":Movement: {selectedMovement.name}");
         rawDataString.AppendLine(string.Join(",", DataManager.RAWFILEHEADER));
 
         // Attach the event handler for data logging.
-        MarsComm.OnNewMarsData += OnNewMarsDataDataLogging;
+        MarsComm.OnNewMarsData += OnNewMarsRawDataLogging;
     }
 
     public void StopRawDataAromDataLogging()
@@ -268,7 +304,7 @@ public partial class AppData
             rawDataString.Clear();
             rawDataString = null;
         }
-        MarsComm.OnNewMarsData -= OnNewMarsDataDataLogging;
+        MarsComm.OnNewMarsData -= OnNewMarsRawDataLogging;
         trialAromDataFile = null;
     }
     
@@ -283,11 +319,12 @@ public partial class AppData
         // Write pre-header and header information
         rawDataString.AppendLine($":Device: MARS");
         rawDataString.AppendLine($":Location: {userData.GetDeviceLocation()}");
+        rawDataString.AppendLine($":User    : {userID}");
         rawDataString.AppendLine($":Movement: MLAP");
         rawDataString.AppendLine(string.Join(",", DataManager.RAWFILEHEADER));
 
         // Attach the event handler for data logging.
-        MarsComm.OnNewMarsData += OnNewMarsDataDataLogging;
+        MarsComm.OnNewMarsData += OnNewMarsRawDataLogging;
     }
 
     public void StopRawDataArmWeightDataLogging()
@@ -308,12 +345,13 @@ public partial class AppData
             rawDataString.Clear();
             rawDataString = null;
         }
-        MarsComm.OnNewMarsData -= OnNewMarsDataDataLogging;
+        MarsComm.OnNewMarsData -= OnNewMarsRawDataLogging;
         trialArmWeightDataFile = null;
     }
 
     private Vector3 GetGamePlayerPosition()
     {
+       if(selectedGame == null) return Vector3.zero;
         switch (selectedGame.name)
         {
             case "SS":
@@ -330,6 +368,18 @@ public partial class AppData
                 return DCGameController.Instance != null
                     ? DCGameController.Instance.playerGamePosition
                     : Vector3.zero;
+            case "TT":
+                return FlappyGameControl.Instance != null
+                    ? FlappyGameControl.Instance.playerGamePosition
+                     : Vector3.zero;
+            case "TW":
+                return TWGameController.Instance != null
+                    ? TWGameController.Instance.playerGamePosition
+                    : Vector3.zero;
+            case "MC":
+                return MCGameController.Instance != null
+                    ? MCGameController.Instance.playerGamePosition
+                    : Vector3.zero;
 
             default:
                 return Vector3.zero;
@@ -339,6 +389,7 @@ public partial class AppData
 
     private Vector3 GetGameTargetPosition()
     {
+        if (selectedGame == null) return Vector3.zero;
         switch (selectedGame.name)
         {
             case "SS":
@@ -355,7 +406,18 @@ public partial class AppData
                 return DCGameController.Instance != null
                     ? DCGameController.Instance.targetGamePosition ?? Vector3.zero
                     : Vector3.zero;
-
+            case "TT":
+                return FlappyGameControl.Instance != null
+                    ? FlappyGameControl.Instance.targetGamePosition ?? Vector3.zero
+                    : Vector3.zero;
+            case "TW":
+                return TWGameController.Instance != null
+                    ? TWGameController.Instance.targetGamePosition ?? Vector3.zero
+                    : Vector3.zero;
+            case "MC":
+                return MCGameController.Instance != null
+                    ? MCGameController.Instance.targetGamePosition ?? Vector3.zero
+                    : Vector3.zero;
             default:
                 return Vector3.zero;
         }
@@ -364,6 +426,7 @@ public partial class AppData
 
     private Vector3 GetEndPointTargetPosition()
     {
+        if (selectedGame == null) return Vector3.zero;
         switch (selectedGame.name)
         {
             case "SS":
@@ -380,14 +443,54 @@ public partial class AppData
                 return DCGameController.Instance != null
                     ? DCGameController.Instance.targetEndPointPosition ?? Vector3.zero
                     : Vector3.zero;
+            case "TT":
+                return FlappyGameControl.Instance != null
+                    ? FlappyGameControl.Instance.targetEndPointPosition ?? Vector3.zero
+                    : Vector3.zero;
 
+            case "TW":
+                return TWGameController.Instance != null
+                    ? TWGameController.Instance.targetEndPointPosition ?? Vector3.zero
+                    : Vector3.zero;
+            case "MC":
+                return MCGameController.Instance != null
+                    ? MCGameController.Instance.targetEndPointPosition ?? Vector3.zero
+                    : Vector3.zero;
             default:
                 return Vector3.zero;
         }
     }
 
+    //Target Time in Ping pong
+    private string GetMiscellaneous()
+    {
+        if (selectedGame == null) return "";
+        switch (selectedGame.name)
+        {
+            case "SS":
+                return "";
+
+            case "PP":
+                return pongGameController.Instance.targetTime.ToString("F2");
+
+            case "DC":
+                return "";
+            case "TT":
+                return "";
+
+            case "TW":
+                return TWGameController.Instance.TargetArea;
+
+            case "MC":
+                return "";
+            default:
+                return "";
+        }
+    }
+
     private string GetGameState()
     {
+        if (selectedGame == null) return "";
         //// Get the game state.
         if (selectedGame.name == "SS")
         {
@@ -402,7 +505,161 @@ public partial class AppData
         {
             return DCGameController.Instance != null ? DCGameController.Instance.gameState.ToString() : "";
         }
+        else if (selectedGame.name == "TT")
+        {
+            return FlappyGameControl.Instance != null ? FlappyGameControl.Instance.gameState.ToString() : "";
+        }
+        else if(selectedGame.name == "TW")
+        {
+            return TWGameController.Instance != null ? TWGameController.Instance.gameState.ToString() : "";
+        }
+        else if (selectedGame.name == "MC")
+        {
+            return MCGameController.Instance != null ? MCGameController.Instance.gameState.ToString() : "";
+        }
         return "";
+    }
+    private string GetTargetNumber()
+    {
+        if (selectedGame == null) return "";
+        //// Get the game state.
+        if (selectedGame.name == "SS")
+        {
+            return SpaceShooterGameContoller.Instance != null ? SpaceShooterGameContoller.Instance.nTargets.ToString() : "";
+        }
+        else if (selectedGame.name == "PP")
+        {
+            return pongGameController.Instance != null ? pongGameController.Instance.nTargets.ToString() : "";
+        }
+
+        else if (selectedGame.name == "DC")
+        {
+            return DCGameController.Instance != null ? DCGameController.Instance.nTargets.ToString() : "";
+        }
+        else if (selectedGame.name == "TT")
+        {
+            return FlappyGameControl.Instance != null ? FlappyGameControl.Instance.nTargets.ToString() : "";
+        }
+        else if (selectedGame.name == "TW")
+        {
+            return TWGameController.Instance != null ? TWGameController.Instance.nTargets.ToString() : "";
+        }
+        else if (selectedGame.name == "MC")
+        {
+            return MCGameController.Instance != null ? MCGameController.Instance.nTargets.ToString() : "";
+        }
+        return "";
+    }
+    private string GetHitNumber()
+    {
+        if (selectedGame == null) return "";
+        //// Get the game state.
+        if (selectedGame.name == "SS")
+        {
+            return SpaceShooterGameContoller.Instance != null ? SpaceShooterGameContoller.Instance.nSuccess.ToString() : "";
+        }
+        else if (selectedGame.name == "PP")
+        {
+            return pongGameController.Instance != null ? pongGameController.Instance.nSuccess.ToString() : "";
+        }
+
+        else if (selectedGame.name == "DC")
+        {
+            return DCGameController.Instance != null ? DCGameController.Instance.nSuccess.ToString() : "";
+        }
+        else if (selectedGame.name == "TT")
+        {
+            return FlappyGameControl.Instance != null ? FlappyGameControl.Instance.nSuccess.ToString() : "";
+        }
+        else if (selectedGame.name == "TW")
+        {
+            return TWGameController.Instance != null ? TWGameController.Instance.nSuccess.ToString() : "";
+        }
+        else if (selectedGame.name == "MC")
+        {
+            return MCGameController.Instance != null ? MCGameController.Instance.nSuccess.ToString() : "";
+        }
+        return "";
+    }
+    private string GetMissNumber()
+    {
+        if (selectedGame == null) return "";
+        //// Get the game state.
+        if (selectedGame.name == "SS")
+        {
+            return SpaceShooterGameContoller.Instance != null ? SpaceShooterGameContoller.Instance.nFailure.ToString() : "";
+        }
+        else if (selectedGame.name == "PP")
+        {
+            return pongGameController.Instance != null ? pongGameController.Instance.nFailure.ToString() : "";
+        }
+
+        else if (selectedGame.name == "DC")
+        {
+            return DCGameController.Instance != null ? DCGameController.Instance.nFailure.ToString() : "";
+        }
+        else if (selectedGame.name == "TT")
+        {
+            return FlappyGameControl.Instance != null ? FlappyGameControl.Instance.nFailure.ToString() : "";
+        }
+        else if (selectedGame.name == "TW")
+        {
+            return TWGameController.Instance != null ? TWGameController.Instance.nFailure.ToString() : "";
+        }
+        else if (selectedGame.name == "MC")
+        {
+            return MCGameController.Instance != null ? MCGameController.Instance.nFailure.ToString() : "";
+        }
+        return "";
+    }
+    // Returns (targets, hits, misses) from whichever game is currently running.
+    private (int targets, int hits, int misses) GetCurrentGameStats()
+    {
+        if (selectedGame == null) return (1, 0, 0);
+        switch (selectedGame.name)
+        {
+            case "SS": return SpaceShooterGameContoller.Instance != null
+                ? (SpaceShooterGameContoller.Instance.nTargets,
+                   SpaceShooterGameContoller.Instance.nSuccess,
+                   SpaceShooterGameContoller.Instance.nFailure)
+                : (1, 0, 0);
+            case "PP": return pongGameController.Instance != null
+                ? (pongGameController.Instance.nTargets,
+                   pongGameController.Instance.nSuccess,
+                   pongGameController.Instance.nFailure)
+                : (1, 0, 0);
+            case "DC": return DCGameController.Instance != null
+                ? (DCGameController.Instance.nTargets,
+                   DCGameController.Instance.nSuccess,
+                   DCGameController.Instance.nFailure)
+                : (1, 0, 0);
+            case "TT": return FlappyGameControl.Instance != null
+                ? (FlappyGameControl.Instance.nTargets,
+                   FlappyGameControl.Instance.nSuccess,
+                   FlappyGameControl.Instance.nFailure)
+                : (1, 0, 0);
+            case "TW": return TWGameController.Instance != null
+                ? (TWGameController.Instance.nTargets,
+                   TWGameController.Instance.nSuccess,
+                   TWGameController.Instance.nFailure)
+                : (1, 0, 0);
+            case "MC": return MCGameController.Instance != null
+                ? (MCGameController.Instance.nTargets,
+                   MCGameController.Instance.nSuccess,
+                   MCGameController.Instance.nFailure)
+                : (1, 0, 0);
+            default: return (1, 0, 0);
+        }
+    }
+
+    // Called when Bluetooth disconnects mid-game.
+    // Stops the trial using whatever data was recorded so far, then the caller navigates to SUMMARY.
+    public void StopTrialOnDisconnect()
+    {
+        if (trialRawDataFile == null) return;
+        AppLogger.LogWarning("StopTrialOnDisconnect: Bluetooth lost — saving trial data.");
+        var (t, h, m) = GetCurrentGameStats();
+        StopTrial(t, h, m);
     }
 
     public void reloadSessionDetails() => Instance.userData.readParseSessionData(DataManager.sessionFile);

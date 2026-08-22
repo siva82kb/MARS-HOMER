@@ -1,9 +1,10 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.IO;
 using System.Data;
 using UnityEngine;
 using System.Text;
+using SimpleJSON;
 
 /*
  * Summary Data Class
@@ -40,7 +41,6 @@ public class DataManager : MonoBehaviour
     private static readonly string errorLogFileName = "errorLog.csv";
 
     public static string romFile;
-    private static readonly string romFileName = "rom.csv";
     public static string[] TRAININGPLANEFILEHEADER = new string[] {
         "DateTime", "TrainingPlaneAngle"
     };
@@ -63,10 +63,11 @@ public class DataManager : MonoBehaviour
         "SessionNumber", "DateTime",
         "TrialNumberDay", "TrialNumberSession", "TrialStartTime", "TrialStopTime", "TrialRawDataFile",
         "Movement", "TrainingPlaneAngle",
-        "GameName", "GameParameter", "ReachSpeed", "GameSpeed", "GameDuration",
+        "GameName", "ReachSpeed", "GameParameter", "GameDuration",
         "SuccessRate", "MoveTime",
         "CurrentTargets", "CurrentHits", "CurrentMisses",
         "CummulativeTargets", "CummulativeHits", "CummulativeMisses",
+        "currentStar","CummulativeStars",
         "RawDataFileName"
     };
     // Raw data header.
@@ -75,8 +76,6 @@ public class DataManager : MonoBehaviour
         "DeviceRunTime", "PacketNumber",
         "Status", "ControlType", "ErrorStatus",
         "Limb", "Calibration",
-        "MarsAngle1", "MarsAngle2", "MarsAngle3", "MarsAngle4",
-        "ImuMarsAngle1", "ImuMarsAngle2", "ImuMarsAngle3", "ImuMarsAngle4",
         "Force",
         "Target", "Desired", "Control",
         "Button",
@@ -86,16 +85,23 @@ public class DataManager : MonoBehaviour
         "Error", "ErrorDiff", "ErrorSum",
         "GamePlayerX", "GamePlayerY",
         "GameTargetX", "GameTargetY",
-        "GameState",
-        "Annotation"
+        "GameState","TargetNumber","HitNumber","MissNumber",
+        "Annotation",
+        "Miscellaneous"
+
     };
     public static string DATETIMEFORMAT = "yyyy-MM-dd HH:mm:ss";
 
+    //AWS related
+    public static string GetUploadStatusFile = @"C:/DeviceSetups/Mars/uploadStatus.txt";
+
+
     // Functions to generate file names.
     public static string GetRomFileName(string movement) => FixPath(Path.Combine(romPath, $"{movement}-rom.csv"));
-    public static string GetRomRawFileName(string movement, string datetime) => FixPath(Path.Combine(romPath, $"romraw-{movement}-{datetime.Replace(" ", "_").Replace(":", "-")}.csv"));
-    public static string GetArmWeightRawFileName(string datetime) => FixPath(Path.Combine(armWeightPath, $"armweightraw-{datetime.Replace(" ", "_").Replace(":", "-")}.csv"));
+    public static string GetRomRawFileName(string movement, string datetime) => FixPath(Path.Combine(rawPath, $"romraw-{movement}-{datetime.Replace(" ", "_").Replace(":", "-")}.csv"));
+    public static string GetArmWeightRawFileName(string datetime) => FixPath(Path.Combine(rawPath, $"armweightraw-{datetime.Replace(" ", "_").Replace(":", "-")}.csv"));
     public static string GetTrialRawDataFileName(int sessNo, int trialNo, string game, string movement) => FixPath(Path.Combine(rawPath, $"raw-sess{sessNo:D2}-trial{trialNo:D3}-{game}-{movement}.csv"));
+    public static string GetCalibRawFileName(string datetime) => FixPath(Path.Combine(rawPath, $"calibraw-{datetime.Replace(" ", "_").Replace(":", "-")}.csv"));
     public static void CreateFileStructure(string userID)
     {
         // Update the user ID path. If the userID is empty, do nothing.
@@ -106,7 +112,7 @@ public class DataManager : MonoBehaviour
         sessionPath = userPath + "/sessions";
         romPath = userPath + "/rom";
         rawPath = userPath + "/rawdata";
-        gamePath = userPath + "/game";
+       
         logPath = userPath + "/applog";
         //eror Log File
         errorLogPath = userPath + "/errorlog";
@@ -124,13 +130,29 @@ public class DataManager : MonoBehaviour
         Directory.CreateDirectory(trainingPlanePath);
         Directory.CreateDirectory(armWeightPath);
         Directory.CreateDirectory(rawPath);
-        Directory.CreateDirectory(gamePath);
         Directory.CreateDirectory(logPath);
         Directory.CreateDirectory(errorLogPath);
 
         Debug.Log("Directory created at: " + userPath);
     }
+    public static string getLapConfig()
+    {
+         //Device setup
+         string lapConfigPath = @"C:/lapconfig.json";
+  
 
+        if (!File.Exists(lapConfigPath)) return "";
+
+        var json = JSON.Parse(File.ReadAllText(lapConfigPath));
+
+        var mars = json["mars"];   // 👈 access nested object
+
+        string comport = mars["comport"];
+        string pythonpath = mars["pythonpath"];
+        awsManager.pythonExecutionPath = pythonpath;
+
+        return comport;
+    }
     public static string FixPath(string path) => path.Replace("\\", "/");
 
     public static void CreateSessionFile(string userID, string device, string location, string[] header = null)
@@ -282,6 +304,7 @@ public static class AppLogger
         {
             return null;
         }
+        Debug.Log(DataManager.logPath);
         if (!Directory.Exists(DataManager.logPath))
         {
             Directory.CreateDirectory(DataManager.logPath);
@@ -342,7 +365,7 @@ public static class AppLogger
             if (logWriter != null)
             {
                 string _user = AppData.Instance.userData != null ? AppData.Instance.userData.hospNumber : "";
-                string _msg = $"{DateTime.Now:dd-MM-yyyy HH:mm:ss} {logMsgType,-7} {InBraces(_user),-10} {InBraces(currentScene),-12} {InBraces(currentMovement),-8} {InBraces(currentGame),-8} >> {message}";
+                string _msg = $"{DateTime.Now:dd-MM-yyyy HH:mm:ss} {logMsgType,-7}   {InBraces(_user),-10}     {InBraces(currentScene),-12}   {InBraces(currentMovement),-8}      {InBraces(currentGame),-8} >> {message}";
                 logWriter.WriteLine(_msg);
                 logWriter.Flush();
                 if (DEBUG) Debug.Log(_msg);

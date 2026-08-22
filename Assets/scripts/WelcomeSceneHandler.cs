@@ -15,6 +15,7 @@ public class welcomeSceneHandler : MonoBehaviour
     public TextMeshProUGUI timeRemainingToday;
     public TextMeshProUGUI todaysDay;
     public TextMeshProUGUI todaysDate;
+    public TextMeshProUGUI versionText;
     public int daysPassed;
     public TextMeshProUGUI[] prevDays = new TextMeshProUGUI[7];
     public TextMeshProUGUI[] prevDates = new TextMeshProUGUI[7];
@@ -25,39 +26,78 @@ public class welcomeSceneHandler : MonoBehaviour
     public readonly string nextScene = "ROBOTCALIB";
     public bool attachMarsButtonEvent = false;
 
+    private bool _uiReady = false;
+    private const float RETRY_INTERVAL = 2f;
+    private float _retryTimer = 0f;
+    private bool _isConnecting = false;
+    private bool _initCompleted = false;
+
     // Start is called before the first frame update
     void Start()
     {
-        if (!Directory.Exists(DataManager.basePath)) 
+        if (!Directory.Exists(Path.Combine(Application.dataPath, "data")) ||
+            Directory.GetDirectories(DataManager.basePath).Length == 0)
         {
-            SceneManager.LoadScene("GETCONFIG");
+            SceneManager.LoadScene("CONFIG");
             return;
         }
-        // Initialize AppData
-        AppData.Instance.Initialize(SceneManager.GetActiveScene().name);
 
-        // Check if the directory exists
-        if (!Directory.Exists(DataManager.basePath)) Directory.CreateDirectory(DataManager.basePath);
-        // if (!File.Exists(DataManager.configFile)) SceneManager.LoadScene("CONFIG");
+        // Try to fully initialize (connects + loads userData).
+        // If the device is off, Initialize() throws after the connection step.
+        // userData will be null; Update() will complete it once the device connects.
+        try
+        {
+            AppData.Instance.Initialize(SceneManager.GetActiveScene().name);
+        }
+        catch (Exception ex)
+        {
+            AppLogger.LogError($"Initialization failed (device not connected): {ex.Message}");
+        }
+
+        if (!File.Exists(DataManager.configFile))
+        {
+            SceneManager.LoadScene("CONFIG");
+            return;
+        }
+
+        if (!Directory.Exists(DataManager.basePath))
+            Directory.CreateDirectory(DataManager.basePath);
 
         AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);
         AppLogger.LogInfo($"'{SceneManager.GetActiveScene().name}' scene started.");
-        daySummaries = AppData.Instance.userData.CalculateMoveTimePerDay();
+        versionText.text = "Version :" + Application.version;
 
-        // Update summary display
+        // Only update UI if userData was successfully loaded.
+        if (AppData.Instance.userData != null)
+            CompleteUISetup();
+    }
+
+    void CompleteUISetup()
+    {
+        daySummaries = AppData.Instance.userData.CalculateMoveTimePerDay();
         UpdateUserData();
         UpdatePieChart();
+        _uiReady = true;
     }
 
     // Update is called once per frame
     void Update()
     {
         MarsComm.sendHeartbeat();
-        // Attach event listener for Mars button release
-        if (!attachMarsButtonEvent && Time.timeSinceLevelLoad > 1)
+
+        if (Input.GetKey(KeyCode.LeftControl) &&
+           Input.GetKey(KeyCode.LeftShift) &&
+           Input.GetKeyDown(KeyCode.X))
         {
-            attachMarsButtonEvent = true;
-            MarsComm.OnMarsButtonReleased += OnMarsButtonReleased;
+            SceneManager.LoadScene("CONFIG");
+        }
+
+        // Once background Initialize() succeeds, complete the UI on the main thread.
+        if (_initCompleted)
+        {
+            _initCompleted = false;
+            if (AppData.Instance.userData != null)
+                CompleteUISetup();
         }
         // Check if it time to switch to the next scene
         if (changeScene == true)
@@ -65,6 +105,40 @@ public class welcomeSceneHandler : MonoBehaviour
             LoadTargetScene();
             changeScene = false;
         }
+        // Retry Initialize() every RETRY_INTERVAL seconds on a background thread until
+        // the device connects. Initialize() handles Connect, getVersion, startSensorStream,
+        // and MarsUserData creation in one shot. AppLogger.StartLogging is guarded so
+        // calling it again is safe.
+        if (AppData.Instance.userData == null)
+        {
+            _retryTimer -= Time.deltaTime;
+            if (_retryTimer <= 0f && !_isConnecting)
+            {
+                _retryTimer = RETRY_INTERVAL;
+                _isConnecting = true;
+                string scene = SceneManager.GetActiveScene().name;
+                Debug.Log("retry");
+                System.Threading.Tasks.Task.Run(() =>
+                {
+                    try
+                    {
+                        AppData.Instance.Initialize(scene);
+                        _initCompleted = true;
+                    }
+                    catch { /* device still unavailable — will retry */ }
+                    finally { _isConnecting = false; }
+                });
+            }
+            return;
+        }
+
+        // Attach event listener for Mars button release
+        if (!attachMarsButtonEvent && Time.timeSinceLevelLoad > 1&& !_initCompleted )
+        {
+            attachMarsButtonEvent = true;
+            MarsComm.OnMarsButtonReleased += OnMarsButtonReleased;
+        }
+      
     }
 
     public void OnMarsButtonReleased()
@@ -126,6 +200,6 @@ public class welcomeSceneHandler : MonoBehaviour
     private void OnApplicationQuit()
     {
         Application.Quit();
-        //JediComm.Disconnect();
+       
     }
 }

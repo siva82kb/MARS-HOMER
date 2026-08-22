@@ -50,6 +50,8 @@ public class GameController : MonoBehaviour
     public GameObject targerPrefeb;
     public AudioSource appleEatingSound;
     public AudioSource failSound;
+    public AudioClip[] bgmClip;
+    public AudioSource bgAudioSource;
 
     //catchDiamond
     public ParticleSystem hightlightsprefeb;
@@ -412,6 +414,28 @@ public class GameController : MonoBehaviour
         if (debug) return;
         //start new Trail
         AppData.Instance.StartNewTrial();
+        
+        // Set bgm based on location
+        switch (AppData.Instance.userData.GetDeviceLocation())
+        {
+            case "Ranipet":
+                bgAudioSource.clip = bgmClip[0];
+                bgAudioSource.Play();
+                break;
+            case "Manipal":
+                bgAudioSource.clip = bgmClip[1];
+                bgAudioSource.Play();
+                break;
+            case "Ludhiana":
+                bgAudioSource.clip = bgmClip[2];
+                bgAudioSource.Play();
+                break;
+            default:
+                bgAudioSource.clip = bgmClip[0];
+                bgAudioSource.Play();
+                break;
+        }
+        
         gameSpeed = AppData.Instance.selectedGame.gameSpeed;
         targetSpeed = gameSpeed;
         Debug.Log(gameSpeed+"gamespeed");

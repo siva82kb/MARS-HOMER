@@ -65,7 +65,7 @@ public class DiagnosticSceneHandler : MonoBehaviour
     void Start()
     {
         // Connect to the robot.
-        ConnectToRobot.Connect(AppData.COMPort);
+        ConnectToRobot.Connect(DataManager.getLapConfig());
 
         // Initialize UI
         InitializeUI();
@@ -239,7 +239,7 @@ public class DiagnosticSceneHandler : MonoBehaviour
         if (fileWriter != null)
         {
             // fileWriter.WriteLine($"{MarsComm.runTime},{MarsComm.packetNumber},{MarsComm.status},{MarsComm.errorString},{MarsComm.limb},{MarsComm.calibration},,,{MarsComm.angle1},{MarsComm.angle2},{MarsComm.angle3},{MarsComm.angle4},{MarsComm.force},{MarsComm.torque},{MarsComm.xEndpoint},{MarsComm.yEndpoint},{MarsComm.zEndpoint},,,,{MarsComm.imu1Angle},{MarsComm.imu2Angle},{MarsComm.imu3Angle},{MarsComm.marButton},{MarsComm.calibButton},{MarsComm.target},{MarsComm.desired},{MarsComm.control}");
-            fileWriter.WriteLine($"{MarsComm.runTime},{MarsComm.packetNumber},{MarsComm.status},{MarsComm.errorString},{MarsComm.limb},{MarsComm.calibration},,,{MarsComm.angle1},{MarsComm.angle2},{MarsComm.angle3},{MarsComm.angle4},{MarsComm.force},,,,,,,,{MarsComm.imuAngle1},{MarsComm.imuAngle2},{MarsComm.imuAngle3},{MarsComm.buttonState},,{MarsComm.target},{MarsComm.desired},{MarsComm.control}");
+            fileWriter.WriteLine($"{MarsComm.runTime},{MarsComm.packetNumber},{MarsComm.status},{MarsComm.errorString},{MarsComm.limb},{MarsComm.calibration},,,{MarsComm.angle1},{MarsComm.angle2},{MarsComm.angle3},{MarsComm.angle4},{MarsComm.force},,,,,,,,{MarsComm.imuAngle1},{MarsComm.imuAngle2},{MarsComm.imuAngle3},{MarsComm.imuAngle4},{MarsComm.buttonState},,{MarsComm.target},{MarsComm.desired},{MarsComm.control}");
             fileWriter.Flush();
         }
     }
@@ -439,7 +439,7 @@ public class DiagnosticSceneHandler : MonoBehaviour
             fileName = $"MARS_Data_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
             fileWriter = new StreamWriter(fileName, true);
             fileWriter.WriteLine($"DeviceID: {MarsComm.deviceId}");
-            fileWriter.WriteLine("runTime,packetNumber,status,errorString,limb,calib,limbkinparam,limbdynparam,angle1,angle2,angle3,angle4,force,torque,epx,epy,epz,phi1,phi2,phi3,imuangle1,imuangle2,imuangle3,marbtn,calibbtn,target,desired,control");
+            fileWriter.WriteLine("runTime,packetNumber,status,errorString,limb,calib,limbkinparam,limbdynparam,angle1,angle2,angle3,angle4,force,torque,epx,epy,epz,phi1,phi2,phi3,imuangle1,imuangle2,imuangle3,imuangle4,marbtn,calibbtn,target,desired,control,simulateAng1JumpCmd");
             Debug.Log($"Data logging started. File: {fileName}");
         }
         else

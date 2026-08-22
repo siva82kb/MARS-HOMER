@@ -13,7 +13,7 @@ using System.Runtime.Remoting.Messaging;
 public class AssessROMMLAP : MarsAssessAROM
 {
     // Scenes to change to.
-    private readonly string preScene = "CHOOSEMOVE";
+    private string preScene;
     private readonly string robotCalibScene = "ROBOTCALIB";
     private readonly string marsSetUp = "MARSSETUP";
     private readonly string weightAssessmentScene = "ARMWEIGHT";
@@ -28,6 +28,8 @@ public class AssessROMMLAP : MarsAssessAROM
 
     protected override void Start()
     {
+        preScene = SceneTransitionManager.GetAssessmentReturnScene();
+
         // Initialize AppData if needed
         if (AppData.Instance.userData == null)
         {
@@ -36,17 +38,17 @@ public class AssessROMMLAP : MarsAssessAROM
 
         // Check if the directory exists
         if (!Directory.Exists(DataManager.basePath)) Directory.CreateDirectory(DataManager.basePath);
-        if (!File.Exists(DataManager.configFile)) SceneManager.LoadScene("CONFIG");
+        if (!File.Exists(DataManager.configFile)) SceneManager.LoadSceneAsync("CONFIG");
 
         // Logging the scene
         AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);
         AppLogger.LogInfo($"{SceneManager.GetActiveScene().name} scene started.");
 
         // If the robot is not calibrated go to the robot calib scene.
-        if (MarsComm.CALIBRATION[MarsComm.calibration] == "NOCALIB") SceneManager.LoadScene(robotCalibScene);
+        if (MarsComm.CALIBRATION[MarsComm.calibration] == "NOCALIB") SceneManager.LoadSceneAsync(robotCalibScene);
 
         // If the robot is not in position control go to the mars setup scene.
-        if (MarsComm.CONTROLTYPE[MarsComm.controlType] != "POSITION") SceneManager.LoadScene(marsSetUp);
+        if (MarsComm.CONTROLTYPE[MarsComm.controlType] != "POSITION") SceneManager.LoadSceneAsync(marsSetUp);
 
         // Set the movement.
         movement = "MLAP";
@@ -61,7 +63,7 @@ public class AssessROMMLAP : MarsAssessAROM
         // Check if its time to change scene.
         if (changeScene)
         {
-            SceneManager.LoadScene(weightAssessmentScene);
+            SceneManager.LoadSceneAsync(weightAssessmentScene);
         }
     }
 

@@ -5,7 +5,7 @@ using UnityEngine;
 public class DestroyOffScreen : MonoBehaviour
 {
     // Y-position threshold for destroying the asteroid
-    public float yThreshold { get; private set; } = -5.3f; 
+    public float yThreshold { get; private set; } = -3f; 
 
     public void SetYThreshold(float newThreshold) => yThreshold = newThreshold;
     

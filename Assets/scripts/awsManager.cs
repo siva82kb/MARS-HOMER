@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 public static class awsManager
 {
     public static string pythonScriptPath = @"C:/pythonscripts/uploadToAWSM.pyw";
-         
-    public static  string pythonExecutionPath = @"C:/Program Files/Python312/pythonw.exe";
-    // public static  string pythonExecutionPath = @"C:/Users/Homer 7/AppData/Local/Programs/Python313/pythonw.exe";
+
+    public static string pythonExecutionPath;//@"C:/Program Files/Python310/pythonw.exe"; for this laptop
+    
 
     public static string filePathUploadStatus = @"C:/DeviceSetups/Mars"; //change according to the device
     public static string filePathAppsetups = @"C:/AppSetups/Mars"; //change according to the device
@@ -37,14 +37,15 @@ public static class awsManager
 
 public static void RunAWSpythonScript()
 {
-    
-        if (!File.Exists(pythonScriptPath))
-        {
-            Debug.Log("File not found: Python script");
-            return;
-        }
+    if (!File.Exists(pythonScriptPath))
+    {
+        Debug.Log("File not found: Python script");
+        return;
+    }
 
-
+    // Run off the main thread so Unity is not blocked while the upload runs.
+    Task.Run(() =>
+    {
         try
         {
             Process process = new Process();
@@ -56,19 +57,21 @@ public static void RunAWSpythonScript()
             process.StartInfo.CreateNoWindow = true;
             process.Start();
 
-            string output = process.StandardOutput.ReadToEnd();
-            string error = process.StandardError.ReadToEnd();
+            // Read stdout and stderr in parallel to avoid deadlock when either buffer fills.
+            var stdoutTask = Task.Run(() => process.StandardOutput.ReadToEnd());
+            var stderrTask = Task.Run(() => process.StandardError.ReadToEnd());
             process.WaitForExit();
-            Debug.Log(output);
-            Debug.Log(error);
-           message = output;
-            
+
+            message = stdoutTask.Result;
+            if (!string.IsNullOrEmpty(message)) Debug.Log(message);
+            string error = stderrTask.Result;
+            if (!string.IsNullOrEmpty(error)) Debug.LogWarning(error);
         }
         catch (System.Exception ex)
         {
-            Debug.Log("An error occurred while running the Python script: " + ex.Message);
+            Debug.LogError("An error occurred while running the Python script: " + ex.Message);
         }
-    
+    });
 }
     public static string getmessage()
     {
@@ -77,8 +80,9 @@ public static void RunAWSpythonScript()
 
     public static void changeUploadStatus(string status){
         string uploadFilePath = Path.Combine(filePathUploadStatus, "uploadStatus.txt");
-            // You don't need `File.Create(...).Dispose()` manually � File.WriteAllText will create/write directly.
-            File.WriteAllText(uploadFilePath, $"{Path.Combine(Application.dataPath,"data", AppData.Instance.userID)},{status},{DeviceName},{AppData.Instance.userData.hospNumber},{AppData.Instance.userData.GetDeviceLocation()}");
+        // You don't need `File.Create(...).Dispose()` manually � File.WriteAllText will create/write directly.
+        Debug.Log($"{AppData.Instance.userData.hospNumber}-awsmanger:{AppData.Instance.userID}");
+        File.WriteAllText(uploadFilePath, $"{Path.Combine(Application.dataPath,"data", AppData.Instance.userID)},{status},{DeviceName},{AppData.Instance.userID},{AppData.Instance.userData.GetDeviceLocation()}");
         
     }
     public static void AppSetups(string hospitalId, string location)

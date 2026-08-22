@@ -43,6 +43,8 @@ public class WAMGameController : MonoBehaviour
     public bool isSuccess { get; private set; } = false;
     public bool isFailure { get; private set; } = false;
     public AudioSource moleHitSound;
+    public AudioClip[] bgmClip;
+    public AudioSource bgAudioSource;
     public enum GameStates
     {
         WAITING = 0,
@@ -293,6 +295,28 @@ public class WAMGameController : MonoBehaviour
         reminderPanel.SetActive(false);
         //start new Trail
         AppData.Instance.StartNewTrial();
+        
+        // Set bgm based on location
+        switch (AppData.Instance.userData.GetDeviceLocation())
+        {
+            case "Ranipet":
+                bgAudioSource.clip = bgmClip[0];
+                bgAudioSource.Play();
+                break;
+            case "Manipal":
+                bgAudioSource.clip = bgmClip[1];
+                bgAudioSource.Play();
+                break;
+            case "Ludhiana":
+                bgAudioSource.clip = bgmClip[2];
+                bgAudioSource.Play();
+                break;
+            default:
+                bgAudioSource.clip = bgmClip[0];
+                bgAudioSource.Play();
+                break;
+        }
+        
         nSuccess = 0;
         nFailure = 0;
         nTargets = 0;

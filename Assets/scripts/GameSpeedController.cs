@@ -8,6 +8,7 @@ using UnityEditor;
 using System.IO;
 using TMPro;
 using Unity.VisualScripting;
+using System.Diagnostics;
 
 
 public class GameSpeedController : MonoBehaviour
@@ -17,6 +18,10 @@ public class GameSpeedController : MonoBehaviour
     public Button decreaseButton;
     public Button increaseButton;
     private float gameSpeed;
+    public Image speedIndicator;
+    [Range(0f, 1f)]
+    private float value; // 0 = red, 1 = green
+
 
     void Start()
     {
@@ -25,11 +30,16 @@ public class GameSpeedController : MonoBehaviour
 
     void Update()
     {
+        
+
         // Only if the game object is active
         if (gameObject.activeSelf)
         {
-            gameSpeed = AppData.Instance.selectedGame.gameSpeed;
-            gameSpeedText.text = $"{gameSpeed:F2}";
+           
+            value = AppData.Instance.selectedGame.reachSpeed/MarsGameDefs.MAX_REACH_SPEED;
+            speedIndicator.color = Color.Lerp(Color.green, Color.red, value);
+            speedIndicator.fillAmount = value;
+            //gameSpeedText.text = $"{gameSpeed:F2}";
         }
     }
 }

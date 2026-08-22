@@ -45,9 +45,19 @@ public class DCGameController : MonoBehaviour
     public AudioClip playerIn;
     public AudioClip playerOut;
     public AudioClip TargetFailed;
+    public AudioClip[] bgmClip;
+    public AudioSource bgAudioSource;
     public TextMeshProUGUI cummulativeScoreTxt;
-
-
+    public GameObject celebrationPanle;
+    public TextMeshProUGUI scoreComparisonTxt;
+    public TextMeshProUGUI yesterdayScoreTxt;
+    public TextMeshProUGUI todayScoreTxt;
+    public TextMeshProUGUI starCount;
+    public GameObject star;
+    public GameObject GameOverStar;
+    public int _starCount;
+    private int[] scores;
+    private bool restart = false;
     // UI Canvas
     public Canvas uiCanvas;
     
@@ -106,7 +116,7 @@ public class DCGameController : MonoBehaviour
     public Vector3? targetEndPointPosition { get; private set; }
     public float gameDuration = MarsGameDefs.GAMEDURATION["DC"];
     public bool gameSpeedChanged { get; private set; } = false;
-    private float reachDuration;
+    public float reachDuration;
     public bool debug;
     private void Awake() => Instance = this;
     
@@ -120,20 +130,25 @@ public class DCGameController : MonoBehaviour
         initializeGameSpeedController();
         gameSpeedControl.SetActive(false);
         // Compute reach duration.
-        reachDuration = MarsGameDefs.GetReachDurationForGame("DC", AppData.Instance.selectedGame.reachSpeed, AppData.Instance.selectedGame.arom);
+       
         AppLogger.LogInfo($"Reach duration for game 'DC' with reach speed {AppData.Instance.selectedGame.reachSpeed} m/s is {reachDuration} seconds.");
 
-        // Check if the required amount fo trials for the selected movement has been completed today.
-        bool isRequiredTrialsCompleted = AppData.Instance.selectedMovement.trialNumberDay >= AppData.Instance.userData.moveTimePrsc[AppData.Instance.selectedMovement.name];
-        if (isRequiredTrialsCompleted) reminderPanel.SetActive(true);
-        else reminderPanel.SetActive(false);
-        
         // Attach event handler to Mars button release event.
         MarsComm.OnMarsButtonReleased += onMarsButtonReleased;
+        updateStarCount();
+        scores = MarsGameDefs.DiamondCatcher.GetScores();
+        Debug.Log($"{scores[0]}/{scores[1]}");
+        AppLogger.LogInfo($"scores - yesterDayScore:{scores[1]} | TodayScore{scores[0]}");
+        if (MarsGameDefs.DiamondCatcher.IsAchievedToday()) star.GetComponent<Image>().color = Color.white;
+    }
+    public void updateStarCount()
+    {
+        starCount.text = $"{AppData.Instance.selectedGame.cummulativeStars.ToString("D2")}";
     }
 
     void Update()
     {
+        MarsComm.sendHeartbeat();
         // Update the gameTimeLeft and score text.
         if (isGamePlaying)
         {
@@ -148,12 +163,15 @@ public class DCGameController : MonoBehaviour
         {
             gameSpeedControl.SetActive(!gameSpeedControl.activeSelf);
         }
+        if (restart) {
+            SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().name);
+            restart = false;
+        }
     }
 
     private void FixedUpdate()
     {
-        MarsComm.sendHeartbeat();
-
+      
         // Run the statemachine
         RunStateMachine();
         
@@ -164,16 +182,16 @@ public class DCGameController : MonoBehaviour
             playerGamePosition = GameObject.FindGameObjectWithTag("Player").transform.position;
             if (target == null)
             {
-                targetEndPointPosition = null;
                 targetGamePosition = null;
+                targetEndPointPosition = null;
             }
             else
             {
-                // Target game position.
-                targetObject = target.gameObject;
-                targetGamePosition = targetObject != null ? targetObject.transform.position : null;
-                // Target endpoint position.
-                targetEndPointPosition = targetObject != null ? targetEndPointPosition : null;
+                targetGamePosition = target.transform.position;
+                targetEndPointPosition = new Vector3(0,
+                                                     DCPlayer.instance.unityYToRobotY(target.transform.position.y),
+                                                     DCPlayer.instance.unityXToRobotZ(target.transform.position.x)
+                                                     );
             }
         }
     }
@@ -193,24 +211,28 @@ public class DCGameController : MonoBehaviour
             gsc.increaseButton.onClick.AddListener(() => changeGameSpeed(true));
 
         // Set the initial game speed
-        gsc.gameSpeedText.text = $"{AppData.Instance.selectedGame.gameSpeed:F2}";
+        //gsc.gameSpeedText.text = $"{AppData.Instance.selectedGame.gameParameter:F2}";
     }
 
     public void changeGameSpeed(bool increase)
     {
         float _rs = AppData.Instance.selectedGame.reachSpeed;
         AppData.Instance.selectedGame.reachSpeed = _rs + (increase ? MarsGameDefs.REACH_SPEED_DELTA : -MarsGameDefs.REACH_SPEED_DELTA);
-        AppData.Instance.annotation = $"RS:{AppData.Instance.selectedGame.reachSpeed:F3},GS:{AppData.Instance.selectedGame.gameSpeed:F3}";
+        AppData.Instance.annotation = $"RS:{AppData.Instance.selectedGame.reachSpeed:F3} GS:{AppData.Instance.selectedGame.gameParameter:F3}";
+        
         gameSpeedChanged = true;
     }
     
     public void RunStateMachine()
     {
-        // Decrement the gameTimeLeft if game is playing.
-        if (isGamePlaying) gameTimeLeft -= Time.deltaTime;
-
         // Check if time is up.
         bool isTimeUp = gameTimeLeft < 0;
+
+        // Decrement the gameTimeLeft if game is playing.
+        if (isGamePlaying&&!isTimeUp) gameTimeLeft -= Time.deltaTime;
+
+     
+        
         switch (gameState)
         {
             case GameStates.WAITING:
@@ -227,7 +249,10 @@ public class DCGameController : MonoBehaviour
                 {
                     if (target != null) return;
                     // Spawn the new target.
+                    clearObjects();
                     SpawnDiamond();
+                    //Game Speed [Determine the time required for the ROM to reach the target using its current speed.]
+                    reachDuration = AppData.Instance.selectedGame.gameParameter;
                     nTargets++;
                     eventDelayTimer = 0.5f;
                     runOnce = true;
@@ -238,6 +263,7 @@ public class DCGameController : MonoBehaviour
                     if (eventDelayTimer <= 0f)
                     {
                         reachTimeLeft = reachDuration;
+                        //Debug.Log(reachDuration + "reach");
                         runOnce = false;
                         gameState = GameStates.WAITFORCATCH;
                     }
@@ -282,13 +308,7 @@ public class DCGameController : MonoBehaviour
                     isFailure = false;
                     isSuccess = false;
                     gameState = isTimeUp ? GameStates.STOP : GameStates.SPAWNDIAMOND;
-                    // Clean up the target and related objects.
-                    if (target != null) Destroy(target);
-                    if (targetGlitter != null) Destroy(targetGlitter);
-                    if (targetBubble != null) Destroy(targetBubble);
-                    if (catchGlitter != null) Destroy(catchGlitter);
-                    if (successTimer != null) Destroy(successTimer);
-                    if (targetTimer != null) Destroy(targetTimer);
+                    clearObjects();
                     runOnce = false;
                 }
                 break;
@@ -296,7 +316,7 @@ public class DCGameController : MonoBehaviour
                 gameOver();
                 break;
             case GameStates.DONE:
-                SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+               
                 break;
         }
     }
@@ -317,6 +337,7 @@ public class DCGameController : MonoBehaviour
         // Initialize the gameTimeLeft for being inside the target.
         insideTargetTimer = 0;
     }
+    //need to add sound......
 
     public void SetPlayerOut()
     {
@@ -329,7 +350,15 @@ public class DCGameController : MonoBehaviour
         }
         if (catchGlitter != null) catchGlitter.Stop(true);
     }
-
+    public void clearObjects()
+    {
+        if (target != null) Destroy(target);
+        if (targetGlitter != null) Destroy(targetGlitter);
+        if (targetBubble != null) Destroy(targetBubble);
+        if (catchGlitter != null) Destroy(catchGlitter);
+        if (successTimer != null) Destroy(successTimer);
+        if (targetTimer != null) Destroy(targetTimer);
+    }
     public void SpawnDiamond()
     {
         // Generate the new target
@@ -370,7 +399,8 @@ public class DCGameController : MonoBehaviour
         //To restart
         if (gameState == GameStates.STOP && isGameFinished)
         {
-            gameState = GameStates.DONE;
+            //gameState = GameStates.DONE;
+            restart = true;
         }
 
     }
@@ -399,19 +429,37 @@ public class DCGameController : MonoBehaviour
 
         if (!isGameFinished)
         {
-            gameOverPanel.SetActive(true);
+           
             //cal gameTime
             int gametime = (int)gameDuration - (int)gameTimeLeft;
             AppData.Instance.gameTime = gametime < gameDuration ? gametime : gameDuration;
-            // AppData.Instance.gameSpeed = gameSpeed;
+            // Stop the current game trial
+            if ((scores[0] + nSuccess) > scores[1] && !AppData.Instance.selectedGame.isAchievedToday())
+            {
+                AppData.Instance.selectedGame.updateCummulativeStars();
+                celebrationPanle.SetActive(true);
+            }
 
-            //stop trail
+            gameOverPanel.SetActive(!celebrationPanle.gameObject.activeSelf);
             AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
-            cummulativeScoreTxt.text = $"{AppData.Instance.selectedGame.cummulativeHits:D4}";
 
+            if (gameOverPanel.gameObject.activeSelf)
+            {
+                GameOverStar.SetActive(AppData.Instance.selectedGame.isAchievedToday());
+                yesterdayScoreTxt.text = $"{scores[1]:D4}";
+                todayScoreTxt.text = $"{(scores[0] + nSuccess):D4}";
+            }
+            if (celebrationPanle.gameObject.activeSelf)
+            {
+                updateStarCount();
+                scoreComparisonTxt.text = $"{(scores[0]+nSuccess):D3}";
+            }
 
         }
         isGameFinished = true; // Set game over state 
+        //IF GAME PRESCRIBED TIME FINISHED , MOVE TO CHOOSEMOVEMENT SCENE TO PLAY FOR ANOTHER MOVEMENT
+        bool isRequiredTrialsCompleted = AppData.Instance.selectedMovement.trialNumberDay == AppData.Instance.userData.moveTimePrsc[AppData.Instance.selectedMovement.name];
+        if (isRequiredTrialsCompleted) { SceneManager.LoadSceneAsync("CHOOSEMOVE"); }
     }
 
     public void startGame()
@@ -432,9 +480,30 @@ public class DCGameController : MonoBehaviour
         startImage.SetActive(false);
         gameDuration = MarsGameDefs.GAMEDURATION["DC"];
         gameTimeLeft = gameDuration;
-
+       
         // Start the next new Trail
         AppData.Instance.StartNewTrial();
+        
+        // Set bgm based on location
+        switch (AppData.Instance.userData.GetDeviceLocation())
+        {
+            case "Ranipet":
+                bgAudioSource.clip = bgmClip[0];
+                bgAudioSource.Play();
+                break;
+            case "Manipal":
+                bgAudioSource.clip = bgmClip[1];
+                bgAudioSource.Play();
+                break;
+            case "Ludhiana":
+                bgAudioSource.clip = bgmClip[2];
+                bgAudioSource.Play();
+                break;
+            default:
+                bgAudioSource.clip = bgmClip[0];
+                bgAudioSource.Play();
+                break;
+        }
     }
 
     public void onClickExit()
@@ -443,6 +512,8 @@ public class DCGameController : MonoBehaviour
         {
             gameOver();
         }
+        isGamePaused = false;
+        Time.timeScale = 1f;
         SceneManager.LoadScene("CHOOSEMOVE");
     }
 }

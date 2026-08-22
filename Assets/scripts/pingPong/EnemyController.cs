@@ -20,7 +20,7 @@ public class EnemyController : MonoBehaviour {
 	void Start()
 	{
 		// Continously Invokes Move every x seconds (values may differ)
-		InvokeRepeating("Move", .02F, .02F);
+		//InvokeRepeating("Move", .02F, .02F);
 	}
 	
     private void OnCollisionEnter2D(Collision2D collision)
@@ -34,17 +34,18 @@ public class EnemyController : MonoBehaviour {
 		// Finding the ball
 		if (!pongGameController.Instance.isGamePlaying) return;
         if (pongGameController.Instance.gameSpeed == 0) return;
-
+		
         if (ball == null)
 		{
-			ball = GameObject.FindGameObjectWithTag("Target").transform;
+			ball = GameObject.FindGameObjectWithTag("Target").transform==null?null: GameObject.FindGameObjectWithTag("Target").transform;
 		}
 
 		// Setting the ball's rigidbody to a variable
 		ballRig2D = ball.GetComponent<Rigidbody2D>();
 
 		// Checking x direction of the ball
-		if (ballRig2D.velocity.x < 0)
+		
+		if (AppData.Instance.userData.limb == 1?ballRig2D.velocity.x < 0: ballRig2D.velocity.x > 0)
 		{
 			// Checking y direction of ball
 			if (ball.position.y < this.transform.position.y - .3F)

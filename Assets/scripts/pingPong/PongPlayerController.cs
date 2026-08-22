@@ -17,23 +17,29 @@ public class PongPlayerController : MonoBehaviour
     public static float xScreenMin, yScreenMin, xScreenMax, yScreenMax;
     public static float yScreenMidPoint;
     public static float yScreenRange;
+    public static float xScreenMidPoint;
+    public static float xScreenRange;
 
     // Robot endpoint Y limits
     public static float yEndPointMin;
     public static float yEndPointMax;
     public static float yEndPointMid;
     public static float yEndPointRange;
+    //Robot endpoint X limits
+    public static float zEndPointMin;
+    public static float zEndPointMax;
+    public static float zEndPointMid;
+    public static float zEndPointRange;
     public static int LIMBSCALE;
 
-    static float topBound = 3.6F;
-    static float bottomBound = -3.6F;
+    static float topBound = 4F;
+    static float bottomBound = -4F;
     public static float playSize;
 
     float yPoint, yEndPoint;
-    public static float unityYToRobotY(float y) =>
-        ((y / LIMBSCALE) - yScreenMidPoint) * (yEndPointRange / yScreenRange) + yEndPointMid;
-    public static float robotYToUnityY(float y) =>
-         (yScreenMidPoint + yScreenRange * (y - yEndPointMid) / yEndPointRange);
+    public static float unityYToRobotY(float y) =>((y / LIMBSCALE) - yScreenMidPoint) * (yEndPointRange / yScreenRange) + yEndPointMid;
+    public static float robotYToUnityY(float y) =>(yScreenMidPoint + yScreenRange * (y - yEndPointMid) / yEndPointRange);
+    public static float unityXToRobotZ(float x) => ((x / LIMBSCALE) - xScreenMidPoint) * (zEndPointRange / xScreenRange) + zEndPointMid;
 
     private void Awake()
     {
@@ -52,6 +58,9 @@ public class PongPlayerController : MonoBehaviour
         yScreenMin = screenBounds[2];
         yScreenMax = screenBounds[3];
 
+        xScreenMidPoint = (xScreenMin + xScreenMax) / 2.0f;
+        xScreenRange = xScreenMax - xScreenMin;
+
         yScreenMidPoint = (yScreenMin + yScreenMax) / 2.0f;
         yScreenRange = yScreenMax - yScreenMin;
 
@@ -66,10 +75,16 @@ public class PongPlayerController : MonoBehaviour
         }
         else
         {
+            zEndPointMin = AppData.Instance.selectedMovement.currentArom.leftAdjusted.x;
+            zEndPointMax = AppData.Instance.selectedMovement.currentArom.rightAdjusted.x;
+            zEndPointMid = (zEndPointMin + zEndPointMax) / 2.0f;
+            zEndPointRange = zEndPointMax - zEndPointMin;
             yEndPointMin = currRom.bottomAdjusted.y;
             yEndPointMax = currRom.topAdjusted.y;
             yEndPointMid = (yEndPointMin + yEndPointMax) / 2.0f;
             yEndPointRange = yEndPointMax - yEndPointMin;
+
+           
         }
 
         LIMBSCALE = (AppData.Instance.userData == null || AppData.Instance.userData.rightArm) ? -1 : 1;

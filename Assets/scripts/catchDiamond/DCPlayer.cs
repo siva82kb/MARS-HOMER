@@ -130,7 +130,7 @@ public class DCPlayer : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        
         if (DCGameController.Instance.target != null)
             GetComponent<SpriteRenderer>().flipX = !DCGameController.Instance.target.GetComponent<SpriteRenderer>().flipX;
         if (!debug) return;
@@ -149,14 +149,16 @@ public class DCPlayer : MonoBehaviour
 
     private float robotToUnityX(float z) => LIMBSCALE * (xScreenMidPoint + xScreenRange * (z - zEndPointMid) / zEndPointRange);
     private float robotToUnityY(float y) => yScreenMidPoint + yScreenRange * (y - yEndPointMid) / yEndPointRange;
-
-    public (UnityEngine.Vector2 endPointTarget, UnityEngine.Vector2 gameTarget) GenerateNextRandomTarget()
+    public  float unityYToRobotY(float y) => ((y / LIMBSCALE) - yScreenMidPoint) * (yEndPointRange / yScreenRange) + yEndPointMid;
+    public  float unityXToRobotZ(float x) => ((x / LIMBSCALE) - xScreenMidPoint) * (zEndPointRange / xScreenRange) + zEndPointMid;
+    public  (UnityEngine.Vector2 endPointTarget, UnityEngine.Vector2 gameTarget) GenerateNextRandomTarget()
     {
         // Generate current target selection so that there is less than 100% overlap with previous target selection.
         GenerateNewTargetSelection(1f);
 
         // Generate perturbed scalars for convex combination.
         GenerateScalarsForConvexCombination();
+        Debug.Log(AppData.Instance.selectedMovement.currentArom);
 
         // Target in the robot/task space.
         UnityEngine.Vector2 endPointTarget = alphas[0] * AppData.Instance.selectedMovement.currentArom.topAdjusted
@@ -205,7 +207,7 @@ public class DCPlayer : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (DCGameController.Instance.gameState != DCGameController.GameStates.FAILURE)
+        if (DCGameController.Instance.gameState != DCGameController.GameStates.FAILURE && DCGameController.Instance.gameState != DCGameController.GameStates.SUCCESS)
             DCGameController.Instance.SetPlayerIn();
     }
 

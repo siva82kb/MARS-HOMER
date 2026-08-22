@@ -4,26 +4,32 @@ using TMPro;
 using UnityEngine.SceneManagement;
 using System.Collections;
 using System.IO;
-using System;
-using UnityEngine.Rendering.Universal;
-using static SetUpMars;
-using System.Web;
-using System.Runtime.CompilerServices;
+using UnityEngine.EventSystems;
+using Unity.VisualScripting;
+using JetBrains.Annotations;
+
 
 
 public class MovementSceneHandler : MonoBehaviour
 {
     //ui related variables
     public GameObject movementSelectGroup;
+    public GameObject ChooseGamePanel;
     public Text message;
     public Text additionalMessage;
     public Text mlAromText;
     public Text apAromText;
     public Text mlapAromText;
     public Text armWeightText;
-
+    public GameObject gameDC;
+    public GameObject gameTW;
+    public GameObject gameTT;
+    public GameObject gamePP;
+    public GameObject gameSS;
+    public GameObject gameMD;
+ 
     public static float initialAngle;
-    private string nextScene;
+    private string nextScene = "";
     //flags
     private static bool changeScene = false;
     private bool toggleSelected = false;
@@ -35,32 +41,40 @@ public class MovementSceneHandler : MonoBehaviour
     private readonly string armWeightScene = "ARMWEIGHT";
     private readonly string marsSetUp = "MARSSETUP";
     private readonly string exitScene = "SUMMARY";
+    private readonly string assessAp = "ASSESSAP";
 
     private readonly string assessmentSceneML = "AROMML";
     private readonly string assessmentSceneAP = "AROMAP";
     private readonly string assessmentSceneMLAP = "AROMMLAP";
     private string aromAssessmentScene = "";
 
-    // Define dark red and green colors
+    // Define dark red, green and orange colors
     private Color darkRed = new Color(0.85f, 0f, 0f);
     private Color darkGreen = new Color(0f, 0.60f, 0f);
+    private Color panelOrange = new Color(1f, 0.55f, 0.1f);
 
     void Start()
     {
+        
+
         MarsComm.sendHeartbeat();
     
         // Initialize AppData if needed
         if (AppData.Instance.userData == null)
         {
             AppData.Instance.Initialize(SceneManager.GetActiveScene().name);
+          
         }
 
-        // Check if the directory exists
+        //Check if the directory exists
         if (!Directory.Exists(DataManager.basePath)) Directory.CreateDirectory(DataManager.basePath);
         if (!File.Exists(DataManager.configFile)) SceneManager.LoadScene("CONFIG");
 
         AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);
         AppLogger.LogInfo($"{SceneManager.GetActiveScene().name} scene started.");
+
+        AppLogger.SetCurrentMovement("");
+        AppLogger.SetCurrentGame("");
 
         // If the robot is not calibrated go to the robot calib scene.
         if (MarsComm.CALIBRATION[MarsComm.calibration] == "NOCALIB")
@@ -83,67 +97,83 @@ public class MovementSceneHandler : MonoBehaviour
         UpdateMovementToggleButtons();
         StartCoroutine(DelayedAttachListeners());
 
-        // Clear the message text.
-        message.text = "Please select the movement";
+       
         additionalMessage.text = "";
 
         // Update the assessment status text.
         updateAssessmentStatusText();
+       
     }
 
     void Update()
     {
         MarsComm.sendHeartbeat();
         
-        // Check if the magic key combination is pressed for AROM assessment 
-        // or training plane selection.
-        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.A))
-        {
-            if (nextScene == "")
-            {
-                message.text = "Please select the movement first.";
-                changeScene = false;
-            }
-            else
-            {
-                // Go the next assessment scene based on the selected movement.
-                nextScene = aromAssessmentScene;
-                changeScene = true;
-            }
-        }
-        else if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.T))
+        // // Check if the magic key combination is pressed for AROM assessment 
+        // // or training plane selection.
+        // if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.A))
+        // {
+        //     if (aromAssessmentScene != "")
+        //     {
+              
+        //         // Go the next assessment scene based on the selected movement.
+        //         nextScene = aromAssessmentScene;
+        //         changeScene = true;
+        //     }
+           
+
+        // }
+        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.T))
         {
             // Switch to the training plane scene.
             nextScene = trainingPlaneScene;
             changeScene = true;
         }
-        else if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.W))
-        {
-            if (AppData.Instance.selectedMovement == null || AppData.Instance.selectedMovement.name != "MLAP")
-            {
-                message.text = "Weight assessment available only for MLAP movement.";
-                additionalMessage.text = "";
-                changeScene = false;
-                return;
-            }
+        // if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.W))
+        // {
+        //     if (AppData.Instance.selectedMovement == null || AppData.Instance.selectedMovement.name != "MLAP")
+        //     {
+        //         message.text = "Weight assessment available only for MLAP movement.";
+        //         additionalMessage.text = "";
+        //         changeScene = false;
+        //         return;
+        //     }
 
-            if (AppData.Instance.userData.IsAromAssessmentAvailableForTrainingAngle("MLAP"))
-            {
-                // Switch to the training plane scene.
-                nextScene = armWeightScene;
-                changeScene = true;
-            }
-            else
-            {
-                additionalMessage.text = "MLAP assessment needs to be completed first.";
-                // Switch to the MLAP AROM assessment scene.
-                AppData.Instance.SetMovement("MLAP");
-                nextScene = assessmentSceneMLAP;
-                changeScene = true;
-            }
+        //     if (AppData.Instance.userData.IsAromAssessmentAvailableForTrainingAngle("MLAP"))
+        //     {
+        //         // Switch to the training plane scene.
+        //         nextScene = armWeightScene;
+        //         changeScene = true;
+        //     }
+        //     else
+        //     {
+        //         additionalMessage.text = "MLAP assessment needs to be completed first.";
+        //         // Switch to the MLAP AROM assessment scene.
+        //         AppData.Instance.SetMovement("MLAP");
+        //         nextScene = assessmentSceneMLAP;
+        //         changeScene = true;
+        //     }
             
-        }
+        // }
+        // else if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Y))
+        // {
+        //     nextScene = assessAp;
+        //     changeScene = true;
 
+        // }
+        if (Input.GetKey(KeyCode.LeftControl)&& Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.X))
+        {
+            SceneManager.LoadScene("PLANMODE");
+
+        }
+        if(  !AppData.Instance.userData.IsAromAssessmentAvailableForTrainingAngle("ML")&&
+             !AppData.Instance.userData.IsAromAssessmentAvailableForTrainingAngle("AP")&&
+             !AppData.Instance.userData.IsAromAssessmentAvailableForTrainingAngle("MLAP"))
+        {
+            SceneManager.LoadScene("PLANMODE");
+        }
+            
+        
         //Check if a scene change is needed.
         if (changeScene == true && nextScene != "")
         {
@@ -152,53 +182,38 @@ public class MovementSceneHandler : MonoBehaviour
         }
     }
 
-    public class idle
-    {
-        float previosAngle;
-        bool istarted;
-        float timer = 500;
-        public void checkMarsIde()
-        {
-            if (istarted == false) return;
-            timer -= Time.deltaTime;
-         
-            if (previosAngle == MarsComm.angle1 && MarsComm.force > 10)
-            {
-
-            }
-            previosAngle = MarsComm.angle1;
-        }
-        public void reset()
-        {
-            istarted = false;
-            timer = 500;
-        }
-    }
-
+ 
     private void UpdateMovementToggleButtons()
     {
         foreach (Transform child in movementSelectGroup.transform)
         {
             Toggle toggleComponent = child.GetComponent<Toggle>();
-            bool isPrescribed = AppData.Instance.userData.moveTimePrsc[toggleComponent.name] > 0;
+            float prescribed = AppData.Instance.userData.moveTimePrsc[toggleComponent.name];
+            bool isPrescribed = prescribed > 0;
+
             // Hide the component if it has no prescribed time.
-            toggleComponent.interactable = isPrescribed;
             toggleComponent.gameObject.SetActive(isPrescribed);
-            // Update the time trained in the timeLeft component of toggleCompoent.
+            if (!isPrescribed) continue;
+
+            float todayTime = AppData.Instance.userData.getTodayMoveTimeForMovement(toggleComponent.name);
+            bool isCompleted = todayTime >= prescribed;
+
+            // colour green when the prescribed time has been met.
+            Image panelImage = child.GetComponent<Image>();
+            if (panelImage != null)
+                panelImage.color = isCompleted ? darkGreen : panelOrange;
+
+            message.text = "Please select the movement";
+
+            // Update the time trained in the timeLeft component of toggleComponent.
             Transform timeLeftTransform = toggleComponent.transform.Find("timeLeft");
             if (timeLeftTransform != null)
             {
-                // Get the TextMeshPro component from the timeLeft GameObject
                 TextMeshProUGUI timeLeftText = timeLeftTransform.GetComponent<TextMeshProUGUI>();
                 if (timeLeftText != null)
-                {
-                    // Set the text to your desired value
-                    timeLeftText.text = $"{AppData.Instance.userData.getTodayMoveTimeForMovement(toggleComponent.name)} / {AppData.Instance.userData.moveTimePrsc[toggleComponent.name]} min";
-                }
+                    timeLeftText.text = $"{todayTime} / {prescribed} min";
                 else
-                {
                     Debug.LogError("TextMeshProUGUI component not found in timeLeft GameObject.");
-                }
             }
             else
             {
@@ -237,8 +252,8 @@ public class MovementSceneHandler : MonoBehaviour
                 // Selected movement and game name.
                 AppData.Instance.SetMovement(child.name);
                 Debug.Log($"Selected movement: {child.name}");
-                Debug.Log($"Game: {MarsGameDefs.GAMES[MarsDefs.getMovementIndex(child.name)]}");
-                AppData.Instance.SetGame(MarsGameDefs.GAMES[MarsDefs.getMovementIndex(child.name)]);
+               
+               
                 // Check if assessment is done or if the correct assessment is available, 
                 // else the next scene will be the corresponding assessment scene.
                 bool noAssessAvailable = AppData.Instance.selectedMovement.currentArom == null;
@@ -250,7 +265,7 @@ public class MovementSceneHandler : MonoBehaviour
                     nextScene = AppData.Instance.selectedMovement.name == "ML" ? assessmentSceneML :
                                 AppData.Instance.selectedMovement.name == "AP" ? assessmentSceneAP :
                                 AppData.Instance.selectedMovement.name == "MLAP" ? assessmentSceneMLAP : "";
-                    message.text = "Press Mars Button to start assessment";
+                    message.text = "Press ARMBO Button to start assessment";
                     additionalMessage.text = noAssessAvailable ? "No previous assessment found. Assessment will be done first." :
                                              trainingPlaneMismatch ? "Training plane angle mismatch. Reassesment will be done first." : "";
 
@@ -259,7 +274,7 @@ public class MovementSceneHandler : MonoBehaviour
                 {
                     if ((trainingPlaneMismatch || AppData.Instance.userData.IsArmWeightAssessmentAvailableForTrainingAngle()== false) && AppData.Instance.selectedMovement.name == "MLAP")
                     {
-                     message.text = "Press Mars Button to start weight assessment";
+                     message.text = "Press ARMBO Button to start weight assessment";
                     additionalMessage.text = !AppData.Instance.userData.IsArmWeightAssessmentAvailableForTrainingAngle() ? "No previous weight assessment found. Assessment will be done first." : "";
                     nextScene = armWeightScene;
 
@@ -272,20 +287,85 @@ public class MovementSceneHandler : MonoBehaviour
                                           AppData.Instance.selectedMovement.name == "AP" ? assessmentSceneAP :
                                           AppData.Instance.selectedMovement.name == "MLAP" ? assessmentSceneMLAP : "";
                     // Next is the game scene.
-                    nextScene = MarsGameDefs.GAME_SCENES[MarsDefs.getMovementIndex(child.name)];
-                    message.text = "Press Mars Button to start game";
+                  
+                    
+                    //open chooseGamePanel
+                    createChooseGamePanel();
+                    message.text = "Please choose the game";
                     additionalMessage.text = "";
+                   
                     }
                    
 
                 }
-               
-                
-                
+
                 AppLogger.LogInfo($"Selected movement ({AppData.Instance.selectedMovement.name}) and game ({AppData.Instance.selectedGame})");
                 break;
             }
         }
+    }
+    public void createChooseGamePanel()
+    {
+        ChooseGamePanel.SetActive(AppData.Instance.selectedMovement!=null);
+        //GAME ICON FOR MLAP
+        gameDC.SetActive(AppData.Instance.selectedMovement.name == "MLAP");
+        gameTW.SetActive(AppData.Instance.selectedMovement.name == "MLAP");
+        //GAME ICON FOR AP
+        gamePP.SetActive(AppData.Instance.selectedMovement.name == "AP");
+        gameTT.SetActive(AppData.Instance.selectedMovement.name == "AP");
+        //GAME ICON FOR ML
+        gameSS.SetActive(AppData.Instance.selectedMovement.name == "ML");
+        gameMD.SetActive(AppData.Instance.selectedMovement.name == "ML");
+
+    }
+    public void onClickTW()
+    {
+        AppData.Instance.SetGame(MarsGameDefs.GAMES[3]);
+        AppLogger.LogInfo($"Selected movement ({AppData.Instance.selectedMovement.name}) and game ({AppData.Instance.selectedGame})");
+        nextScene = MarsGameDefs.GAME_SCENES[3];
+        changeScene = true;
+    }
+    public void onClickDC()
+    {
+        AppData.Instance.SetGame(MarsGameDefs.GAMES[2]);
+        AppLogger.LogInfo($"Selected movement ({AppData.Instance.selectedMovement.name}) and game ({AppData.Instance.selectedGame})");
+        nextScene = MarsGameDefs.GAME_SCENES[2];
+        changeScene = true;
+
+    }
+    public void onClickTT()
+    {
+        AppData.Instance.SetGame(MarsGameDefs.GAMES[4]);
+        AppLogger.LogInfo($"Selected movement ({AppData.Instance.selectedMovement.name}) and game ({AppData.Instance.selectedGame})");
+        nextScene = MarsGameDefs.GAME_SCENES[4];
+        changeScene = true;
+    }
+    public void onClickPP()
+    {
+        AppData.Instance.SetGame(MarsGameDefs.GAMES[1]);
+        AppLogger.LogInfo($"Selected movement ({AppData.Instance.selectedMovement.name}) and game ({AppData.Instance.selectedGame})");
+        nextScene = MarsGameDefs.GAME_SCENES[1];
+        changeScene = true;
+    }
+    public void onClickSS()
+    {
+        AppData.Instance.SetGame(MarsGameDefs.GAMES[0]);
+        AppLogger.LogInfo($"Selected movement ({AppData.Instance.selectedMovement.name}) and game ({AppData.Instance.selectedGame})");
+        nextScene = MarsGameDefs.GAME_SCENES[0];
+        changeScene = true;
+    }
+    public void onClickMC()
+    {
+        AppData.Instance.SetGame(MarsGameDefs.GAMES[5]);
+        AppLogger.LogInfo($"Selected movement ({AppData.Instance.selectedMovement.name}) and game ({AppData.Instance.selectedGame})");
+        nextScene = MarsGameDefs.GAME_SCENES[5];
+        changeScene = true;
+    }
+    public void onClickClose()
+    {
+        if(ChooseGamePanel.activeSelf)ChooseGamePanel.SetActive(false);
+        AppLogger.SetCurrentMovement("");
+        AppLogger.SetCurrentGame("");
     }
 
     private void updateAssessmentStatusText()
@@ -358,11 +438,12 @@ public class MovementSceneHandler : MonoBehaviour
     void LoadNextScene()
     {
         AppLogger.LogInfo($"Switching scene to '{nextScene}'.");
-        SceneManager.LoadScene(nextScene);
+        SceneManager.LoadSceneAsync(nextScene);
     }
     
     IEnumerator LoadSummaryScene()
     {
+        
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(marsSetUp);
         while (!asyncLoad.isDone)
         {
@@ -372,7 +453,7 @@ public class MovementSceneHandler : MonoBehaviour
    
     public void OnExitButtonClicked()
     {
-        Debug.Log("exitbutton");
+      
         StartCoroutine(LoadSummaryScene());
     }
 

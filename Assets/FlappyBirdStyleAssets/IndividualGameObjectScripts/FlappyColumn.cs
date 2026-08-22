@@ -1,0 +1,36 @@
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class FlappyColumn : MonoBehaviour
+
+{
+    public AudioClip saw;
+    float prevSpawnTime = 0;
+
+    void Start()
+    {
+        GetComponent<AudioSource>().playOnAwake = false;
+        GetComponent<AudioSource>().clip = saw;
+    }
+
+    void Update()
+    {
+        prevSpawnTime += Time.deltaTime;
+    }
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (FlappyGameControl.Instance.isTargetMissed)
+            return;
+        if (collision.gameObject.tag == "Player" && collision.GetComponent<BirdControl>() != null && prevSpawnTime > 1)
+        {
+            prevSpawnTime = 0;
+           
+            FlappyGameControl.Instance.BirdScored();
+        }
+
+    }
+
+
+}

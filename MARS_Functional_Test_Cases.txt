@@ -1,0 +1,434 @@
+================================================================================
+        MARS-HOMER REHABILITATION ROBOT — FUNCTIONAL TEST CASES
+                          Version 2.0 | Date: 2026-07-30
+================================================================================
+
+Columns: ID | Test Case | Steps | Expected Result | Pass/Fail
+Priority: [C] = CRITICAL  [H] = HIGH  [M] = MEDIUM
+
+================================================================================
+1. LOGIN SCENE
+================================================================================
+
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+|  ID   | Test Case                   | Steps                                    | Expected Result                          | P / F  |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 1.1   | Valid HomerID login     [C] | Enter a known valid HomerID              | System authenticates, loads patient data |        |
+|       |                             | and submit                               | from S3, navigates to MAIN               |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 1.2   | Invalid HomerID         [C] | Enter a non-existent HomerID             | Clear error message shown, no crash,     |        |
+|       |                             | and submit                               | stays on login screen                    |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 1.3   | Network unavailable     [C] | Disconnect internet, attempt login       | Graceful "No network" error shown,       |        |
+|       |                             |                                          | app does not freeze or crash             |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 1.4   | First-time patient      [C] | Enter new HomerID, set ML=10 AP=10       | Config saved to configdata.csv,          |        |
+|       | setup — valid total         | MLAP=10 (total=30), set limb & location, | navigates to MAIN scene                  |        |
+|       |                             | confirm                                  |                                          |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 1.5   | Invalid time total      [H] | Set ML=15, AP=5, MLAP=5 (total=25),      | System blocks navigation, displays       |        |
+|       | rejected                    | try to confirm                           | "must total 30 minutes" warning          |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 1.6   | Config persists after   [H] | Complete config, close and reopen app,   | All values (limb, times, location)       |        |
+|       | restart                     | login same HomerID                       | restored correctly                       |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+
+================================================================================
+2. MAIN (DASHBOARD) SCENE
+================================================================================
+
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+|  ID   | Test Case                   | Steps                                    | Expected Result                          | P / F  |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 2.1   | Remaining time display  [C] | Login after partial session              | Shows correct remaining minutes for each |        |
+|       |                             |                                          | movement (prescribed minus used)         |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 2.2   | 7-day pie chart         [H] | Login as patient with 7 days history     | Charts reflect actual per-day data,      |        |
+|       |                             |                                          | not blank or zeroed                      |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 2.3   | Zero remaining time     [H] | Login as patient who used all minutes    | Dashboard shows 0 min remaining,         |        |
+|       |                             | today                                    | appropriate day-complete message shown   |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 2.4   | ARMBO button press      [C] | Press ARMBO from dashboard               | Navigates to ROBOTCALIB, no duplicate    |        |
+|       |                             |                                          | scene transition                         |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 2.5   | Fresh patient           [H] | First-ever login for new patient         | Charts show empty/zero state, no crash   |        |
+|       | (no history)                |                                          |                                          |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+
+================================================================================
+3. CALIBRATION SCENE (ROBOTCALIB)
+================================================================================
+
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+|  ID   | Test Case                   | Steps                                    | Expected Result                          | P / F  |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 3.1   | Robot connected at      [C] | Device powered on and Bluetooth paired   | Connection established, sensor stream    |        |
+|       | scene load                  | before scene loads                       | starts, green connection indicator       |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 3.2   | Robot not connected     [C] | Load ROBOTCALIB with device off or       | Error message shown, red indicator,      |        |
+|       |                             | unpaired                                 | no freeze or crash                       |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 3.3   | IMU angles all < 50°    [C] | Position robot flat (all IMU angles      | All 4 angle indicators green, ARMBO      |        |
+|       |                             | below 50°)                               | button enabled                           |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 3.4   | IMU angle exceeds 50°   [C] | Tilt robot so one axis exceeds 50°       | That angle indicator turns red, ARMBO    |        |
+|       |                             |                                          | button disabled                          |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 3.5   | Calibration trigger     [C] | Ensure all angles < 50°, press ARMBO    | Calibration command sent to robot,       |        |
+|       |                             |                                          | confirmation response received           |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 3.6   | Frame rate monitoring   [H] | Let calibration scene run for 10 s,      | Frame rate shown consistently > 85 Hz;  |        |
+|       |                             | observe frame rate display               | warning shown if it drops below 85 Hz    |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 3.7   | Bluetooth disconnects   [C] | Power off device during calibration      | Watchdog detects no data for 2 s,        |        |
+|       | mid-calibration             |                                          | marks disconnected, navigates to SUMMARY |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+
+================================================================================
+4. SET TRAINING PLANE SCENE (CHOOSEPLANE)
+================================================================================
+
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+|  ID   | Test Case                   | Steps                                    | Expected Result                          | P / F  |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 4.1   | Arm reaches -90°        [C] | Enter CHOOSEPLANE scene                  | Robot arm moves to -90°, confirmation    |        |
+|       |                             |                                          | message displayed on screen              |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 4.2   | Plane angle slider      [H] | Drag slider to various positions         | Displayed angle updates in real time     |        |
+|       |                             |                                          | and matches slider position exactly      |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 4.3   | Plane angle saved and   [H] | Set angle, confirm, return to scene      | Previously saved angle loaded from       |        |
+|       | persists                    | next session                             | trainingplane.csv correctly              |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+
+================================================================================
+5. MARS CONTROL SCENE (MARSSETUP — ARM ACTIVATION)
+================================================================================
+
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+|  ID   | Test Case                   | Steps                                    | Expected Result                          | P / F  |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 5.1   | Full activation         [C] | Attach patient limb correctly, follow    | State progresses: IDLE → ACTIVATE →      |        |
+|       | sequence                    | on-screen prompts                        | ATTACHARM → SETANGLE → DONE              |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 5.2   | Limb not attached       [C] | Skip attaching limb, try to proceed      | Force < 10 N threshold detected, system  |        |
+|       |                             |                                          | blocks progress or warns user            |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 5.3   | Arm weight check        [C] | Attach limb with correct force           | Force > ARM_WEIGHT_THRESHOLD (10 N)      |        |
+|       |                             |                                          | confirmed, proceeds to next step         |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 5.4   | Arm weight out of range [H] | Apply excessive or insufficient force    | OnArmWeightInOutofRange fires, user      |        |
+|       |                             |                                          | warned on screen                         |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 5.5   | Robot moves to training [C] | Complete limb attachment step            | Robot arm automatically moves to the     |        |
+|       | plane angle                 |                                          | stored training plane angle              |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 5.6   | State machine stuck     [H] | Interrupt mid-sequence (do not press     | System does not loop infinitely, shows   |        |
+|       | prevention                  | button at required step)                 | clear instruction prompt, waits safely   |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 5.7   | Bluetooth disconnects   [C] | Power off device during activation       | Disconnect detected within 2 s,          |        |
+|       | during setup                |                                          | navigates to SUMMARY, arm drops safely   |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+
+================================================================================
+6. CHOOSE MOVEMENT AND CHOOSE GAME
+================================================================================
+
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+|  ID   | Test Case                   | Steps                                    | Expected Result                          | P / F  |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 6.1   | Select ML movement      [C] | Tap ML button                            | ML selected, AROM status for ML shown    |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 6.2   | Select AP movement      [C] | Tap AP button                            | AP selected, AROM status for AP shown    |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 6.3   | Select MLAP movement    [C] | Tap MLAP button                          | MLAP selected, arm weight check          |        |
+|       |                             |                                          | triggered automatically                  |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 6.4   | Missing AROM forces     [C] | Select movement with no prior AROM data  | Navigates to AROM assessment scene       |        |
+|       | assessment                  |                                          | for that movement                        |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 6.5   | Valid AROM skips        [H] | Select movement with valid up-to-date    | Goes directly to game selection,         |        |
+|       | assessment                  | AROM data                                | no assessment triggered                  |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 6.6   | AROM mismatch forces    [H] | Change training plane angle, then select | System detects plane-angle mismatch,     |        |
+|       | reassessment                | movement with old AROM                   | re-triggers AROM assessment              |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 6.7   | All 6 games selectable  [H] | Cycle through SS, PP, DC, TT, TW, MC    | Each game selectable, correct icon       |        |
+|       |                             | buttons                                  | shown, no UI glitch                      |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 6.8   | ARMBO starts game       [C] | Select movement and game, press ARMBO    | Navigates to correct game scene          |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 6.9   | ARMBO without selection [H] | Press ARMBO before choosing movement     | Navigation blocked, user prompted        |        |
+|       | blocked                     | or game                                  | to make selection first                  |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+
+================================================================================
+7. AROM ASSESSMENT (AROMML / AROMAP / AROMMLAP)
+================================================================================
+
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+|  ID   | Test Case                   | Steps                                    | Expected Result                          | P / F  |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 7.1   | INIT to ASSESSROM       [C] | Enter AROM scene                         | Robot ready, "Press ARMBO to start"      |        |
+|       | transition                  |                                          | instruction shown                        |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 7.2   | Left boundary           [C] | Move arm to leftmost position, press     | Left boundary recorded in robot          |        |
+|       | detection                   | ARMBO                                    | coordinates, shown on screen             |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 7.3   | Right boundary          [C] | Move arm to rightmost position           | Right boundary recorded, right > left    |        |
+|       | detection                   |                                          | confirmed                                |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 7.4   | Top and bottom          [C] | Move arm to top and bottom limits        | Top > bottom confirmed, both values      |        |
+|       | boundaries (AP/MLAP)        | during AP or MLAP assessment             | stored correctly                         |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 7.5   | Boundary adjustment     [H] | Press L key, drag left boundary to a     | Boundary updates to new valid position,  |        |
+|       | L/R/T/B keys                | new valid position, release mouse        | displayed correctly on screen            |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 7.6   | Inverted boundary       [H] | Drag LEFT boundary past RIGHT boundary   | Adjustment rejected, boundary snaps back |        |
+|       | rejected (new fix)          | and release mouse                        | to last valid position, warning logged   |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 7.7   | Boundary clamped to     [H] | Drag boundary marker beyond the screen   | Boundary value clamped to robot          |        |
+|       | workspace limits (new fix)  | edge                                     | EPMINZ/EPMAXZ or EPMINY/EPMAXY limit     |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 7.8   | Save AROM               [C] | Press ARMBO after ADJUST step            | AROM written to file, state moves to     |        |
+|       |                             |                                          | DONE, navigates to game selection        |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 7.9   | Real-time trajectory    [H] | Move arm during assessment               | Trajectory line drawn on screen in real  |        |
+|       | display                     |                                          | time, current position shown             |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 7.10  | AROM reused next        [C] | Login next day with same training plane  | Previously saved AROM loaded from file,  |        |
+|       | session                     | angle                                    | assessment skipped                       |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 7.11  | Redo assessment resets  [M] | Complete assessment, press REDO button   | State resets to INIT, all trajectory     |        |
+|       | state                       |                                          | lines cleared, fresh assessment starts   |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+
+================================================================================
+8. GAME SCENES (ALL 6 GAMES: SS / PP / DC / TT / TW / MC)
+================================================================================
+
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+|  ID   | Test Case                   | Steps                                    | Expected Result                          | P / F  |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 8.1   | Arm-to-cursor full      [C] | Move arm through complete AROM range     | Game cursor moves from one screen edge   |        |
+|       | screen mapping              | left to right and top to bottom          | to the other proportionally              |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 8.2   | Hit detection           [C] | Move arm to target position during game  | Target counted as HIT, hit counter       |        |
+|       |                             |                                          | increments on screen                     |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 8.3   | Miss detection          [C] | Let a target pass without reaching it    | MISS counter increments, no false HIT    |        |
+|       |                             |                                          | registered                               |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 8.4   | Stars awarded on        [H] | Complete trial with > 80% success rate,  | Stars awarded correctly per threshold,   |        |
+|       | performance                 | check star count at trial end            | shown on summary                         |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 8.5   | Reach speed increases   [H] | Maintain > 90% success rate in a trial  | Robot reach speed increases by up to     |        |
+|       | on high performance         |                                          | +2.5% in next trial                      |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 8.6   | Reach speed decreases   [H] | Achieve < 80% success rate in a trial   | Robot reach speed decreases by up to     |        |
+|       | on low performance          |                                          | -2.5% in next trial                      |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 8.7   | Trial ends at           [C] | Start a game, wait for configured game   | Game ends automatically at correct time, |        |
+|       | configured duration         | duration                                 | data logging stops cleanly               |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 8.8   | Bluetooth disconnects   [C] | Power off device during active game      | Within 2 s: trial data saved to disk,   |        |
+|       | mid-game (new fix)          | trial                                    | session CSV written, app navigates       |        |
+|       |                             |                                          | to SUMMARY scene automatically           |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 8.9   | Battery warning (30%)   [H] | Run app with battery below 30% and not   | Warning panel shown, trial can still     |        |
+|       |                             | charging                                 | continue or exit cleanly                 |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 8.10  | ML game cursor moves    [C] | Select ML, start game, move arm          | Cursor moves left/right only, no         |        |
+|       | horizontally only           | medially and laterally                   | unintended vertical drift                |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 8.11  | AP game cursor moves    [C] | Select AP, start game, move arm          | Cursor moves up/down only, no            |        |
+|       | vertically only             | anteriorly and posteriorly               | unintended horizontal drift              |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 8.12  | Quit mid-trial          [H] | Press exit/quit button during active     | Trial ends, session row and partial raw  |        |
+|       |                             | trial                                    | data logged, returns to CHOOSEMOVE       |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 8.13  | Rapid double-tap ARMBO  [H] | Double-tap ARMBO fast at game start      | No duplicate trial row in sessions.csv,  |        |
+|       | no duplicate data           | or end                                   | no double scene transition               |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 8.14  | Idle timeout (60 s)     [H] | Hold arm still for 60+ seconds in        | Idle warning shown in error panel,       |        |
+|       |                             | POSITION control mode                    | session can be resumed or exited         |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 8.15  | Frame rate drops        [C] | Simulate Bluetooth interference          | Control mode forced to NONE              |        |
+|       | below 20 Hz                 | causing very slow data rate              | automatically, warning logged, arm safe  |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+
+================================================================================
+9. DATA LOGGING
+================================================================================
+
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+|  ID   | Test Case                   | Steps                                    | Expected Result                          | P / F  |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 9.1   | Session CSV row         [C] | Complete a full game trial               | sessions.csv has new row: SessionNumber, |        |
+|       | written correctly           |                                          | Movement, Game, SuccessRate, Targets,    |        |
+|       |                             |                                          | Hits, Misses, Stars, timestamps          |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 9.2   | Raw data CSV at ~100 Hz [C] | Complete a 3-minute trial, open raw      | ~18,000 rows with all ~40 columns,       |        |
+|       |                             | data file                                | no missing or duplicate packet numbers   |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 9.3   | Periodic flush every    [C] | Start trial, force-quit app after 20 s,  | Raw data file exists on disk with at     |        |
+|       | ~5 s (new fix)              | check raw data folder                    | least 15 s of data — not empty           |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 9.4   | Error log written       [H] | Trigger a robot error (e.g. angle jump)  | errorLog.csv row added: DateTime, Scene, |        |
+|       |                             |                                          | Movement, Error string                   |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 9.5   | Config data persists    [H] | Check configdata.csv after oneTimeConfig | File has correct HomerID, dates,         |        |
+|       |                             |                                          | movement durations, limb, location       |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 9.6   | AROM file saved         [H] | Complete AROM assessment                 | AROM raw file created in /rawdata        |        |
+|       |                             |                                          | with trajectory data and correct header  |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 9.7   | Arm weight file saved   [H] | Complete arm weight assessment (MLAP)    | armweight.csv has 5 position readings    |        |
+|       |                             |                                          | with force values                        |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 9.8   | S3 upload non-blocking  [H] | Complete trial with internet connected,  | App remains fully responsive during      |        |
+|       | (new fix)                   | observe app during upload                | upload, no freeze or UI stutter          |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 9.9   | S3 upload fails         [H] | Disable internet, complete trial         | Error logged, local file retained,       |        |
+|       | gracefully                  |                                          | no crash, app continues normally         |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 9.10  | Trial count increments  [H] | Run 3 trials in same session             | TrialNumberDay = 1, 2, 3 in sessions.csv |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 9.11  | Disconnect saves data   [C] | Power off device mid-game,               | Raw data file on disk contains all data  |        |
+|       | to disk (new fix)           | check raw data folder                    | up to disconnect; session CSV row        |        |
+|       |                             |                                          | written with actual hit/miss counts      |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+
+================================================================================
+10. SET TIME SCENE
+================================================================================
+
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+|  ID   | Test Case                   | Steps                                    | Expected Result                          | P / F  |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 10.1  | Valid time reallocation [H] | Set ML=10, AP=10, MLAP=10 (total=30),    | New times saved, reflected in dashboard  |        |
+|       |                             | confirm                                  | remaining time next session              |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 10.2  | Invalid total blocked   [H] | Set ML=20, AP=20, MLAP=20 (total=60),    | System blocks, "must total 30 minutes"   |        |
+|       |                             | try to confirm                           | message shown                            |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 10.3  | Disable movement        [H] | Try to enable a movement that has no     | Button disabled until AROM is completed  |        |
+|       | without AROM                | AROM completed                           | for that movement                        |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 10.4  | Slider min/max          [M] | Drag each slider to extreme positions    | Clamps at 10 min (min) and 30 min (max), |        |
+|       | boundaries enforced         |                                          | no value outside this range accepted     |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+
+================================================================================
+11. DIAGNOSTICS SCENE
+================================================================================
+
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+|  ID   | Test Case                   | Steps                                    | Expected Result                          | P / F  |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 11.1  | Real-time sensor        [H] | Enter DIAGNOSTICS with robot connected   | angle1-4, imuAngle1-4, force,            |        |
+|       | values displayed            |                                          | controlType all update in real time      |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 11.2  | Frame rate display      [H] | Monitor frame rate display for 30 s     | Frame rate shown consistently; drops     |        |
+|       |                             |                                          | below 85 Hz are flagged visually         |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 11.3  | Calibration test        [M] | Press calibrate button in diagnostics    | Calibration command sent, IMU angles     |        |
+|       |                             |                                          | reset to near zero                       |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+
+================================================================================
+12. END-TO-END SESSION WORKFLOW
+================================================================================
+
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+|  ID   | Test Case                   | Steps                                    | Expected Result                          | P / F  |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 12.1  | Full ML session         [C] | Login → MAIN → ROBOTCALIB →              | All scenes load in order, trial data in  |        |
+|       | (SS game)                   | CHOOSEPLANE → MARSSETUP →                | sessions.csv and rawdata, remaining      |        |
+|       |                             | Select ML → SS game → complete           | time decremented correctly               |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 12.2  | Full MLAP session       [C] | Full flow selecting MLAP, arm weight     | Arm weight file saved, AROM file saved,  |        |
+|       | with arm weight + AROM      | assessment, AROMMLAP, game trial         | trial data complete in all CSV files     |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 12.3  | Day completion          [H] | Use up all prescribed minutes for all    | Dashboard shows 0 remaining for all      |        |
+|       |                             | movements                                | movements, day summary displayed         |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 12.4  | Multi-day continuity    [H] | Complete session Day 1, login on Day 2   | SessionNumber = 2, 7-day chart updated,  |        |
+|       |                             |                                          | previous data preserved                  |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 12.5  | Multiple patients on    [C] | Login Patient A, complete trial, logout, | Patient B sees only their own data,      |        |
+|       | same device                 | login Patient B                          | Patient A data not visible or mixed      |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 12.6  | Scene navigation back   [H] | Press back at various scenes             | Returns to correct prior scene, robot    |        |
+|       |                             | mid-workflow                             | state left safe                          |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+
+================================================================================
+13. BLUETOOTH DISCONNECT AND SHUTDOWN FLOW  (new — based on firmware behavior)
+================================================================================
+
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+|  ID   | Test Case                   | Steps                                    | Expected Result                          | P / F  |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 13.1  | Disconnect mid-game     [C] | Power off device while game trial        | 1. Trial stopped, session CSV written    |        |
+|       | → SUMMARY → upload          | is running                               | 2. Raw data flushed to disk              |        |
+|       | → shutdown                  |                                          | 3. App navigates to SUMMARY              |        |
+|       |                             |                                          | 4. SUMMARY shows scores for 5 s         |        |
+|       |                             |                                          | 5. DATAUPLOADING runs, uploads new data  |        |
+|       |                             |                                          | 6. App shuts down cleanly                |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 13.2  | Disconnect in setup     [C] | Power off device during MARSSETUP,       | Disconnect detected within 2 s,          |        |
+|       | scene → SUMMARY             | ROBOTCALIB, or AROM scene                | navigates directly to SUMMARY scene      |        |
+|       |                             |                                          | (no error panel, no hang)                |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 13.3  | Watchdog fires when     [C] | Simulate Bluetooth connection drop       | Watchdog detects no packet for 2 s,      |        |
+|       | thread dies silently        | (IOException) without explicit           | forces isMARS = false, triggers          |        |
+|       |                             | disconnect event                         | disconnect recovery flow                 |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 13.4  | No new data → quit      [H] | Complete session, proceed to             | DATAUPLOADING reads uploadStatus.txt,    |        |
+|       | without upload              | DATAUPLOADING with no pending upload     | detects no_upload, calls ShutdownSystem  |        |
+|       |                             |                                          | immediately without running uploader     |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 13.5  | New data → upload →     [H] | Complete session with internet, proceed  | DATAUPLOADING reads upload_needed,       |        |
+|       | quit                        | to DATAUPLOADING                         | runs Python uploader with progress bar,  |        |
+|       |                             |                                          | on DONE calls ShutdownSystem             |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 13.6  | Upload fails → quit     [H] | Proceed to DATAUPLOADING with no         | DATAUPLOADING shows ERROR, calls         |        |
+|       |                             | internet but upload pending              | ShutdownSystem so app still exits        |        |
+|       |                             |                                          | cleanly, local data preserved            |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+| 13.7  | Arm drops safely on     [C] | Power off device at any point during     | Firmware drops arm to safe position      |        |
+|       | power loss                  | session                                  | automatically before any app response;   |        |
+|       |                             |                                          | verify arm reaches neutral/low position  |        |
++-------+-----------------------------+------------------------------------------+------------------------------------------+--------+
+
+================================================================================
+PRIORITY SUMMARY
+================================================================================
+
+  CRITICAL [C] — Must pass before any patient use
+    Login:       1.1, 1.2, 1.3, 1.4
+    Dashboard:   2.1, 2.4
+    Calibration: 3.1, 3.2, 3.3, 3.4, 3.5, 3.7
+    Plane:       4.1
+    Setup:       5.1, 5.2, 5.3, 5.5, 5.7
+    Movement:    6.1, 6.2, 6.3, 6.4, 6.8
+    AROM:        7.1, 7.2, 7.3, 7.4, 7.8, 7.10
+    Games:       8.1, 8.2, 8.3, 8.7, 8.8, 8.10, 8.11, 8.15
+    Data:        9.1, 9.2, 9.3, 9.11
+    E2E:         12.1, 12.2, 12.5
+    Disconnect:  13.1, 13.2, 13.3, 13.7
+
+  HIGH [H] — Must pass before deployment
+    1.5, 1.6, 2.2, 2.3, 2.5, 3.6, 4.2, 4.3, 5.4, 5.6, 6.5, 6.6, 6.7, 6.9,
+    7.5, 7.6, 7.7, 7.9, 8.4, 8.5, 8.6, 8.9, 8.12, 8.13, 8.14, 9.4, 9.5, 9.6,
+    9.7, 9.8, 9.9, 9.10, 10.1, 10.2, 10.3, 11.1, 11.2, 12.3, 12.4, 12.6,
+    13.4, 13.5, 13.6
+
+  MEDIUM [M] — Nice to have
+    7.11, 10.4, 11.3
+
+================================================================================
+TOTAL: 76 test cases  |  CRITICAL: 36  |  HIGH: 37  |  MEDIUM: 3
+================================================================================

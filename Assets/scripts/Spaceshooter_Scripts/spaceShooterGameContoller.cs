@@ -7,6 +7,8 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using static UnityEngine.GraphicsBuffer;
+//using UnityEngine.UIElements;
 
 
 public class SpaceShooterGameContoller : MonoBehaviour
@@ -17,8 +19,10 @@ public class SpaceShooterGameContoller : MonoBehaviour
     private readonly string robotCalibScene = "ROBOTCALIB";
     private readonly string marsSetUp = "MARSSETUP";
     public readonly string moveSelect = "CHOOSEMOVE";
-
+    private int[] scores;
     public GameObject gameOverPanel;
+    public AudioClip[] bgmClip;
+    public AudioSource bgAudioSource;
     public TextMeshProUGUI timerText;
     public TextMeshProUGUI scoreText;
     public GameObject gameSpeedControl;
@@ -27,9 +31,17 @@ public class SpaceShooterGameContoller : MonoBehaviour
     public float smoothFactor = 5f;
     public GameObject newSpaceshipPanel;
     public GameObject reminderPanel;
-    public TextMeshProUGUI cummulativeHitTxt;
+    public GameObject celebrationPanle;
+    public TextMeshProUGUI scoreComparisonTxt;
+    public TextMeshProUGUI yesterdayScoreTxt;
+    public TextMeshProUGUI todayScoreTxt;
+    public TextMeshProUGUI starCount;
+    public GameObject GameOverStar;
+    public GameObject star;
+    public int _starCount;
+    
     public bool Levelunlocked = false;
-
+    public float targetTime;
     private float gameTimeLeft;
     public static bool changeScene = false;
     private float eventDelayTimer = 0f; 
@@ -93,9 +105,10 @@ public class SpaceShooterGameContoller : MonoBehaviour
     public Vector3? targetGamePosition { get; private set; }
     public Vector3? targetEndPointPosition { get; private set; }
     public GameObject targetObject;
-
+    Vector3 gTarget;
     private void Awake()
     {
+        MarsComm.sendHeartbeat();
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
     }
@@ -103,7 +116,7 @@ public class SpaceShooterGameContoller : MonoBehaviour
     void Start()
     {
         MarsComm.sendHeartbeat();
-        
+
         // Initialize AppData if needed
         if (AppData.Instance.userData == null)
         {
@@ -137,10 +150,6 @@ public class SpaceShooterGameContoller : MonoBehaviour
             // Reload session details to get the latest data.
             AppData.Instance.userData.readParseSessionData(DataManager.sessionFile);
 
-            // Check of the required amount of trials for the selected movement is completed.
-            bool isRequiredTrialsCompleted = AppData.Instance.selectedMovement.trialNumberDay >= AppData.Instance.userData.moveTimePrsc[AppData.Instance.selectedMovement.name];
-            if (isRequiredTrialsCompleted) reminderPanel.SetActive(true);
-            else reminderPanel.SetActive(false);
 
             // Get game duration
             gameDuration = MarsGameDefs.GAMEDURATION["SS"];
@@ -148,7 +157,7 @@ public class SpaceShooterGameContoller : MonoBehaviour
             // Initialize the game speed controller.
             initializeGameSpeedController();
             gameSpeedControl.SetActive(false);
-            
+
             // Initialize the game GUI.
             startImage.SetActive(true);
             PauseImage.SetActive(false);
@@ -168,8 +177,17 @@ public class SpaceShooterGameContoller : MonoBehaviour
 
             AppLogger.LogInfo("Space Shooter Game initialized.");
         }
+        
+        updateStarCount();
+        scores = MarsGameDefs.Spaceshooter.GetScores();
+        if (MarsGameDefs.Spaceshooter.IsAchievedToday()) star.GetComponent<Image>().color = Color.white;
+        Debug.Log($"{scores[0]}/{scores[1]}");
+        AppLogger.LogInfo($"scores - yesterDayScore:{scores[1]} | TodayScore{scores[0]}");
     }
- 
+    public void updateStarCount()
+    {
+        starCount.text = $"{AppData.Instance.selectedGame.cummulativeStars.ToString("D2")}";
+    }
     // Update is called once per frame
     void Update()
     {
@@ -183,7 +201,7 @@ public class SpaceShooterGameContoller : MonoBehaviour
         else if (!isGamePaused && gameState == GameStates.PAUSED) ResumeGame();
 
         // Update Timer (show remaining time)
-        timerText.text = $"Time Left: {Mathf.CeilToInt(gameTimeLeft)}s";
+        timerText.text = $"TIMER:{Mathf.CeilToInt(gameTimeLeft)}s";
 
         // Track Restart
         if (changeScene && gameState == GameStates.STOP)
@@ -220,6 +238,15 @@ public class SpaceShooterGameContoller : MonoBehaviour
                 targetGamePosition = null;
                 targetEndPointPosition = null;
             }
+            else
+            {
+                targetGamePosition = GameObject.FindGameObjectWithTag("Asteroid").transform.position;
+                targetEndPointPosition = new Vector3(
+                0,
+                    SSPlayerController.unityYToRobotY(GameObject.FindGameObjectWithTag("Asteroid").transform.position.y),
+                    SSPlayerController.unityXToRobotZ(GameObject.FindGameObjectWithTag("Asteroid").transform.position.x)
+                );
+            }
         }
     }
 
@@ -233,13 +260,10 @@ public class SpaceShooterGameContoller : MonoBehaviour
     public void RunStateMachine()
     {
         bool isGamePlaying = gameState != GameStates.WAITING && gameState != GameStates.PAUSED && gameState != GameStates.STOP;
-        if (isGamePlaying)
-        {
-            scoreText.text = "SCORE:" + nSuccess.ToString();
-            gameTimeLeft -= Time.deltaTime;
-        }
+        scoreText.text = "SCORE:" + nSuccess.ToString();
+        bool isTimeUp = gameTimeLeft < 0;
+        if (isGamePlaying&&!isTimeUp) gameTimeLeft -= Time.deltaTime;
 
-        bool isTimeUp = gameTimeLeft < 0; 
         switch (gameState)
         {
             case GameStates.WAITING:
@@ -255,7 +279,7 @@ public class SpaceShooterGameContoller : MonoBehaviour
                 if (AsteroidSpawner.Instance == null) break;
                 if (!runOnce)
                 {
-                    Vector3 gTarget = AsteroidSpawner.Instance.SpawnAsteroid(
+                    gTarget = AsteroidSpawner.Instance.SpawnAsteroid(
                         xMin: SSPlayerController.xScreenMin,
                         xMax: SSPlayerController.xScreenMax
                     );
@@ -263,17 +287,18 @@ public class SpaceShooterGameContoller : MonoBehaviour
                     targetGamePosition = gTarget;
                     targetEndPointPosition = new Vector3(
                         0,
-                        0,
+                        SSPlayerController.unityYToRobotY(gTarget.y),
                         SSPlayerController.unityXToRobotZ(gTarget.x)
-                    );  // I do not like how we are doing this, and how conversions are handled in general.
-                    AsteroidFall.instance.SetFallSpeed(AppData.Instance.selectedGame.gameSpeed);
+                    );
+                    AsteroidFall.instance.setFallTime(AppData.Instance.selectedGame.gameParameter);
+                   
                     nTargets++;
                     eventDelayTimer = 0.05f;
                     runOnce = true;
                 }
                 else
                 {
-                    eventDelayTimer -= Time.deltaTime;
+                    eventDelayTimer -= Time.fixedDeltaTime;
                     if (eventDelayTimer <= 0f)
                     {
                         gameState = GameStates.MOVE;
@@ -282,15 +307,21 @@ public class SpaceShooterGameContoller : MonoBehaviour
                 }
                 break;
             case GameStates.MOVE:
+                targetTime += Time.fixedDeltaTime;
                 if (isSuccess)
                 {
+                    //Debug.Log($"{targetTime}targetTime");
                     gameState = GameStates.SUCCESS;
                     eventDelayTimer = 0.05f;
+                    targetTime = 0f;
                 }
                 if (isFailure)
                 {
+                    
+                    Debug.Log($"{targetTime}targetTime");
                     gameState = GameStates.FAILURE;
                     eventDelayTimer = 0.05f;
+                    targetTime = 0f;
                 }
                 break;
             case GameStates.PAUSED:
@@ -349,15 +380,34 @@ public class SpaceShooterGameContoller : MonoBehaviour
             int gametime = (int)(gameDuration - gameTimeLeft);
             AppData.Instance.gameTime = gametime;
             // Stop the current game trial
+            if ((scores[0] + nSuccess) > scores[1] && !AppData.Instance.selectedGame.isAchievedToday())
+            {
+                AppData.Instance.selectedGame.updateCummulativeStars();
+                celebrationPanle.SetActive(true);
+            }
+            
+            gameOverPanel.SetActive(!celebrationPanle.gameObject.activeSelf);
             AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
-
-            gameOverPanel.SetActive(true);
-            if (gameOverPanel.gameObject.activeSelf) cummulativeHitTxt.text = $"{AppData.Instance.selectedGame.cummulativeHits:D4}";
+            
+            if (gameOverPanel.gameObject.activeSelf)
+            {
+                GameOverStar.SetActive(AppData.Instance.selectedGame.isAchievedToday());
+                yesterdayScoreTxt.text = $"{scores[1]:D4}";
+                todayScoreTxt.text = $"{(scores[0]+nSuccess):D4}";
+            }
+            if (celebrationPanle.gameObject.activeSelf)
+            {
+                updateStarCount();
+                scoreComparisonTxt.text = $"{(scores[0] + nSuccess).ToString("D3")}";
+            }
+          
             AppLogger.LogInfo($"Space Shooter Game Over. Time: {gametime}s | Targets: {nTargets} | Hits: {nSuccess} | Misses: {nFailure}");
         }
         timerText.text = "Time: 0s";
         // Set game over state
-        isGameFinished = true; 
+        isGameFinished = true;
+        bool isRequiredTrialsCompleted = AppData.Instance.selectedMovement.trialNumberDay == AppData.Instance.userData.moveTimePrsc[AppData.Instance.selectedMovement.name];
+        if (isRequiredTrialsCompleted) { SceneManager.LoadSceneAsync("CHOOSEMOVE"); }
     }
     
     public void onClickExit()
@@ -366,6 +416,9 @@ public class SpaceShooterGameContoller : MonoBehaviour
         {
             gameOver();
         }
+        gameState = GameStates.DONE;
+        isGamePaused = false;
+        Time.timeScale = 1f;
         SceneManager.LoadScene("CHOOSEMOVE");
     }
     
@@ -388,18 +441,39 @@ public class SpaceShooterGameContoller : MonoBehaviour
 
         // Set game duration.
         gameTimeLeft = gameDuration;
-        AppLogger.LogInfo($"Space Shooter Game started for movement '{AppData.Instance.selectedMovement.name}'. Game Speed: {AppData.Instance.selectedGame.gameSpeed} | Duration: {gameDuration}s");
+        AppLogger.LogInfo($"Space Shooter Game started for movement '{AppData.Instance.selectedMovement.name}'. Game Speed: {AppData.Instance.selectedGame.gameParameter} | Duration: {gameDuration}s");
 
         // Remove game over and start panel.
         gameOverPanel.SetActive(false);
+        celebrationPanle.SetActive(false);
         startImage.SetActive(false);
+        //Set bgm based on location
+        switch (AppData.Instance.userData.GetDeviceLocation())
+        {
+            case "Ranipet":
+                bgAudioSource.clip = bgmClip[0];
+                bgAudioSource.Play();
+                break;
+            case "Manipal":
+                bgAudioSource.clip = bgmClip[1];
+                bgAudioSource.Play();
+                break;
+            case "Ludhiana":
+                bgAudioSource.clip = bgmClip[2];
+                bgAudioSource.Play();
+                break;
+            default:
+                bgAudioSource.clip = bgmClip[0];
+                bgAudioSource.Play();
+                break;
+        }
     }
 
     public void restartGame()
     {
         string currentSceneName = SceneManager.GetActiveScene().name;
         AppLogger.LogInfo($"The Game is Restarted '{currentSceneName}'.");
-        SceneManager.LoadScene(currentSceneName);
+        SceneManager.LoadSceneAsync(currentSceneName);
     }
 
     private void initializeGameSpeedController()
@@ -417,14 +491,14 @@ public class SpaceShooterGameContoller : MonoBehaviour
             gsc.increaseButton.onClick.AddListener(() => changeGameSpeed(true));
 
         // Set the initial game speed
-        gsc.gameSpeedText.text = $"{AppData.Instance.selectedGame.gameSpeed:F2}";
+        //gsc.gameSpeedText.text = $"{AppData.Instance.selectedGame.gameSpeed:F2}";
     }
     
     public void changeGameSpeed(bool increase)
     {
         float _rs = AppData.Instance.selectedGame.reachSpeed;
         AppData.Instance.selectedGame.reachSpeed = _rs + (increase ? MarsGameDefs.REACH_SPEED_DELTA : -MarsGameDefs.REACH_SPEED_DELTA);
-        AppData.Instance.annotation = $"RS:{AppData.Instance.selectedGame.reachSpeed:F3},GS:{AppData.Instance.selectedGame.gameSpeed:F3}";
+        AppData.Instance.annotation = $"RS:{AppData.Instance.selectedGame.reachSpeed:F3} | GS:{AppData.Instance.selectedGame.gameParameter:F3}";
     }
   
     private void OnApplicationQuit()

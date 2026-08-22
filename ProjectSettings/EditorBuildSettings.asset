@@ -5,12 +5,15 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
+  - enabled: 0
+    path: Assets/Scenes/DIAGNOSTICS.unity
+    guid: 2cda990e2423bbf4892e6590ba056729
+  - enabled: 1
+    path: Assets/Scenes/LOGIN.unity
+    guid: 0549c60c3b952214395409f890bdb682
   - enabled: 1
     path: Assets/Scenes/MAIN.unity
     guid: c7ef89ba1b51639479466d34da35d7a4
-  - enabled: 1
-    path: Assets/Scenes/DIAGNOSTICS.unity
-    guid: 2cda990e2423bbf4892e6590ba056729
   - enabled: 1
     path: Assets/Scenes/ROBOTCALIB.unity
     guid: 02b1b3a8a6ce6294faf928e79d71b01d
@@ -57,7 +60,28 @@ EditorBuildSettings:
     path: Assets/Scenes/ARMWEIGHT.unity
     guid: 85280a011d37b344fb30592ba5ffd312
   - enabled: 1
+    path: Assets/Scenes/Tuk-Tuk/TT.unity
+    guid: 9fc0d4010bbf28b4594072e72b8655ab
+  - enabled: 1
     path: Assets/Scenes/DiamondCatcher/DC.unity
     guid: ecbd15489db07464bb5f4b33fc18fd04
+  - enabled: 1
+    path: Assets/Scenes/DATAUPLOADING.unity
+    guid: 81f079930f59c8a4e8ababf3b0f3da68
+  - enabled: 0
+    path: Assets/Scenes/ASSESSAP.unity
+    guid: 0251d1e0d22902846b2bcd296f872508
+  - enabled: 1
+    path: Assets/Scenes/TableWipping/TW.unity
+    guid: cca85e76da1b0074991eef5a573f2e8a
+  - enabled: 1
+    path: Assets/Scenes/MatchCatch/MC.unity
+    guid: b5099d0684531604690e7ef2b603c7f5
+  - enabled: 1
+    path: Assets/Scenes/PLANMODE.unity
+    guid: c6d3b5057f19b2b47ad555fa17a49ae3
+  - enabled: 1
+    path: Assets/Scenes/SETTIME.unity
+    guid: 68b32ae8d2049f84789b348a91b90c8b
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0

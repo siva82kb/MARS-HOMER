@@ -32,6 +32,7 @@ public class SSPLayerCollisionHandler : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
+        if (!SpaceShooterGameContoller.Instance.isSuccess) return;
         // Check if the player is hit by an asteroid, and if not already destroyed.
         if (other.CompareTag("Asteroid") && !isDestroyed && !SpaceShooterGameContoller.Instance.isSuccess)
         {
